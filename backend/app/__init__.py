@@ -1,0 +1,1 @@
+"""Vedic AI Astrology API"""
