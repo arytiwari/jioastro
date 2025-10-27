@@ -17,9 +17,14 @@ async def create_profile(
 ):
     """Create a new birth profile"""
     try:
+        # Serialize date/time objects to JSON-compatible strings
+        profile_dict = profile_data.model_dump()
+        profile_dict['birth_date'] = profile_data.birth_date.isoformat()
+        profile_dict['birth_time'] = profile_data.birth_time.isoformat()
+
         profile = await supabase_service.create_profile(
             user_id=current_user["user_id"],
-            profile_data=profile_data.model_dump()
+            profile_data=profile_dict
         )
 
         if not profile:
