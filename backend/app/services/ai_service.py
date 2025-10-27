@@ -4,7 +4,7 @@ Generates personalized Vedic astrology interpretations using OpenAI GPT-4
 """
 
 from typing import Dict, Any
-from openai import OpenAI
+from openai import OpenAI, AzureOpenAI
 import os
 
 from app.core.config import settings
@@ -14,9 +14,21 @@ class AIInterpretationService:
     """Service for generating AI-powered astrological interpretations"""
 
     def __init__(self):
-        """Initialize OpenAI client"""
-        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
-        self.model = "gpt-4-turbo-preview"
+        """Initialize OpenAI or Azure OpenAI client"""
+        if settings.USE_AZURE_OPENAI:
+            # Use Azure OpenAI
+            self.client = AzureOpenAI(
+                api_key=settings.AZURE_OPENAI_API_KEY,
+                api_version=settings.AZURE_OPENAI_API_VERSION,
+                azure_endpoint=settings.AZURE_OPENAI_ENDPOINT
+            )
+            self.model = settings.AZURE_OPENAI_DEPLOYMENT  # Azure uses deployment name
+            print(f"✅ Using Azure OpenAI (deployment: {self.model})")
+        else:
+            # Use standard OpenAI
+            self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            self.model = "gpt-4-turbo-preview"
+            print("✅ Using OpenAI")
 
     def generate_interpretation(
         self,
