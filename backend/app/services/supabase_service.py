@@ -28,8 +28,7 @@ class SupabaseService:
             "id": str(uuid.uuid4()),
             "user_id": user_id,
             **profile_data,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat()
+            "created_at": datetime.utcnow().isoformat()
         }
 
         # If this is primary, unset other primary profiles
@@ -51,8 +50,6 @@ class SupabaseService:
 
     async def update_profile(self, profile_id: str, user_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Update a profile"""
-        update_data["updated_at"] = datetime.utcnow().isoformat()
-
         # If setting as primary, unset others
         if update_data.get("is_primary"):
             self.client.table("profiles").update({"is_primary": False}).eq("user_id", user_id).execute()
@@ -71,7 +68,7 @@ class SupabaseService:
         data = {
             "id": str(uuid.uuid4()),
             **chart_data,
-            "created_at": datetime.utcnow().isoformat()
+            "calculated_at": datetime.utcnow().isoformat()
         }
         response = self.client.table("charts").insert(data).execute()
         return response.data[0] if response.data else None

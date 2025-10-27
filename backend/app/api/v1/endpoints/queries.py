@@ -59,11 +59,19 @@ async def create_query(
         if not chart:
             # Calculate chart if it doesn't exist
             try:
+                # Parse date/time strings from database
+                from datetime import date, time
+                birth_date = date.fromisoformat(profile['birth_date'])
+                birth_time = time.fromisoformat(profile['birth_time'])
+
                 chart_data = astrology_service.calculate_birth_chart(
-                    birth_datetime=f"{profile['birth_date']}T{profile['birth_time']}",
-                    latitude=profile['latitude'],
-                    longitude=profile['longitude'],
-                    timezone=profile.get('timezone', 'UTC')
+                    name=profile['name'],
+                    birth_date=birth_date,
+                    birth_time=birth_time,
+                    latitude=float(profile['birth_lat']),
+                    longitude=float(profile['birth_lon']),
+                    timezone_str=profile.get('birth_timezone', 'UTC'),
+                    city=profile.get('birth_city', 'Unknown')
                 )
 
                 chart = await supabase_service.create_chart({
