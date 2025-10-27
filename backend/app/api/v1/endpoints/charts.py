@@ -46,24 +46,29 @@ async def calculate_chart(
 
         # Calculate new chart
         try:
+            # Parse date/time strings from database
+            from datetime import date, time
+            birth_date = date.fromisoformat(profile['birth_date'])
+            birth_time = time.fromisoformat(profile['birth_time'])
+
             if request.chart_type == "D1":
                 chart_data = astrology_service.calculate_birth_chart(
                     name=profile['name'],
-                    birth_date=profile['birth_date'],
-                    birth_time=profile['birth_time'],
-                    latitude=float(profile['latitude']),
-                    longitude=float(profile['longitude']),
-                    timezone_str=profile.get('timezone', 'UTC'),
+                    birth_date=birth_date,
+                    birth_time=birth_time,
+                    latitude=float(profile['birth_lat']),
+                    longitude=float(profile['birth_lon']),
+                    timezone_str=profile.get('birth_timezone', 'UTC'),
                     city=profile.get('birth_city', 'Unknown')
                 )
             elif request.chart_type == "D9":
                 chart_data = astrology_service.calculate_navamsa_chart(
                     name=profile['name'],
-                    birth_date=profile['birth_date'],
-                    birth_time=profile['birth_time'],
-                    latitude=float(profile['latitude']),
-                    longitude=float(profile['longitude']),
-                    timezone_str=profile.get('timezone', 'UTC'),
+                    birth_date=birth_date,
+                    birth_time=birth_time,
+                    latitude=float(profile['birth_lat']),
+                    longitude=float(profile['birth_lon']),
+                    timezone_str=profile.get('birth_timezone', 'UTC'),
                     city=profile.get('birth_city', 'Unknown')
                 )
             else:
