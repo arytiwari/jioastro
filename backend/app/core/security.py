@@ -33,10 +33,13 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 def verify_token(token: str) -> dict:
     """Verify JWT token and return payload"""
     try:
+        # Decode Supabase JWT token without audience verification
+        # Supabase tokens have audience claim set to "authenticated"
         payload = jwt.decode(
             token,
             settings.SUPABASE_JWT_SECRET,
-            algorithms=[settings.JWT_ALGORITHM]
+            algorithms=[settings.JWT_ALGORITHM],
+            options={"verify_aud": False}  # Skip audience verification for Supabase tokens
         )
         print(f"✅ Token verified successfully for user: {payload.get('sub')}")
         return payload
