@@ -21,8 +21,9 @@ class Settings(BaseSettings):
 
     # Supabase
     SUPABASE_URL: str
-    SUPABASE_KEY: str
-    SUPABASE_JWT_SECRET: str
+    SUPABASE_ANON_KEY: str = ""  # Public anon key (for client-side)
+    SUPABASE_SERVICE_ROLE_KEY: str = ""  # Service role key (for backend - bypasses RLS)
+    SUPABASE_JWT_SECRET: str  # JWT secret for token verification
 
     # OpenAI / Azure OpenAI
     OPENAI_API_KEY: str = ""
