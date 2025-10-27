@@ -38,8 +38,12 @@ def verify_token(token: str) -> dict:
             settings.SUPABASE_JWT_SECRET,
             algorithms=[settings.JWT_ALGORITHM]
         )
+        print(f"✅ Token verified successfully for user: {payload.get('sub')}")
         return payload
-    except JWTError:
+    except JWTError as e:
+        print(f"❌ JWT verification failed: {type(e).__name__}: {str(e)}")
+        print(f"Token (first 50 chars): {token[:50]}...")
+        print(f"JWT Secret (first 20 chars): {settings.SUPABASE_JWT_SECRET[:20]}...")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
