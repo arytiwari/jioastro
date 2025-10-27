@@ -24,8 +24,13 @@ class Settings(BaseSettings):
     SUPABASE_KEY: str
     SUPABASE_JWT_SECRET: str
 
-    # OpenAI
-    OPENAI_API_KEY: str
+    # OpenAI / Azure OpenAI
+    OPENAI_API_KEY: str = ""
+    AZURE_OPENAI_ENDPOINT: str = ""
+    AZURE_OPENAI_API_KEY: str = ""
+    AZURE_OPENAI_DEPLOYMENT: str = ""
+    AZURE_OPENAI_API_VERSION: str = "2024-02-15-preview"
+    USE_AZURE_OPENAI: bool = False
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
