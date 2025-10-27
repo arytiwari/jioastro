@@ -53,6 +53,7 @@ class VedicAstrologyService:
         """
 
         # Create AstrologicalSubject with Vedic (Sidereal) mode
+        # Note: Kerykeion 4.3.0 uses Lahiri ayanamsa by default for Sidereal
         subject = AstrologicalSubject(
             name=name,
             year=birth_date.year,
@@ -64,8 +65,7 @@ class VedicAstrologyService:
             lng=longitude,
             tz_str=timezone_str,
             city=city,
-            zodiac_type="Sidereal",  # Vedic astrology uses sidereal zodiac
-            sidereal_mode="LAHIRI"   # Lahiri Ayanamsa (most common in Vedic)
+            zodiac_type="Sidereal"  # Vedic astrology uses sidereal zodiac (Lahiri by default)
         )
 
         # Extract chart data
