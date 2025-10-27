@@ -14,12 +14,20 @@ class SupabaseService:
     """Service for database operations using Supabase REST API"""
 
     def __init__(self):
-        """Initialize Supabase client"""
+        """Initialize Supabase client with service role key (bypasses RLS for backend operations)"""
+        # Use service role key for backend operations - this bypasses Row Level Security
+        supabase_key = settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_ANON_KEY
+
+        if not supabase_key:
+            raise ValueError("SUPABASE_SERVICE_ROLE_KEY or SUPABASE_ANON_KEY must be set")
+
         self.client: Client = create_client(
             settings.SUPABASE_URL,
-            settings.SUPABASE_KEY
+            supabase_key
         )
-        print("✅ Supabase REST API client initialized")
+
+        key_type = "service_role" if settings.SUPABASE_SERVICE_ROLE_KEY else "anon"
+        print(f"✅ Supabase REST API client initialized (using {key_type} key)")
 
     # Profile operations
     async def create_profile(self, user_id: str, profile_data: Dict[str, Any]) -> Dict[str, Any]:
