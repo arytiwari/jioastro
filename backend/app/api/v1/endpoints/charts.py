@@ -68,25 +68,37 @@ async def calculate_chart(
             print(f"Parsed - birth_date: {birth_date} (type: {type(birth_date)})")
             print(f"Parsed - birth_time: {birth_time} (type: {type(birth_time)})")
 
+            # Ensure all parameters are in the correct format
+            latitude = float(str(profile['birth_lat']))  # Convert to string first, then float
+            longitude = float(str(profile['birth_lon']))
+            timezone_str = str(profile.get('birth_timezone') or 'UTC')  # Ensure it's a string
+            city = str(profile.get('birth_city') or 'Unknown')
+
+            print(f"Parameters for Kerykeion:")
+            print(f"  latitude: {latitude} (type: {type(latitude)})")
+            print(f"  longitude: {longitude} (type: {type(longitude)})")
+            print(f"  timezone_str: {timezone_str} (type: {type(timezone_str)})")
+            print(f"  city: {city} (type: {type(city)})")
+
             if request.chart_type == "D1":
                 chart_data = astrology_service.calculate_birth_chart(
                     name=profile['name'],
                     birth_date=birth_date,
                     birth_time=birth_time,
-                    latitude=float(profile['birth_lat']),
-                    longitude=float(profile['birth_lon']),
-                    timezone_str=profile.get('birth_timezone', 'UTC'),
-                    city=profile.get('birth_city', 'Unknown')
+                    latitude=latitude,
+                    longitude=longitude,
+                    timezone_str=timezone_str,
+                    city=city
                 )
             elif request.chart_type == "D9":
                 chart_data = astrology_service.calculate_navamsa_chart(
                     name=profile['name'],
                     birth_date=birth_date,
                     birth_time=birth_time,
-                    latitude=float(profile['birth_lat']),
-                    longitude=float(profile['birth_lon']),
-                    timezone_str=profile.get('birth_timezone', 'UTC'),
-                    city=profile.get('birth_city', 'Unknown')
+                    latitude=latitude,
+                    longitude=longitude,
+                    timezone_str=timezone_str,
+                    city=city
                 )
             else:
                 raise HTTPException(

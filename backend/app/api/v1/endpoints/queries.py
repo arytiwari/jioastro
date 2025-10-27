@@ -74,14 +74,20 @@ async def create_query(
                 else:
                     birth_time = profile['birth_time']
 
+                # Ensure all parameters are in the correct format
+                latitude = float(str(profile['birth_lat']))
+                longitude = float(str(profile['birth_lon']))
+                timezone_str = str(profile.get('birth_timezone') or 'UTC')
+                city = str(profile.get('birth_city') or 'Unknown')
+
                 chart_data = astrology_service.calculate_birth_chart(
                     name=profile['name'],
                     birth_date=birth_date,
                     birth_time=birth_time,
-                    latitude=float(profile['birth_lat']),
-                    longitude=float(profile['birth_lon']),
-                    timezone_str=profile.get('birth_timezone', 'UTC'),
-                    city=profile.get('birth_city', 'Unknown')
+                    latitude=latitude,
+                    longitude=longitude,
+                    timezone_str=timezone_str,
+                    city=city
                 )
 
                 chart = await supabase_service.create_chart({
