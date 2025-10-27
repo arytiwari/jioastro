@@ -81,9 +81,9 @@ class VedicAstrologyService:
                 }
             },
             "ascendant": {
-                "sign": subject.first_house.get("sign"),
-                "sign_num": subject.first_house.get("sign_num"),
-                "position": subject.first_house.get("position"),
+                "sign": getattr(subject.first_house, 'sign', 'Unknown'),
+                "sign_num": getattr(subject.first_house, 'sign_num', 0),
+                "position": getattr(subject.first_house, 'position', 0.0),
                 "house": 1
             },
             "planets": self._extract_planets(subject),
@@ -247,9 +247,9 @@ class VedicAstrologyService:
                 house_data = getattr(subject, house_attr)
                 houses.append({
                     "house_num": i,
-                    "sign": house_data.get("sign"),
-                    "sign_num": house_data.get("sign_num"),
-                    "position": house_data.get("position")
+                    "sign": getattr(house_data, 'sign', 'Unknown'),
+                    "sign_num": getattr(house_data, 'sign_num', 0),
+                    "position": getattr(house_data, 'position', 0.0)
                 })
 
         return houses
