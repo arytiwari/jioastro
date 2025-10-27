@@ -1,191 +1,196 @@
-"""Chart API Endpoints"""
+"""Chart API Endpoints - Using Supabase REST API"""
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from uuid import UUID
 
-from app.db.database import get_db
-from app.models.profile import Profile
-from app.models.chart import Chart
 from app.schemas.chart import ChartCalculateRequest, ChartResponse
 from app.core.security import get_current_user
 from app.services.astrology import astrology_service
+from app.services.supabase_service import supabase_service
 
 router = APIRouter()
 
 
-@router.post("/calculate", response_model=ChartResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/calculate", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def calculate_chart(
     request: ChartCalculateRequest,
-    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """
     Calculate and cache a birth chart (D1 or D9)
     If chart already exists, return cached version
     """
-
-    # Verify profile belongs to user
-    result = await db.execute(
-        select(Profile).where(
-            Profile.id == request.profile_id,
-            Profile.user_id == UUID(current_user["user_id"])
-        )
-    )
-
-    profile = result.scalar_one_or_none()
-
-    if not profile:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
-        )
-
-    # Check if chart already exists
-    chart_result = await db.execute(
-        select(Chart).where(
-            Chart.profile_id == request.profile_id,
-            Chart.chart_type == request.chart_type
-        )
-    )
-
-    existing_chart = chart_result.scalar_one_or_none()
-
-    if existing_chart:
-        # Return cached chart
-        return existing_chart
-
-    # Calculate new chart
     try:
-        if request.chart_type == "D1":
-            chart_data = astrology_service.calculate_birth_chart(
-                name=profile.name,
-                birth_date=profile.birth_date,
-                birth_time=profile.birth_time,
-                latitude=float(profile.birth_lat),
-                longitude=float(profile.birth_lon),
-                timezone_str=profile.birth_timezone or "UTC",
-                city=profile.birth_city or "Unknown"
-            )
-        elif request.chart_type == "D9":
-            chart_data = astrology_service.calculate_navamsa_chart(
-                name=profile.name,
-                birth_date=profile.birth_date,
-                birth_time=profile.birth_time,
-                latitude=float(profile.birth_lat),
-                longitude=float(profile.birth_lon),
-                timezone_str=profile.birth_timezone or "UTC",
-                city=profile.birth_city or "Unknown"
-            )
-        else:
+        user_id = current_user["user_id"]
+
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=request.profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid chart type. Use 'D1' or 'D9'"
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
             )
 
+        # Check if chart already exists
+        existing_chart = await supabase_service.get_chart(
+            profile_id=request.profile_id,
+            chart_type=request.chart_type
+        )
+
+        if existing_chart:
+            # Return cached chart
+            return existing_chart
+
+        # Calculate new chart
+        try:
+            if request.chart_type == "D1":
+                chart_data = astrology_service.calculate_birth_chart(
+                    name=profile['name'],
+                    birth_date=profile['birth_date'],
+                    birth_time=profile['birth_time'],
+                    latitude=float(profile['latitude']),
+                    longitude=float(profile['longitude']),
+                    timezone_str=profile.get('timezone', 'UTC'),
+                    city=profile.get('birth_city', 'Unknown')
+                )
+            elif request.chart_type == "D9":
+                chart_data = astrology_service.calculate_navamsa_chart(
+                    name=profile['name'],
+                    birth_date=profile['birth_date'],
+                    birth_time=profile['birth_time'],
+                    latitude=float(profile['latitude']),
+                    longitude=float(profile['longitude']),
+                    timezone_str=profile.get('timezone', 'UTC'),
+                    city=profile.get('birth_city', 'Unknown')
+                )
+            else:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid chart type. Use 'D1' or 'D9'"
+                )
+        except Exception as e:
+            print(f"Error calculating chart: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Chart calculation failed: {str(e)}"
+            )
+
+        # Save chart to database
+        new_chart = await supabase_service.create_chart({
+            "profile_id": request.profile_id,
+            "chart_type": request.chart_type,
+            "chart_data": chart_data,
+            "chart_svg": None  # Will be generated by frontend for MVP
+        })
+
+        if not new_chart:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to save chart"
+            )
+
+        return new_chart
+
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Error in calculate_chart: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Chart calculation failed: {str(e)}"
+            detail=f"Failed to process chart calculation: {str(e)}"
         )
 
-    # Save chart to database
-    new_chart = Chart(
-        profile_id=request.profile_id,
-        chart_type=request.chart_type,
-        chart_data=chart_data,
-        chart_svg=None  # Will be generated by frontend for MVP
-    )
 
-    db.add(new_chart)
-    await db.commit()
-    await db.refresh(new_chart)
-
-    return new_chart
-
-
-@router.get("/{profile_id}/{chart_type}", response_model=ChartResponse)
+@router.get("/{profile_id}/{chart_type}", response_model=dict)
 async def get_chart(
-    profile_id: UUID,
+    profile_id: str,
     chart_type: str,
-    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """Get a specific chart (D1 or D9)"""
+    try:
+        user_id = current_user["user_id"]
 
-    # Verify profile belongs to user
-    profile_result = await db.execute(
-        select(Profile).where(
-            Profile.id == profile_id,
-            Profile.user_id == UUID(current_user["user_id"])
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
         )
-    )
 
-    profile = profile_result.scalar_one_or_none()
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
 
-    if not profile:
+        # Get chart
+        chart = await supabase_service.get_chart(
+            profile_id=profile_id,
+            chart_type=chart_type
+        )
+
+        if not chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Chart {chart_type} not found. Please calculate it first."
+            )
+
+        return chart
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting chart: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get chart: {str(e)}"
         )
-
-    # Get chart
-    chart_result = await db.execute(
-        select(Chart).where(
-            Chart.profile_id == profile_id,
-            Chart.chart_type == chart_type
-        )
-    )
-
-    chart = chart_result.scalar_one_or_none()
-
-    if not chart:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Chart {chart_type} not found. Please calculate it first."
-        )
-
-    return chart
 
 
 @router.delete("/{profile_id}/{chart_type}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_chart(
-    profile_id: UUID,
+    profile_id: str,
     chart_type: str,
-    db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
     """Delete a cached chart (will be recalculated on next request)"""
+    try:
+        user_id = current_user["user_id"]
 
-    # Verify profile belongs to user
-    profile_result = await db.execute(
-        select(Profile).where(
-            Profile.id == profile_id,
-            Profile.user_id == UUID(current_user["user_id"])
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
         )
-    )
 
-    profile = profile_result.scalar_one_or_none()
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
 
-    if not profile:
+        # Delete chart
+        deleted = await supabase_service.delete_chart(
+            profile_id=profile_id,
+            chart_type=chart_type
+        )
+
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Chart {chart_type} not found"
+            )
+
+        return None
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting chart: {str(e)}")
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile not found"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete chart: {str(e)}"
         )
-
-    # Get and delete chart
-    chart_result = await db.execute(
-        select(Chart).where(
-            Chart.profile_id == profile_id,
-            Chart.chart_type == chart_type
-        )
-    )
-
-    chart = chart_result.scalar_one_or_none()
-
-    if chart:
-        await db.delete(chart)
-        await db.commit()
-
-    return None
