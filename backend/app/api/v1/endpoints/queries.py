@@ -60,9 +60,19 @@ async def create_query(
             # Calculate chart if it doesn't exist
             try:
                 # Parse date/time strings from database
-                from datetime import date, time
-                birth_date = date.fromisoformat(profile['birth_date'])
-                birth_time = time.fromisoformat(profile['birth_time'])
+                from datetime import date, time, datetime
+
+                # Handle different date/time formats from Supabase
+                if isinstance(profile['birth_date'], str):
+                    birth_date = datetime.fromisoformat(profile['birth_date']).date()
+                else:
+                    birth_date = profile['birth_date']
+
+                if isinstance(profile['birth_time'], str):
+                    # Parse time string - could be HH:MM:SS or just HH:MM
+                    birth_time = datetime.fromisoformat(f"2000-01-01T{profile['birth_time']}").time()
+                else:
+                    birth_time = profile['birth_time']
 
                 chart_data = astrology_service.calculate_birth_chart(
                     name=profile['name'],

@@ -47,9 +47,26 @@ async def calculate_chart(
         # Calculate new chart
         try:
             # Parse date/time strings from database
-            from datetime import date, time
-            birth_date = date.fromisoformat(profile['birth_date'])
-            birth_time = time.fromisoformat(profile['birth_time'])
+            from datetime import date, time, datetime
+
+            # Debug: print what we're getting
+            print(f"Profile data - birth_date: {profile['birth_date']} (type: {type(profile['birth_date'])})")
+            print(f"Profile data - birth_time: {profile['birth_time']} (type: {type(profile['birth_time'])})")
+
+            # Handle different date/time formats from Supabase
+            if isinstance(profile['birth_date'], str):
+                birth_date = datetime.fromisoformat(profile['birth_date']).date()
+            else:
+                birth_date = profile['birth_date']
+
+            if isinstance(profile['birth_time'], str):
+                # Parse time string - could be HH:MM:SS or just HH:MM
+                birth_time = datetime.fromisoformat(f"2000-01-01T{profile['birth_time']}").time()
+            else:
+                birth_time = profile['birth_time']
+
+            print(f"Parsed - birth_date: {birth_date} (type: {type(birth_date)})")
+            print(f"Parsed - birth_time: {birth_time} (type: {type(birth_time)})")
 
             if request.chart_type == "D1":
                 chart_data = astrology_service.calculate_birth_chart(
