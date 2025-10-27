@@ -69,12 +69,14 @@ async def calculate_chart(
             print(f"Parsed - birth_time: {birth_time} (type: {type(birth_time)})")
 
             # Ensure all parameters are in the correct format
+            name = str(profile['name'])  # Ensure name is a string
             latitude = float(str(profile['birth_lat']))  # Convert to string first, then float
             longitude = float(str(profile['birth_lon']))
             timezone_str = str(profile.get('birth_timezone') or 'UTC')  # Ensure it's a string
             city = str(profile.get('birth_city') or 'Unknown')
 
             print(f"Parameters for Kerykeion:")
+            print(f"  name: {name} (type: {type(name)})")
             print(f"  latitude: {latitude} (type: {type(latitude)})")
             print(f"  longitude: {longitude} (type: {type(longitude)})")
             print(f"  timezone_str: {timezone_str} (type: {type(timezone_str)})")
@@ -82,7 +84,7 @@ async def calculate_chart(
 
             if request.chart_type == "D1":
                 chart_data = astrology_service.calculate_birth_chart(
-                    name=profile['name'],
+                    name=name,
                     birth_date=birth_date,
                     birth_time=birth_time,
                     latitude=latitude,
@@ -92,7 +94,7 @@ async def calculate_chart(
                 )
             elif request.chart_type == "D9":
                 chart_data = astrology_service.calculate_navamsa_chart(
-                    name=profile['name'],
+                    name=name,
                     birth_date=birth_date,
                     birth_time=birth_time,
                     latitude=latitude,
@@ -106,7 +108,10 @@ async def calculate_chart(
                     detail="Invalid chart type. Use 'D1' or 'D9'"
                 )
         except Exception as e:
+            import traceback
             print(f"Error calculating chart: {str(e)}")
+            print("Full traceback:")
+            traceback.print_exc()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Chart calculation failed: {str(e)}"
