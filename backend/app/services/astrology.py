@@ -269,8 +269,8 @@ class VedicAstrologyService:
         # 1. Raj Yoga: Lords of 9th and 10th in Kendra (1, 4, 7, 10)
         # Simplified check: if Jupiter (natural 9th lord) and Saturn (natural 10th lord) are strong
         if planets.get("Jupiter") and planets.get("Saturn"):
-            jupiter_house = planets["Jupiter"]["house"]
-            saturn_house = planets["Saturn"]["house"]
+            jupiter_house = int(planets["Jupiter"]["house"]) if planets["Jupiter"]["house"] else 0
+            saturn_house = int(planets["Saturn"]["house"]) if planets["Saturn"]["house"] else 0
 
             if jupiter_house in [1, 4, 7, 10] and saturn_house in [1, 4, 7, 10]:
                 yogas.append({
@@ -281,7 +281,9 @@ class VedicAstrologyService:
 
         # 2. Dhana Yoga: Wealth combinations
         if planets.get("Jupiter") and planets.get("Venus"):
-            if planets["Jupiter"]["house"] == planets["Venus"]["house"]:
+            jupiter_house = int(planets["Jupiter"]["house"]) if planets["Jupiter"]["house"] else 0
+            venus_house = int(planets["Venus"]["house"]) if planets["Venus"]["house"] else 0
+            if jupiter_house == venus_house and jupiter_house > 0:
                 yogas.append({
                     "name": "Dhana Yoga",
                     "description": "Jupiter and Venus conjunction indicates wealth and prosperity.",
@@ -290,8 +292,8 @@ class VedicAstrologyService:
 
         # 3. Budhaditya Yoga: Sun-Mercury conjunction
         if planets.get("Sun") and planets.get("Mercury"):
-            sun_pos = planets["Sun"]["position"]
-            mercury_pos = planets["Mercury"]["position"]
+            sun_pos = float(planets["Sun"]["position"]) if planets["Sun"]["position"] else 0
+            mercury_pos = float(planets["Mercury"]["position"]) if planets["Mercury"]["position"] else 0
 
             if abs(sun_pos - mercury_pos) < 10:  # Within 10 degrees
                 yogas.append({
@@ -302,7 +304,9 @@ class VedicAstrologyService:
 
         # 4. Chandra-Mangala Yoga: Moon-Mars conjunction
         if planets.get("Moon") and planets.get("Mars"):
-            if planets["Moon"]["house"] == planets["Mars"]["house"]:
+            moon_house = int(planets["Moon"]["house"]) if planets["Moon"]["house"] else 0
+            mars_house = int(planets["Mars"]["house"]) if planets["Mars"]["house"] else 0
+            if moon_house == mars_house and moon_house > 0:
                 yogas.append({
                     "name": "Chandra-Mangala Yoga",
                     "description": "Moon-Mars combination indicates determination, courage, and material success.",
@@ -311,17 +315,18 @@ class VedicAstrologyService:
 
         # 5. Gaja Kesari Yoga: Jupiter in Kendra from Moon
         if planets.get("Jupiter") and planets.get("Moon"):
-            jupiter_house = planets["Jupiter"]["house"]
-            moon_house = planets["Moon"]["house"]
+            jupiter_house = int(planets["Jupiter"]["house"]) if planets["Jupiter"]["house"] else 0
+            moon_house = int(planets["Moon"]["house"]) if planets["Moon"]["house"] else 0
 
-            # Check if Jupiter is in 1st, 4th, 7th, or 10th from Moon
-            house_diff = (jupiter_house - moon_house) % 12
-            if house_diff in [0, 3, 6, 9]:  # Kendra relationship
-                yogas.append({
-                    "name": "Gaja Kesari Yoga",
-                    "description": "Jupiter in angle from Moon - brings wisdom, prosperity, and good fortune.",
-                    "strength": "Strong"
-                })
+            if jupiter_house > 0 and moon_house > 0:
+                # Check if Jupiter is in 1st, 4th, 7th, or 10th from Moon
+                house_diff = (jupiter_house - moon_house) % 12
+                if house_diff in [0, 3, 6, 9]:  # Kendra relationship
+                    yogas.append({
+                        "name": "Gaja Kesari Yoga",
+                        "description": "Jupiter in angle from Moon - brings wisdom, prosperity, and good fortune.",
+                        "strength": "Strong"
+                    })
 
         # 6. Neecha Bhanga Raja Yoga: Cancellation of debilitation
         # Simplified: Check if debilitated planet's lord is in Kendra
