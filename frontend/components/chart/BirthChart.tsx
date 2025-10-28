@@ -138,75 +138,77 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
     return '#f3f4f6' // Light gray
   }
 
-  // North Indian chart house positions (diamond layout)
-  // Traditional Vedic North Indian chart - FIXED house positions
-  // House 1 (Ascendant/Lagna) always at TOP
+  // Traditional North Indian Vedic Chart Layout
+  // FIXED house positions - Signs rotate based on Ascendant
+  // House 1 (Lagna) is ALWAYS at top, houses go counter-clockwise
   const getHousePolygon = (houseNum: number) => {
     const half = size / 2
     const quarter = size / 4
 
-    // Standard North Indian diamond chart
-    // The chart is a square rotated 45 degrees, divided into 12 sections
+    // North Indian Diamond Chart - Traditional Layout
+    // Based on standard Vedic astrology format
     const positions: Record<number, string> = {
-      // House 1 - Top center (Ascendant - always here)
+      // House 1 - TOP (Ascendant/Lagna - FIXED position)
       1: `${centerX - quarter},${centerY - quarter} ${centerX},${centerY - half} ${centerX + quarter},${centerY - quarter}`,
 
-      // House 2 - Top right
-      2: `${centerX},${centerY - half} ${centerX + half},${centerY} ${centerX + quarter},${centerY - quarter}`,
+      // House 2 - Upper right side
+      2: `${centerX + quarter},${centerY - quarter} ${centerX},${centerY - half} ${centerX + half},${centerY}`,
 
-      // House 3 - Right side upper
-      3: `${centerX + quarter},${centerY - quarter} ${centerX + half},${centerY} ${centerX + quarter},${centerY}`,
+      // House 3 - Right side
+      3: `${centerX + quarter},${centerY - quarter} ${centerX + half},${centerY} ${centerX + quarter},${centerY + quarter}`,
 
-      // House 4 - Right side lower
-      4: `${centerX + quarter},${centerY} ${centerX + half},${centerY} ${centerX + quarter},${centerY + quarter}`,
+      // House 4 - Lower right side
+      4: `${centerX + quarter},${centerY + quarter} ${centerX + half},${centerY} ${centerX},${centerY + half}`,
 
-      // House 5 - Bottom right
-      5: `${centerX + quarter},${centerY + quarter} ${centerX + half},${centerY} ${centerX},${centerY + half}`,
+      // House 5 - Bottom right area
+      5: `${centerX + quarter},${centerY + quarter} ${centerX},${centerY + half} ${centerX},${centerY}`,
 
-      // House 6 - Bottom center
-      6: `${centerX + quarter},${centerY + quarter} ${centerX},${centerY + half} ${centerX - quarter},${centerY + quarter}`,
+      // House 6 - BOTTOM
+      6: `${centerX - quarter},${centerY + quarter} ${centerX},${centerY + half} ${centerX + quarter},${centerY + quarter}`,
 
-      // House 7 - Bottom left
-      7: `${centerX},${centerY + half} ${centerX - half},${centerY} ${centerX - quarter},${centerY + quarter}`,
+      // House 7 - Bottom left area
+      7: `${centerX - quarter},${centerY + quarter} ${centerX},${centerY} ${centerX},${centerY + half}`,
 
-      // House 8 - Left side lower
-      8: `${centerX - quarter},${centerY + quarter} ${centerX - half},${centerY} ${centerX - quarter},${centerY}`,
+      // House 8 - Lower left side
+      8: `${centerX - quarter},${centerY + quarter} ${centerX - half},${centerY} ${centerX},${centerY + half}`,
 
-      // House 9 - Left side upper
-      9: `${centerX - quarter},${centerY} ${centerX - half},${centerY} ${centerX - quarter},${centerY - quarter}`,
+      // House 9 - Left side
+      9: `${centerX - quarter},${centerY - quarter} ${centerX - quarter},${centerY + quarter} ${centerX - half},${centerY}`,
 
-      // House 10 - Top left
+      // House 10 - Upper left side
       10: `${centerX - quarter},${centerY - quarter} ${centerX - half},${centerY} ${centerX},${centerY - half}`,
 
       // House 11 - Center lower right
-      11: `${centerX},${centerY} ${centerX + quarter},${centerY} ${centerX + quarter},${centerY + quarter} ${centerX},${centerY + quarter}`,
+      11: `${centerX},${centerY} ${centerX + quarter},${centerY + quarter} ${centerX},${centerY + quarter}`,
 
       // House 12 - Center lower left
-      12: `${centerX - quarter},${centerY} ${centerX},${centerY} ${centerX},${centerY + quarter} ${centerX - quarter},${centerY + quarter}`
+      12: `${centerX - quarter},${centerY + quarter} ${centerX},${centerY} ${centerX},${centerY + quarter}`
     }
 
     return positions[houseNum] || ''
   }
 
   // Get text position for house number and planets
+  // Positions match the traditional North Indian chart layout
   const getTextPosition = (houseNum: number) => {
     const half = size / 2
     const quarter = size / 4
     const eighth = size / 8
+    const sixteenth = size / 16
 
     const positions: Record<number, { x: number; y: number }> = {
-      1: { x: centerX, y: centerY - half + quarter / 2 },           // Top center
-      2: { x: centerX + quarter + eighth, y: centerY - quarter },   // Top right
-      3: { x: centerX + quarter + eighth, y: centerY - eighth },    // Right upper
-      4: { x: centerX + quarter + eighth, y: centerY + eighth },    // Right lower
-      5: { x: centerX + quarter, y: centerY + quarter + eighth },   // Bottom right
-      6: { x: centerX, y: centerY + half - quarter / 2 },           // Bottom center
-      7: { x: centerX - quarter, y: centerY + quarter + eighth },   // Bottom left
-      8: { x: centerX - quarter - eighth, y: centerY + eighth },    // Left lower
-      9: { x: centerX - quarter - eighth, y: centerY - eighth },    // Left upper
-      10: { x: centerX - quarter - eighth, y: centerY - quarter },  // Top left
-      11: { x: centerX + eighth, y: centerY + eighth },             // Center lower right
-      12: { x: centerX - eighth, y: centerY + eighth }              // Center lower left
+      1: { x: centerX, y: centerY - half + quarter / 1.5 },           // House 1 - Top
+      2: { x: centerX + quarter + sixteenth, y: centerY - quarter },  // House 2 - Upper right
+      3: { x: centerX + half - sixteenth * 2, y: centerY },           // House 3 - Right
+      4: { x: centerX + quarter + sixteenth, y: centerY + quarter },  // House 4 - Lower right
+      5: { x: centerX + eighth, y: centerY + quarter },               // House 5 - Bottom right area
+      6: { x: centerX, y: centerY + half - quarter / 1.5 },           // House 6 - Bottom
+      7: { x: centerX - eighth, y: centerY + quarter },               // House 7 - Bottom left area
+      8: { x: centerX - quarter - sixteenth, y: centerY + quarter },  // House 8 - Lower left
+      9: { x: centerX - half + sixteenth * 2, y: centerY },           // House 9 - Left
+      10: { x: centerX - quarter - sixteenth, y: centerY - quarter }, // House 10 - Upper left
+      11: { x: centerX + eighth, y: centerY + eighth * 1.5 },         // House 11 - Center lower right
+      12: { x: centerX - eighth, y: centerY + eighth * 1.5 }          // House 12 - Center lower left
     }
 
     return positions[houseNum] || { x: centerX, y: centerY }
