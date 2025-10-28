@@ -28,6 +28,7 @@ interface BirthChartProps {
   chartData: ChartData
   width?: number
   height?: number
+  chartType?: string // D1 or D9 for debugging/key
 }
 
 const ZODIAC_SIGNS = [
@@ -47,10 +48,10 @@ const PLANET_SYMBOLS: Record<string, string> = {
   Ketu: '☋'
 }
 
-export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartProps) {
+export function BirthChart({ chartData, width = 500, height = 500, chartType = 'Unknown' }: BirthChartProps) {
   // Validate chart data - ensure all required fields exist
   if (!chartData) {
-    console.error('BirthChart: chartData is null or undefined')
+    console.error(`BirthChart (${chartType}): chartData is null or undefined`)
     return (
       <div className="flex items-center justify-center p-8 text-gray-500">
         <p>No chart data available</p>
@@ -59,7 +60,13 @@ export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartP
   }
 
   // Debug log to see what we're receiving
-  console.log('BirthChart received data:', JSON.stringify(chartData, null, 2))
+  console.log(`BirthChart (${chartType}) received data:`, {
+    chart_type: chartData.chart_type || chartType,
+    ascendant: chartData.ascendant,
+    planet_count: Object.keys(chartData.planets || {}).length,
+    house_count: (chartData.houses || []).length,
+    planets_sample: Object.entries(chartData.planets || {}).slice(0, 2)
+  })
 
   if (!chartData.houses || !Array.isArray(chartData.houses) || chartData.houses.length === 0) {
     console.error('BirthChart: houses field is missing or invalid:', chartData.houses)
@@ -96,7 +103,12 @@ export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartP
   const size = Math.min(width, height) * 0.85
 
   // Group planets by house with full details
-  const planetsByHouse: Record<number, Array<{ name: string; symbol: string; retrograde: boolean }>> = {}
+  const planetsByHouse: Record<number, Array<{
+    name: string
+    symbol: string
+    sign: string
+    retrograde: boolean
+  }>> = {}
 
   Object.entries(chartData.planets).forEach(([planetName, planetData]) => {
     const house = planetData.house
@@ -107,6 +119,7 @@ export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartP
     planetsByHouse[house].push({
       name: planetName,
       symbol: symbol,
+      sign: planetData.sign,
       retrograde: planetData.retrograde || false
     })
   })
@@ -246,26 +259,49 @@ export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartP
         {/* Add planets */}
         {Object.entries(planetsByHouse).map(([houseNum, planets]) => {
           const pos = getTextPosition(parseInt(houseNum))
+          const maxPlanetsPerRow = 3 // Limit planets per row to prevent overcrowding
 
           return (
             <g key={houseNum}>
-              {planets.map((planet, idx) => (
-                <text
-                  key={idx}
-                  x={pos.x}
-                  y={pos.y + 28 + (idx * 14)}
-                  textAnchor="middle"
-                  fontSize="16"
-                  fontWeight="600"
-                  fill={planet.retrograde ? '#dc2626' : '#be123c'}
-                  style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
-                >
-                  {planet.symbol}
-                  {planet.retrograde && (
-                    <tspan fontSize="10" baselineShift="super">R</tspan>
-                  )}
-                </text>
-              ))}
+              {planets.map((planet, idx) => {
+                // Calculate position based on number of planets
+                const row = Math.floor(idx / maxPlanetsPerRow)
+                const col = idx % maxPlanetsPerRow
+                const xOffset = (col - Math.floor(Math.min(planets.length - row * maxPlanetsPerRow, maxPlanetsPerRow) / 2)) * 25
+                const yOffset = 28 + (row * 18)
+
+                return (
+                  <g key={idx}>
+                    {/* Planet symbol */}
+                    <text
+                      x={pos.x + xOffset}
+                      y={pos.y + yOffset}
+                      textAnchor="middle"
+                      fontSize="15"
+                      fontWeight="600"
+                      fill={planet.retrograde ? '#dc2626' : '#be123c'}
+                      style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+                    >
+                      {planet.symbol}
+                      {planet.retrograde && (
+                        <tspan fontSize="9" baselineShift="super">R</tspan>
+                      )}
+                    </text>
+                    {/* Planet sign (small text below symbol) */}
+                    <text
+                      x={pos.x + xOffset}
+                      y={pos.y + yOffset + 9}
+                      textAnchor="middle"
+                      fontSize="7"
+                      fontWeight="500"
+                      fill="#64748b"
+                      style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+                    >
+                      {planet.sign.substring(0, 3)}
+                    </text>
+                  </g>
+                )
+              })}
             </g>
           )
         })}

@@ -4,7 +4,7 @@ Using Swiss Ephemeris and Kerykeion for accurate Vedic calculations
 """
 
 from typing import Dict, List, Any
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from kerykeion import AstrologicalSubject
 import pytz
 
@@ -401,13 +401,10 @@ class VedicAstrologyService:
 
     def _calculate_vimshottari_dasha(self, subject: AstrologicalSubject) -> Dict[str, Any]:
         """
-        Calculate Vimshottari Dasha (planetary periods)
-        Simplified version for MVP
+        Calculate Vimshottari Dasha (planetary periods) with Mahadasha, Antardasha, and Pratyantar Dasha
         """
 
         # Vimshottari Dasha is based on Moon's nakshatra position
-        # This is a simplified version - full calculation requires nakshatra determination
-
         moon_position = subject.moon.position if hasattr(subject, 'moon') else 0
 
         # Nakshatras are 13°20' each (360/27)
@@ -421,11 +418,103 @@ class VedicAstrologyService:
             "Mars": 7, "Rahu": 18, "Jupiter": 16, "Saturn": 19, "Mercury": 17
         }
 
+        # Birth date
+        birth_date_obj = datetime(
+            subject.year,
+            subject.month,
+            subject.day,
+            subject.hour,
+            subject.minute
+        )
+
+        # Calculate elapsed portion of current nakshatra
+        nakshatra_position = (moon_position % 13.333333) / 13.333333  # 0-1
+        current_dasha_planet = nakshatra_lord
+        current_dasha_total = dasha_periods[current_dasha_planet]
+        current_dasha_elapsed = nakshatra_position * current_dasha_total
+        current_dasha_remaining = current_dasha_total - current_dasha_elapsed
+
+        # Generate Mahadasha sequence starting from current
+        planet_sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        start_idx = planet_sequence.index(current_dasha_planet)
+
+        mahadashas = []
+        current_date = birth_date_obj
+
+        # Add remaining portion of current Mahadasha
+        end_date = current_date + timedelta(days=current_dasha_remaining * 365.25)
+        mahadashas.append({
+            "planet": current_dasha_planet,
+            "start_date": current_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+            "years": round(current_dasha_remaining, 2),
+            "months": int(current_dasha_remaining * 12)
+        })
+        current_date = end_date
+
+        # Add next 8 Mahadashas (full 120-year cycle)
+        for i in range(1, 9):
+            planet = planet_sequence[(start_idx + i) % 9]
+            years = dasha_periods[planet]
+            end_date = current_date + timedelta(days=years * 365.25)
+            mahadashas.append({
+                "planet": planet,
+                "start_date": current_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "years": years,
+                "months": years * 12
+            })
+            current_date = end_date
+
+        # Calculate Antardashas for current Mahadasha
+        current_maha = mahadashas[0]
+        antardashas = self._calculate_antardashas(
+            current_maha["planet"],
+            datetime.strptime(current_maha["start_date"], "%Y-%m-%d"),
+            current_maha["years"]
+        )
+
         return {
-            "current_dasha": nakshatra_lord,
-            "period_years": dasha_periods.get(nakshatra_lord, 0),
-            "note": "Simplified Vimshottari Dasha calculation based on Moon's nakshatra"
+            "current_mahadasha": current_dasha_planet,
+            "mahadasha_years": round(current_dasha_remaining, 2),
+            "mahadashas": mahadashas[:9],  # Next 9 Mahadashas
+            "antardashas": antardashas,  # Antardashas of current Mahadasha
+            "note": "Vimshottari Dasha - 120-year planetary period cycle"
         }
+
+    def _calculate_antardashas(self, mahadasha_planet: str, start_date: datetime, maha_years: float) -> List[Dict[str, Any]]:
+        """Calculate Antardashas (sub-periods) for a given Mahadasha"""
+
+        dasha_periods = {
+            "Ketu": 7, "Venus": 20, "Sun": 6, "Moon": 10,
+            "Mars": 7, "Rahu": 18, "Jupiter": 16, "Saturn": 19, "Mercury": 17
+        }
+
+        planet_sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        start_idx = planet_sequence.index(mahadasha_planet)
+
+        antardashas = []
+        current_date = start_date
+        total_proportion = sum(dasha_periods.values())
+
+        for i in range(9):
+            planet = planet_sequence[(start_idx + i) % 9]
+            # Antardasha duration = (Antardasha planet's years / 120) * Mahadasha years
+            years = (dasha_periods[planet] / 120) * maha_years * dasha_periods[mahadasha_planet]
+            days = years * 365.25
+            end_date = current_date + timedelta(days=days)
+
+            antardashas.append({
+                "planet": planet,
+                "start_date": current_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "years": round(years, 2),
+                "months": int(years * 12),
+                "days": int(days)
+            })
+            current_date = end_date
+
+        return antardashas
 
     def _calculate_navamsa_position(self, planet_position: float, sign_num: int) -> Dict[str, Any]:
         """Calculate Navamsa (D9) position for a planet"""
