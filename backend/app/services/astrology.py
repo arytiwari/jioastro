@@ -108,7 +108,7 @@ class VedicAstrologyService:
     ) -> Dict[str, Any]:
         """
         Calculate Navamsa chart (D9)
-        This is a simplified version - full Navamsa requires divisional chart calculations
+        Navamsa is the 9th divisional chart showing deeper karmic patterns
         """
 
         # First get the D1 chart for base data
@@ -116,26 +116,42 @@ class VedicAstrologyService:
             name, birth_date, birth_time, latitude, longitude, timezone_str, city
         )
 
-        # For MVP, we'll calculate Navamsa positions using the standard formula
-        # Navamsa = (Planet position in sign * 9) / 30 (rounded down) + sign adjustment
+        # Calculate Navamsa positions and houses
         navamsa_planets = {}
+
+        # Calculate Navamsa ascendant first
+        asc_pos = d1_chart["ascendant"]["position"]
+        asc_sign = d1_chart["ascendant"]["sign_num"]
+        navamsa_asc = self._calculate_navamsa_position(asc_pos, asc_sign)
+        navamsa_asc_sign = navamsa_asc["sign_num"]
 
         for planet_name, planet_data in d1_chart["planets"].items():
             navamsa_pos = self._calculate_navamsa_position(
                 planet_data["position"],
                 planet_data["sign_num"]
             )
-            # Keep house information from D1 for display purposes
+
+            # Calculate proper Navamsa house based on Navamsa ascendant
+            planet_navamsa_sign = navamsa_pos["sign_num"]
+            # House is calculated from Navamsa ascendant
+            navamsa_house = ((planet_navamsa_sign - navamsa_asc_sign) % 12) + 1
+
             navamsa_planets[planet_name] = {
                 **navamsa_pos,
-                "house": planet_data["house"],  # Keep D1 house for layout
+                "house": navamsa_house,  # Proper Navamsa house
                 "retrograde": planet_data.get("retrograde", False)
             }
 
-        # Calculate navamsa ascendant
-        asc_pos = d1_chart["ascendant"]["position"]
-        asc_sign = d1_chart["ascendant"]["sign_num"]
-        navamsa_asc = self._calculate_navamsa_position(asc_pos, asc_sign)
+        # Create Navamsa houses array based on Navamsa ascendant
+        navamsa_houses = []
+        for i in range(12):
+            house_sign_num = (navamsa_asc_sign + i) % 12
+            navamsa_houses.append({
+                "house_num": i + 1,
+                "sign": self.ZODIAC_SIGNS[house_sign_num],
+                "sign_num": house_sign_num,
+                "position": (house_sign_num * 30)  # Simplified position
+            })
 
         return {
             "basic_info": d1_chart["basic_info"],
@@ -144,11 +160,11 @@ class VedicAstrologyService:
                 "house": 1
             },
             "planets": navamsa_planets,
-            "houses": d1_chart["houses"],  # Use D1 houses for structure (simplified for MVP)
+            "houses": navamsa_houses,  # Proper Navamsa houses
             "yogas": [],  # Yogas in D9 are complex, skip for MVP
             "dasha": d1_chart["dasha"],  # Same dasha system
             "chart_type": "D9",
-            "note": "Navamsa (D9) - Marriage and spiritual chart"
+            "note": "Navamsa (D9) - Marriage and spiritual chart with proper divisional houses"
         }
 
     def _extract_planets(self, subject: AstrologicalSubject) -> Dict[str, Any]:
