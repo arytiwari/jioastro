@@ -91,7 +91,7 @@ async def create_query(
                 )
 
                 chart = await supabase_service.create_chart({
-                    "profile_id": query_data.profile_id,
+                    "profile_id": str(query_data.profile_id),  # Convert UUID to string
                     "chart_type": "D1",
                     "chart_data": chart_data
                 })
@@ -119,7 +119,7 @@ async def create_query(
         # Create query record
         new_query = await supabase_service.create_query({
             "user_id": user_id,
-            "profile_id": query_data.profile_id,
+            "profile_id": str(query_data.profile_id),  # Convert UUID to string
             "question": query_data.question,
             "category": query_data.category
         })
