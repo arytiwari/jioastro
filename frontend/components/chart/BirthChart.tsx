@@ -139,86 +139,80 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
   }
 
   // Traditional North Indian Vedic Chart Layout
-  // Based on the exact template structure: rounded square with diamond divisions
-  // House 1 (Lagna) is ALWAYS at top, houses go counter-clockwise
+  // Based on exact template: Square with two diagonal lines creating 12 sections
+  // House 1 (Lagna/Ascendant) is at TOP
   const getHousePolygon = (houseNum: number) => {
     const half = size / 2
-    const quarter = size / 4
 
-    // The chart is a square with diagonal lines creating 12 sections
-    // Coordinates: corners, midpoints of sides, and center
+    // Square corners and center
     const top = centerY - half
     const bottom = centerY + half
     const left = centerX - half
     const right = centerX + half
-    const midTop = centerY - quarter
-    const midBottom = centerY + quarter
-    const midLeft = centerX - quarter
-    const midRight = centerX + quarter
 
-    // North Indian Diamond Chart - Exact Traditional Layout
-    // House numbering goes counter-clockwise from House 1 at TOP
+    // North Indian Chart - 12 Houses
+    // Two diagonals from corner to corner create the 12 sections
     const positions: Record<number, string> = {
-      // House 1 - TOP (Ascendant/Lagna - FIXED at top)
-      1: `${centerX},${top} ${midRight},${midTop} ${midLeft},${midTop}`,
+      // House 1 - TOP triangle (Ascendant - ALWAYS here)
+      1: `${left},${top} ${centerX},${centerY} ${right},${top}`,
 
-      // House 12 - Upper right outer section
-      12: `${midRight},${midTop} ${right},${centerY} ${midRight},${centerY} ${centerX},${midTop}`,
+      // House 2 - Upper RIGHT section (between top corner and right corner)
+      2: `${right},${top} ${centerX},${centerY} ${right},${centerY}`,
 
-      // House 11 - Right outer section
-      11: `${right},${centerY} ${midRight},${midBottom} ${midRight},${centerY}`,
+      // House 3 - RIGHT triangle
+      3: `${right},${centerY} ${centerX},${centerY} ${right},${bottom}`,
 
-      // House 10 - Lower right outer section
-      10: `${midRight},${midBottom} ${centerX},${bottom} ${midRight},${centerY}`,
+      // House 4 - Lower RIGHT section (between right corner and bottom corner)
+      4: `${right},${bottom} ${centerX},${centerY} ${centerX},${bottom}`,
 
-      // House 9 - Bottom right section
-      9: `${centerX},${bottom} ${midLeft},${midBottom} ${centerX},${midBottom}`,
+      // House 5 - BOTTOM triangle
+      5: `${centerX},${bottom} ${centerX},${centerY} ${left},${bottom}`,
 
-      // House 8 - Bottom left section
-      8: `${midLeft},${midBottom} ${centerX},${bottom} ${midLeft},${centerY} ${centerX},${midBottom}`,
+      // House 6 - Lower LEFT section (between bottom corner and left corner)
+      6: `${left},${bottom} ${centerX},${centerY} ${left},${centerY}`,
 
-      // House 7 - Left bottom outer section
-      7: `${left},${centerY} ${midLeft},${midBottom} ${midLeft},${centerY}`,
+      // House 7 - LEFT triangle
+      7: `${left},${centerY} ${centerX},${centerY} ${left},${top}`,
 
-      // House 6 - Left outer section
-      6: `${midLeft},${midTop} ${left},${centerY} ${midLeft},${centerY}`,
+      // House 8 - Upper LEFT section (between left corner and top corner)
+      8: `${left},${top} ${centerX},${centerY} ${centerX},${top}`,
 
-      // House 5 - Upper left outer section
-      5: `${centerX},${top} ${midLeft},${midTop} ${midLeft},${centerY} ${centerX},${midTop}`,
+      // House 9 - Center UPPER-LEFT quadrant
+      9: `${left + half/2},${top + half/2} ${centerX},${top + half/2} ${centerX},${centerY} ${left + half/2},${centerY}`,
 
-      // House 4 - Center upper right (inner quadrant)
-      4: `${centerX},${midTop} ${midRight},${midTop} ${midRight},${centerY} ${centerX},${centerY}`,
+      // House 10 - Center UPPER-RIGHT quadrant
+      10: `${centerX},${top + half/2} ${right - half/2},${top + half/2} ${right - half/2},${centerY} ${centerX},${centerY}`,
 
-      // House 3 - Center lower right (inner quadrant)
-      3: `${centerX},${centerY} ${midRight},${centerY} ${midRight},${midBottom} ${centerX},${midBottom}`,
+      // House 11 - Center LOWER-RIGHT quadrant
+      11: `${centerX},${centerY} ${right - half/2},${centerY} ${right - half/2},${bottom - half/2} ${centerX},${bottom - half/2}`,
 
-      // House 2 - Center lower left (inner quadrant)
-      2: `${midLeft},${centerY} ${centerX},${centerY} ${centerX},${midBottom} ${midLeft},${midBottom}`
+      // House 12 - Center LOWER-LEFT quadrant
+      12: `${left + half/2},${centerY} ${centerX},${centerY} ${centerX},${bottom - half/2} ${left + half/2},${bottom - half/2}`
     }
 
     return positions[houseNum] || ''
   }
 
   // Get text position for house number and planets
-  // Positions match the traditional North Indian chart layout
+  // Positions match the new polygon layout
   const getTextPosition = (houseNum: number) => {
     const half = size / 2
     const quarter = size / 4
     const eighth = size / 8
 
     const positions: Record<number, { x: number; y: number }> = {
-      1: { x: centerX, y: centerY - half + eighth * 1.5 },           // House 1 - Top
-      12: { x: centerX + quarter + eighth, y: centerY - eighth },    // House 12 - Upper right
-      11: { x: centerX + half - eighth, y: centerY },                // House 11 - Right
-      10: { x: centerX + quarter + eighth, y: centerY + eighth },    // House 10 - Lower right
-      9: { x: centerX, y: centerY + half - eighth * 1.5 },           // House 9 - Bottom
-      8: { x: centerX - quarter - eighth, y: centerY + eighth },     // House 8 - Bottom left
-      7: { x: centerX - half + eighth, y: centerY },                 // House 7 - Left
-      6: { x: centerX - quarter - eighth, y: centerY - eighth },     // House 6 - Upper left
-      5: { x: centerX - eighth, y: centerY - eighth * 1.5 },         // House 5 - Upper left area
-      4: { x: centerX + eighth, y: centerY - eighth },               // House 4 - Center upper right
-      3: { x: centerX + eighth, y: centerY + eighth },               // House 3 - Center lower right
-      2: { x: centerX - eighth, y: centerY + eighth }                // House 2 - Center lower left
+      1: { x: centerX, y: centerY - quarter },                        // House 1 - Top triangle
+      2: { x: centerX + quarter, y: centerY - quarter },              // House 2 - Upper right
+      3: { x: centerX + quarter, y: centerY },                        // House 3 - Right triangle
+      4: { x: centerX + quarter, y: centerY + quarter },              // House 4 - Lower right
+      5: { x: centerX, y: centerY + quarter },                        // House 5 - Bottom triangle
+      6: { x: centerX - quarter, y: centerY + quarter },              // House 6 - Lower left
+      7: { x: centerX - quarter, y: centerY },                        // House 7 - Left triangle
+      8: { x: centerX - quarter, y: centerY - quarter },              // House 8 - Upper left
+      9: { x: centerX - eighth, y: centerY - eighth },                // House 9 - Center upper-left
+      10: { x: centerX + eighth, y: centerY - eighth },               // House 10 - Center upper-right
+      11: { x: centerX + eighth, y: centerY + eighth },               // House 11 - Center lower-right
+      12: { x: centerX - eighth, y: centerY + eighth }                // House 12 - Center lower-left
     }
 
     return positions[houseNum] || { x: centerX, y: centerY }
