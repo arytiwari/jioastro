@@ -68,3 +68,10 @@ logs/
 # Misc
 .vercel
 .railway
+
+# Screenshots (for development/debugging - not tracked)
+screenshots/*.png
+screenshots/*.jpg
+screenshots/*.jpeg
+screenshots/*.gif
+screenshots/*.webp
