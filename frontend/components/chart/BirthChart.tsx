@@ -48,6 +48,48 @@ const PLANET_SYMBOLS: Record<string, string> = {
 }
 
 export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartProps) {
+  // Validate chart data - ensure all required fields exist
+  if (!chartData) {
+    console.error('BirthChart: chartData is null or undefined')
+    return (
+      <div className="flex items-center justify-center p-8 text-gray-500">
+        <p>No chart data available</p>
+      </div>
+    )
+  }
+
+  // Debug log to see what we're receiving
+  console.log('BirthChart received data:', JSON.stringify(chartData, null, 2))
+
+  if (!chartData.houses || !Array.isArray(chartData.houses) || chartData.houses.length === 0) {
+    console.error('BirthChart: houses field is missing or invalid:', chartData.houses)
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-gray-500 space-y-2">
+        <p className="font-semibold">Chart data incomplete</p>
+        <p className="text-sm">Missing house information</p>
+        <p className="text-xs mt-2">Please recalculate this chart</p>
+      </div>
+    )
+  }
+
+  if (!chartData.planets || typeof chartData.planets !== 'object') {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-gray-500 space-y-2">
+        <p className="font-semibold">Chart data incomplete</p>
+        <p className="text-sm">Missing planet information</p>
+      </div>
+    )
+  }
+
+  if (!chartData.ascendant) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-gray-500 space-y-2">
+        <p className="font-semibold">Chart data incomplete</p>
+        <p className="text-sm">Missing ascendant information</p>
+      </div>
+    )
+  }
+
   // North Indian chart is a square divided into 12 houses in diamond pattern
   const centerX = width / 2
   const centerY = height / 2
