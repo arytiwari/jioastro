@@ -132,6 +132,26 @@ class APIClient {
   async getFeedbackStats() {
     return this.client.get('/feedback/stats')
   }
+
+  // VedAstro endpoints
+  async getVedAstroStatus() {
+    return this.client.get('/vedastro/status')
+  }
+
+  async calculateComprehensiveChart(profileId: string) {
+    return this.client.post('/vedastro/chart/comprehensive', {
+      profile_id: profileId,
+      chart_type: 'D1'
+    })
+  }
+
+  async getVedicKnowledge(topic: string) {
+    return this.client.get(`/vedastro/knowledge/${topic}`)
+  }
+
+  async listKnowledgeTopics() {
+    return this.client.get('/vedastro/knowledge')
+  }
 }
 
 export const apiClient = new APIClient()
