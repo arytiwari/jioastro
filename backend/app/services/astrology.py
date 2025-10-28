@@ -65,6 +65,7 @@ class VedicAstrologyService:
             lng=longitude,
             tz_str=timezone_str,
             city=city,
+            nation="IN",  # India - fixes "No nation specified, using GB as default" warning
             zodiac_type="Sidereal"  # Vedic astrology uses sidereal zodiac (Lahiri by default)
         )
 
@@ -110,7 +111,7 @@ class VedicAstrologyService:
         This is a simplified version - full Navamsa requires divisional chart calculations
         """
 
-        # First get the D1 chart
+        # First get the D1 chart for base data
         d1_chart = self.calculate_birth_chart(
             name, birth_date, birth_time, latitude, longitude, timezone_str, city
         )
@@ -124,11 +125,28 @@ class VedicAstrologyService:
                 planet_data["position"],
                 planet_data["sign_num"]
             )
-            navamsa_planets[planet_name] = navamsa_pos
+            # Keep house information from D1 for display purposes
+            navamsa_planets[planet_name] = {
+                **navamsa_pos,
+                "house": planet_data["house"],  # Keep D1 house for layout
+                "retrograde": planet_data.get("retrograde", False)
+            }
+
+        # Calculate navamsa ascendant
+        asc_pos = d1_chart["ascendant"]["position"]
+        asc_sign = d1_chart["ascendant"]["sign_num"]
+        navamsa_asc = self._calculate_navamsa_position(asc_pos, asc_sign)
 
         return {
             "basic_info": d1_chart["basic_info"],
+            "ascendant": {
+                **navamsa_asc,
+                "house": 1
+            },
             "planets": navamsa_planets,
+            "houses": d1_chart["houses"],  # Use D1 houses for structure (simplified for MVP)
+            "yogas": [],  # Yogas in D9 are complex, skip for MVP
+            "dasha": d1_chart["dasha"],  # Same dasha system
             "chart_type": "D9",
             "note": "Navamsa (D9) - Marriage and spiritual chart"
         }
