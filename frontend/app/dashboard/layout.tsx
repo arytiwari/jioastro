@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X } from 'lucide-react'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function DashboardLayout({
@@ -55,6 +55,7 @@ export default function DashboardLayout({
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'My Profiles', href: '/dashboard/profiles', icon: User },
     { name: 'Ask Question', href: '/dashboard/ask', icon: MessageSquare },
+    { name: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
     { name: 'History', href: '/dashboard/history', icon: History },
   ]
 

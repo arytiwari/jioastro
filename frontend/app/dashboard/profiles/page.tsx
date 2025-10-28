@@ -90,10 +90,17 @@ export default function ProfilesPage() {
                       {profile.birth_lat.toFixed(2)}°, {profile.birth_lon.toFixed(2)}°
                     </div>
                   </div>
-                  <div className="mt-4">
-                    <Button variant="outline" className="w-full">
-                      View Chart
-                    </Button>
+                  <div className="mt-4 space-y-2">
+                    <Link href={`/dashboard/chart/${profile.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Button variant="default" className="w-full">
+                        View Enhanced Chart
+                      </Button>
+                    </Link>
+                    <Link href={`/dashboard/profiles/${profile.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Button variant="outline" className="w-full text-xs">
+                        View Standard Chart
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>
