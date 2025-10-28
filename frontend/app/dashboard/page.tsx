@@ -101,23 +101,33 @@ export default function DashboardPage() {
             ) : profiles && profiles.length > 0 ? (
               <div className="space-y-3">
                 {profiles.slice(0, 3).map((profile: any) => (
-                  <Link key={profile.id} href={`/dashboard/profiles/${profile.id}`}>
-                    <div className="p-3 border rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">{profile.name}</p>
-                          <p className="text-xs text-gray-600">
-                            {new Date(profile.birth_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        {profile.is_primary && (
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                            Primary
-                          </span>
-                        )}
+                  <div key={profile.id} className="p-3 border rounded-lg hover:border-purple-300 transition-colors">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="font-semibold">{profile.name}</p>
+                        <p className="text-xs text-gray-600">
+                          {new Date(profile.birth_date).toLocaleDateString()}
+                        </p>
                       </div>
+                      {profile.is_primary && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                          Primary
+                        </span>
+                      )}
                     </div>
-                  </Link>
+                    <div className="flex gap-2">
+                      <Link href={`/dashboard/chart/${profile.id}`} className="flex-1">
+                        <Button variant="default" size="sm" className="w-full">
+                          Enhanced Chart
+                        </Button>
+                      </Link>
+                      <Link href={`/dashboard/profiles/${profile.id}`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full">
+                          Basic Profile
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 ))}
                 {profiles.length > 3 && (
                   <Link href="/dashboard/profiles">
@@ -208,9 +218,9 @@ export default function DashboardPage() {
                   2
                 </div>
                 <div>
-                  <p className="font-semibold">View Your Chart</p>
+                  <p className="font-semibold">View Your Charts</p>
                   <p className="text-sm text-gray-600">
-                    Explore your D1 (Rashi) and D9 (Navamsa) charts with planetary positions and yogas
+                    Choose <strong>Enhanced Chart</strong> for North/South/Western styles with yogas and dasha timeline, or <strong>Basic Profile</strong> for standard view
                   </p>
                 </div>
               </li>
