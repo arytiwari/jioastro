@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { BirthChart } from '@/components/chart/BirthChart'
 import { PlanetPositions } from '@/components/chart/PlanetPositions'
 import { YogaList } from '@/components/chart/YogaList'
-import { DashaInfo } from '@/components/chart/DashaInfo'
+import { VimshottariDashaTable } from '@/components/chart/VimshottariDashaTable'
 import { ArrowLeft, Calendar, MapPin, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
@@ -156,20 +156,23 @@ export default function ProfileViewPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
-                  <BirthChart chartData={d1Chart.chart_data} width={500} height={500} />
+                  <BirthChart
+                    key="d1-chart"
+                    chartData={d1Chart.chart_data}
+                    chartType="D1"
+                    width={500}
+                    height={500}
+                  />
                 </CardContent>
               </Card>
 
-              {/* Grid Layout for Additional Info */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Planetary Positions */}
-                <PlanetPositions planets={d1Chart.chart_data.planets} />
+              {/* Planetary Positions */}
+              <PlanetPositions planets={d1Chart.chart_data.planets} />
 
-                {/* Dasha Info */}
-                {d1Chart.chart_data.dasha && (
-                  <DashaInfo dasha={d1Chart.chart_data.dasha} />
-                )}
-              </div>
+              {/* Vimshottari Dasha Table */}
+              {d1Chart.chart_data.dasha && (
+                <VimshottariDashaTable dasha={d1Chart.chart_data.dasha} />
+              )}
 
               {/* Yogas */}
               {d1Chart.chart_data.yogas && d1Chart.chart_data.yogas.length > 0 && (
@@ -205,7 +208,13 @@ export default function ProfileViewPage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="flex justify-center">
-                  <BirthChart chartData={d9Chart.chart_data} width={500} height={500} />
+                  <BirthChart
+                    key="d9-chart"
+                    chartData={d9Chart.chart_data}
+                    chartType="D9"
+                    width={500}
+                    height={500}
+                  />
                 </CardContent>
               </Card>
 
