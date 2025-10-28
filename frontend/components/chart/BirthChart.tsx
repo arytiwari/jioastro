@@ -252,33 +252,36 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
         ))}
 
         {/* Add house numbers and signs */}
-        {chartData.houses.map((house) => {
-          const pos = getTextPosition(house.house_num)
-          const isAscendant = house.house_num === 1
-          const isKendra = [1, 4, 7, 10].includes(house.house_num)
-          const isTrikona = [5, 9].includes(house.house_num)
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((houseNum) => {
+          const house = chartData.houses.find(h => h.house_num === houseNum)
+          if (!house) return null
+
+          const pos = getTextPosition(houseNum)
+          const isAscendant = houseNum === 1
+          const isKendra = [1, 4, 7, 10].includes(houseNum)
+          const isTrikona = [5, 9].includes(houseNum)
 
           return (
-            <g key={house.house_num}>
+            <g key={houseNum}>
               {/* House number */}
               <text
                 x={pos.x}
                 y={pos.y}
                 textAnchor="middle"
-                fontSize="14"
+                fontSize="16"
                 fontWeight="bold"
                 fill={isAscendant ? '#7c3aed' : (isKendra ? '#d97706' : (isTrikona ? '#2563eb' : '#475569'))}
                 style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
               >
-                {house.house_num}
+                {houseNum}
               </text>
               {/* Sign abbreviation */}
               <text
                 x={pos.x}
-                y={pos.y + 14}
+                y={pos.y + 16}
                 textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
+                fontSize="11"
+                fontWeight="600"
                 fill="#64748b"
                 style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
               >
@@ -300,7 +303,7 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
                 const row = Math.floor(idx / maxPlanetsPerRow)
                 const col = idx % maxPlanetsPerRow
                 const xOffset = (col - Math.floor(Math.min(planets.length - row * maxPlanetsPerRow, maxPlanetsPerRow) / 2)) * 25
-                const yOffset = 28 + (row * 18)
+                const yOffset = 32 + (row * 18)
 
                 return (
                   <g key={idx}>
