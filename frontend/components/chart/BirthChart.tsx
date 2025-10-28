@@ -47,14 +47,14 @@ const PLANET_SYMBOLS: Record<string, string> = {
   Ketu: '☋'
 }
 
-export function BirthChart({ chartData, width = 400, height = 400 }: BirthChartProps) {
+export function BirthChart({ chartData, width = 500, height = 500 }: BirthChartProps) {
   // North Indian chart is a square divided into 12 houses in diamond pattern
   const centerX = width / 2
   const centerY = height / 2
-  const size = Math.min(width, height) * 0.9
+  const size = Math.min(width, height) * 0.85
 
-  // Group planets by house
-  const planetsByHouse: Record<number, string[]> = {}
+  // Group planets by house with full details
+  const planetsByHouse: Record<number, Array<{ name: string; symbol: string; retrograde: boolean }>> = {}
 
   Object.entries(chartData.planets).forEach(([planetName, planetData]) => {
     const house = planetData.house
@@ -62,9 +62,26 @@ export function BirthChart({ chartData, width = 400, height = 400 }: BirthChartP
       planetsByHouse[house] = []
     }
     const symbol = PLANET_SYMBOLS[planetName] || planetName.charAt(0)
-    const retrograde = planetData.retrograde ? ' R' : ''
-    planetsByHouse[house].push(`${symbol}${retrograde}`)
+    planetsByHouse[house].push({
+      name: planetName,
+      symbol: symbol,
+      retrograde: planetData.retrograde || false
+    })
   })
+
+  // Get house background color (alternating for clarity)
+  const getHouseFill = (houseNum: number) => {
+    // Kendra houses (1, 4, 7, 10) - Angular houses (most important)
+    if ([1, 4, 7, 10].includes(houseNum)) {
+      return '#fef3c7' // Light amber
+    }
+    // Trikona houses (5, 9) - Trinal houses (very auspicious)
+    if ([5, 9].includes(houseNum)) {
+      return '#dbeafe' // Light blue
+    }
+    // Other houses
+    return '#f3f4f6' // Light gray
+  }
 
   // North Indian chart house positions (diamond layout)
   const getHousePolygon = (houseNum: number) => {
@@ -115,16 +132,34 @@ export function BirthChart({ chartData, width = 400, height = 400 }: BirthChartP
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <svg width={width} height={height} className="border border-gray-300 rounded-lg bg-white">
-        {/* Draw house divisions */}
+    <div className="flex flex-col items-center p-4">
+      <svg
+        width={width}
+        height={height}
+        className="shadow-lg rounded-lg"
+        style={{ background: '#ffffff' }}
+      >
+        {/* Outer border */}
+        <rect
+          x="2"
+          y="2"
+          width={width - 4}
+          height={height - 4}
+          fill="none"
+          stroke="#1e293b"
+          strokeWidth="3"
+          rx="8"
+        />
+
+        {/* Draw house divisions with backgrounds */}
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((houseNum) => (
           <g key={houseNum}>
             <polygon
               points={getHousePolygon(houseNum)}
-              fill="none"
-              stroke="#333"
-              strokeWidth="1.5"
+              fill={getHouseFill(houseNum)}
+              stroke="#1e293b"
+              strokeWidth="2"
+              strokeLinejoin="round"
             />
           </g>
         ))}
@@ -133,27 +168,34 @@ export function BirthChart({ chartData, width = 400, height = 400 }: BirthChartP
         {chartData.houses.map((house) => {
           const pos = getTextPosition(house.house_num)
           const isAscendant = house.house_num === 1
+          const isKendra = [1, 4, 7, 10].includes(house.house_num)
+          const isTrikona = [5, 9].includes(house.house_num)
 
           return (
             <g key={house.house_num}>
+              {/* House number */}
               <text
                 x={pos.x}
                 y={pos.y}
                 textAnchor="middle"
-                fontSize="11"
-                fontWeight={isAscendant ? 'bold' : 'normal'}
-                fill={isAscendant ? '#7c3aed' : '#666'}
+                fontSize="14"
+                fontWeight="bold"
+                fill={isAscendant ? '#7c3aed' : (isKendra ? '#d97706' : (isTrikona ? '#2563eb' : '#475569'))}
+                style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
               >
                 {house.house_num}
               </text>
+              {/* Sign abbreviation */}
               <text
                 x={pos.x}
-                y={pos.y + 12}
+                y={pos.y + 14}
                 textAnchor="middle"
-                fontSize="9"
-                fill="#999"
+                fontSize="10"
+                fontWeight="500"
+                fill="#64748b"
+                style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
               >
-                {house.sign.substring(0, 3)}
+                {house.sign.substring(0, 3).toUpperCase()}
               </text>
             </g>
           )
@@ -169,38 +211,80 @@ export function BirthChart({ chartData, width = 400, height = 400 }: BirthChartP
                 <text
                   key={idx}
                   x={pos.x}
-                  y={pos.y + 24 + (idx * 12)}
+                  y={pos.y + 28 + (idx * 14)}
                   textAnchor="middle"
-                  fontSize="13"
+                  fontSize="16"
                   fontWeight="600"
-                  fill="#e11d48"
+                  fill={planet.retrograde ? '#dc2626' : '#be123c'}
+                  style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
                 >
-                  {planet}
+                  {planet.symbol}
+                  {planet.retrograde && (
+                    <tspan fontSize="10" baselineShift="super">R</tspan>
+                  )}
                 </text>
               ))}
             </g>
           )
         })}
 
-        {/* Add ascendant marker */}
+        {/* Add ascendant marker at top */}
+        <rect
+          x={centerX - 60}
+          y={10}
+          width="120"
+          height="25"
+          fill="#7c3aed"
+          stroke="#5b21b6"
+          strokeWidth="2"
+          rx="4"
+        />
         <text
           x={centerX}
-          y={centerY - size / 2 - 10}
+          y={28}
           textAnchor="middle"
-          fontSize="12"
+          fontSize="13"
           fontWeight="bold"
-          fill="#7c3aed"
+          fill="#ffffff"
+          style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
         >
-          ASC: {chartData.ascendant.sign}
+          ASC: {chartData.ascendant.sign.toUpperCase()}
         </text>
       </svg>
 
-      {/* Legend */}
-      <div className="mt-4 text-sm text-gray-600">
-        <p className="text-center font-semibold mb-2">North Indian Chart</p>
-        <p className="text-center text-xs">
-          ASC = Ascendant (Lagna) | R = Retrograde
-        </p>
+      {/* Enhanced Legend */}
+      <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-md">
+        <p className="text-center font-bold text-lg mb-3 text-gray-800">North Indian Chart (Vedic)</p>
+
+        <div className="grid grid-cols-2 gap-3 text-xs mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-amber-100 border-2 border-gray-800 rounded"></div>
+            <span className="text-gray-700">Kendra (1,4,7,10)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-blue-100 border-2 border-gray-800 rounded"></div>
+            <span className="text-gray-700">Trikona (5,9)</span>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-300 pt-3 mb-3">
+          <p className="font-semibold text-sm text-gray-700 mb-2">Planet Symbols:</p>
+          <div className="grid grid-cols-3 gap-2 text-xs">
+            {Object.entries(PLANET_SYMBOLS).map(([name, symbol]) => (
+              <div key={name} className="flex items-center gap-1">
+                <span className="text-lg text-rose-700">{symbol}</span>
+                <span className="text-gray-600">{name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t border-gray-300 pt-2 text-xs text-gray-600 space-y-1">
+          <p><span className="font-semibold">ASC</span> = Ascendant (Lagna) - Rising sign</p>
+          <p><span className="font-semibold text-red-600">R</span> = Retrograde motion</p>
+          <p><span className="font-semibold">Kendra</span> = Angular houses (strength & action)</p>
+          <p><span className="font-semibold">Trikona</span> = Trinal houses (fortune & dharma)</p>
+        </div>
       </div>
     </div>
   )
