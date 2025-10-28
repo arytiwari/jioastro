@@ -275,11 +275,16 @@ MIT License - see [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- **VedAstro** (https://vedastro.org) - Comprehensive Vedic astrology calculations (MIT License)
 - Swiss Ephemeris (astrology calculations)
 - OpenAI (GPT-4 for interpretations)
 - Supabase (database and auth)
 - Vercel & Railway (deployment platforms)
 - shadcn/ui (beautiful UI components)
+
+### Third-Party Licenses
+
+This project uses VedAstro Python library for advanced Vedic astrology calculations. See [LICENSE-VEDASTRO.txt](LICENSE-VEDASTRO.txt) for full attribution and license details.
 
 ---
 

@@ -1,2 +1,6 @@
 export { BirthChartTemplate } from './BirthChartTemplate'
 export { WesternBirthChart } from './WesternBirthChart'
+export { SouthIndianChart } from './SouthIndianChart'
+export { ChartSelector } from './ChartSelector'
+export { DasaTimeline } from './DasaTimeline'
+export { YogaDisplay } from './YogaDisplay'
