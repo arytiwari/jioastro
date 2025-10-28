@@ -254,6 +254,45 @@ class VedicAstrologyService:
 
         return houses
 
+    def _parse_house_number(self, house_value: Any) -> int:
+        """
+        Parse house number from Kerykeion format.
+        Kerykeion returns house as strings like "Third_House", "First_House", etc.
+
+        Args:
+            house_value: Can be int, string like "3", or string like "Third_House"
+
+        Returns:
+            House number (1-12) or 0 if invalid
+        """
+        if not house_value:
+            return 0
+
+        # If it's already an integer
+        if isinstance(house_value, int):
+            return house_value
+
+        # Convert to string for parsing
+        house_str = str(house_value)
+
+        # If it's a numeric string, convert directly
+        if house_str.isdigit():
+            return int(house_str)
+
+        # Parse house names like "First_House", "Second_House", etc.
+        house_name_map = {
+            "First": 1, "Second": 2, "Third": 3, "Fourth": 4,
+            "Fifth": 5, "Sixth": 6, "Seventh": 7, "Eighth": 8,
+            "Ninth": 9, "Tenth": 10, "Eleventh": 11, "Twelfth": 12
+        }
+
+        # Extract the house name (e.g., "Third" from "Third_House")
+        for name, num in house_name_map.items():
+            if name in house_str:
+                return num
+
+        return 0
+
     def _detect_yogas(self, subject: AstrologicalSubject) -> List[Dict[str, str]]:
         """
         Detect major Vedic yogas (combinations)
@@ -269,8 +308,8 @@ class VedicAstrologyService:
         # 1. Raj Yoga: Lords of 9th and 10th in Kendra (1, 4, 7, 10)
         # Simplified check: if Jupiter (natural 9th lord) and Saturn (natural 10th lord) are strong
         if planets.get("Jupiter") and planets.get("Saturn"):
-            jupiter_house = int(planets["Jupiter"]["house"]) if planets["Jupiter"]["house"] else 0
-            saturn_house = int(planets["Saturn"]["house"]) if planets["Saturn"]["house"] else 0
+            jupiter_house = self._parse_house_number(planets["Jupiter"]["house"])
+            saturn_house = self._parse_house_number(planets["Saturn"]["house"])
 
             if jupiter_house in [1, 4, 7, 10] and saturn_house in [1, 4, 7, 10]:
                 yogas.append({
@@ -281,8 +320,8 @@ class VedicAstrologyService:
 
         # 2. Dhana Yoga: Wealth combinations
         if planets.get("Jupiter") and planets.get("Venus"):
-            jupiter_house = int(planets["Jupiter"]["house"]) if planets["Jupiter"]["house"] else 0
-            venus_house = int(planets["Venus"]["house"]) if planets["Venus"]["house"] else 0
+            jupiter_house = self._parse_house_number(planets["Jupiter"]["house"])
+            venus_house = self._parse_house_number(planets["Venus"]["house"])
             if jupiter_house == venus_house and jupiter_house > 0:
                 yogas.append({
                     "name": "Dhana Yoga",
@@ -304,8 +343,8 @@ class VedicAstrologyService:
 
         # 4. Chandra-Mangala Yoga: Moon-Mars conjunction
         if planets.get("Moon") and planets.get("Mars"):
-            moon_house = int(planets["Moon"]["house"]) if planets["Moon"]["house"] else 0
-            mars_house = int(planets["Mars"]["house"]) if planets["Mars"]["house"] else 0
+            moon_house = self._parse_house_number(planets["Moon"]["house"])
+            mars_house = self._parse_house_number(planets["Mars"]["house"])
             if moon_house == mars_house and moon_house > 0:
                 yogas.append({
                     "name": "Chandra-Mangala Yoga",
@@ -315,8 +354,8 @@ class VedicAstrologyService:
 
         # 5. Gaja Kesari Yoga: Jupiter in Kendra from Moon
         if planets.get("Jupiter") and planets.get("Moon"):
-            jupiter_house = int(planets["Jupiter"]["house"]) if planets["Jupiter"]["house"] else 0
-            moon_house = int(planets["Moon"]["house"]) if planets["Moon"]["house"] else 0
+            jupiter_house = self._parse_house_number(planets["Jupiter"]["house"])
+            moon_house = self._parse_house_number(planets["Moon"]["house"])
 
             if jupiter_house > 0 and moon_house > 0:
                 # Check if Jupiter is in 1st, 4th, 7th, or 10th from Moon
