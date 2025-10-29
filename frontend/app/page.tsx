@@ -4,18 +4,18 @@ import { Sparkles, Star, BookOpen, TrendingUp } from 'lucide-react'
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-jio-50 to-white">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-purple-100 rounded-full">
-              <Sparkles className="w-12 h-12 text-purple-600" />
+            <div className="p-4 bg-jio-100 rounded-full">
+              <Sparkles className="w-12 h-12 text-jio-600" />
             </div>
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
-            Vedic AI Astrology
+            JioAstro
           </h1>
 
           <p className="text-xl text-gray-600 mb-8">
@@ -25,12 +25,12 @@ export default function HomePage() {
 
           <div className="flex gap-4 justify-center">
             <Link href="/auth/signup">
-              <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+              <Button size="lg" className="bg-jio-600 hover:bg-jio-700 text-white">
                 Get Started Free
               </Button>
             </Link>
             <Link href="/auth/login">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="border-jio-600 text-jio-700 hover:bg-jio-50">
                 Sign In
               </Button>
             </Link>
@@ -39,9 +39,9 @@ export default function HomePage() {
 
         {/* Features */}
         <div className="mt-20 grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="text-center p-6 rounded-lg bg-white shadow-sm">
+          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100">
             <div className="flex justify-center mb-4">
-              <Star className="w-10 h-10 text-purple-600" />
+              <Star className="w-10 h-10 text-jio-600" />
             </div>
             <h3 className="text-xl font-semibold mb-2">Birth Charts</h3>
             <p className="text-gray-600">
@@ -49,9 +49,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="text-center p-6 rounded-lg bg-white shadow-sm">
+          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100">
             <div className="flex justify-center mb-4">
-              <BookOpen className="w-10 h-10 text-purple-600" />
+              <BookOpen className="w-10 h-10 text-jio-600" />
             </div>
             <h3 className="text-xl font-semibold mb-2">AI Interpretations</h3>
             <p className="text-gray-600">
@@ -59,9 +59,9 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="text-center p-6 rounded-lg bg-white shadow-sm">
+          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100">
             <div className="flex justify-center mb-4">
-              <TrendingUp className="w-10 h-10 text-purple-600" />
+              <TrendingUp className="w-10 h-10 text-jio-600" />
             </div>
             <h3 className="text-xl font-semibold mb-2">Yogas & Dashas</h3>
             <p className="text-gray-600">
@@ -76,7 +76,7 @@ export default function HomePage() {
 
           <div className="space-y-6">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-jio-600 text-white flex items-center justify-center font-bold">
                 1
               </div>
               <div>
@@ -88,7 +88,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-jio-600 text-white flex items-center justify-center font-bold">
                 2
               </div>
               <div>
@@ -100,7 +100,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-jio-600 text-white flex items-center justify-center font-bold">
                 3
               </div>
               <div>
@@ -115,9 +115,9 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t mt-20 py-8">
+      <footer className="border-t mt-20 py-8 bg-jio-50">
         <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>&copy; 2024 Vedic AI Astrology. Built with ancient wisdom and modern technology.</p>
+          <p>&copy; 2024 JioAstro. Built with ancient wisdom and modern technology.</p>
         </div>
       </footer>
     </div>

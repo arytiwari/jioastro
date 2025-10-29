@@ -81,11 +81,11 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
   return (
     <div className="w-full space-y-6 p-6 bg-white rounded-lg shadow-md">
       {/* Current Mahadasha Highlight */}
-      <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg p-4 border-2 border-purple-300">
+      <div className="bg-gradient-to-r from-jio-100 to-blue-100 rounded-lg p-4 border-2 border-jio-300">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-gray-900">Current Mahadasha</h3>
-            <p className="text-2xl font-extrabold text-purple-700 mt-1">
+            <p className="text-2xl font-extrabold text-jio-700 mt-1">
               {PLANET_SYMBOLS[dashaData.current_mahadasha] || ''} {dashaData.current_mahadasha}
             </p>
             <p className="text-sm text-gray-600 mt-1">
@@ -114,7 +114,7 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
                 key={index}
                 className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all ${
                   isCurrent
-                    ? 'border-purple-500 bg-purple-50 shadow-md scale-105'
+                    ? 'border-jio-500 bg-jio-50 shadow-md scale-105'
                     : 'border-gray-200 bg-white hover:bg-gray-50'
                 }`}
               >
@@ -131,7 +131,7 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-gray-900">{maha.planet}</span>
                     {isCurrent && (
-                      <span className="px-2 py-1 text-xs font-bold text-white bg-purple-600 rounded-full">
+                      <span className="px-2 py-1 text-xs font-bold text-white bg-jio-600 rounded-full">
                         CURRENT
                       </span>
                     )}
@@ -165,7 +165,7 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
                   key={index}
                   className={`flex items-center gap-2 p-2 rounded-md border ${
                     isCurrent
-                      ? 'border-purple-400 bg-purple-50 font-semibold'
+                      ? 'border-jio-400 bg-jio-50 font-semibold'
                       : 'border-gray-200 bg-gray-50'
                   }`}
                 >

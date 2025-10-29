@@ -234,7 +234,7 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
       <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-md">
         <p className="text-center font-bold text-lg mb-3 text-gray-800">South Indian Chart (Vedic)</p>
         <div className="text-xs text-gray-600 space-y-1">
-          <p><span className="font-semibold text-purple-700">H1</span> - House 1 (Ascendant/Lagna)</p>
+          <p><span className="font-semibold text-jio-700">H1</span> - House 1 (Ascendant/Lagna)</p>
           <p><span className="font-semibold text-amber-700">Kendra</span> (H1,H4,H7,H10) - Angular houses</p>
           <p><span className="font-semibold text-blue-700">Trikona</span> (H5,H9) - Trinal houses</p>
           <p className="mt-2"><span className="font-semibold text-red-600">ʀ</span> = Retrograde planet</p>

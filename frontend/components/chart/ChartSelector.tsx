@@ -66,8 +66,8 @@ export function ChartSelector({ chartData, defaultChart = 'north' }: ChartSelect
             onClick={() => setSelectedChart(chart.id)}
             className={`px-4 py-2 rounded-lg border-2 transition-all ${
               selectedChart === chart.id
-                ? 'border-purple-600 bg-purple-50 text-purple-900 font-semibold'
-                : 'border-gray-300 bg-white text-gray-700 hover:border-purple-400 hover:bg-purple-50'
+                ? 'border-jio-600 bg-jio-50 text-jio-900 font-semibold'
+                : 'border-gray-300 bg-white text-gray-700 hover:border-jio-400 hover:bg-jio-50'
             }`}
           >
             <div className="text-sm font-medium">{chart.name}</div>

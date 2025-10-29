@@ -39,7 +39,7 @@ export function YogaList({ yogas }: YogaListProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Star className="w-5 h-5 text-purple-600" />
+          <Star className="w-5 h-5 text-jio-600" />
           Yogas (Astrological Combinations)
         </CardTitle>
       </CardHeader>
@@ -51,7 +51,7 @@ export function YogaList({ yogas }: YogaListProps) {
               className="p-4 border rounded-lg hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between mb-2">
-                <h4 className="font-semibold text-lg text-purple-700">
+                <h4 className="font-semibold text-lg text-jio-700">
                   {yoga.name}
                 </h4>
                 {yoga.strength && (

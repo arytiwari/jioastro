@@ -48,7 +48,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Birth Profiles</CardTitle>
-            <User className="w-4 h-4 text-purple-600" />
+            <User className="w-4 h-4 text-jio-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{profiles?.length || 0}</div>
@@ -61,7 +61,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Questions Asked</CardTitle>
-            <MessageSquare className="w-4 h-4 text-purple-600" />
+            <MessageSquare className="w-4 h-4 text-jio-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{queries?.length || 0}</div>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
-            <Star className="w-4 h-4 text-purple-600" />
+            <Star className="w-4 h-4 text-jio-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -96,12 +96,12 @@ export default function DashboardPage() {
           <CardContent>
             {profilesLoading ? (
               <div className="text-center py-8">
-                <div className="w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div className="w-6 h-6 border-3 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
             ) : profiles && profiles.length > 0 ? (
               <div className="space-y-3">
                 {profiles.slice(0, 3).map((profile: any) => (
-                  <div key={profile.id} className="p-3 border rounded-lg hover:border-purple-300 transition-colors">
+                  <div key={profile.id} className="p-3 border rounded-lg hover:border-jio-300 transition-colors">
                     <div className="flex items-center justify-between mb-3">
                       <div>
                         <p className="font-semibold">{profile.name}</p>
@@ -110,7 +110,7 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       {profile.is_primary && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                        <span className="text-xs bg-jio-100 text-jio-700 px-2 py-1 rounded">
                           Primary
                         </span>
                       )}
@@ -160,7 +160,7 @@ export default function DashboardPage() {
           <CardContent>
             {queriesLoading ? (
               <div className="text-center py-8">
-                <div className="w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div className="w-6 h-6 border-3 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
             ) : queries && queries.length > 0 ? (
               <div className="space-y-3">
@@ -195,7 +195,7 @@ export default function DashboardPage() {
 
       {/* Getting Started Guide (shown if no profiles) */}
       {!profilesLoading && (!profiles || profiles.length === 0) && (
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <Card className="bg-gradient-to-r from-jio-50 to-blue-50 border-jio-200">
           <CardHeader>
             <CardTitle>Getting Started</CardTitle>
             <CardDescription>Follow these steps to begin your astrological journey</CardDescription>
@@ -203,7 +203,7 @@ export default function DashboardPage() {
           <CardContent>
             <ol className="space-y-4">
               <li className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-jio-600 text-white flex items-center justify-center text-sm font-bold">
                   1
                 </div>
                 <div>
@@ -214,7 +214,7 @@ export default function DashboardPage() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-jio-600 text-white flex items-center justify-center text-sm font-bold">
                   2
                 </div>
                 <div>
@@ -225,7 +225,7 @@ export default function DashboardPage() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-jio-600 text-white flex items-center justify-center text-sm font-bold">
                   3
                 </div>
                 <div>

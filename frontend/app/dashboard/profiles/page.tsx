@@ -20,7 +20,7 @@ export default function ProfilesPage() {
   if (isLoading) {
     return (
       <div className="text-center py-12">
-        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-gray-600">Loading profiles...</p>
       </div>
     )
@@ -68,7 +68,7 @@ export default function ProfilesPage() {
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-xl">{profile.name}</CardTitle>
                     {profile.is_primary && (
-                      <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded font-semibold">
+                      <span className="text-xs bg-jio-100 text-jio-700 px-2 py-1 rounded font-semibold">
                         Primary
                       </span>
                     )}

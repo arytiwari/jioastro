@@ -70,7 +70,7 @@ export default function ProfileViewPage() {
   if (profileLoading) {
     return (
       <div className="text-center py-12">
-        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-gray-600">Loading profile...</p>
       </div>
     )
@@ -101,7 +101,7 @@ export default function ProfileViewPage() {
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
               {profile.name}
               {profile.is_primary && (
-                <span className="text-sm bg-purple-100 text-purple-700 px-2 py-1 rounded font-normal">
+                <span className="text-sm bg-jio-100 text-jio-700 px-2 py-1 rounded font-normal">
                   Primary
                 </span>
               )}
@@ -141,7 +141,7 @@ export default function ProfileViewPage() {
           {d1Loading ? (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Calculating birth chart...</p>
               </CardContent>
             </Card>
@@ -193,7 +193,7 @@ export default function ProfileViewPage() {
           {d9Loading ? (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Calculating Navamsa chart...</p>
               </CardContent>
             </Card>
