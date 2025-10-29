@@ -125,7 +125,7 @@ async def create_query(
         new_response = await supabase_service.create_response({
             "query_id": new_query["id"],
             "interpretation": ai_result["interpretation"],
-            "model_used": ai_result["model"],
+            "ai_model": ai_result["model"],
             "tokens_used": ai_result.get("tokens_used", 0)
         })
 
