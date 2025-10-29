@@ -44,7 +44,7 @@ const dashaColors: Record<string, string> = {
   Jupiter: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   Venus: 'bg-pink-100 text-pink-800 border-pink-300',
   Saturn: 'bg-gray-100 text-gray-800 border-gray-300',
-  Rahu: 'bg-purple-100 text-purple-800 border-purple-300',
+  Rahu: 'bg-jio-100 text-jio-800 border-jio-300',
   Ketu: 'bg-indigo-100 text-indigo-800 border-indigo-300',
 }
 
@@ -70,7 +70,7 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-purple-600" />
+            <Clock className="w-5 h-5 text-jio-600" />
             Current Dasha Period
           </CardTitle>
         </CardHeader>
@@ -100,9 +100,9 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
   return (
     <div className="space-y-6">
       {/* Current Mahadasha Highlight */}
-      <Card className="border-2 border-purple-500">
+      <Card className="border-2 border-jio-500">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700">
+          <CardTitle className="flex items-center gap-2 text-jio-700">
             <Clock className="w-5 h-5" />
             Current Mahadasha
           </CardTitle>
@@ -136,7 +136,7 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
               const colorClass = dashaColors[maha.planet] || 'bg-gray-100'
 
               return (
-                <div key={idx} className={`border rounded-lg ${isCurrent ? 'border-purple-500 border-2' : 'border-gray-200'}`}>
+                <div key={idx} className={`border rounded-lg ${isCurrent ? 'border-jio-500 border-2' : 'border-gray-200'}`}>
                   <div
                     className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${colorClass} border-b`}
                     onClick={() => setExpandedMaha(isExpanded ? null : maha.planet)}
@@ -201,9 +201,9 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
       </Card>
 
       {/* Info Box */}
-      <Card className="bg-purple-50">
+      <Card className="bg-jio-50">
         <CardContent className="py-4">
-          <h3 className="font-semibold mb-2 text-purple-900">About Vimshottari Dasha</h3>
+          <h3 className="font-semibold mb-2 text-jio-900">About Vimshottari Dasha</h3>
           <p className="text-sm text-gray-700">
             Vimshottari Dasha is a 120-year cycle based on the Moon's nakshatra at birth.
             Each planet governs your life for a specific period, bringing its unique influences.

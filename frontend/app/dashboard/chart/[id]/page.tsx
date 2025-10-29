@@ -67,7 +67,7 @@ export default function EnhancedChartPage() {
   if (profileLoading) {
     return (
       <div className="text-center py-12">
-        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-gray-600">Loading profile...</p>
       </div>
     )
@@ -98,7 +98,7 @@ export default function EnhancedChartPage() {
             <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
               {profile.name}
               {profile.is_primary && (
-                <span className="text-sm bg-purple-100 text-purple-700 px-2 py-1 rounded font-normal">
+                <span className="text-sm bg-jio-100 text-jio-700 px-2 py-1 rounded font-normal">
                   Primary
                 </span>
               )}
@@ -142,7 +142,7 @@ export default function EnhancedChartPage() {
           {d1Loading ? (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Calculating birth chart...</p>
               </CardContent>
             </Card>
@@ -178,7 +178,7 @@ export default function EnhancedChartPage() {
                     <CardTitle className="text-sm font-medium">Ascendant</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-purple-700">
+                    <div className="text-2xl font-bold text-jio-700">
                       {d1Chart.chart_data.ascendant.sign}
                     </div>
                     <p className="text-xs text-gray-500 mt-1">Rising sign at birth</p>
@@ -224,7 +224,7 @@ export default function EnhancedChartPage() {
           {d1Loading ? (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Calculating birth chart...</p>
               </CardContent>
             </Card>
@@ -289,7 +289,7 @@ export default function EnhancedChartPage() {
           {d9Loading ? (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Calculating Navamsa chart...</p>
               </CardContent>
             </Card>
@@ -330,7 +330,7 @@ export default function EnhancedChartPage() {
           {d1Loading ? (
             <Card>
               <CardContent className="text-center py-12">
-                <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Loading dasha periods...</p>
               </CardContent>
             </Card>

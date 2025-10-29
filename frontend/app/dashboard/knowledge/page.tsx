@@ -10,7 +10,7 @@ export default function KnowledgeBasePage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <BookOpen className="w-8 h-8 text-purple-600" />
+          <BookOpen className="w-8 h-8 text-jio-600" />
           <h1 className="text-3xl font-bold text-gray-900">Vedic Astrology Knowledge Base</h1>
         </div>
         <p className="text-gray-600">
@@ -19,10 +19,10 @@ export default function KnowledgeBasePage() {
       </div>
 
       {/* Introduction Card */}
-      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+      <Card className="bg-gradient-to-r from-jio-50 to-blue-50 border-jio-200">
         <CardHeader>
-          <CardTitle className="text-purple-900">Welcome to Vedic Wisdom</CardTitle>
-          <CardDescription className="text-purple-700">
+          <CardTitle className="text-jio-900">Welcome to Vedic Wisdom</CardTitle>
+          <CardDescription className="text-jio-700">
             Explore the ancient science of Jyotish (Vedic Astrology)
           </CardDescription>
         </CardHeader>
@@ -90,11 +90,11 @@ export default function KnowledgeBasePage() {
       </Card>
 
       {/* Attribution */}
-      <Card className="border-purple-200 bg-purple-50">
+      <Card className="border-jio-200 bg-jio-50">
         <CardContent className="py-4">
           <p className="text-xs text-gray-600 text-center">
             Based on classical Vedic astrology texts and principles. Calculations powered by{' '}
-            <a href="https://vedastro.org" target="_blank" rel="noopener noreferrer" className="font-semibold text-purple-700 hover:underline">
+            <a href="https://vedastro.org" target="_blank" rel="noopener noreferrer" className="font-semibold text-jio-700 hover:underline">
               VedAstro
             </a>
             {' '}(MIT License)

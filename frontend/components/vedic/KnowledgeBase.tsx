@@ -126,8 +126,8 @@ export function KnowledgeBase() {
             onClick={() => setSelectedTopic(topic.id)}
             className={`px-4 py-2 rounded-lg border-2 transition-all ${
               selectedTopic === topic.id
-                ? 'border-purple-600 bg-purple-50 text-purple-900 font-semibold shadow-md'
-                : 'border-gray-300 bg-white text-gray-700 hover:border-purple-400 hover:bg-purple-50'
+                ? 'border-jio-600 bg-jio-50 text-jio-900 font-semibold shadow-md'
+                : 'border-gray-300 bg-white text-gray-700 hover:border-jio-400 hover:bg-jio-50'
             }`}
           >
             <span className="text-xl mr-2">{topic.icon}</span>
@@ -156,7 +156,7 @@ export function KnowledgeBase() {
             return (
               <div
                 key={index}
-                className="p-4 rounded-lg border-2 border-gray-200 bg-gray-50 hover:border-purple-300 hover:bg-purple-50 transition-all"
+                className="p-4 rounded-lg border-2 border-gray-200 bg-gray-50 hover:border-jio-300 hover:bg-jio-50 transition-all"
               >
                 <div className="space-y-2">
                   {/* Title/Name */}
@@ -167,7 +167,7 @@ export function KnowledgeBase() {
                   {/* House number */}
                   {item.house !== undefined && (
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-purple-600 text-white font-bold rounded-md text-sm">
+                      <span className="px-2 py-1 bg-jio-600 text-white font-bold rounded-md text-sm">
                         House {item.house}
                       </span>
                       <span className="font-semibold text-gray-800">{item.name}</span>

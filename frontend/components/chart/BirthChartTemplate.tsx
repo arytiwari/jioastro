@@ -230,7 +230,7 @@ export function BirthChartTemplate({ chartData, width = 600, height = 600, chart
       <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-md">
         <p className="text-center font-bold text-lg mb-3 text-gray-800">North Indian Chart (Vedic)</p>
         <div className="text-xs text-gray-600 space-y-1">
-          <p><span className="font-semibold text-purple-700">House 1</span> (Top) - Ascendant/Lagna</p>
+          <p><span className="font-semibold text-jio-700">House 1</span> (Top) - Ascendant/Lagna</p>
           <p><span className="font-semibold text-amber-700">Kendra</span> (1,4,7,10) - Angular houses</p>
           <p><span className="font-semibold text-blue-700">Trikona</span> (5,9) - Trinal houses</p>
           <p className="mt-2"><span className="font-semibold text-red-600">ʀ</span> = Retrograde</p>
