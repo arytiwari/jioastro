@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { signIn } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Sparkles } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -47,9 +47,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-jio-100 rounded-full">
-              <Sparkles className="w-8 h-8 text-jio-600" />
-            </div>
+            <Logo size={64} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
           <p className="text-gray-600 mt-2">Sign in to access your astrological insights</p>

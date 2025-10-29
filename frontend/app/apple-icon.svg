@@ -1,0 +1,21 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with rounded corners for iOS -->
+  <rect width="180" height="180" rx="40" fill="#0056d6"/>
+
+  <!-- Inner glow -->
+  <circle cx="90" cy="90" r="70" fill="#1a75ff" opacity="0.3"/>
+
+  <!-- Main "J" letter - scaled for 180x180 -->
+  <path d="M 70 35 L 110 35 L 110 100 Q 110 130 70 130 Q 30 130 30 100 L 55 100 Q 55 105 70 105 Q 85 105 85 100 L 85 60 L 70 60 Z" fill="white"/>
+
+  <!-- Top star accent -->
+  <path d="M 140 30 L 145 42 L 157 42 L 147 50 L 152 62 L 140 54 L 128 62 L 133 50 L 123 42 L 135 42 Z" fill="#fbbf24"/>
+
+  <!-- Constellation dots -->
+  <circle cx="150" cy="85" r="4" fill="white" opacity="0.8"/>
+  <circle cx="145" cy="100" r="3" fill="white" opacity="0.7"/>
+  <circle cx="155" cy="98" r="3" fill="white" opacity="0.6"/>
+
+  <!-- Orbital decoration -->
+  <path d="M 40 55 Q 30 90 40 125" stroke="white" stroke-width="2" fill="none" opacity="0.2" stroke-dasharray="5 5"/>
+</svg>

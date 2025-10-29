@@ -1,0 +1,18 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="48" fill="#0056d6"/>
+
+  <!-- Inner glow -->
+  <circle cx="50" cy="50" r="42" fill="#1a75ff" opacity="0.3"/>
+
+  <!-- Main "J" letter - stylized -->
+  <path d="M 42 20 L 58 20 L 58 55 Q 58 70 42 70 Q 26 70 26 55 L 38 55 Q 38 58 42 58 Q 46 58 46 55 L 46 32 L 42 32 Z" fill="white"/>
+
+  <!-- Top star accent -->
+  <path d="M 75 18 L 77 23 L 82 23 L 78 26 L 80 31 L 75 28 L 70 31 L 72 26 L 68 23 L 73 23 Z" fill="#fbbf24"/>
+
+  <!-- Right constellation dots -->
+  <circle cx="80" cy="48" r="2" fill="white" opacity="0.8"/>
+  <circle cx="78" cy="55" r="1.5" fill="white" opacity="0.7"/>
+  <circle cx="82" cy="54" r="1.5" fill="white" opacity="0.6"/>
+</svg>
