@@ -62,10 +62,9 @@ export default function HistoryPage() {
       </div>
 
       <div className="space-y-4">
-        {queries.map((item: any) => {
-          const isExpanded = expandedQuery === item.query.id
-          const query = item.query
-          const response = item.response
+        {queries.map((query: any) => {
+          const isExpanded = expandedQuery === query.id
+          const response = query.responses?.[0] // Get first response from responses array
 
           return (
             <Card key={query.id} className="overflow-hidden">
