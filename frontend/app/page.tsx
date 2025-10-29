@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Sparkles, Star, BookOpen, TrendingUp } from 'lucide-react'
+import { Star, BookOpen, TrendingUp } from 'lucide-react'
+import { Logo } from '@/components/ui/logo'
 
 export default function HomePage() {
   return (
@@ -9,9 +10,7 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-16">
         <div className="text-center max-w-3xl mx-auto">
           <div className="flex justify-center mb-6">
-            <div className="p-4 bg-jio-100 rounded-full">
-              <Sparkles className="w-12 h-12 text-jio-600" />
-            </div>
+            <Logo size={80} />
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -39,7 +38,7 @@ export default function HomePage() {
 
         {/* Features */}
         <div className="mt-20 grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100">
+          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100 hover:shadow-md transition-shadow">
             <div className="flex justify-center mb-4">
               <Star className="w-10 h-10 text-jio-600" />
             </div>
@@ -49,7 +48,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100">
+          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100 hover:shadow-md transition-shadow">
             <div className="flex justify-center mb-4">
               <BookOpen className="w-10 h-10 text-jio-600" />
             </div>
@@ -59,7 +58,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100">
+          <div className="text-center p-6 rounded-lg bg-white shadow-sm border border-jio-100 hover:shadow-md transition-shadow">
             <div className="flex justify-center mb-4">
               <TrendingUp className="w-10 h-10 text-jio-600" />
             </div>

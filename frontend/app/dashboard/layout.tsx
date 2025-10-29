@@ -7,6 +7,7 @@ import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
 import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 export default function DashboardLayout({
   children,
@@ -66,10 +67,8 @@ export default function DashboardLayout({
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="p-2 bg-jio-100 rounded-lg">
-                <span className="text-2xl font-bold text-jio-600">J</span>
-              </div>
+            <Link href="/dashboard" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <Logo size={36} />
               <span className="font-bold text-xl hidden sm:inline text-jio-700">JioAstro</span>
             </Link>
 
