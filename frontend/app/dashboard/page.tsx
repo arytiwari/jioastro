@@ -164,11 +164,11 @@ export default function DashboardPage() {
               </div>
             ) : queries && queries.length > 0 ? (
               <div className="space-y-3">
-                {queries.slice(0, 3).map((item: any) => (
-                  <div key={item.query.id} className="p-3 border rounded-lg">
-                    <p className="text-sm font-medium line-clamp-2">{item.query.question}</p>
+                {queries.slice(0, 3).map((query: any) => (
+                  <div key={query.id} className="p-3 border rounded-lg">
+                    <p className="text-sm font-medium line-clamp-2">{query.question}</p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {new Date(item.query.created_at).toLocaleDateString()}
+                      {new Date(query.created_at).toLocaleDateString()}
                     </p>
                   </div>
                 ))}
