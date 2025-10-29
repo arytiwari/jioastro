@@ -43,12 +43,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-purple-50 to-white p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-jio-50 to-white p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-purple-100 rounded-full">
-              <Sparkles className="w-8 h-8 text-purple-600" />
+            <div className="p-3 bg-jio-100 rounded-full">
+              <Sparkles className="w-8 h-8 text-jio-600" />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
@@ -107,7 +107,7 @@ export default function LoginPage() {
 
               <div className="text-sm text-center text-gray-600">
                 Don't have an account?{' '}
-                <Link href="/auth/signup" className="text-purple-600 hover:underline font-semibold">
+                <Link href="/auth/signup" className="text-jio-600 hover:underline font-semibold">
                   Sign up
                 </Link>
               </div>
