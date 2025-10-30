@@ -3,6 +3,7 @@
  */
 
 import axios, { AxiosInstance } from 'axios'
+import { getSession } from '@/lib/supabase'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
 
@@ -57,24 +58,18 @@ class APIClient {
   }
 
   async loadToken() {
-    if (typeof window !== 'undefined') {
-      // Load token from Supabase session instead of custom storage
-      try {
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        )
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.access_token) {
-          this.token = session.access_token
-          console.log('✅ Loaded Supabase JWT token')
-        } else {
-          console.log('⚠️ No Supabase session found')
-        }
-      } catch (error) {
-        console.error('Failed to load Supabase token:', error)
+    if (typeof window === 'undefined') return
+
+    try {
+      const session = getSession()
+      if (session?.access_token) {
+        this.token = session.access_token
+        console.log('✅ Loaded Supabase JWT token')
+      } else {
+        console.log('⚠️ No Supabase session found')
       }
+    } catch (error) {
+      console.error('Failed to load Supabase token:', error)
     }
   }
 

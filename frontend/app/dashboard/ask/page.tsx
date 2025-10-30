@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -43,8 +43,8 @@ export default function AskQuestionPage() {
       return response.data
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['queries'] })
-      queryClient.invalidateQueries({ queryKey: ['recent-queries'] })
+      queryClient.invalidateQueries(['queries'])
+      queryClient.invalidateQueries(['recent-queries'])
       // Redirect to history page to see the response
       router.push(`/dashboard/history`)
     },
