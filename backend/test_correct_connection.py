@@ -1,6 +1,11 @@
 """Test connection with the correct Supabase format"""
 import asyncio
-import asyncpg
+
+import pytest
+
+asyncpg = pytest.importorskip(
+    "asyncpg", reason="asyncpg is required for Supabase connection smoke tests"
+)
 
 async def test_correct_format():
     # Using the DIRECT_URL format from Supabase (port 5432, no pgbouncer)
