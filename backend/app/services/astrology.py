@@ -1,0 +1,578 @@
+"""
+Vedic Astrology Calculation Service
+Using Swiss Ephemeris and Kerykeion for accurate Vedic calculations
+"""
+
+from typing import Dict, List, Any
+from datetime import datetime, date, time, timedelta
+from kerykeion import AstrologicalSubject
+import pytz
+
+
+class VedicAstrologyService:
+    """Service for Vedic astrology calculations"""
+
+    ZODIAC_SIGNS = [
+        "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+        "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+    ]
+
+    PLANETS = [
+        "Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn",
+        "Rahu", "Ketu"  # Vedic nodes
+    ]
+
+    def __init__(self):
+        """Initialize astrology service"""
+        pass
+
+    def calculate_birth_chart(
+        self,
+        name: str,
+        birth_date: date,
+        birth_time: time,
+        latitude: float,
+        longitude: float,
+        timezone_str: str = "UTC",
+        city: str = "Unknown"
+    ) -> Dict[str, Any]:
+        """
+        Calculate Vedic birth chart (D1 - Rashi chart)
+
+        Args:
+            name: Person's name
+            birth_date: Date of birth
+            birth_time: Time of birth
+            latitude: Birth location latitude
+            longitude: Birth location longitude
+            timezone_str: Timezone string (e.g., 'Asia/Kolkata')
+            city: Birth city name
+
+        Returns:
+            Complete birth chart data including planets, houses, and yogas
+        """
+
+        # Create AstrologicalSubject with Vedic (Sidereal) mode
+        # Note: Kerykeion 4.3.0 uses Lahiri ayanamsa by default for Sidereal
+        subject = AstrologicalSubject(
+            name=name,
+            year=birth_date.year,
+            month=birth_date.month,
+            day=birth_date.day,
+            hour=birth_time.hour,
+            minute=birth_time.minute,
+            lat=latitude,
+            lng=longitude,
+            tz_str=timezone_str,
+            city=city,
+            nation="IN",  # India - fixes "No nation specified, using GB as default" warning
+            zodiac_type="Sidereal"  # Vedic astrology uses sidereal zodiac (Lahiri by default)
+        )
+
+        # Extract chart data
+        chart_data = {
+            "basic_info": {
+                "name": name,
+                "birth_datetime": datetime.combine(birth_date, birth_time).isoformat(),
+                "location": {
+                    "city": city,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "timezone": timezone_str
+                }
+            },
+            "ascendant": {
+                "sign": getattr(subject.first_house, 'sign', 'Unknown'),
+                "sign_num": getattr(subject.first_house, 'sign_num', 0),
+                "position": getattr(subject.first_house, 'position', 0.0),
+                "house": 1
+            },
+            "planets": self._extract_planets(subject),
+            "houses": self._extract_houses(subject),
+            "yogas": self._detect_yogas(subject),
+            "dasha": self._calculate_vimshottari_dasha(subject),
+            "chart_type": "D1"
+        }
+
+        return chart_data
+
+    def calculate_navamsa_chart(
+        self,
+        name: str,
+        birth_date: date,
+        birth_time: time,
+        latitude: float,
+        longitude: float,
+        timezone_str: str = "UTC",
+        city: str = "Unknown"
+    ) -> Dict[str, Any]:
+        """
+        Calculate Navamsa chart (D9)
+        Navamsa is the 9th divisional chart showing deeper karmic patterns
+        """
+
+        # First get the D1 chart for base data
+        d1_chart = self.calculate_birth_chart(
+            name, birth_date, birth_time, latitude, longitude, timezone_str, city
+        )
+
+        # Calculate Navamsa positions and houses
+        navamsa_planets = {}
+
+        # Calculate Navamsa ascendant first
+        asc_pos = d1_chart["ascendant"]["position"]
+        asc_sign = d1_chart["ascendant"]["sign_num"]
+        navamsa_asc = self._calculate_navamsa_position(asc_pos, asc_sign)
+        navamsa_asc_sign = navamsa_asc["sign_num"]
+
+        for planet_name, planet_data in d1_chart["planets"].items():
+            navamsa_pos = self._calculate_navamsa_position(
+                planet_data["position"],
+                planet_data["sign_num"]
+            )
+
+            # Calculate proper Navamsa house based on Navamsa ascendant
+            planet_navamsa_sign = navamsa_pos["sign_num"]
+            # House is calculated from Navamsa ascendant
+            navamsa_house = ((planet_navamsa_sign - navamsa_asc_sign) % 12) + 1
+
+            navamsa_planets[planet_name] = {
+                **navamsa_pos,
+                "house": navamsa_house,  # Proper Navamsa house
+                "retrograde": planet_data.get("retrograde", False)
+            }
+
+        # Create Navamsa houses array based on Navamsa ascendant
+        navamsa_houses = []
+        for i in range(12):
+            house_sign_num = (navamsa_asc_sign + i) % 12
+            navamsa_houses.append({
+                "house_num": i + 1,
+                "sign": self.ZODIAC_SIGNS[house_sign_num],
+                "sign_num": house_sign_num,
+                "position": (house_sign_num * 30)  # Simplified position
+            })
+
+        return {
+            "basic_info": d1_chart["basic_info"],
+            "ascendant": {
+                **navamsa_asc,
+                "house": 1
+            },
+            "planets": navamsa_planets,
+            "houses": navamsa_houses,  # Proper Navamsa houses
+            "yogas": [],  # Yogas in D9 are complex, skip for MVP
+            "dasha": d1_chart["dasha"],  # Same dasha system
+            "chart_type": "D9",
+            "note": "Navamsa (D9) - Marriage and spiritual chart with proper divisional houses"
+        }
+
+    def _extract_planets(self, subject: AstrologicalSubject) -> Dict[str, Any]:
+        """Extract planetary positions from subject"""
+
+        planets_data = {}
+
+        # Sun
+        if hasattr(subject, 'sun'):
+            planets_data["Sun"] = {
+                "sign": subject.sun.sign,
+                "sign_num": subject.sun.sign_num,
+                "position": subject.sun.position,
+                "house": subject.sun.house,
+                "retrograde": subject.sun.retrograde if hasattr(subject.sun, 'retrograde') else False
+            }
+
+        # Moon
+        if hasattr(subject, 'moon'):
+            planets_data["Moon"] = {
+                "sign": subject.moon.sign,
+                "sign_num": subject.moon.sign_num,
+                "position": subject.moon.position,
+                "house": subject.moon.house,
+                "retrograde": False  # Moon never retrogrades
+            }
+
+        # Mars
+        if hasattr(subject, 'mars'):
+            planets_data["Mars"] = {
+                "sign": subject.mars.sign,
+                "sign_num": subject.mars.sign_num,
+                "position": subject.mars.position,
+                "house": subject.mars.house,
+                "retrograde": subject.mars.retrograde if hasattr(subject.mars, 'retrograde') else False
+            }
+
+        # Mercury
+        if hasattr(subject, 'mercury'):
+            planets_data["Mercury"] = {
+                "sign": subject.mercury.sign,
+                "sign_num": subject.mercury.sign_num,
+                "position": subject.mercury.position,
+                "house": subject.mercury.house,
+                "retrograde": subject.mercury.retrograde if hasattr(subject.mercury, 'retrograde') else False
+            }
+
+        # Jupiter
+        if hasattr(subject, 'jupiter'):
+            planets_data["Jupiter"] = {
+                "sign": subject.jupiter.sign,
+                "sign_num": subject.jupiter.sign_num,
+                "position": subject.jupiter.position,
+                "house": subject.jupiter.house,
+                "retrograde": subject.jupiter.retrograde if hasattr(subject.jupiter, 'retrograde') else False
+            }
+
+        # Venus
+        if hasattr(subject, 'venus'):
+            planets_data["Venus"] = {
+                "sign": subject.venus.sign,
+                "sign_num": subject.venus.sign_num,
+                "position": subject.venus.position,
+                "house": subject.venus.house,
+                "retrograde": subject.venus.retrograde if hasattr(subject.venus, 'retrograde') else False
+            }
+
+        # Saturn
+        if hasattr(subject, 'saturn'):
+            planets_data["Saturn"] = {
+                "sign": subject.saturn.sign,
+                "sign_num": subject.saturn.sign_num,
+                "position": subject.saturn.position,
+                "house": subject.saturn.house,
+                "retrograde": subject.saturn.retrograde if hasattr(subject.saturn, 'retrograde') else False
+            }
+
+        # Rahu (North Node)
+        if hasattr(subject, 'mean_node'):
+            planets_data["Rahu"] = {
+                "sign": subject.mean_node.sign,
+                "sign_num": subject.mean_node.sign_num,
+                "position": subject.mean_node.position,
+                "house": subject.mean_node.house,
+                "retrograde": True  # Rahu always moves retrograde
+            }
+
+            # Ketu is always 180 degrees opposite Rahu
+            ketu_sign_num = (subject.mean_node.sign_num + 6) % 12
+            ketu_position = (subject.mean_node.position + 180) % 360
+
+            planets_data["Ketu"] = {
+                "sign": self.ZODIAC_SIGNS[ketu_sign_num],
+                "sign_num": ketu_sign_num,
+                "position": ketu_position,
+                "house": self._get_house_from_position(ketu_position, subject),
+                "retrograde": True  # Ketu always moves retrograde
+            }
+
+        return planets_data
+
+    def _extract_houses(self, subject: AstrologicalSubject) -> List[Dict[str, Any]]:
+        """Extract house cusps"""
+
+        houses = []
+        house_attributes = [
+            'first_house', 'second_house', 'third_house', 'fourth_house',
+            'fifth_house', 'sixth_house', 'seventh_house', 'eighth_house',
+            'ninth_house', 'tenth_house', 'eleventh_house', 'twelfth_house'
+        ]
+
+        for i, house_attr in enumerate(house_attributes, 1):
+            if hasattr(subject, house_attr):
+                house_data = getattr(subject, house_attr)
+                houses.append({
+                    "house_num": i,
+                    "sign": getattr(house_data, 'sign', 'Unknown'),
+                    "sign_num": getattr(house_data, 'sign_num', 0),
+                    "position": getattr(house_data, 'position', 0.0)
+                })
+
+        return houses
+
+    def _parse_house_number(self, house_value: Any) -> int:
+        """
+        Parse house number from Kerykeion format.
+        Kerykeion returns house as strings like "Third_House", "First_House", etc.
+
+        Args:
+            house_value: Can be int, string like "3", or string like "Third_House"
+
+        Returns:
+            House number (1-12) or 0 if invalid
+        """
+        if not house_value:
+            return 0
+
+        # If it's already an integer
+        if isinstance(house_value, int):
+            return house_value
+
+        # Convert to string for parsing
+        house_str = str(house_value)
+
+        # If it's a numeric string, convert directly
+        if house_str.isdigit():
+            return int(house_str)
+
+        # Parse house names like "First_House", "Second_House", etc.
+        house_name_map = {
+            "First": 1, "Second": 2, "Third": 3, "Fourth": 4,
+            "Fifth": 5, "Sixth": 6, "Seventh": 7, "Eighth": 8,
+            "Ninth": 9, "Tenth": 10, "Eleventh": 11, "Twelfth": 12
+        }
+
+        # Extract the house name (e.g., "Third" from "Third_House")
+        for name, num in house_name_map.items():
+            if name in house_str:
+                return num
+
+        return 0
+
+    def _detect_yogas(self, subject: AstrologicalSubject) -> List[Dict[str, str]]:
+        """
+        Detect major Vedic yogas (combinations)
+        Simplified version for MVP - detecting top 10-15 common yogas
+        """
+
+        yogas = []
+
+        # Get planet positions
+        planets = self._extract_planets(subject)
+        houses = self._extract_houses(subject)
+
+        # 1. Raj Yoga: Lords of 9th and 10th in Kendra (1, 4, 7, 10)
+        # Simplified check: if Jupiter (natural 9th lord) and Saturn (natural 10th lord) are strong
+        if planets.get("Jupiter") and planets.get("Saturn"):
+            jupiter_house = self._parse_house_number(planets["Jupiter"]["house"])
+            saturn_house = self._parse_house_number(planets["Saturn"]["house"])
+
+            if jupiter_house in [1, 4, 7, 10] and saturn_house in [1, 4, 7, 10]:
+                yogas.append({
+                    "name": "Raj Yoga",
+                    "description": "Combination indicating power, authority, and success. Jupiter and Saturn are well-placed in angles.",
+                    "strength": "Strong"
+                })
+
+        # 2. Dhana Yoga: Wealth combinations
+        if planets.get("Jupiter") and planets.get("Venus"):
+            jupiter_house = self._parse_house_number(planets["Jupiter"]["house"])
+            venus_house = self._parse_house_number(planets["Venus"]["house"])
+            if jupiter_house == venus_house and jupiter_house > 0:
+                yogas.append({
+                    "name": "Dhana Yoga",
+                    "description": "Jupiter and Venus conjunction indicates wealth and prosperity.",
+                    "strength": "Medium"
+                })
+
+        # 3. Budhaditya Yoga: Sun-Mercury conjunction
+        if planets.get("Sun") and planets.get("Mercury"):
+            sun_pos = float(planets["Sun"]["position"]) if planets["Sun"]["position"] else 0
+            mercury_pos = float(planets["Mercury"]["position"]) if planets["Mercury"]["position"] else 0
+
+            if abs(sun_pos - mercury_pos) < 10:  # Within 10 degrees
+                yogas.append({
+                    "name": "Budhaditya Yoga",
+                    "description": "Sun-Mercury conjunction enhances intelligence, communication, and learning abilities.",
+                    "strength": "Medium"
+                })
+
+        # 4. Chandra-Mangala Yoga: Moon-Mars conjunction
+        if planets.get("Moon") and planets.get("Mars"):
+            moon_house = self._parse_house_number(planets["Moon"]["house"])
+            mars_house = self._parse_house_number(planets["Mars"]["house"])
+            if moon_house == mars_house and moon_house > 0:
+                yogas.append({
+                    "name": "Chandra-Mangala Yoga",
+                    "description": "Moon-Mars combination indicates determination, courage, and material success.",
+                    "strength": "Medium"
+                })
+
+        # 5. Gaja Kesari Yoga: Jupiter in Kendra from Moon
+        if planets.get("Jupiter") and planets.get("Moon"):
+            jupiter_house = self._parse_house_number(planets["Jupiter"]["house"])
+            moon_house = self._parse_house_number(planets["Moon"]["house"])
+
+            if jupiter_house > 0 and moon_house > 0:
+                # Check if Jupiter is in 1st, 4th, 7th, or 10th from Moon
+                house_diff = (jupiter_house - moon_house) % 12
+                if house_diff in [0, 3, 6, 9]:  # Kendra relationship
+                    yogas.append({
+                        "name": "Gaja Kesari Yoga",
+                        "description": "Jupiter in angle from Moon - brings wisdom, prosperity, and good fortune.",
+                        "strength": "Strong"
+                    })
+
+        # 6. Neecha Bhanga Raja Yoga: Cancellation of debilitation
+        # Simplified: Check if debilitated planet's lord is in Kendra
+        # (Full implementation would be more complex)
+
+        # If no yogas detected, add a default message
+        if not yogas:
+            yogas.append({
+                "name": "General Analysis",
+                "description": "Your chart shows unique planetary combinations. Consult detailed analysis for personalized insights.",
+                "strength": "Varies"
+            })
+
+        return yogas
+
+    def _calculate_vimshottari_dasha(self, subject: AstrologicalSubject) -> Dict[str, Any]:
+        """
+        Calculate Vimshottari Dasha (planetary periods) with Mahadasha, Antardasha, and Pratyantar Dasha
+        """
+
+        # Vimshottari Dasha is based on Moon's nakshatra position
+        moon_position = subject.moon.position if hasattr(subject, 'moon') else 0
+
+        # Nakshatras are 13°20' each (360/27)
+        nakshatra_num = int(moon_position / 13.333333)
+        nakshatra_lord_sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        nakshatra_lord = nakshatra_lord_sequence[nakshatra_num % 9]
+
+        # Dasha periods (in years)
+        dasha_periods = {
+            "Ketu": 7, "Venus": 20, "Sun": 6, "Moon": 10,
+            "Mars": 7, "Rahu": 18, "Jupiter": 16, "Saturn": 19, "Mercury": 17
+        }
+
+        # Birth date
+        birth_date_obj = datetime(
+            subject.year,
+            subject.month,
+            subject.day,
+            subject.hour,
+            subject.minute
+        )
+
+        # Calculate elapsed portion of current nakshatra
+        nakshatra_position = (moon_position % 13.333333) / 13.333333  # 0-1
+        current_dasha_planet = nakshatra_lord
+        current_dasha_total = dasha_periods[current_dasha_planet]
+        current_dasha_elapsed = nakshatra_position * current_dasha_total
+        current_dasha_remaining = current_dasha_total - current_dasha_elapsed
+
+        # Generate Mahadasha sequence starting from current
+        planet_sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        start_idx = planet_sequence.index(current_dasha_planet)
+
+        mahadashas = []
+        current_date = birth_date_obj
+
+        # Add remaining portion of current Mahadasha
+        end_date = current_date + timedelta(days=current_dasha_remaining * 365.25)
+        mahadashas.append({
+            "planet": current_dasha_planet,
+            "start_date": current_date.strftime("%Y-%m-%d"),
+            "end_date": end_date.strftime("%Y-%m-%d"),
+            "years": round(current_dasha_remaining, 2),
+            "months": int(current_dasha_remaining * 12)
+        })
+        current_date = end_date
+
+        # Add next 8 Mahadashas (full 120-year cycle)
+        for i in range(1, 9):
+            planet = planet_sequence[(start_idx + i) % 9]
+            years = dasha_periods[planet]
+            end_date = current_date + timedelta(days=years * 365.25)
+            mahadashas.append({
+                "planet": planet,
+                "start_date": current_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "years": years,
+                "months": years * 12
+            })
+            current_date = end_date
+
+        # Calculate Antardashas for current Mahadasha
+        current_maha = mahadashas[0]
+        antardashas = self._calculate_antardashas(
+            current_maha["planet"],
+            datetime.strptime(current_maha["start_date"], "%Y-%m-%d"),
+            current_maha["years"]
+        )
+
+        return {
+            "current_mahadasha": current_dasha_planet,
+            "mahadasha_years": round(current_dasha_remaining, 2),
+            "mahadashas": mahadashas[:9],  # Next 9 Mahadashas
+            "antardashas": antardashas,  # Antardashas of current Mahadasha
+            "note": "Vimshottari Dasha - 120-year planetary period cycle"
+        }
+
+    def _calculate_antardashas(self, mahadasha_planet: str, start_date: datetime, maha_years: float) -> List[Dict[str, Any]]:
+        """Calculate Antardashas (sub-periods) for a given Mahadasha"""
+
+        dasha_periods = {
+            "Ketu": 7, "Venus": 20, "Sun": 6, "Moon": 10,
+            "Mars": 7, "Rahu": 18, "Jupiter": 16, "Saturn": 19, "Mercury": 17
+        }
+
+        planet_sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
+        start_idx = planet_sequence.index(mahadasha_planet)
+
+        antardashas = []
+        current_date = start_date
+        total_proportion = sum(dasha_periods.values())
+
+        for i in range(9):
+            planet = planet_sequence[(start_idx + i) % 9]
+            # Antardasha duration = (Antardasha planet's years / 120) * Mahadasha years
+            years = (dasha_periods[planet] / 120) * maha_years * dasha_periods[mahadasha_planet]
+            days = years * 365.25
+            end_date = current_date + timedelta(days=days)
+
+            antardashas.append({
+                "planet": planet,
+                "start_date": current_date.strftime("%Y-%m-%d"),
+                "end_date": end_date.strftime("%Y-%m-%d"),
+                "years": round(years, 2),
+                "months": int(years * 12),
+                "days": int(days)
+            })
+            current_date = end_date
+
+        return antardashas
+
+    def _calculate_navamsa_position(self, planet_position: float, sign_num: int) -> Dict[str, Any]:
+        """Calculate Navamsa (D9) position for a planet"""
+
+        # Position within the sign (0-30 degrees)
+        pos_in_sign = planet_position % 30
+
+        # Navamsa within the sign (0-8, as there are 9 navamsas per sign)
+        navamsa_in_sign = int(pos_in_sign / 3.333333)
+
+        # Calculate the navamsa sign
+        # Formula: (sign_num - 1) * 9 + navamsa_in_sign + 1, then mod 12
+        navamsa_sign_num = ((sign_num * 9) + navamsa_in_sign) % 12
+
+        return {
+            "sign": self.ZODIAC_SIGNS[navamsa_sign_num],
+            "sign_num": navamsa_sign_num,
+            "navamsa_num": navamsa_in_sign + 1,
+            "position": (navamsa_sign_num * 30) + (pos_in_sign % 3.333333) * 9
+        }
+
+    def _get_house_from_position(self, position: float, subject: AstrologicalSubject) -> int:
+        """Determine which house a given ecliptic position falls into"""
+
+        houses = self._extract_houses(subject)
+
+        # Simple house determination (can be improved)
+        for i, house in enumerate(houses):
+            next_house = houses[(i + 1) % 12]
+            house_start = house["position"]
+            house_end = next_house["position"]
+
+            # Handle wrap-around at 360 degrees
+            if house_end < house_start:
+                if position >= house_start or position < house_end:
+                    return house["house_num"]
+            else:
+                if house_start <= position < house_end:
+                    return house["house_num"]
+
+        return 1  # Default to 1st house if not found
+
+
+# Singleton instance
+astrology_service = VedicAstrologyService()
