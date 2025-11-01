@@ -1,20 +1,35 @@
 'use client'
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useMemo } from 'react'
+import { QueryClient, QueryClientProvider } from '@/lib/query'
+import { apiClient } from '@/lib/api'
+import { onAuthStateChange } from '@/lib/supabase'
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: 60 * 1000, // 1 minute
-            refetchOnWindowFocus: false,
-          },
-        },
-      })
-  )
+  const queryClient = useMemo(() => new QueryClient(), [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    void apiClient.loadToken()
+
+    const {
+      data: { subscription },
+    } = onAuthStateChange((_, session) => {
+      if (!isMounted) return
+
+      if (session?.access_token) {
+        apiClient.setToken(session.access_token)
+      } else {
+        apiClient.clearToken()
+      }
+    })
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
 
   return (
     <QueryClientProvider client={queryClient}>

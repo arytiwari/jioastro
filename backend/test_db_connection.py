@@ -1,10 +1,21 @@
 """Simple database connection test"""
 import asyncio
-import asyncpg
-from dotenv import load_dotenv
 import os
 import urllib.parse
 
+import pytest
+
+if os.getenv("RUN_SUPABASE_TESTS") != "1":
+    pytest.skip("Supabase integration tests are disabled", allow_module_level=True)
+
+pytest.importorskip(
+    "dotenv", reason="python-dotenv is required for Supabase connection smoke tests"
+)
+from dotenv import load_dotenv
+
+asyncpg = pytest.importorskip(
+    "asyncpg", reason="asyncpg is required for Supabase connection smoke tests"
+)
 load_dotenv()
 
 async def test_connection():

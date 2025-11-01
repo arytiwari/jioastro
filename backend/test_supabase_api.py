@@ -1,5 +1,18 @@
 """Test Supabase REST API connectivity"""
 import os
+
+import pytest
+
+if os.getenv("RUN_SUPABASE_TESTS") != "1":
+    pytest.skip("Supabase integration tests are disabled", allow_module_level=True)
+
+pytest.importorskip(
+    "dotenv", reason="python-dotenv is required for Supabase environment tests"
+)
+pytest.importorskip(
+    "supabase", reason="supabase client library is required for API smoke tests"
+)
+
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
