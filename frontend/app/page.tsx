@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Star, BookOpen, TrendingUp } from 'lucide-react'
+import { Star, BookOpen, TrendingUp } from '@/components/icons'
 import { Logo } from '@/components/ui/logo'
 
 export default function HomePage() {

@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Star } from 'lucide-react'
+import { Star } from '@/components/icons'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 
@@ -26,7 +26,7 @@ export function FeedbackButton({ responseId }: FeedbackButtonProps) {
       return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['feedback-stats'] })
+      queryClient.invalidateQueries(['feedback-stats'])
       setSubmitted(true)
       setTimeout(() => {
         setShowFeedback(false)
