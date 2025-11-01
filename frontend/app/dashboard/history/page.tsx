@@ -62,24 +62,31 @@ export default function HistoryPage() {
       </div>
 
       <div className="space-y-4">
-        {queries.map((query: any) => {
-          const isExpanded = expandedQuery === query.id
-          const response = query.responses?.[0] // Get first response from responses array
+        {queries.map((item: any) => {
+          const query = item?.query ?? item
+          if (!query) {
+            return null
+          }
+
+          const queryId = query.id ?? item?.id
+          const responses = item?.responses ?? query.responses ?? (item?.response ? [item.response] : [])
+          const isExpanded = expandedQuery === queryId
+          const response = responses?.[0] // Get first response from responses array
 
           return (
-            <Card key={query.id} className="overflow-hidden">
+            <Card key={queryId ?? query.question} className="overflow-hidden">
               <button
-                onClick={() => toggleQuery(query.id)}
+                onClick={() => queryId && toggleQuery(queryId)}
                 className="w-full text-left"
               >
                 <CardHeader className="hover:bg-gray-50 transition-colors cursor-pointer">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="text-lg line-clamp-2">{query.question}</CardTitle>
+                      <CardTitle className="text-lg line-clamp-2">{query.question ?? 'Question unavailable'}</CardTitle>
                       <CardDescription className="flex items-center gap-3 mt-2">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {new Date(query.created_at).toLocaleDateString()}
+                          {query.created_at ? new Date(query.created_at).toLocaleDateString() : 'Unknown date'}
                         </span>
                         {query.category && (
                           <span className="text-xs bg-jio-100 text-jio-700 px-2 py-1 rounded">
