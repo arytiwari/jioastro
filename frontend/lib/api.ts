@@ -65,28 +65,28 @@ class APIClient {
     }
   }
 
-    async loadToken() {
-      if (typeof window === 'undefined') return
+  async loadToken() {
+    if (typeof window === 'undefined') return
 
-      const storedToken = window.localStorage.getItem('auth_token')
-      if (storedToken) {
-        this.token = storedToken
+    const storedToken = window.localStorage.getItem('auth_token')
+    if (storedToken) {
+      this.token = storedToken
+    }
+
+    try {
+      const session = await getSession()
+      if (session?.access_token) {
+        this.setToken(session.access_token)
+      } else if (!storedToken) {
+        this.clearToken()
       }
-
-      try {
-        const session = await getSession()
-        if (session?.access_token) {
-          this.setToken(session.access_token)
-        } else if (!storedToken) {
-          this.clearToken()
-        }
-      } catch (error) {
-        console.error('Failed to load Supabase session', error)
-        if (!storedToken) {
-          this.clearToken()
-        }
+    } catch (error) {
+      console.error('Failed to load Supabase session', error)
+      if (!storedToken) {
+        this.clearToken()
       }
     }
+  }
 
   // Profile endpoints
   async createProfile(data: any) {
