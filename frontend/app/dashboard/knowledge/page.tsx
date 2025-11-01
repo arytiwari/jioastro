@@ -2,7 +2,7 @@
 
 import { KnowledgeBase } from '@/components/vedic/KnowledgeBase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { BookOpen } from 'lucide-react'
+import { BookOpen } from '@/components/icons'
 
 export default function KnowledgeBasePage() {
   return (
