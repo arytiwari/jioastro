@@ -5,9 +5,6 @@ import urllib.parse
 
 import pytest
 
-if os.getenv("RUN_SUPABASE_TESTS") != "1":
-    pytest.skip("Supabase integration tests are disabled", allow_module_level=True)
-
 pytest.importorskip(
     "dotenv", reason="python-dotenv is required for Supabase connection smoke tests"
 )

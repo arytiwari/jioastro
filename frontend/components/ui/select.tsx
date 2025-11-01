@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Check, ChevronDown } from "@/components/icons"
+import { Check, ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 

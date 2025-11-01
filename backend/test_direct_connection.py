@@ -1,11 +1,7 @@
 """Test direct database connection (bypassing pooler)"""
 import asyncio
-import os
 
 import pytest
-
-if os.getenv("RUN_SUPABASE_TESTS") != "1":
-    pytest.skip("Supabase integration tests are disabled", allow_module_level=True)
 
 asyncpg = pytest.importorskip(
     "asyncpg", reason="asyncpg is required for Supabase connection smoke tests"
