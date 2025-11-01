@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
-import { Star } from 'lucide-react'
+import { Star } from '@/components/icons'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 

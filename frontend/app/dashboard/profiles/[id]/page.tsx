@@ -11,7 +11,7 @@ import { BirthChartNew as BirthChart } from '@/components/chart/BirthChartNew'
 import { PlanetPositions } from '@/components/chart/PlanetPositions'
 import { YogaList } from '@/components/chart/YogaList'
 import { VimshottariDashaTable } from '@/components/chart/VimshottariDashaTable'
-import { ArrowLeft, Calendar, MapPin, Sparkles } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Sparkles } from '@/components/icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
 
