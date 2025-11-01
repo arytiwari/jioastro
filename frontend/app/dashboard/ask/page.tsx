@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sparkles, Briefcase, Heart, Activity, TrendingUp, Home, BookOpen } from 'lucide-react'
+import { Sparkles, Briefcase, Heart, Activity, TrendingUp, Home, BookOpen } from '@/components/icons'
 
 const CATEGORIES = [
   { id: 'career', label: 'Career & Work', icon: Briefcase, color: 'text-blue-600' },
@@ -43,8 +43,8 @@ export default function AskQuestionPage() {
       return response.data
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['queries'] })
-      queryClient.invalidateQueries({ queryKey: ['recent-queries'] })
+      queryClient.invalidateQueries(['queries'])
+      queryClient.invalidateQueries(['recent-queries'])
       // Redirect to history page to see the response
       router.push(`/dashboard/history`)
     },
