@@ -1,79 +1,178 @@
-import { createClient } from '@supabase/supabase-js'
-import type {
-  AuthError,
-  AuthResponse,
-  AuthTokenResponsePassword,
-  Session,
-  SupabaseClient,
-  User,
-} from '@supabase/supabase-js'
-
-type AuthChangeCallback = (event: string, session: Session | null) => void
-
-const STORAGE_KEY = 'supabase.auth.token'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Supabase credentials are not configured')
+export interface SupabaseUser {
+  id: string
+  email?: string
+  [key: string]: unknown
 }
 
-let client: SupabaseClient | null = null
+export interface SupabaseSession {
+  access_token: string
+  refresh_token?: string
+  expires_at?: number
+  token_type?: string
+  user: SupabaseUser | null
+}
 
-function getClient(): SupabaseClient {
-  if (!client) {
-    const isBrowser = typeof window !== 'undefined'
-    client = createClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: isBrowser,
-        autoRefreshToken: isBrowser,
-        storageKey: STORAGE_KEY,
-      },
-    })
+interface AuthResponse {
+  data: { user: SupabaseUser | null; session: SupabaseSession | null }
+  error: Error | null
+}
+
+const STORAGE_KEY = 'supabase.session'
+
+function getConfig() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!url || !anonKey) {
+    throw new Error('Supabase URL or anon key is not configured')
   }
 
-  return client
+  return { url: url.replace(/\/$/, ''), anonKey }
 }
 
-export async function signIn(email: string, password: string): Promise<AuthTokenResponsePassword> {
-  const supabase = getClient()
-  return supabase.auth.signInWithPassword({ email, password })
+function storeSession(session: SupabaseSession | null) {
+  if (typeof window === 'undefined') return
+  if (session) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session))
+  } else {
+    localStorage.removeItem(STORAGE_KEY)
+  }
+}
+
+export function getSession(): SupabaseSession | null {
+  if (typeof window === 'undefined') return null
+  const raw = localStorage.getItem(STORAGE_KEY)
+  if (!raw) return null
+
+  try {
+    return JSON.parse(raw) as SupabaseSession
+  } catch (error) {
+    console.warn('Failed to parse stored Supabase session', error)
+    localStorage.removeItem(STORAGE_KEY)
+    return null
+  }
+}
+
+async function request<T>(
+  path: string,
+  init: (RequestInit & { accessToken?: string }) | undefined = {}
+): Promise<T> {
+  const { accessToken, ...fetchInit } = init ?? {}
+  const { url, anonKey } = getConfig()
+  const headers = new Headers(fetchInit.headers)
+  headers.set('apikey', anonKey)
+  headers.set('Content-Type', 'application/json')
+  if (accessToken) {
+    headers.set('Authorization', `Bearer ${accessToken}`)
+  } else {
+    headers.set('Authorization', `Bearer ${anonKey}`)
+  }
+
+  const response = await fetch(`${url}${path}`, {
+    ...fetchInit,
+    headers,
+  })
+
+  const contentType = response.headers.get('content-type')
+  const isJson = contentType?.includes('application/json')
+  const payload = isJson ? await response.json() : null
+
+  if (!response.ok) {
+    const message =
+      payload?.error_description || payload?.message || 'Supabase request failed'
+    throw new Error(message)
+  }
+
+  return payload as T
+}
+
+export async function signIn(email: string, password: string): Promise<AuthResponse> {
+  try {
+    const data = await request<{ user: SupabaseUser | null; session: SupabaseSession | null }>(
+      '/auth/v1/token?grant_type=password',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      }
+    )
+
+    if (data.session) {
+      storeSession(data.session)
+    }
+
+    return { data, error: null }
+  } catch (error: any) {
+    return {
+      data: { user: null, session: null },
+      error: error instanceof Error ? error : new Error('Failed to sign in'),
+    }
+  }
 }
 
 export async function signUp(email: string, password: string): Promise<AuthResponse> {
-  const supabase = getClient()
-  return supabase.auth.signUp({ email, password })
+  try {
+    const data = await request<{ user: SupabaseUser | null; session: SupabaseSession | null }>(
+      '/auth/v1/signup',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      }
+    )
+
+    if (data.session) {
+      storeSession(data.session)
+    }
+
+    return { data, error: null }
+  } catch (error: any) {
+    return {
+      data: { user: null, session: null },
+      error: error instanceof Error ? error : new Error('Failed to sign up'),
+    }
+  }
 }
 
-export async function signOut(): Promise<{ error: AuthError | null }> {
-  const supabase = getClient()
-  return supabase.auth.signOut()
+export async function signOut(): Promise<void> {
+  const session = getSession()
+  if (!session) return
+
+  try {
+    await request('/auth/v1/logout', {
+      method: 'POST',
+      accessToken: session.access_token,
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+    })
+  } catch (error) {
+    console.warn('Supabase sign-out request failed', error)
+  } finally {
+    storeSession(null)
+  }
 }
 
-export async function getCurrentUser(): Promise<User | null> {
-  const supabase = getClient()
-  const { data, error } = await supabase.auth.getUser()
-  if (error) {
-    console.warn('Failed to fetch Supabase user', error)
+export async function getCurrentUser(): Promise<SupabaseUser | null> {
+  const session = getSession()
+  if (!session?.access_token) {
     return null
   }
-  return data.user
-}
 
-export async function getSession(): Promise<Session | null> {
-  const supabase = getClient()
-  const { data, error } = await supabase.auth.getSession()
-  if (error) {
-    console.warn('Failed to fetch Supabase session', error)
+  try {
+    const data = await request<{ user: SupabaseUser | null }>('/auth/v1/user', {
+      method: 'GET',
+      accessToken: session.access_token,
+    })
+
+    if (data.user) {
+      storeSession({ ...session, user: data.user })
+    }
+
+    return data.user
+  } catch (error) {
+    console.warn('Failed to fetch Supabase user, clearing session', error)
+    storeSession(null)
     return null
   }
-  return data.session
 }
 
-export function onAuthStateChange(callback: AuthChangeCallback) {
-  const supabase = getClient()
-  return supabase.auth.onAuthStateChange((event, session) => callback(event, session))
+export function setSession(session: SupabaseSession | null) {
+  storeSession(session)
 }
-
-export type { Session, User }

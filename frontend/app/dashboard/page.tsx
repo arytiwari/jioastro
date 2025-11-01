@@ -164,14 +164,29 @@ export default function DashboardPage() {
               </div>
             ) : queries && queries.length > 0 ? (
               <div className="space-y-3">
-                {queries.slice(0, 3).map((query: any) => (
-                  <div key={query.id} className="p-3 border rounded-lg">
-                    <p className="text-sm font-medium line-clamp-2">{query.question}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(query.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
+                {queries.slice(0, 3).map((item: any, index: number) => {
+                  const query = item?.query ?? item
+
+                  if (!query) {
+                    return null
+                  }
+
+                  const createdAt = query.created_at ?? item?.created_at
+                  const key = query.id ?? item?.id ?? `query-${index}`
+
+                  return (
+                    <div key={key} className="p-3 border rounded-lg">
+                      <p className="text-sm font-medium line-clamp-2">
+                        {query.question ?? 'Question unavailable'}
+                      </p>
+                      {createdAt && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(createdAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
                 <Link href="/dashboard/history">
                   <Button variant="ghost" className="w-full text-sm">
                     View all history →
