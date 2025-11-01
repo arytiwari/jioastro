@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Clock, ChevronDown, ChevronRight } from 'lucide-react'
+import { Clock, ChevronDown, ChevronRight } from '@/components/icons'
 
 interface Mahadasha {
   planet: string

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChartSelector } from '@/components/chart/ChartSelector'
 import { DasaTimeline } from '@/components/chart/DasaTimeline'
 import { YogaDisplay } from '@/components/chart/YogaDisplay'
-import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw } from 'lucide-react'
+import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw } from '@/components/icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
 

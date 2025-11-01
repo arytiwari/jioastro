@@ -5,7 +5,7 @@ import { useQuery } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { MessageSquare, Calendar, ChevronDown, ChevronUp } from 'lucide-react'
+import { MessageSquare, Calendar, ChevronDown, ChevronUp } from '@/components/icons'
 import { FeedbackButton } from '@/components/query/FeedbackButton'
 
 export default function HistoryPage() {
