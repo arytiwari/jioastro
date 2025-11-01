@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen } from 'lucide-react'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 
