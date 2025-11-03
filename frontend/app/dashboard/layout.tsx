@@ -20,14 +20,20 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const checkAuth = async () => {
+      console.log('🔍 Dashboard: Checking authentication...')
+
       const user = await getCurrentUser()
+      console.log('👤 Dashboard: Got user:', user)
 
       if (!user) {
+        console.warn('⚠️ Dashboard: No user found, redirecting to login')
         router.push('/auth/login')
         return
       }
 
+      console.log('✅ Dashboard: User authenticated, loading token...')
       await apiClient.loadToken()
+      console.log('✅ Dashboard: Token loaded, rendering dashboard')
       setLoading(false)
     }
 
