@@ -84,6 +84,7 @@ class APIClient {
     } catch (error) {
       console.error('Failed to load Supabase token:', error)
     }
+  }
 
   // Profile endpoints
   async createProfile(data: any) {
