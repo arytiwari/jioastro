@@ -88,7 +88,7 @@ async function request<T>(
 
 export async function signIn(email: string, password: string): Promise<AuthResponse> {
   try {
-    const data = await request<{ user: SupabaseUser | null; session: SupabaseSession | null }>(
+    const response = await request<any>(
       '/auth/v1/token?grant_type=password',
       {
         method: 'POST',
@@ -96,12 +96,27 @@ export async function signIn(email: string, password: string): Promise<AuthRespo
       }
     )
 
-    if (data.session) {
-      storeSession(data.session)
+    // Supabase returns token data at root level, not nested
+    // Structure: { access_token, refresh_token, user, expires_in, expires_at, token_type }
+    const session: SupabaseSession = {
+      access_token: response.access_token,
+      refresh_token: response.refresh_token,
+      expires_at: response.expires_at,
+      token_type: response.token_type,
+      user: response.user,
     }
 
-    return { data, error: null }
+    storeSession(session)
+
+    return {
+      data: {
+        user: response.user,
+        session
+      },
+      error: null
+    }
   } catch (error: any) {
+    console.error('Sign in error:', error)
     return {
       data: { user: null, session: null },
       error: error instanceof Error ? error : new Error('Failed to sign in'),
@@ -111,7 +126,7 @@ export async function signIn(email: string, password: string): Promise<AuthRespo
 
 export async function signUp(email: string, password: string): Promise<AuthResponse> {
   try {
-    const data = await request<{ user: SupabaseUser | null; session: SupabaseSession | null }>(
+    const response = await request<any>(
       '/auth/v1/signup',
       {
         method: 'POST',
@@ -119,12 +134,26 @@ export async function signUp(email: string, password: string): Promise<AuthRespo
       }
     )
 
-    if (data.session) {
-      storeSession(data.session)
+    // Supabase returns token data at root level, not nested
+    const session: SupabaseSession = {
+      access_token: response.access_token,
+      refresh_token: response.refresh_token,
+      expires_at: response.expires_at,
+      token_type: response.token_type,
+      user: response.user,
     }
 
-    return { data, error: null }
+    storeSession(session)
+
+    return {
+      data: {
+        user: response.user,
+        session
+      },
+      error: null
+    }
   } catch (error: any) {
+    console.error('Signup error:', error)
     return {
       data: { user: null, session: null },
       error: error instanceof Error ? error : new Error('Failed to sign up'),
@@ -150,24 +179,38 @@ export async function signOut(): Promise<void> {
 }
 
 export async function getCurrentUser(): Promise<SupabaseUser | null> {
+  console.log('🔍 getCurrentUser: Starting...')
   const session = getSession()
+  console.log('📦 getCurrentUser: Session from storage:', session ? 'exists' : 'null')
+
   if (!session?.access_token) {
+    console.warn('⚠️ getCurrentUser: No access token in session')
     return null
   }
 
+  // If we have a user in the session already, return it
+  if (session.user) {
+    console.log('✅ getCurrentUser: Returning user from session:', session.user.email)
+    return session.user
+  }
+
   try {
+    console.log('🌐 getCurrentUser: Fetching user from Supabase API...')
     const data = await request<{ user: SupabaseUser | null }>('/auth/v1/user', {
       method: 'GET',
       accessToken: session.access_token,
     })
 
+    console.log('📦 getCurrentUser: API response:', data)
+
     if (data.user) {
       storeSession({ ...session, user: data.user })
+      console.log('✅ getCurrentUser: User fetched and stored')
     }
 
     return data.user
   } catch (error) {
-    console.warn('Failed to fetch Supabase user, clearing session', error)
+    console.error('❌ getCurrentUser: Failed to fetch user', error)
     storeSession(null)
     return null
   }

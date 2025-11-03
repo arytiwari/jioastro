@@ -24,21 +24,33 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
+      console.log('🔐 Attempting to sign in...')
       const { data, error } = await signIn(email, password)
 
-      if (error) throw error
+      console.log('📦 Sign in response:', { data, error })
+
+      if (error) {
+        console.error('❌ Sign in error:', error)
+        throw error
+      }
 
       if (data.session) {
+        console.log('✅ Session received, setting token...')
         // Set token in API client
         apiClient.setToken(data.session.access_token)
 
+        console.log('🚀 Redirecting to dashboard...')
         // Redirect to dashboard
         router.push('/dashboard')
+      } else {
+        console.warn('⚠️ No session in response data')
       }
     } catch (err: any) {
+      console.error('💥 Exception during sign in:', err)
       setError(err.message || 'Failed to sign in')
     } finally {
       setLoading(false)
+      console.log('🏁 Sign in process completed')
     }
   }
 

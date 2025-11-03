@@ -46,5 +46,7 @@ export {
   BookOpen,
   TrendingUp,
   Activity,
-  Sparkles
+  Sparkles,
+  History,
+  Briefcase
 } from 'lucide-react'
