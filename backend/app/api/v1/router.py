@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import profiles, charts, queries, feedback, vedastro
+from app.api.v1.endpoints import profiles, charts, queries, feedback, vedastro, admin, readings, knowledge, enhancements
 
 api_router = APIRouter()
 
@@ -12,3 +12,7 @@ api_router.include_router(charts.router, prefix="/charts", tags=["charts"])
 api_router.include_router(queries.router, prefix="/queries", tags=["queries"])
 api_router.include_router(feedback.router, prefix="/feedback", tags=["feedback"])
 api_router.include_router(vedastro.router, prefix="/vedastro", tags=["vedastro"])
+api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(readings.router, prefix="/readings", tags=["readings"])
+api_router.include_router(knowledge.router, prefix="/knowledge", tags=["knowledge"])
+api_router.include_router(enhancements.router, prefix="/enhancements", tags=["enhancements"])
