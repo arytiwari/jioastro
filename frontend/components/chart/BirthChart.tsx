@@ -138,82 +138,81 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
     return '#f3f4f6' // Light gray
   }
 
-  // North Indian chart house positions (diamond layout)
-  // In traditional Vedic North Indian chart:
-  // - House 1 (Ascendant) is at TOP
-  // - Houses go counter-clockwise
-  // - Diamond shape with 12 sections
+  // Traditional North Indian Vedic Chart Layout
+  // Based on exact template: Square with two diagonal lines creating 12 sections
+  // House 1 (Lagna/Ascendant) is at TOP
   const getHousePolygon = (houseNum: number) => {
     const half = size / 2
-    const quarter = size / 4
-    const eighth = size / 8
 
-    // Traditional North Indian chart layout
-    // Ascendant (1) at top, proceeding counter-clockwise
+    // Square corners and center
+    const top = centerY - half
+    const bottom = centerY + half
+    const left = centerX - half
+    const right = centerX + half
+
+    // North Indian Chart - 12 Houses
+    // Two diagonals from corner to corner create the 12 sections
     const positions: Record<number, string> = {
-      // House 1 - Top triangle (Ascendant)
-      1: `${centerX},${centerY - half} ${centerX + quarter},${centerY - quarter} ${centerX - quarter},${centerY - quarter}`,
+      // House 1 - TOP triangle (Ascendant - ALWAYS here)
+      1: `${left},${top} ${centerX},${centerY} ${right},${top}`,
 
-      // House 2 - Upper right
-      2: `${centerX + quarter},${centerY - quarter} ${centerX + half},${centerY - eighth} ${centerX + half},${centerY + eighth} ${centerX + quarter},${centerY}`,
+      // House 2 - Upper RIGHT section (between top corner and right corner)
+      2: `${right},${top} ${centerX},${centerY} ${right},${centerY}`,
 
-      // House 3 - Middle right
-      3: `${centerX + quarter},${centerY} ${centerX + half},${centerY + eighth} ${centerX + half},${centerY + quarter} ${centerX + quarter},${centerY + quarter}`,
+      // House 3 - RIGHT triangle
+      3: `${right},${centerY} ${centerX},${centerY} ${right},${bottom}`,
 
-      // House 4 - Lower right triangle
-      4: `${centerX},${centerY + half} ${centerX + quarter},${centerY + quarter} ${centerX},${centerY + quarter}`,
+      // House 4 - Lower RIGHT section (between right corner and bottom corner)
+      4: `${right},${bottom} ${centerX},${centerY} ${centerX},${bottom}`,
 
-      // House 5 - Lower middle (bottom)
-      5: `${centerX},${centerY + half} ${centerX},${centerY + quarter} ${centerX - quarter},${centerY + quarter}`,
+      // House 5 - BOTTOM triangle
+      5: `${centerX},${bottom} ${centerX},${centerY} ${left},${bottom}`,
 
-      // House 6 - Lower left
-      6: `${centerX - quarter},${centerY} ${centerX - quarter},${centerY + quarter} ${centerX - half},${centerY + quarter} ${centerX - half},${centerY + eighth}`,
+      // House 6 - Lower LEFT section (between bottom corner and left corner)
+      6: `${left},${bottom} ${centerX},${centerY} ${left},${centerY}`,
 
-      // House 7 - Middle left
-      7: `${centerX - quarter},${centerY - quarter} ${centerX - quarter},${centerY} ${centerX - half},${centerY + eighth} ${centerX - half},${centerY - eighth}`,
+      // House 7 - LEFT triangle
+      7: `${left},${centerY} ${centerX},${centerY} ${left},${top}`,
 
-      // House 8 - Upper left triangle
-      8: `${centerX},${centerY - half} ${centerX - quarter},${centerY - quarter} ${centerX},${centerY - quarter}`,
+      // House 8 - Upper LEFT section (between left corner and top corner)
+      8: `${left},${top} ${centerX},${centerY} ${centerX},${top}`,
 
-      // House 9 - Upper middle left (inner)
-      9: `${centerX - quarter},${centerY - quarter} ${centerX},${centerY - quarter} ${centerX},${centerY} ${centerX - quarter},${centerY}`,
+      // House 9 - Center UPPER-LEFT quadrant
+      9: `${left + half/2},${top + half/2} ${centerX},${top + half/2} ${centerX},${centerY} ${left + half/2},${centerY}`,
 
-      // House 10 - Upper middle right (inner)
-      10: `${centerX + quarter},${centerY - quarter} ${centerX + quarter},${centerY} ${centerX},${centerY} ${centerX},${centerY - quarter}`,
+      // House 10 - Center UPPER-RIGHT quadrant
+      10: `${centerX},${top + half/2} ${right - half/2},${top + half/2} ${right - half/2},${centerY} ${centerX},${centerY}`,
 
-      // House 11 - Lower middle right (inner)
-      11: `${centerX},${centerY} ${centerX + quarter},${centerY} ${centerX + quarter},${centerY + quarter} ${centerX},${centerY + quarter}`,
+      // House 11 - Center LOWER-RIGHT quadrant
+      11: `${centerX},${centerY} ${right - half/2},${centerY} ${right - half/2},${bottom - half/2} ${centerX},${bottom - half/2}`,
 
-      // House 12 - Lower middle left (inner)
-      12: `${centerX - quarter},${centerY} ${centerX},${centerY} ${centerX},${centerY + quarter} ${centerX - quarter},${centerY + quarter}`
+      // House 12 - Center LOWER-LEFT quadrant
+      12: `${left + half/2},${centerY} ${centerX},${centerY} ${centerX},${bottom - half/2} ${left + half/2},${bottom - half/2}`
     }
 
     return positions[houseNum] || ''
   }
 
   // Get text position for house number and planets
+  // Positions match the new polygon layout
   const getTextPosition = (houseNum: number) => {
     const half = size / 2
     const quarter = size / 4
     const eighth = size / 8
-    const offset = size / 14
 
     const positions: Record<number, { x: number; y: number }> = {
-      // Outer houses (larger areas)
-      1: { x: centerX, y: centerY - half + offset + 10 },  // Top
-      2: { x: centerX + half - offset * 2, y: centerY - eighth },  // Upper right
-      3: { x: centerX + half - offset * 2, y: centerY + eighth },  // Middle right
-      4: { x: centerX + eighth, y: centerY + half - offset - 10 },  // Lower right
-      5: { x: centerX - eighth, y: centerY + half - offset - 10 },  // Lower left side of bottom
-      6: { x: centerX - half + offset * 2, y: centerY + eighth },  // Lower left
-      7: { x: centerX - half + offset * 2, y: centerY - eighth },  // Middle left
-      8: { x: centerX - eighth, y: centerY - half + offset + 10 },  // Upper left
-
-      // Inner houses (smaller central areas)
-      9: { x: centerX - eighth, y: centerY - eighth },  // Upper left inner
-      10: { x: centerX + eighth, y: centerY - eighth },  // Upper right inner
-      11: { x: centerX + eighth, y: centerY + eighth },  // Lower right inner
-      12: { x: centerX - eighth, y: centerY + eighth }   // Lower left inner
+      1: { x: centerX, y: centerY - quarter },                        // House 1 - Top triangle
+      2: { x: centerX + quarter, y: centerY - quarter },              // House 2 - Upper right
+      3: { x: centerX + quarter, y: centerY },                        // House 3 - Right triangle
+      4: { x: centerX + quarter, y: centerY + quarter },              // House 4 - Lower right
+      5: { x: centerX, y: centerY + quarter },                        // House 5 - Bottom triangle
+      6: { x: centerX - quarter, y: centerY + quarter },              // House 6 - Lower left
+      7: { x: centerX - quarter, y: centerY },                        // House 7 - Left triangle
+      8: { x: centerX - quarter, y: centerY - quarter },              // House 8 - Upper left
+      9: { x: centerX - eighth, y: centerY - eighth },                // House 9 - Center upper-left
+      10: { x: centerX + eighth, y: centerY - eighth },               // House 10 - Center upper-right
+      11: { x: centerX + eighth, y: centerY + eighth },               // House 11 - Center lower-right
+      12: { x: centerX - eighth, y: centerY + eighth }                // House 12 - Center lower-left
     }
 
     return positions[houseNum] || { x: centerX, y: centerY }
@@ -253,33 +252,36 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
         ))}
 
         {/* Add house numbers and signs */}
-        {chartData.houses.map((house) => {
-          const pos = getTextPosition(house.house_num)
-          const isAscendant = house.house_num === 1
-          const isKendra = [1, 4, 7, 10].includes(house.house_num)
-          const isTrikona = [5, 9].includes(house.house_num)
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((houseNum) => {
+          const house = chartData.houses.find(h => h.house_num === houseNum)
+          if (!house) return null
+
+          const pos = getTextPosition(houseNum)
+          const isAscendant = houseNum === 1
+          const isKendra = [1, 4, 7, 10].includes(houseNum)
+          const isTrikona = [5, 9].includes(houseNum)
 
           return (
-            <g key={house.house_num}>
+            <g key={houseNum}>
               {/* House number */}
               <text
                 x={pos.x}
                 y={pos.y}
                 textAnchor="middle"
-                fontSize="14"
+                fontSize="16"
                 fontWeight="bold"
                 fill={isAscendant ? '#7c3aed' : (isKendra ? '#d97706' : (isTrikona ? '#2563eb' : '#475569'))}
                 style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
               >
-                {house.house_num}
+                {houseNum}
               </text>
               {/* Sign abbreviation */}
               <text
                 x={pos.x}
-                y={pos.y + 14}
+                y={pos.y + 16}
                 textAnchor="middle"
-                fontSize="10"
-                fontWeight="500"
+                fontSize="11"
+                fontWeight="600"
                 fill="#64748b"
                 style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
               >
@@ -301,7 +303,7 @@ export function BirthChart({ chartData, width = 500, height = 500, chartType = '
                 const row = Math.floor(idx / maxPlanetsPerRow)
                 const col = idx % maxPlanetsPerRow
                 const xOffset = (col - Math.floor(Math.min(planets.length - row * maxPlanetsPerRow, maxPlanetsPerRow) / 2)) * 25
-                const yOffset = 28 + (row * 18)
+                const yOffset = 32 + (row * 18)
 
                 return (
                   <g key={idx}>

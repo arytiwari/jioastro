@@ -1,6 +1,11 @@
 """Test direct database connection (bypassing pooler)"""
 import asyncio
-import asyncpg
+
+import pytest
+
+asyncpg = pytest.importorskip(
+    "asyncpg", reason="asyncpg is required for Supabase connection smoke tests"
+)
 
 async def test_direct():
     # Try direct connection to Supabase database (not pooler)

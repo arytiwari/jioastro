@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X } from 'lucide-react'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/ui/logo'
 
 export default function DashboardLayout({
   children,
@@ -44,7 +45,7 @@ export default function DashboardLayout({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading...</p>
         </div>
       </div>
@@ -55,6 +56,7 @@ export default function DashboardLayout({
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'My Profiles', href: '/dashboard/profiles', icon: User },
     { name: 'Ask Question', href: '/dashboard/ask', icon: MessageSquare },
+    { name: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
     { name: 'History', href: '/dashboard/history', icon: History },
   ]
 
@@ -65,11 +67,9 @@ export default function DashboardLayout({
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <span className="text-2xl">✨</span>
-              </div>
-              <span className="font-bold text-xl hidden sm:inline">Vedic AI Astrology</span>
+            <Link href="/dashboard" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+              <Logo size={36} />
+              <span className="font-bold text-xl hidden sm:inline text-jio-700">JioAstro</span>
             </Link>
 
             {/* Desktop Navigation */}
@@ -145,7 +145,7 @@ export default function DashboardLayout({
       {/* Footer */}
       <footer className="border-t bg-white mt-20">
         <div className="container mx-auto px-4 py-6 text-center text-sm text-gray-600">
-          <p>&copy; 2024 Vedic AI Astrology. Built with ancient wisdom and modern technology.</p>
+          <p>&copy; 2024 JioAstro. Built with ancient wisdom and modern technology.</p>
         </div>
       </footer>
     </div>

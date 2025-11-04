@@ -22,7 +22,7 @@ const dashaColors: Record<string, string> = {
   Jupiter: 'bg-yellow-100 text-yellow-700',
   Venus: 'bg-pink-100 text-pink-700',
   Saturn: 'bg-gray-100 text-gray-700',
-  Rahu: 'bg-purple-100 text-purple-700',
+  Rahu: 'bg-jio-100 text-jio-700',
   Ketu: 'bg-indigo-100 text-indigo-700',
 }
 
@@ -33,7 +33,7 @@ export function DashaInfo({ dasha }: DashaInfoProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-purple-600" />
+          <Clock className="w-5 h-5 text-jio-600" />
           Current Dasha Period
         </CardTitle>
       </CardHeader>
@@ -57,7 +57,7 @@ export function DashaInfo({ dasha }: DashaInfoProps) {
             </div>
           )}
 
-          <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+          <div className="mt-4 p-3 bg-jio-50 rounded-lg">
             <p className="text-xs text-gray-700">
               <strong>Vimshottari Dasha</strong> is a 120-year cycle of planetary periods.
               Each planet governs your life for a specific number of years, influencing

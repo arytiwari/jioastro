@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -48,7 +48,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Birth Profiles</CardTitle>
-            <User className="w-4 h-4 text-purple-600" />
+            <User className="w-4 h-4 text-jio-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{profiles?.length || 0}</div>
@@ -61,7 +61,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Questions Asked</CardTitle>
-            <MessageSquare className="w-4 h-4 text-purple-600" />
+            <MessageSquare className="w-4 h-4 text-jio-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{queries?.length || 0}</div>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
-            <Star className="w-4 h-4 text-purple-600" />
+            <Star className="w-4 h-4 text-jio-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -96,28 +96,38 @@ export default function DashboardPage() {
           <CardContent>
             {profilesLoading ? (
               <div className="text-center py-8">
-                <div className="w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div className="w-6 h-6 border-3 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
             ) : profiles && profiles.length > 0 ? (
               <div className="space-y-3">
                 {profiles.slice(0, 3).map((profile: any) => (
-                  <Link key={profile.id} href={`/dashboard/profiles/${profile.id}`}>
-                    <div className="p-3 border rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors cursor-pointer">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold">{profile.name}</p>
-                          <p className="text-xs text-gray-600">
-                            {new Date(profile.birth_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        {profile.is_primary && (
-                          <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded">
-                            Primary
-                          </span>
-                        )}
+                  <div key={profile.id} className="p-3 border rounded-lg hover:border-jio-300 transition-colors">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="font-semibold">{profile.name}</p>
+                        <p className="text-xs text-gray-600">
+                          {new Date(profile.birth_date).toLocaleDateString()}
+                        </p>
                       </div>
+                      {profile.is_primary && (
+                        <span className="text-xs bg-jio-100 text-jio-700 px-2 py-1 rounded">
+                          Primary
+                        </span>
+                      )}
                     </div>
-                  </Link>
+                    <div className="flex gap-2">
+                      <Link href={`/dashboard/chart/${profile.id}`} className="flex-1">
+                        <Button variant="default" size="sm" className="w-full">
+                          Enhanced Chart
+                        </Button>
+                      </Link>
+                      <Link href={`/dashboard/profiles/${profile.id}`} className="flex-1">
+                        <Button variant="outline" size="sm" className="w-full">
+                          Basic Profile
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 ))}
                 {profiles.length > 3 && (
                   <Link href="/dashboard/profiles">
@@ -150,18 +160,33 @@ export default function DashboardPage() {
           <CardContent>
             {queriesLoading ? (
               <div className="text-center py-8">
-                <div className="w-6 h-6 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div className="w-6 h-6 border-3 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
             ) : queries && queries.length > 0 ? (
               <div className="space-y-3">
-                {queries.slice(0, 3).map((item: any) => (
-                  <div key={item.query.id} className="p-3 border rounded-lg">
-                    <p className="text-sm font-medium line-clamp-2">{item.query.question}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(item.query.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
+                {queries.slice(0, 3).map((item: any, index: number) => {
+                  const query = item?.query ?? item
+
+                  if (!query) {
+                    return null
+                  }
+
+                  const createdAt = query.created_at ?? item?.created_at
+                  const key = query.id ?? item?.id ?? `query-${index}`
+
+                  return (
+                    <div key={key} className="p-3 border rounded-lg">
+                      <p className="text-sm font-medium line-clamp-2">
+                        {query.question ?? 'Question unavailable'}
+                      </p>
+                      {createdAt && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(createdAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  )
+                })}
                 <Link href="/dashboard/history">
                   <Button variant="ghost" className="w-full text-sm">
                     View all history →
@@ -185,7 +210,7 @@ export default function DashboardPage() {
 
       {/* Getting Started Guide (shown if no profiles) */}
       {!profilesLoading && (!profiles || profiles.length === 0) && (
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+        <Card className="bg-gradient-to-r from-jio-50 to-blue-50 border-jio-200">
           <CardHeader>
             <CardTitle>Getting Started</CardTitle>
             <CardDescription>Follow these steps to begin your astrological journey</CardDescription>
@@ -193,7 +218,7 @@ export default function DashboardPage() {
           <CardContent>
             <ol className="space-y-4">
               <li className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-jio-600 text-white flex items-center justify-center text-sm font-bold">
                   1
                 </div>
                 <div>
@@ -204,18 +229,18 @@ export default function DashboardPage() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-jio-600 text-white flex items-center justify-center text-sm font-bold">
                   2
                 </div>
                 <div>
-                  <p className="font-semibold">View Your Chart</p>
+                  <p className="font-semibold">View Your Charts</p>
                   <p className="text-sm text-gray-600">
-                    Explore your D1 (Rashi) and D9 (Navamsa) charts with planetary positions and yogas
+                    Choose <strong>Enhanced Chart</strong> for North/South/Western styles with yogas and dasha timeline, or <strong>Basic Profile</strong> for standard view
                   </p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-jio-600 text-white flex items-center justify-center text-sm font-bold">
                   3
                 </div>
                 <div>

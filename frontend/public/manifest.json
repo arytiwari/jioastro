@@ -1,21 +1,23 @@
 {
-  "name": "Vedic AI Astrology",
-  "short_name": "Vedic Astro",
-  "description": "AI-powered Vedic astrology service with birth chart generation and personalized interpretations",
+  "name": "JioAstro - AI-Powered Vedic Astrology",
+  "short_name": "JioAstro",
+  "description": "Discover your cosmic blueprint through ancient Vedic wisdom powered by modern AI",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#7c3aed",
+  "theme_color": "#0056d6",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

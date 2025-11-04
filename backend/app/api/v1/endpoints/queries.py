@@ -2,7 +2,7 @@
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time
 
 from app.schemas.query import QueryCreate, QueryResponse
 from app.schemas.response import ResponseResponse
@@ -59,9 +59,6 @@ async def create_query(
         if not chart:
             # Calculate chart if it doesn't exist
             try:
-                # Parse date/time strings from database
-                from datetime import date, time, datetime
-
                 # Handle different date/time formats from Supabase
                 if isinstance(profile['birth_date'], str):
                     birth_date = datetime.fromisoformat(profile['birth_date']).date()
@@ -128,7 +125,7 @@ async def create_query(
         new_response = await supabase_service.create_response({
             "query_id": new_query["id"],
             "interpretation": ai_result["interpretation"],
-            "model_used": ai_result["model"],
+            "ai_model": ai_result["model"],
             "tokens_used": ai_result.get("tokens_used", 0)
         })
 

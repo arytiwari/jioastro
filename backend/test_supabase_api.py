@@ -1,5 +1,15 @@
 """Test Supabase REST API connectivity"""
 import os
+
+import pytest
+
+pytest.importorskip(
+    "dotenv", reason="python-dotenv is required for Supabase environment tests"
+)
+pytest.importorskip(
+    "supabase", reason="supabase client library is required for API smoke tests"
+)
+
 from dotenv import load_dotenv
 from supabase import create_client, Client
 

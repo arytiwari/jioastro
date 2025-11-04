@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
@@ -16,7 +16,7 @@ const CATEGORIES = [
   { id: 'relationship', label: 'Love & Relationships', icon: Heart, color: 'text-pink-600' },
   { id: 'health', label: 'Health & Wellness', icon: Activity, color: 'text-green-600' },
   { id: 'finance', label: 'Finance & Wealth', icon: TrendingUp, color: 'text-yellow-600' },
-  { id: 'family', label: 'Family & Home', icon: Home, color: 'text-purple-600' },
+  { id: 'family', label: 'Family & Home', icon: Home, color: 'text-jio-600' },
   { id: 'spiritual', label: 'Spiritual Growth', icon: BookOpen, color: 'text-indigo-600' },
 ]
 
@@ -43,8 +43,8 @@ export default function AskQuestionPage() {
       return response.data
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['queries'] })
-      queryClient.invalidateQueries({ queryKey: ['recent-queries'] })
+      queryClient.invalidateQueries(['queries'])
+      queryClient.invalidateQueries(['recent-queries'])
       // Redirect to history page to see the response
       router.push(`/dashboard/history`)
     },
@@ -78,7 +78,7 @@ export default function AskQuestionPage() {
   if (profilesLoading) {
     return (
       <div className="text-center py-12">
-        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
         <p className="text-gray-600">Loading...</p>
       </div>
     )
@@ -124,8 +124,8 @@ export default function AskQuestionPage() {
                 <button
                   key={cat.id}
                   onClick={() => setCategory(cat.id)}
-                  className={`p-4 border rounded-lg text-left hover:border-purple-300 hover:bg-purple-50 transition-colors ${
-                    category === cat.id ? 'border-purple-500 bg-purple-50' : ''
+                  className={`p-4 border rounded-lg text-left hover:border-jio-300 hover:bg-jio-50 transition-colors ${
+                    category === cat.id ? 'border-jio-500 bg-jio-50' : ''
                   }`}
                 >
                   <Icon className={`w-5 h-5 ${cat.color} mb-2`} />
@@ -208,7 +208,7 @@ export default function AskQuestionPage() {
 
       {/* Sample Questions */}
       {category && (
-        <Card className="bg-gradient-to-r from-purple-50 to-blue-50">
+        <Card className="bg-gradient-to-r from-jio-50 to-blue-50">
           <CardHeader>
             <CardTitle>Sample Questions for {CATEGORIES.find(c => c.id === category)?.label}</CardTitle>
           </CardHeader>
@@ -218,13 +218,13 @@ export default function AskQuestionPage() {
                 <>
                   <button
                     onClick={() => handleQuickQuestion('What career path is most suitable for me based on my planetary positions?', 'career')}
-                    className="text-left text-sm text-purple-700 hover:underline block"
+                    className="text-left text-sm text-jio-700 hover:underline block"
                   >
                     • What career path is most suitable for me?
                   </button>
                   <button
                     onClick={() => handleQuickQuestion('When is the best time for a career change or job switch?', 'career')}
-                    className="text-left text-sm text-purple-700 hover:underline block"
+                    className="text-left text-sm text-jio-700 hover:underline block"
                   >
                     • When is the best time for a career change?
                   </button>
@@ -234,13 +234,13 @@ export default function AskQuestionPage() {
                 <>
                   <button
                     onClick={() => handleQuickQuestion('What does my chart reveal about my romantic relationships and marriage prospects?', 'relationship')}
-                    className="text-left text-sm text-purple-700 hover:underline block"
+                    className="text-left text-sm text-jio-700 hover:underline block"
                   >
                     • What does my chart reveal about marriage prospects?
                   </button>
                   <button
                     onClick={() => handleQuickQuestion('How can I improve my relationships based on my birth chart?', 'relationship')}
-                    className="text-left text-sm text-purple-700 hover:underline block"
+                    className="text-left text-sm text-jio-700 hover:underline block"
                   >
                     • How can I improve my relationships?
                   </button>
@@ -250,7 +250,7 @@ export default function AskQuestionPage() {
                 <>
                   <button
                     onClick={() => handleQuickQuestion('What health areas should I pay special attention to based on my chart?', 'health')}
-                    className="text-left text-sm text-purple-700 hover:underline block"
+                    className="text-left text-sm text-jio-700 hover:underline block"
                   >
                     • What health areas should I focus on?
                   </button>
