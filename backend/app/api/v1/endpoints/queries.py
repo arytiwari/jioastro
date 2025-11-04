@@ -2,7 +2,7 @@
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from datetime import datetime, timedelta, date, time
+from datetime import datetime, timedelta, date, time, timezone
 
 from app.schemas.query import QueryCreate, QueryResponse
 from app.schemas.response import ResponseResponse
@@ -28,7 +28,7 @@ async def create_query(
         user_id = current_user["user_id"]
 
         # Rate limiting: Check queries in last 24 hours
-        yesterday = datetime.utcnow() - timedelta(days=1)
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
         recent_queries = await supabase_service.get_queries(user_id=user_id, limit=1000)
         recent_count = len([q for q in recent_queries if q.get("created_at") and datetime.fromisoformat(q["created_at"].replace("Z", "+00:00")) >= yesterday])
 
@@ -101,33 +101,45 @@ async def create_query(
 
         # Generate AI interpretation
         try:
-            ai_result = ai_service.generate_interpretation(
+            print(f"🤖 Generating AI interpretation for question: {query_data.question[:50]}...")
+            print(f"📊 Chart data available: {bool(chart.get('chart_data'))}")
+
+            ai_result = await ai_service.generate_interpretation(
                 chart_data=chart.get("chart_data", {}),
                 question=query_data.question,
                 category=query_data.category or "general"
             )
+
+            print(f"✅ AI interpretation generated: {len(ai_result.get('interpretation', ''))} characters")
+            print(f"🎯 Model used: {ai_result.get('model')}")
         except Exception as e:
-            print(f"Error generating AI interpretation: {str(e)}")
+            print(f"❌ Error generating AI interpretation: {str(e)}")
+            import traceback
+            traceback.print_exc()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to generate interpretation: {str(e)}"
             )
 
         # Create query record
+        print(f"💾 Creating query record...")
         new_query = await supabase_service.create_query({
             "user_id": user_id,
             "profile_id": str(query_data.profile_id),  # Convert UUID to string
             "question": query_data.question,
             "category": query_data.category
         })
+        print(f"✅ Query created with ID: {new_query.get('id')}")
 
         # Create response record
+        print(f"💾 Creating response record...")
         new_response = await supabase_service.create_response({
             "query_id": new_query["id"],
             "interpretation": ai_result["interpretation"],
             "ai_model": ai_result["model"],
             "tokens_used": ai_result.get("tokens_used", 0)
         })
+        print(f"✅ Response created with ID: {new_response.get('id')}")
 
         return {
             "query": new_query,
