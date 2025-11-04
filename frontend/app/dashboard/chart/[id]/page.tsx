@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ChartSelector } from '@/components/chart/ChartSelector'
 import { DasaTimeline } from '@/components/chart/DasaTimeline'
 import { YogaDisplay } from '@/components/chart/YogaDisplay'
-import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw } from 'lucide-react'
+import { PlanetaryPositionsTable } from '@/components/chart/PlanetaryPositionsTable'
+import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw } from '@/components/icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
 
@@ -29,14 +30,16 @@ export default function EnhancedChartPage() {
   })
 
   // Fetch D1 chart (existing service)
-  const { data: d1Chart, isLoading: d1Loading } = useQuery({
+  const { data: d1Chart, isLoading: d1Loading, error: d1Error } = useQuery({
     queryKey: ['chart', profileId, 'D1'],
     queryFn: async () => {
       try {
         const response = await apiClient.getChart(profileId, 'D1')
         return response.data
       } catch (error: any) {
-        if (error.response?.status === 404) {
+        // Check for 404 status and auto-calculate if chart doesn't exist
+        if (error.status === 404) {
+          console.log('D1 chart not found, calculating...')
           const response = await apiClient.calculateChart(profileId, 'D1')
           return response.data
         }
@@ -47,15 +50,37 @@ export default function EnhancedChartPage() {
   })
 
   // Fetch D9 chart (existing service)
-  const { data: d9Chart, isLoading: d9Loading } = useQuery({
+  const { data: d9Chart, isLoading: d9Loading, error: d9Error } = useQuery({
     queryKey: ['chart', profileId, 'D9'],
     queryFn: async () => {
       try {
         const response = await apiClient.getChart(profileId, 'D9')
         return response.data
       } catch (error: any) {
-        if (error.response?.status === 404) {
+        // Check for 404 status and auto-calculate if chart doesn't exist
+        if (error.status === 404) {
+          console.log('D9 chart not found, calculating...')
           const response = await apiClient.calculateChart(profileId, 'D9')
+          return response.data
+        }
+        throw error
+      }
+    },
+    enabled: !!profile,
+  })
+
+  // Fetch Moon chart
+  const { data: moonChart, isLoading: moonLoading, error: moonError } = useQuery({
+    queryKey: ['chart', profileId, 'Moon'],
+    queryFn: async () => {
+      try {
+        const response = await apiClient.getChart(profileId, 'Moon')
+        return response.data
+      } catch (error: any) {
+        // Check for 404 status and auto-calculate if chart doesn't exist
+        if (error.status === 404) {
+          console.log('Moon chart not found, calculating...')
+          const response = await apiClient.calculateChart(profileId, 'Moon')
           return response.data
         }
         throw error
@@ -130,9 +155,10 @@ export default function EnhancedChartPage() {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4">
+        <TabsList className="grid w-full max-w-3xl grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="d1">D1 Chart</TabsTrigger>
+          <TabsTrigger value="moon">Moon Chart</TabsTrigger>
           <TabsTrigger value="d9">D9 Chart</TabsTrigger>
           <TabsTrigger value="dasha">Dasha</TabsTrigger>
         </TabsList>
@@ -243,43 +269,71 @@ export default function EnhancedChartPage() {
               </Card>
 
               {/* Planetary Positions Table */}
+              <PlanetaryPositionsTable
+                planets={d1Chart.chart_data.planets}
+                title="Planetary Positions"
+                description="Detailed positions of all planets in the birth chart"
+              />
+            </>
+          ) : null}
+        </TabsContent>
+
+        {/* Moon Chart Tab */}
+        <TabsContent value="moon" className="space-y-6">
+          {moonLoading ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Calculating Moon chart...</p>
+              </CardContent>
+            </Card>
+          ) : moonError ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <p className="text-red-600 mb-4">Failed to calculate Moon chart</p>
+                <p className="text-sm text-gray-600">{(moonError as Error).message}</p>
+              </CardContent>
+            </Card>
+          ) : moonChart ? (
+            <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Planetary Positions</CardTitle>
+                  <CardTitle>Moon Chart (Chandra Kundali)</CardTitle>
+                  <CardDescription>
+                    Chart with Moon's sign as the ascendant - shows emotional nature, mind, and life from lunar perspective
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-2 px-3 font-semibold">Planet</th>
-                          <th className="text-left py-2 px-3 font-semibold">Sign</th>
-                          <th className="text-left py-2 px-3 font-semibold">House</th>
-                          <th className="text-left py-2 px-3 font-semibold">Position</th>
-                          <th className="text-left py-2 px-3 font-semibold">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {Object.entries(d1Chart.chart_data.planets).map(([name, data]: [string, any]) => (
-                          <tr key={name} className="border-b">
-                            <td className="py-2 px-3 font-medium">{name}</td>
-                            <td className="py-2 px-3">{data.sign}</td>
-                            <td className="py-2 px-3">{data.house}</td>
-                            <td className="py-2 px-3">{data.position.toFixed(2)}°</td>
-                            <td className="py-2 px-3">
-                              {data.retrograde && (
-                                <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                                  Retrograde
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  <ChartSelector chartData={moonChart.chart_data} defaultChart="north" />
                 </CardContent>
               </Card>
+
+              <Card className="bg-blue-50">
+                <CardContent className="py-6">
+                  <h3 className="font-semibold mb-2">About Moon Chart (Chandra Kundali)</h3>
+                  <p className="text-sm text-gray-700">
+                    The Moon chart is fundamental in Vedic astrology, treating the Moon's sign as the ascendant. It reveals:
+                  </p>
+                  <ul className="text-sm text-gray-700 list-disc list-inside mt-2 space-y-1">
+                    <li>Emotional nature and mental patterns</li>
+                    <li>Relationship with mother and maternal influences</li>
+                    <li>Public life and general fortune</li>
+                    <li>Mind, feelings, and subconscious tendencies</li>
+                  </ul>
+                </CardContent>
+              </Card>
+
+              {/* Planetary Positions Table */}
+              <PlanetaryPositionsTable
+                planets={moonChart.chart_data.planets}
+                title="Planetary Positions in Moon Chart"
+                description="All planets positioned relative to the Moon's sign"
+              />
+
+              {/* Yogas from Moon */}
+              {moonChart.chart_data.yogas && moonChart.chart_data.yogas.length > 0 && (
+                <YogaDisplay yogas={moonChart.chart_data.yogas} />
+              )}
             </>
           ) : null}
         </TabsContent>
@@ -291,6 +345,13 @@ export default function EnhancedChartPage() {
               <CardContent className="text-center py-12">
                 <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Calculating Navamsa chart...</p>
+              </CardContent>
+            </Card>
+          ) : d9Error ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <p className="text-red-600 mb-4">Failed to calculate D9 chart</p>
+                <p className="text-sm text-gray-600">{(d9Error as Error).message}</p>
               </CardContent>
             </Card>
           ) : d9Chart ? (

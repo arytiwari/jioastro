@@ -16,7 +16,7 @@ async def calculate_chart(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Calculate and cache a birth chart (D1 or D9)
+    Calculate and cache a birth chart (D1, D9, or Moon)
     If chart already exists, return cached version
     """
     try:
@@ -102,10 +102,20 @@ async def calculate_chart(
                     timezone_str=timezone_str,
                     city=city
                 )
+            elif request.chart_type == "Moon":
+                chart_data = astrology_service.calculate_moon_chart(
+                    name=name,
+                    birth_date=birth_date,
+                    birth_time=birth_time,
+                    latitude=latitude,
+                    longitude=longitude,
+                    timezone_str=timezone_str,
+                    city=city
+                )
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Invalid chart type. Use 'D1' or 'D9'"
+                    detail="Invalid chart type. Use 'D1', 'D9', or 'Moon'"
                 )
         except Exception as e:
             import traceback

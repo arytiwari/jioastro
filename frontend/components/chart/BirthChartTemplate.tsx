@@ -3,9 +3,14 @@
 export interface Planet {
   sign: string
   sign_num: number
-  position: number
+  degree: number
+  longitude: number
   house: number
   retrograde?: boolean
+  nakshatra?: {
+    name: string
+    pada: number
+  }
 }
 
 export interface ChartData {
@@ -41,6 +46,18 @@ const PLANET_SYMBOLS: Record<string, string> = {
   Ketu: '☋'
 }
 
+const PLANET_ABBREV: Record<string, string> = {
+  Sun: 'Su',
+  Moon: 'Mo',
+  Mars: 'Ma',
+  Mercury: 'Me',
+  Jupiter: 'Ju',
+  Venus: 'Ve',
+  Saturn: 'Sa',
+  Rahu: 'Ra',
+  Ketu: 'Ke'
+}
+
 const ZODIAC_SIGNS = [
   { name: 'Aries', abbr: 'ARI' },      // 0
   { name: 'Taurus', abbr: 'TAU' },     // 1
@@ -63,19 +80,21 @@ type LayoutAnchor = {
   anchor?: 'start' | 'middle' | 'end'
 }
 
+// North Indian Chart - Anticlockwise from top (House 1)
+// Layout: House numbers go anticlockwise starting from top
 const HOUSE_LAYOUT: Record<number, LayoutAnchor> = {
-  1: { label: [0.5, 0.12], sign: [0.5, 0.2], planets: [0.5, 0.28] },
-  2: { label: [0.76, 0.24], sign: [0.76, 0.32], planets: [0.76, 0.4] },
-  3: { label: [0.9, 0.5], sign: [0.9, 0.58], planets: [0.9, 0.66], anchor: 'end' },
-  4: { label: [0.76, 0.76], sign: [0.76, 0.84], planets: [0.76, 0.9], anchor: 'end' },
-  5: { label: [0.5, 0.88], sign: [0.5, 0.94], planets: [0.5, 0.92] },
-  6: { label: [0.24, 0.76], sign: [0.24, 0.84], planets: [0.24, 0.9], anchor: 'end' },
-  7: { label: [0.1, 0.5], sign: [0.1, 0.58], planets: [0.1, 0.66], anchor: 'end' },
-  8: { label: [0.24, 0.24], sign: [0.24, 0.32], planets: [0.24, 0.38], anchor: 'end' },
-  9: { label: [0.38, 0.38], sign: [0.38, 0.46], planets: [0.38, 0.54] },
-  10: { label: [0.62, 0.38], sign: [0.62, 0.46], planets: [0.62, 0.54] },
-  11: { label: [0.62, 0.62], sign: [0.62, 0.7], planets: [0.62, 0.78] },
-  12: { label: [0.38, 0.62], sign: [0.38, 0.7], planets: [0.38, 0.78] }
+  1: { label: [0.5, 0.08], sign: [0.5, 0.15], planets: [0.5, 0.22] },           // Top
+  2: { label: [0.22, 0.22], sign: [0.22, 0.29], planets: [0.22, 0.36], anchor: 'start' },  // Top-Left
+  3: { label: [0.08, 0.5], sign: [0.12, 0.57], planets: [0.15, 0.64], anchor: 'start' },   // Left
+  4: { label: [0.22, 0.78], sign: [0.22, 0.85], planets: [0.22, 0.92], anchor: 'start' },  // Bottom-Left
+  5: { label: [0.5, 0.92], sign: [0.5, 0.96], planets: [0.5, 0.88] },           // Bottom
+  6: { label: [0.78, 0.78], sign: [0.78, 0.85], planets: [0.78, 0.92], anchor: 'end' },    // Bottom-Right
+  7: { label: [0.92, 0.5], sign: [0.88, 0.57], planets: [0.85, 0.64], anchor: 'end' },     // Right
+  8: { label: [0.78, 0.22], sign: [0.78, 0.29], planets: [0.78, 0.36], anchor: 'end' },    // Top-Right
+  9: { label: [0.35, 0.35], sign: [0.35, 0.42], planets: [0.35, 0.49] },        // Inner Top-Left
+  10: { label: [0.35, 0.65], sign: [0.35, 0.72], planets: [0.35, 0.79] },       // Inner Bottom-Left
+  11: { label: [0.65, 0.65], sign: [0.65, 0.72], planets: [0.65, 0.79] },       // Inner Bottom-Right
+  12: { label: [0.65, 0.35], sign: [0.65, 0.42], planets: [0.65, 0.49] }        // Inner Top-Right
 }
 
 const STROKE_COLOR = '#b1792d'
@@ -137,7 +156,7 @@ export function BirthChartTemplate({ chartData, width = 600, height = 600, chart
     })
   })
 
-  const lineSpacing = chartSize * 0.038
+  const lineSpacing = chartSize * 0.048
 
   return (
     <div className="flex flex-col items-center gap-4 p-4" aria-label={`North Indian ${chartType} birth chart`}>
@@ -229,7 +248,7 @@ export function BirthChartTemplate({ chartData, width = 600, height = 600, chart
                 x={labelX}
                 y={labelY}
                 textAnchor={anchor}
-                fontSize={chartSize * 0.06}
+                fontSize={chartSize * 0.065}
                 fontWeight="700"
                 fill={TEXT_COLOR}
               >
@@ -240,7 +259,7 @@ export function BirthChartTemplate({ chartData, width = 600, height = 600, chart
                 x={signX}
                 y={signY}
                 textAnchor={anchor}
-                fontSize={chartSize * 0.045}
+                fontSize={chartSize * 0.05}
                 fontWeight="600"
                 fill={SUBTEXT_COLOR}
               >
@@ -248,26 +267,45 @@ export function BirthChartTemplate({ chartData, width = 600, height = 600, chart
               </text>
 
               {planets.map((planet, planetIdx) => (
-                <text
-                  key={`${houseNum}-${planet.name}-${planetIdx}`}
-                  x={planetStartX}
-                  y={planetStartY + planetIdx * lineSpacing}
-                  textAnchor={anchor}
-                  fontSize={chartSize * 0.042}
-                  fontWeight="600"
-                  fill={planet.retrograde ? RETROGRADE_COLOR : TEXT_COLOR}
-                >
-                  {planet.symbol}
-                  {planet.retrograde ? 'ʀ' : ''}
-                </text>
+                <g key={`${houseNum}-${planet.name}-${planetIdx}`}>
+                  <text
+                    x={planetStartX}
+                    y={planetStartY + planetIdx * lineSpacing}
+                    textAnchor={anchor}
+                    fontSize={chartSize * 0.048}
+                    fontWeight="700"
+                    fill={planet.retrograde ? RETROGRADE_COLOR : TEXT_COLOR}
+                    style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
+                  >
+                    {planet.symbol} {PLANET_ABBREV[planet.name] || planet.name.substring(0, 2)}
+                    {planet.retrograde ? 'ʀ' : ''}
+                  </text>
+                </g>
               ))}
             </g>
           )
         })}
       </svg>
 
-      <div className="text-sm text-neutral-600">
+      <div className="text-sm text-neutral-600 text-center">
         Ascendant: <span className="font-semibold text-neutral-800">{chartData.ascendant.sign.toUpperCase()}</span>
+      </div>
+
+      {/* Planet Legend */}
+      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-2xl">
+        <p className="text-center font-bold text-sm mb-3 text-gray-800">Planet Key</p>
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          {Object.entries(PLANET_SYMBOLS).map(([name, symbol]) => (
+            <div key={name} className="flex items-center gap-2">
+              <span className="text-lg font-bold">{symbol}</span>
+              <span className="font-semibold">{PLANET_ABBREV[name]}</span>
+              <span className="text-gray-600">= {name}</span>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-xs text-gray-600 text-center">
+          <span className="font-semibold text-red-600">ʀ</span> = Retrograde planet • Houses numbered anticlockwise from 1
+        </p>
       </div>
     </div>
   )

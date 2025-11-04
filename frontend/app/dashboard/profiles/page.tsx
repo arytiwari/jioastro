@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Calendar, MapPin, Star } from 'lucide-react'
+import { Plus, Calendar, MapPin, Star } from '@/components/icons'
 import { formatDate, formatTime } from '@/lib/utils'
 
 export default function ProfilesPage() {

@@ -19,12 +19,21 @@ interface Antardasha {
   days: number
 }
 
+interface CurrentMahadasha {
+  planet: string
+  start_date: string
+  end_date: string
+  remaining_years: number
+}
+
 interface DashaData {
-  current_mahadasha: string
-  mahadasha_years: number
+  current_mahadasha: string | CurrentMahadasha  // Support both old and new formats
+  mahadasha_years?: number  // Old format
   mahadashas: Mahadasha[]
   antardashas: Antardasha[]
   note?: string
+  calculation_method?: string
+  total_cycle_years?: number
 }
 
 interface DasaTimelineProps {
@@ -64,6 +73,15 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
     )
   }
 
+  // Extract planet name and years - support both old and new formats
+  const currentPlanet = typeof dashaData.current_mahadasha === 'string'
+    ? dashaData.current_mahadasha
+    : dashaData.current_mahadasha.planet
+
+  const remainingYears = typeof dashaData.current_mahadasha === 'string'
+    ? (dashaData.mahadasha_years || 0)
+    : dashaData.current_mahadasha.remaining_years
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
@@ -86,17 +104,17 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
           <div>
             <h3 className="text-lg font-bold text-gray-900">Current Mahadasha</h3>
             <p className="text-2xl font-extrabold text-jio-700 mt-1">
-              {PLANET_SYMBOLS[dashaData.current_mahadasha] || ''} {dashaData.current_mahadasha}
+              {PLANET_SYMBOLS[currentPlanet] || ''} {currentPlanet}
             </p>
             <p className="text-sm text-gray-600 mt-1">
-              {dashaData.mahadasha_years.toFixed(1)} years remaining
+              {remainingYears.toFixed(1)} years remaining
             </p>
           </div>
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
-            style={{ backgroundColor: PLANET_COLORS[dashaData.current_mahadasha] || '#9ca3af' }}
+            style={{ backgroundColor: PLANET_COLORS[currentPlanet] || '#9ca3af' }}
           >
-            {PLANET_SYMBOLS[dashaData.current_mahadasha] || '?'}
+            {PLANET_SYMBOLS[currentPlanet] || '?'}
           </div>
         </div>
       </div>
@@ -153,7 +171,7 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
       {dashaData.antardashas && dashaData.antardashas.length > 0 && (
         <div>
           <h4 className="text-lg font-bold text-gray-900 mb-4">
-            Antardashas in {dashaData.current_mahadasha} Period
+            Antardashas in {currentPlanet} Period
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {dashaData.antardashas.slice(0, 9).map((antar, index) => {

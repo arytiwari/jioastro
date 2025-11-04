@@ -5,9 +5,14 @@ import React, { useEffect, useRef } from 'react'
 interface Planet {
   sign: string
   sign_num: number
-  position: number
+  degree: number
+  longitude: number
   house: number
   retrograde?: boolean
+  nakshatra?: {
+    name: string
+    pada: number
+  }
 }
 
 interface ChartData {
@@ -184,8 +189,8 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
 
       Object.entries(chartData.planets).forEach(([name, planetData]) => {
         // Calculate planet's absolute degree position
-        // Each sign is 30 degrees, position is within that sign
-        const absoluteDegree = (planetData.sign_num * 30) + planetData.position
+        // Each sign is 30 degrees, degree is within that sign
+        const absoluteDegree = (planetData.sign_num * 30) + planetData.degree
 
         // Adjust for ascendant being at 180° (9 o'clock)
         const adjustedDegree = ascendantDegree - (chartData.ascendant.sign_num * 30) + absoluteDegree

@@ -6,7 +6,7 @@ import { useQuery } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, User, MessageSquare, Star } from 'lucide-react'
+import { Plus, User, MessageSquare, Star } from '@/components/icons'
 
 export default function DashboardPage() {
   const { data: profiles, isLoading: profilesLoading } = useQuery({

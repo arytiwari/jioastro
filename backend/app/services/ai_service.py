@@ -1,13 +1,15 @@
 """
 AI Interpretation Service
 Generates personalized Vedic astrology interpretations using OpenAI GPT-4
+Enhanced with scripture-grounded rules from BPHS knowledge base
 """
 
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 from openai import OpenAI, AzureOpenAI
 import os
 
 from app.core.config import settings
+from app.services.rule_retrieval import rule_retrieval_service
 
 
 class AIInterpretationService:
@@ -30,23 +32,44 @@ class AIInterpretationService:
             self.model = "gpt-4-turbo-preview"
             print("✅ Using OpenAI")
 
-    def generate_interpretation(
+    async def generate_interpretation(
         self,
         chart_data: Dict[str, Any],
         question: str,
-        category: str = "general"
+        category: str = "general",
+        use_knowledge_base: bool = True
     ) -> Dict[str, Any]:
         """
         Generate AI interpretation based on birth chart and user question
+        Enhanced with scripture-grounded rules from BPHS knowledge base
 
         Args:
             chart_data: Complete birth chart data (from astrology service)
             question: User's specific question
             category: Query category (career, relationship, health, etc.)
+            use_knowledge_base: Whether to retrieve and use BPHS rules (default: True)
 
         Returns:
-            Dictionary containing interpretation and metadata
+            Dictionary containing interpretation, metadata, and rule citations
         """
+
+        # Retrieve relevant rules from knowledge base
+        retrieved_rules = []
+        rules_context = ""
+
+        if use_knowledge_base:
+            try:
+                rules_result = await self._retrieve_relevant_rules(
+                    chart_data,
+                    question,
+                    category
+                )
+                retrieved_rules = rules_result.get('rules', [])
+                rules_context = self._format_rules_for_prompt(retrieved_rules)
+                print(f"✅ Retrieved {len(retrieved_rules)} rules from knowledge base")
+            except Exception as e:
+                print(f"⚠️  Rule retrieval failed: {e}. Proceeding without KB rules.")
+                rules_context = ""
 
         # Prepare context from chart data
         context = self._prepare_chart_context(chart_data)
@@ -54,8 +77,33 @@ class AIInterpretationService:
         # Create system prompt
         system_prompt = self._create_system_prompt()
 
-        # Create user message
-        user_message = f"""
+        # Create user message with optional rules context
+        if rules_context:
+            user_message = f"""
+{context}
+
+--- SCRIPTURAL RULES FROM BRIHAT PARASHARA HORA SHASTRA ---
+{rules_context}
+--- END OF SCRIPTURAL RULES ---
+
+Query Category: {category.upper()}
+
+User's Question: {question}
+
+Please provide a personalized Vedic astrology interpretation that:
+1. Directly answers their question using chart insights AND the scriptural rules provided above
+2. CITE specific rules using their Rule IDs in brackets like [BPHS-18-PAN-03]
+3. References specific planetary positions, houses, yogas, and the scriptural basis
+4. Offers practical, actionable guidance grounded in classical texts
+5. Includes traditional Vedic wisdom from the rules
+6. Is warm, empowering, and hopeful (never fatalistic)
+7. Is approximately 250-350 words
+8. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+
+IMPORTANT: When referencing a rule, include its Rule ID in brackets [RULE-ID] so users can trace back to the source text.
+"""
+        else:
+            user_message = f"""
 {context}
 
 Query Category: {category.upper()}
@@ -87,11 +135,17 @@ Please provide a personalized Vedic astrology interpretation that:
             interpretation = response.choices[0].message.content
             tokens_used = response.usage.total_tokens
 
+            # Extract rule citations from the interpretation
+            cited_rules = self._extract_rule_citations(interpretation, retrieved_rules)
+
             return {
                 "interpretation": interpretation,
                 "model": self.model,
                 "tokens_used": tokens_used,
-                "success": True
+                "success": True,
+                "rules_used": cited_rules,
+                "rules_retrieved": len(retrieved_rules),
+                "knowledge_base_used": use_knowledge_base and len(retrieved_rules) > 0
             }
 
         except Exception as e:
@@ -155,20 +209,27 @@ Please provide a personalized Vedic astrology interpretation that:
     def _create_system_prompt(self) -> str:
         """Create system prompt for AI"""
 
-        return """You are an expert Vedic astrologer with 20+ years of experience in Jyotish (Vedic astrology). You combine deep traditional knowledge with compassionate, practical guidance.
+        return """You are an expert Vedic astrologer with 20+ years of experience in Jyotish (Vedic astrology). You combine deep traditional knowledge from classical texts like Brihat Parashara Hora Shastra (BPHS) with compassionate, practical guidance.
 
 Your interpretation style:
 - Warm, personalized, and empowering
-- Grounded in classical Vedic astrology principles
+- Grounded in classical Vedic astrology principles from authoritative texts
+- Scripture-based analysis using specific rules from BPHS when provided
 - Practical and actionable
 - Hopeful and solution-oriented (never fatalistic or fear-based)
-- Clear references to specific chart factors
+- Clear references to specific chart factors AND textual sources
+
+When scriptural rules are provided:
+- CITE the rules using their Rule IDs in brackets like [BPHS-18-PAN-03]
+- Reference the chapter/verse anchors from the texts
+- Ground your interpretation in the classical principles stated in the rules
+- Explain how the chart activates or fulfills the conditions mentioned in the rules
 
 Format your response with these sections:
 
 **Key Insight:** (2-3 sentences directly answering the question)
 
-**Astrological Analysis:** (Explain what you see in the chart - planetary positions, houses, yogas, dasha period that relate to the question)
+**Astrological Analysis:** (Explain what you see in the chart - planetary positions, houses, yogas, dasha period that relate to the question. When rules are provided, reference them with citations.)
 
 **Guidance:** (Practical advice and recommendations based on the analysis)
 
@@ -176,11 +237,131 @@ Format your response with these sections:
 
 Remember:
 - Always reference specific chart elements (planets, signs, houses, yogas)
-- Be specific about WHY you're saying what you're saying based on the chart
+- When scriptural rules are provided, CITE them using [RULE-ID] format
+- Be specific about WHY you're saying what you're saying based on the chart AND classical texts
 - Maintain a balance between traditional wisdom and modern applicability
 - Keep the tone encouraging and empowering
 - Avoid making absolute predictions; instead, discuss tendencies and potentials
 """
+
+    async def _retrieve_relevant_rules(
+        self,
+        chart_data: Dict[str, Any],
+        query: str,
+        domain: str
+    ) -> Dict[str, Any]:
+        """
+        Retrieve relevant rules from knowledge base using hybrid RAG
+
+        Args:
+            chart_data: Birth chart data
+            query: User's question
+            domain: Query domain (career, wealth, relationships, etc.)
+
+        Returns:
+            Dictionary with retrieved rules and metadata
+        """
+        # Map category names to knowledge base domains
+        domain_mapping = {
+            "general": "general",
+            "career": "career",
+            "relationship": "relationships",
+            "relationships": "relationships",
+            "health": "health",
+            "wealth": "wealth",
+            "finance": "wealth",
+            "education": "education",
+            "spirituality": "spirituality"
+        }
+
+        kb_domain = domain_mapping.get(domain.lower(), "general")
+
+        # Retrieve rules
+        result = await rule_retrieval_service.retrieve_rules(
+            chart_data=chart_data,
+            query=query,
+            domain=kb_domain,
+            limit=5,  # Top 5 most relevant rules
+            min_weight=0.5  # Only rules with decent weight
+        )
+
+        return result
+
+    def _format_rules_for_prompt(self, rules: List[Dict[str, Any]]) -> str:
+        """
+        Format retrieved rules for inclusion in GPT-4 prompt
+
+        Args:
+            rules: List of rule dictionaries from knowledge base
+
+        Returns:
+            Formatted string with rules for prompt context
+        """
+        if not rules:
+            return ""
+
+        formatted_parts = []
+
+        for i, rule in enumerate(rules, 1):
+            rule_id = rule.get('rule_id', 'Unknown')
+            condition = rule.get('condition', '')
+            effect = rule.get('effect', '')
+            anchor = rule.get('anchor', '')
+            weight = rule.get('weight', 0)
+            commentary = rule.get('commentary', '')
+
+            rule_text = f"""
+Rule {i}: [{rule_id}] (Weight: {weight})
+Anchor: {anchor}
+Condition: {condition}
+Effect: {effect}"""
+
+            if commentary:
+                rule_text += f"\nCommentary: {commentary}"
+
+            formatted_parts.append(rule_text)
+
+        return "\n".join(formatted_parts)
+
+    def _extract_rule_citations(
+        self,
+        interpretation: str,
+        retrieved_rules: List[Dict[str, Any]]
+    ) -> List[Dict[str, Any]]:
+        """
+        Extract rule IDs cited in the interpretation
+
+        Args:
+            interpretation: The AI-generated interpretation text
+            retrieved_rules: List of rules that were retrieved
+
+        Returns:
+            List of cited rules with their metadata
+        """
+        cited_rules = []
+
+        # Build a map of rule_id to rule data
+        rule_map = {rule.get('rule_id'): rule for rule in retrieved_rules}
+
+        # Find all rule citations in the format [RULE-ID]
+        import re
+        pattern = r'\[([A-Z0-9\-]+)\]'
+        citations = re.findall(pattern, interpretation)
+
+        # Deduplicate and get rule details
+        seen = set()
+        for rule_id in citations:
+            if rule_id not in seen and rule_id in rule_map:
+                rule = rule_map[rule_id]
+                cited_rules.append({
+                    "rule_id": rule_id,
+                    "anchor": rule.get('anchor', ''),
+                    "weight": rule.get('weight', 0),
+                    "relevance_score": rule.get('relevance_score', 0)
+                })
+                seen.add(rule_id)
+
+        return cited_rules
 
     def _generate_fallback_response(self, question: str) -> str:
         """Generate fallback response if API fails"""
