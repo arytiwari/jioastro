@@ -7,6 +7,7 @@ from typing import Dict, List, Any, Tuple
 from datetime import datetime, date, time, timedelta
 import swisseph as swe
 import pytz
+from app.services.extended_yoga_service import extended_yoga_service
 
 
 class AccurateVedicAstrology:
@@ -483,35 +484,9 @@ class AccurateVedicAstrology:
                 "category": "Wealth & Wisdom"
             })
 
-        # 2. Pancha Mahapurusha Yogas
-        # Check if any planet is exalted or in own sign in Kendra
-        kendra_houses = [1, 4, 7, 10]
-
-        for planet_name in ["Mars", "Mercury", "Jupiter", "Venus", "Saturn"]:
-            if planets[planet_name]["house"] in kendra_houses:
-                yogas.append({
-                    "name": f"{planet_name} in Kendra",
-                    "description": f"{planet_name} placed powerfully in angle house",
-                    "strength": "Medium",
-                    "category": "Mahapurusha Yoga"
-                })
-
-        # 3. Budhaditya Yoga: Sun-Mercury conjunction
-        sun_sign = planets["Sun"]["sign_num"]
-        mercury_sign = planets["Mercury"]["sign_num"]
-        sun_house = planets["Sun"]["house"]
-        mercury_house = planets["Mercury"]["house"]
-
-        if sun_house == mercury_house:
-            yogas.append({
-                "name": "Budhaditya Yoga",
-                "description": "Sun-Mercury combination enhances intelligence, communication, and learning",
-                "strength": "Medium",
-                "category": "Intelligence"
-            })
-
-        # 4. Raj Yoga: Kendra and Trikona lords in mutual relationship
+        # 2. Raj Yoga: Kendra and Trikona lords in mutual relationship
         # Simplified: Jupiter and Sun in good houses
+        kendra_houses = [1, 4, 7, 10]
         if jupiter_house in kendra_houses and planets["Sun"]["house"] in kendra_houses:
             yogas.append({
                 "name": "Raj Yoga",
@@ -520,7 +495,7 @@ class AccurateVedicAstrology:
                 "category": "Power & Status"
             })
 
-        # 5. Dhana Yoga: 2nd, 5th, 9th, 11th house connections
+        # 3. Dhana Yoga: 2nd, 5th, 9th, 11th house connections
         dhana_houses = [2, 5, 9, 11]
         beneficial_planets_in_dhana = sum(1 for p in ["Jupiter", "Venus", "Mercury"]
                                           if planets[p]["house"] in dhana_houses)
@@ -533,6 +508,13 @@ class AccurateVedicAstrology:
                 "category": "Wealth"
             })
 
+        # 4. Extended Yogas: Add 25+ additional classical yogas
+        try:
+            extended_yogas = extended_yoga_service.detect_extended_yogas(planets)
+            yogas.extend(extended_yogas)
+        except Exception as e:
+            print(f"Warning: Extended yoga detection failed: {e}")
+
         # If no major yogas found
         if not yogas:
             yogas.append({
@@ -542,7 +524,15 @@ class AccurateVedicAstrology:
                 "category": "General"
             })
 
-        return yogas
+        # Remove duplicates (keep first occurrence)
+        seen = set()
+        unique_yogas = []
+        for yoga in yogas:
+            if yoga["name"] not in seen:
+                seen.add(yoga["name"])
+                unique_yogas.append(yoga)
+
+        return unique_yogas
 
     def calculate_moon_chart(
         self,
