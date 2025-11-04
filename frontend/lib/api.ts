@@ -192,6 +192,157 @@ class APIClient {
   async listKnowledgeTopics() {
     return this.request('/vedastro/knowledge')
   }
+
+  // Phase 3: AI Orchestrator - Comprehensive Readings
+  async generateComprehensiveReading(data: {
+    profile_id: string
+    query?: string
+    domains?: string[]
+    include_predictions?: boolean
+    prediction_window_months?: number
+  }) {
+    return this.request('/readings/ai', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async askQuestionWithOrchestrator(data: {
+    profile_id: string
+    question: string
+  }) {
+    return this.request('/readings/ask', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async listReadings(limit = 20, offset = 0) {
+    return this.request(`/readings?limit=${limit}&offset=${offset}`)
+  }
+
+  async getReading(sessionId: string) {
+    return this.request(`/readings/${sessionId}`)
+  }
+
+  // Phase 3: Knowledge Base - Rule Retrieval
+  async retrieveRules(data: {
+    query: string
+    chart_context?: any
+    domains?: string[]
+    top_k?: number
+  }) {
+    return this.request('/knowledge/retrieve', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getRule(ruleId: string) {
+    return this.request(`/knowledge/rules/${ruleId}`)
+  }
+
+  async getKnowledgeStats() {
+    return this.request('/knowledge/stats')
+  }
+
+  async getDomains() {
+    return this.request('/knowledge/domains')
+  }
+
+  async getRulesByDomain(domain: string, limit = 50, minWeight = 0.3) {
+    return this.request(`/knowledge/rules/domain/${domain}?limit=${limit}&min_weight=${minWeight}`)
+  }
+
+  // Phase 4: Enhancements - Remedies
+  async generateRemedies(data: {
+    chart_data: any
+    domain?: string
+    max_remedies?: number
+    include_practical?: boolean
+  }) {
+    return this.request('/enhancements/remedies/generate-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Birth Time Rectification
+  async rectifyBirthTime(data: {
+    name: string
+    birth_date: string
+    approximate_time: string
+    time_window_minutes: number
+    latitude: number
+    longitude: number
+    timezone_str: string
+    city: string
+    event_anchors: Array<{
+      event_type: string
+      event_date: string
+      significance: number
+      description?: string
+    }>
+  }) {
+    return this.request('/enhancements/rectification/calculate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Transits
+  async getCurrentTransits(data: {
+    chart_data: any
+    transit_date?: string
+    latitude?: number
+    longitude?: number
+    timezone_str?: string
+  }) {
+    return this.request('/enhancements/transits/current-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getTransitTimeline(data: {
+    chart_data: any
+    start_date?: string
+    end_date?: string
+    latitude?: number
+    longitude?: number
+    timezone_str?: string
+  }) {
+    return this.request('/enhancements/transits/timeline-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Shadbala (Planetary Strength)
+  async calculateShadbala(data: {
+    chart_data: any
+    birth_datetime?: string
+  }) {
+    return this.request('/enhancements/shadbala/calculate-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - All Combined
+  async getAllEnhancements(data: {
+    chart_data: any
+    birth_datetime?: string
+    include_remedies?: boolean
+    include_transits?: boolean
+    include_shadbala?: boolean
+    remedy_domain?: string
+  }) {
+    return this.request('/enhancements/all-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
 }
 
 export const apiClient = new APIClient()

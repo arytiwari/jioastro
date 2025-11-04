@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 
@@ -60,7 +60,12 @@ export default function DashboardLayout({
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
     { name: 'My Profiles', href: '/dashboard/profiles', icon: User },
+    { name: 'AI Readings', href: '/dashboard/readings', icon: Sparkles, badge: 'NEW' },
     { name: 'Ask Question', href: '/dashboard/ask', icon: MessageSquare },
+    { name: 'Remedies', href: '/dashboard/remedies', icon: Gem },
+    { name: 'Transits', href: '/dashboard/transits', icon: Sun },
+    { name: 'Strength', href: '/dashboard/strength', icon: Award },
+    { name: 'Rectification', href: '/dashboard/rectification', icon: Clock },
     { name: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
     { name: 'History', href: '/dashboard/history', icon: History },
   ]
@@ -81,9 +86,14 @@ export default function DashboardLayout({
             <nav className="hidden md:flex items-center space-x-1">
               {navigation.map((item) => (
                 <Link key={item.name} href={item.href}>
-                  <Button variant="ghost" className="flex items-center gap-2">
+                  <Button variant="ghost" className="flex items-center gap-2 relative">
                     <item.icon className="w-4 h-4" />
                     {item.name}
+                    {item.badge && (
+                      <span className="ml-1 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        {item.badge}
+                      </span>
+                    )}
                   </Button>
                 </Link>
               ))}
@@ -126,6 +136,11 @@ export default function DashboardLayout({
                   <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
                     <item.icon className="w-4 h-4" />
                     {item.name}
+                    {item.badge && (
+                      <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        {item.badge}
+                      </span>
+                    )}
                   </Button>
                 </Link>
               ))}

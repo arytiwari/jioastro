@@ -49,5 +49,11 @@ export {
   Activity,
   Sparkles,
   History,
-  Briefcase
+  Briefcase,
+  Award,
+  Gem,
+  GraduationCap,
+  AlertTriangle,
+  DollarSign,
+  Music
 } from 'lucide-react'
