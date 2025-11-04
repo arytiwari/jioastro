@@ -42,6 +42,11 @@ class APIClient {
       const contentType = response.headers.get('content-type') ?? ''
       if (contentType.includes('application/json')) {
         payload = await response.json()
+        // Log raw payload for debugging
+        if (path.includes('/queries')) {
+          console.log('🔍 API Client request() - Raw HTTP payload for queries:', payload)
+          console.log('🔍 API Client request() - First item:', payload?.[0])
+        }
       } else {
         payload = await response.text()
       }
@@ -50,7 +55,10 @@ class APIClient {
     if (!response.ok) {
       const message =
         payload?.detail || payload?.message || (typeof payload === 'string' ? payload : 'Request failed')
-      throw new Error(message)
+      // Create error with status code attached for proper error handling
+      const error = new Error(message) as Error & { status: number }
+      error.status = response.status
+      throw error
     }
 
     return { data: payload as T }
@@ -116,7 +124,7 @@ class APIClient {
   }
 
   // Chart endpoints
-  async calculateChart(profileId: string, chartType: 'D1' | 'D9') {
+  async calculateChart(profileId: string, chartType: 'D1' | 'D9' | 'Moon') {
     return this.request('/charts/calculate', {
       method: 'POST',
       body: JSON.stringify({
@@ -126,7 +134,7 @@ class APIClient {
     })
   }
 
-  async getChart(profileId: string, chartType: 'D1' | 'D9') {
+  async getChart(profileId: string, chartType: 'D1' | 'D9' | 'Moon') {
     return this.request(`/charts/${profileId}/${chartType}`)
   }
 
@@ -139,7 +147,11 @@ class APIClient {
   }
 
   async getQueries(limit = 20, offset = 0) {
-    return this.request(`/queries?limit=${limit}&offset=${offset}`)
+    const result = await this.request(`/queries?limit=${limit}&offset=${offset}`)
+    console.log('🌐 API Client getQueries - Raw result:', result)
+    console.log('🌐 API Client getQueries - result.data:', result.data)
+    console.log('🌐 API Client getQueries - First query:', result.data?.[0])
+    return result
   }
 
   async getQuery(id: string) {

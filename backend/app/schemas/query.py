@@ -1,9 +1,10 @@
 """Query Schemas"""
 
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 from uuid import UUID
+from app.schemas.response import ResponseResponse
 
 
 class QueryCreate(BaseModel):
@@ -23,6 +24,7 @@ class QueryResponse(BaseModel):
     question: str
     category: Optional[str]
     created_at: datetime
+    responses: List[ResponseResponse] = []
 
     class Config:
         from_attributes = True
