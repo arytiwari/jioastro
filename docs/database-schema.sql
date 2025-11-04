@@ -27,7 +27,7 @@ CREATE INDEX idx_profiles_primary ON profiles(user_id, is_primary) WHERE is_prim
 CREATE TABLE charts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  chart_type VARCHAR(10) NOT NULL CHECK (chart_type IN ('D1', 'D9')),
+  chart_type VARCHAR(10) NOT NULL CHECK (chart_type IN ('D1', 'D9', 'Moon')),
   chart_data JSONB NOT NULL,
   chart_svg TEXT,
   calculated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -163,7 +163,7 @@ CREATE POLICY "Users can update their own feedback"
 
 -- Comments
 COMMENT ON TABLE profiles IS 'Birth profiles for astrological calculations';
-COMMENT ON TABLE charts IS 'Cached birth charts (D1, D9, etc.)';
+COMMENT ON TABLE charts IS 'Cached birth charts (D1, D9, Moon, etc.)';
 COMMENT ON TABLE queries IS 'User questions for AI interpretation';
 COMMENT ON TABLE responses IS 'AI-generated astrological interpretations';
 COMMENT ON TABLE feedback IS 'User feedback on AI interpretations';
