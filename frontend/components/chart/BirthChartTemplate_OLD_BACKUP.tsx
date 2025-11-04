@@ -80,21 +80,19 @@ type LayoutAnchor = {
   anchor?: 'start' | 'middle' | 'end'
 }
 
-// North Indian Chart - Anticlockwise from top (House 1)
-// Layout: House numbers go anticlockwise starting from top
 const HOUSE_LAYOUT: Record<number, LayoutAnchor> = {
-  1: { label: [0.5, 0.08], sign: [0.5, 0.15], planets: [0.5, 0.22] },           // Top
-  2: { label: [0.22, 0.22], sign: [0.22, 0.29], planets: [0.22, 0.36], anchor: 'start' },  // Top-Left
-  3: { label: [0.08, 0.5], sign: [0.12, 0.57], planets: [0.15, 0.64], anchor: 'start' },   // Left
-  4: { label: [0.22, 0.78], sign: [0.22, 0.85], planets: [0.22, 0.92], anchor: 'start' },  // Bottom-Left
-  5: { label: [0.5, 0.92], sign: [0.5, 0.96], planets: [0.5, 0.88] },           // Bottom
-  6: { label: [0.78, 0.78], sign: [0.78, 0.85], planets: [0.78, 0.92], anchor: 'end' },    // Bottom-Right
-  7: { label: [0.92, 0.5], sign: [0.88, 0.57], planets: [0.85, 0.64], anchor: 'end' },     // Right
-  8: { label: [0.78, 0.22], sign: [0.78, 0.29], planets: [0.78, 0.36], anchor: 'end' },    // Top-Right
-  9: { label: [0.35, 0.35], sign: [0.35, 0.42], planets: [0.35, 0.49] },        // Inner Top-Left
-  10: { label: [0.35, 0.65], sign: [0.35, 0.72], planets: [0.35, 0.79] },       // Inner Bottom-Left
-  11: { label: [0.65, 0.65], sign: [0.65, 0.72], planets: [0.65, 0.79] },       // Inner Bottom-Right
-  12: { label: [0.65, 0.35], sign: [0.65, 0.42], planets: [0.65, 0.49] }        // Inner Top-Right
+  1: { label: [0.5, 0.08], sign: [0.5, 0.15], planets: [0.5, 0.22] },
+  2: { label: [0.78, 0.22], sign: [0.78, 0.29], planets: [0.78, 0.36] },
+  3: { label: [0.92, 0.5], sign: [0.88, 0.57], planets: [0.85, 0.64], anchor: 'end' },
+  4: { label: [0.78, 0.78], sign: [0.78, 0.85], planets: [0.78, 0.92], anchor: 'end' },
+  5: { label: [0.5, 0.92], sign: [0.5, 0.96], planets: [0.5, 0.88] },
+  6: { label: [0.22, 0.78], sign: [0.22, 0.85], planets: [0.22, 0.92], anchor: 'start' },
+  7: { label: [0.08, 0.5], sign: [0.12, 0.57], planets: [0.15, 0.64], anchor: 'start' },
+  8: { label: [0.22, 0.22], sign: [0.22, 0.29], planets: [0.22, 0.36], anchor: 'start' },
+  9: { label: [0.35, 0.35], sign: [0.35, 0.42], planets: [0.35, 0.49] },
+  10: { label: [0.65, 0.35], sign: [0.65, 0.42], planets: [0.65, 0.49] },
+  11: { label: [0.65, 0.65], sign: [0.65, 0.72], planets: [0.65, 0.79] },
+  12: { label: [0.35, 0.65], sign: [0.35, 0.72], planets: [0.35, 0.79] }
 }
 
 const STROKE_COLOR = '#b1792d'
@@ -304,7 +302,7 @@ export function BirthChartTemplate({ chartData, width = 600, height = 600, chart
           ))}
         </div>
         <p className="mt-3 text-xs text-gray-600 text-center">
-          <span className="font-semibold text-red-600">ʀ</span> = Retrograde planet • Houses numbered anticlockwise from 1
+          <span className="font-semibold text-red-600">ʀ</span> = Retrograde planet
         </p>
       </div>
     </div>

@@ -10,7 +10,7 @@ class ChartCalculateRequest(BaseModel):
     """Schema for chart calculation request"""
 
     profile_id: UUID
-    chart_type: str = Field(..., pattern="^(D1|D9)$")
+    chart_type: str = Field(..., pattern="^(D1|D9|Moon)$")
 
 
 class ChartResponse(BaseModel):

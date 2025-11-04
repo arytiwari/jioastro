@@ -29,7 +29,8 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = ""
     AZURE_OPENAI_ENDPOINT: str = ""
     AZURE_OPENAI_API_KEY: str = ""
-    AZURE_OPENAI_DEPLOYMENT: str = ""
+    AZURE_OPENAI_DEPLOYMENT: str = ""  # Chat deployment (GPT-4)
+    AZURE_OPENAI_EMBEDDING_DEPLOYMENT: str = ""  # Embedding deployment (text-embedding-ada-002)
     AZURE_OPENAI_API_VERSION: str = "2024-02-15-preview"
     USE_AZURE_OPENAI: bool = False
 

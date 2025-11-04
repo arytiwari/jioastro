@@ -8,9 +8,14 @@ import { WesternBirthChart } from './WesternBirthChart'
 interface Planet {
   sign: string
   sign_num: number
-  position: number
+  degree: number
+  longitude: number
   house: number
   retrograde?: boolean
+  nakshatra?: {
+    name: string
+    pada: number
+  }
 }
 
 interface ChartData {

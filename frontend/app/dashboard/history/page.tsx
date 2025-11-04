@@ -15,6 +15,7 @@ export default function HistoryPage() {
     queryKey: ['queries'],
     queryFn: async () => {
       const response = await apiClient.getQueries(50, 0)
+      console.log('📋 History page - Queries received:', response.data)
       return response.data
     },
   })
@@ -63,6 +64,10 @@ export default function HistoryPage() {
 
       <div className="space-y-4">
         {queries.map((item: any) => {
+          console.log('🔍 History item FULL:', JSON.stringify(item, null, 2))
+          console.log('🔍 item.responses:', item.responses)
+          console.log('🔍 item.responses type:', typeof item.responses, Array.isArray(item.responses))
+
           const query = item?.query ?? item
           if (!query) {
             return null
@@ -70,8 +75,10 @@ export default function HistoryPage() {
 
           const queryId = query.id ?? item?.id
           const responses = item?.responses ?? query.responses ?? (item?.response ? [item.response] : [])
+          console.log('📦 Responses for query:', queryId, responses)
           const isExpanded = expandedQuery === queryId
           const response = responses?.[0] // Get first response from responses array
+          console.log('✅ First response:', response)
 
           return (
             <Card key={queryId ?? query.question} className="overflow-hidden">

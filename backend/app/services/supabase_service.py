@@ -105,6 +105,7 @@ class SupabaseService:
     async def get_queries(self, user_id: str, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
         """Get queries for a user"""
         response = self.client.table("queries").select("*, responses(*)").eq("user_id", user_id).order("created_at", desc=True).range(offset, offset + limit - 1).execute()
+        print(f"📊 Supabase get_queries raw response: {response.data[:2] if response.data else []}")
         return response.data if response.data else []
 
     async def get_query(self, query_id: str, user_id: str) -> Optional[Dict[str, Any]]:

@@ -21,9 +21,16 @@ interface Antardasha {
   days: number
 }
 
+interface CurrentMahadasha {
+  planet: string
+  start_date: string
+  end_date: string
+  remaining_years: number
+}
+
 interface DashaData {
-  current_mahadasha: string
-  mahadasha_years: number
+  current_mahadasha: string | CurrentMahadasha  // Support both old and new formats
+  mahadasha_years?: number
   mahadashas: Mahadasha[]
   antardashas: Antardasha[]
   note?: string
@@ -54,11 +61,18 @@ const formatDate = (dateStr: string) => {
 }
 
 export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
-  const [expandedMaha, setExpandedMaha] = useState<string | null>(
-    dasha.current_mahadasha || dasha.current_dasha || null
-  )
+  // Extract planet name - support both old and new formats
+  const currentMahaPlanet = typeof dasha.current_mahadasha === 'string'
+    ? (dasha.current_mahadasha || dasha.current_dasha || 'Unknown')
+    : (dasha.current_mahadasha?.planet || 'Unknown')
 
-  const currentMaha = dasha.current_mahadasha || dasha.current_dasha || 'Unknown'
+  const remainingYears = typeof dasha.current_mahadasha === 'string'
+    ? (dasha.mahadasha_years || 0)
+    : (dasha.current_mahadasha?.remaining_years || 0)
+
+  const [expandedMaha, setExpandedMaha] = useState<string | null>(currentMahaPlanet)
+
+  const currentMaha = currentMahaPlanet
   const mahadashas = dasha.mahadashas || []
   const antardashas = dasha.antardashas || []
 
@@ -112,7 +126,7 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
             <div>
               <p className="text-2xl font-bold">{currentMaha}</p>
               <p className="text-sm text-gray-600 mt-1">
-                {dasha.mahadasha_years} years remaining
+                {remainingYears.toFixed(1)} years remaining
               </p>
             </div>
             <div className={`px-6 py-3 rounded-lg text-2xl ${dashaColors[currentMaha]}`}>

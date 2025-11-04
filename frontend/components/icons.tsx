@@ -16,6 +16,7 @@ export {
   ChevronDown,
   ChevronRight,
   ChevronLeft,
+  ChevronUp,
   AlertCircle,
   CheckCircle,
   Info,
