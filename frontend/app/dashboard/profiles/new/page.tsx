@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CityAutocomplete } from '@/components/CityAutocomplete'
 
 const TIMEZONES = [
   'UTC',
@@ -18,17 +19,6 @@ const TIMEZONES = [
   'Asia/Dubai',
   'Asia/Singapore',
   'Australia/Sydney',
-]
-
-const INDIAN_CITIES = [
-  { name: 'Mumbai', lat: 19.0760, lon: 72.8777 },
-  { name: 'Delhi', lat: 28.7041, lon: 77.1025 },
-  { name: 'Bangalore', lat: 12.9716, lon: 77.5946 },
-  { name: 'Kolkata', lat: 22.5726, lon: 88.3639 },
-  { name: 'Chennai', lat: 13.0827, lon: 80.2707 },
-  { name: 'Hyderabad', lat: 17.3850, lon: 78.4867 },
-  { name: 'Pune', lat: 18.5204, lon: 73.8567 },
-  { name: 'Ahmedabad', lat: 23.0225, lon: 72.5714 },
 ]
 
 export default function NewProfilePage() {
@@ -47,16 +37,13 @@ export default function NewProfilePage() {
     is_primary: false,
   })
 
-  const handleCitySelect = (cityName: string) => {
-    const city = INDIAN_CITIES.find(c => c.name === cityName)
-    if (city) {
-      setFormData(prev => ({
-        ...prev,
-        birth_city: city.name,
-        birth_lat: city.lat.toString(),
-        birth_lon: city.lon.toString(),
-      }))
-    }
+  const handleCitySelect = (city: { id: number; name: string; state: string; latitude: number; longitude: number; display_name: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      birth_city: city.display_name,
+      birth_lat: city.latitude.toString(),
+      birth_lon: city.longitude.toString(),
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,7 +99,7 @@ export default function NewProfilePage() {
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="John Doe"
                 required
                 disabled={loading}
@@ -127,7 +114,7 @@ export default function NewProfilePage() {
                   id="birth_date"
                   type="date"
                   value={formData.birth_date}
-                  onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_date: e.target.value })}
                   required
                   disabled={loading}
                 />
@@ -139,7 +126,7 @@ export default function NewProfilePage() {
                   id="birth_time"
                   type="time"
                   value={formData.birth_time}
-                  onChange={(e) => setFormData({ ...formData, birth_time: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_time: e.target.value })}
                   required
                   disabled={loading}
                 />
@@ -148,36 +135,11 @@ export default function NewProfilePage() {
             </div>
 
             {/* City Selection */}
-            <div className="space-y-2">
-              <Label htmlFor="city">Birth City (Quick Select)</Label>
-              <Select onValueChange={handleCitySelect} disabled={loading}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a city" />
-                </SelectTrigger>
-                <SelectContent>
-                  {INDIAN_CITIES.map((city) => (
-                    <SelectItem key={city.name} value={city.name}>
-                      {city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-gray-500">
-                Or enter custom coordinates below
-              </p>
-            </div>
-
-            {/* Manual City Name */}
-            <div className="space-y-2">
-              <Label htmlFor="birth_city">City Name (Optional)</Label>
-              <Input
-                id="birth_city"
-                value={formData.birth_city}
-                onChange={(e) => setFormData({ ...formData, birth_city: e.target.value })}
-                placeholder="City name"
-                disabled={loading}
-              />
-            </div>
+            <CityAutocomplete
+              onCitySelect={handleCitySelect}
+              disabled={loading}
+              initialValue={formData.birth_city}
+            />
 
             {/* Coordinates */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,7 +150,7 @@ export default function NewProfilePage() {
                   type="number"
                   step="0.000001"
                   value={formData.birth_lat}
-                  onChange={(e) => setFormData({ ...formData, birth_lat: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_lat: e.target.value })}
                   placeholder="19.0760"
                   required
                   disabled={loading}
@@ -202,7 +164,7 @@ export default function NewProfilePage() {
                   type="number"
                   step="0.000001"
                   value={formData.birth_lon}
-                  onChange={(e) => setFormData({ ...formData, birth_lon: e.target.value })}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_lon: e.target.value })}
                   placeholder="72.8777"
                   required
                   disabled={loading}
@@ -237,7 +199,7 @@ export default function NewProfilePage() {
                 type="checkbox"
                 id="is_primary"
                 checked={formData.is_primary}
-                onChange={(e) => setFormData({ ...formData, is_primary: e.target.checked })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, is_primary: e.target.checked })}
                 className="rounded border-gray-300"
                 disabled={loading}
               />

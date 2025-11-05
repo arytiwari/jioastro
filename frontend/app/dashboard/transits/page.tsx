@@ -169,7 +169,7 @@ export default function TransitsPage() {
                   id="date"
                   type="date"
                   value={currentDate}
-                  onChange={(e) => setCurrentDate(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCurrentDate(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-jio-500"
                 />
                 <Button variant="outline" size="sm" onClick={handleToday}>

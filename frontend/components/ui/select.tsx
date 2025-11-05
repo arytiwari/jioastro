@@ -117,7 +117,9 @@ export function Select({
 }
 
 export interface SelectTriggerProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {}
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children?: React.ReactNode
+}
 
 export const SelectTrigger = React.forwardRef<
   HTMLButtonElement,
@@ -168,7 +170,9 @@ export const SelectValue = ({ placeholder, className }: SelectValueProps) => {
 }
 
 export interface SelectContentProps
-  extends React.HTMLAttributes<HTMLDivElement> {}
+  extends React.HTMLAttributes<HTMLDivElement> {
+  children?: React.ReactNode
+}
 
 export const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
   ({ className, children, ...props }, ref) => {
@@ -198,6 +202,7 @@ SelectContent.displayName = "SelectContent"
 export interface SelectItemProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string
+  children?: React.ReactNode
 }
 
 export const SelectItem = React.forwardRef<HTMLButtonElement, SelectItemProps>(

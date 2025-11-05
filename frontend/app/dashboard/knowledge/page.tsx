@@ -286,7 +286,7 @@ export default function KnowledgeBasePage() {
                 <Input
                   placeholder="e.g., What indicates wealth in a chart?"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
                 <Button onClick={handleSearch} disabled={searchLoading || !searchQuery.trim()}>

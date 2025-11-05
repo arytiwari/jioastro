@@ -58,27 +58,21 @@ class ReadingResponse(BaseModel):
 class AIReadingRequest(BaseModel):
     """Schema for AI-powered reading request"""
 
-    # Birth data (same as ReadingCalculateRequest)
-    name: str
-    dob: str = Field(..., pattern=r'^\d{4}-\d{2}-\d{2}$')
-    tob: str = Field(..., pattern=r'^\d{2}:\d{2}$')
-
-    # Location
-    city_id: Optional[str] = None
-    country_code: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    timezone: str = "Asia/Kolkata"
-    city: str = "Unknown"
+    # Profile reference
+    profile_id: UUID
 
     # AI preferences
-    reading_depth: str = Field(default="medium", pattern="^(brief|medium|detailed)$")
+    query: Optional[str] = None  # Specific question to focus on
     domains: Optional[List[str]] = None
+    include_predictions: bool = True
+    include_transits: bool = False
+    prediction_window_months: int = 12
+    force_regenerate: bool = False
+
+    # Legacy fields (optional, for backward compatibility)
+    reading_depth: Optional[str] = Field(None, pattern="^(brief|medium|detailed)$")
     include_remedies: bool = False
     language: str = "en"
-
-    # Context (optional)
-    question: Optional[str] = None  # Specific question to focus on
     event_anchors: Optional[List[Dict[str, Any]]] = None  # Known life events for better predictions
 
 

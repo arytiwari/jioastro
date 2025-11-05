@@ -219,3 +219,88 @@ export async function getCurrentUser(): Promise<SupabaseUser | null> {
 export function setSession(session: SupabaseSession | null) {
   storeSession(session)
 }
+
+/**
+ * Refresh the access token using the refresh token
+ */
+export async function refreshSession(): Promise<AuthResponse> {
+  const session = getSession()
+
+  if (!session?.refresh_token) {
+    console.warn('⚠️ refreshSession: No refresh token available')
+    return {
+      data: { user: null, session: null },
+      error: new Error('No refresh token available'),
+    }
+  }
+
+  try {
+    console.log('🔄 refreshSession: Refreshing access token...')
+    const response = await request<any>(
+      '/auth/v1/token?grant_type=refresh_token',
+      {
+        method: 'POST',
+        body: JSON.stringify({ refresh_token: session.refresh_token }),
+      }
+    )
+
+    const newSession: SupabaseSession = {
+      access_token: response.access_token,
+      refresh_token: response.refresh_token,
+      expires_at: response.expires_at,
+      token_type: response.token_type,
+      user: response.user || session.user,
+    }
+
+    storeSession(newSession)
+    console.log('✅ refreshSession: Token refreshed successfully')
+
+    return {
+      data: {
+        user: response.user || session.user,
+        session: newSession
+      },
+      error: null
+    }
+  } catch (error: any) {
+    console.error('❌ refreshSession: Failed to refresh token', error)
+    // Clear session on refresh failure
+    storeSession(null)
+    return {
+      data: { user: null, session: null },
+      error: error instanceof Error ? error : new Error('Failed to refresh token'),
+    }
+  }
+}
+
+/**
+ * Check if the session is expired or about to expire
+ * @param bufferSeconds - Number of seconds before expiry to consider as "about to expire"
+ */
+export function isSessionExpired(bufferSeconds: number = 300): boolean {
+  const session = getSession()
+  if (!session?.expires_at) return true
+
+  const now = Math.floor(Date.now() / 1000)
+  const expiresAt = session.expires_at
+
+  return now >= (expiresAt - bufferSeconds)
+}
+
+/**
+ * Get the current session and refresh if needed
+ */
+export async function getValidSession(): Promise<SupabaseSession | null> {
+  const session = getSession()
+
+  if (!session) return null
+
+  // If token is expired or about to expire (within 5 minutes), refresh it
+  if (isSessionExpired(300)) {
+    console.log('🔄 Session expired or about to expire, refreshing...')
+    const result = await refreshSession()
+    return result.data.session
+  }
+
+  return session
+}

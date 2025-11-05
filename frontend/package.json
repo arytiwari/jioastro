@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@supabase/supabase-js": "^2.39.6",
     "axios": "^1.6.2",
     "class-variance-authority": "^0.7.0",
@@ -17,6 +19,7 @@
     "date-fns": "^2.30.0",
     "lucide-react": "^0.294.0",
     "next": "14.0.3",
+    "next-pwa": "^5.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
@@ -25,8 +28,13 @@
     "zustand": "^4.4.6"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/react": "19.2.2",
+    "@types/sharp": "^0.31.1",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.0.1",
     "postcss": "^8",
+    "sharp": "^0.34.4",
     "tailwindcss": "^3.3.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"

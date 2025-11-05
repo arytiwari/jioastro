@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from typing import Dict, Any
 import uuid
+import base64
 
 from app.schemas.reading import (
     ReadingCalculateRequest,
@@ -11,6 +12,14 @@ from app.schemas.reading import (
     AIReadingResponse,
     QuestionRequest,
     QuestionResponse
+)
+from app.schemas.conversation import (
+    ConversationalQuestionRequest,
+    ConversationalQuestionResponse,
+    TranscribeAudioRequest,
+    TranscribeAudioResponse,
+    GenerateSpeechRequest,
+    GenerateSpeechResponse
 )
 from app.core.security import get_current_user
 from app.services.mvp_bridge import mvp_bridge
@@ -154,12 +163,18 @@ async def list_readings(
 
         from app.services.supabase_service import supabase_service
 
-        response = supabase_service.client.table("reading_sessions")\
-            .select("id, reading_type, created_at, confidence_score, meta")\
-            .eq("user_id", user_id)\
-            .order("created_at", desc=True)\
-            .range(offset, offset + limit - 1)\
-            .execute()
+        # Select all columns - if table doesn't exist or has different schema, return empty
+        try:
+            response = supabase_service.client.table("reading_sessions")\
+                .select("*")\
+                .eq("user_id", user_id)\
+                .order("created_at", desc=True)\
+                .range(offset, offset + limit - 1)\
+                .execute()
+        except Exception as e:
+            # Table might not exist yet or have different schema
+            print(f"Note: reading_sessions table not available: {e}")
+            return []
 
         return response.data if response.data else []
 
@@ -260,14 +275,25 @@ async def generate_ai_reading(
         if not request.force_regenerate:
             cached_reading = await memory_service.get_cached_reading(
                 canonical_hash=canonical_hash,
-                max_age_hours=24  # Cache for 24 hours
+                max_age_hours=24
             )
-
             if cached_reading:
-                print(f"✨ Cache hit! Returning cached reading")
+                print(f"✨ Cache hit! Returning cached reading: {cached_reading.get('id')}")
                 return {
-                    "reading": cached_reading,
-                    "cache_hit": True
+                    "reading": {
+                        "session_id": cached_reading.get('id'),
+                        "interpretation": cached_reading.get('interpretation', ''),
+                        "domain_analyses": cached_reading.get('domain_analyses', {}),
+                        "predictions": cached_reading.get('predictions', []),
+                        "rules_used": cached_reading.get('rules_used', []),
+                        "total_rules_retrieved": len(cached_reading.get('rules_used', [])),
+                        "verification": cached_reading.get('verification', {}),
+                        "orchestration_metadata": cached_reading.get('orchestration_metadata', {}),
+                        "confidence": cached_reading.get('verification', {}).get('confidence_level', 'medium'),
+                        "created_at": cached_reading.get('created_at')
+                    },
+                    "cache_hit": True,
+                    "success": True
                 }
 
         # Generate comprehensive reading using orchestrator
@@ -431,4 +457,239 @@ async def ask_question(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to answer question: {str(e)}"
+        )
+
+# ===========================================================================
+# CONVERSATIONAL & VOICE ENDPOINTS (OpenAI Whisper, TTS, Translation)
+# ===========================================================================
+
+@router.post("/ask/conversational", response_model=ConversationalQuestionResponse)
+async def ask_conversational_question(
+    request: ConversationalQuestionRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Conversational Q&A with voice and multi-language support
+
+    Flow:
+    1. Translate question to English (if needed) using GPT-4
+    2. Process with AI orchestrator (existing)
+    3. Translate response back to user's language
+    4. Generate voice response if requested (OpenAI TTS)
+
+    Supports 15+ languages including Hindi, Marathi, Gujarati, Tamil, etc.
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Import voice service
+        from app.services.openai_voice_service import openai_voice_service
+
+        # Get profile and chart (reuse existing logic)
+        from app.services.supabase_service import supabase_service
+
+        profile = await supabase_service.get_profile(
+            profile_id=request.profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(status_code=404, detail="Profile not found")
+
+        # Get or calculate chart
+        chart = await supabase_service.get_chart(
+            profile_id=request.profile_id,
+            chart_type="D1"
+        )
+
+        if not chart:
+            # Calculate chart (same logic as other endpoints)
+            from datetime import datetime
+            from app.services.astrology import astrology_service
+
+            birth_date = datetime.fromisoformat(profile['birth_date']).date() \
+                if isinstance(profile['birth_date'], str) else profile['birth_date']
+            birth_time = datetime.fromisoformat(f"2000-01-01T{profile['birth_time']}").time() \
+                if isinstance(profile['birth_time'], str) else profile['birth_time']
+
+            chart_data = astrology_service.calculate_birth_chart(
+                name=profile['name'],
+                birth_date=birth_date,
+                birth_time=birth_time,
+                latitude=float(profile['birth_lat']),
+                longitude=float(profile['birth_lon']),
+                timezone_str=profile.get('birth_timezone') or 'UTC',
+                city=profile.get('birth_city') or 'Unknown'
+            )
+
+            chart = await supabase_service.create_chart({
+                "profile_id": str(request.profile_id),
+                "chart_type": "D1",
+                "chart_data": chart_data
+            })
+
+        # Step 1: Translate question to English if needed
+        was_translated = request.source_language[:2] != 'en'
+        if was_translated:
+            print(f"🌐 Translating from {request.source_language} to English...")
+            translation_result = await openai_voice_service.translate_text(
+                text=request.question,
+                source_lang=request.source_language,
+                target_lang='en-US'
+            )
+            english_question = translation_result['translated_text']
+            print(f"📝 Translated: {english_question[:100]}...")
+        else:
+            english_question = request.question
+
+        # Step 2: Process with AI orchestrator (existing functionality)
+        from app.services.ai_orchestrator import ai_orchestrator
+
+        print(f"🤖 Processing question with AI orchestrator...")
+        result = await ai_orchestrator.generate_comprehensive_reading(
+            chart_data=chart.get("chart_data", {}),
+            query=english_question,
+            domains=None,  # Let coordinator determine domains
+            include_predictions=False,  # For questions, focus on answer
+            include_transits=False,
+            prediction_window_months=0
+        )
+
+        english_answer = result['interpretation']
+
+        # Step 3: Translate response back to user's language
+        if was_translated:
+            print(f"🌐 Translating response back to {request.source_language}...")
+            translation_result = await openai_voice_service.translate_text(
+                text=english_answer,
+                source_lang='en-US',
+                target_lang=request.source_language
+            )
+            translated_answer = translation_result['translated_text']
+            print(f"✅ Translation complete")
+        else:
+            translated_answer = english_answer
+
+        # Step 4: Generate audio response if requested
+        audio_data = None
+        audio_format = None
+        if request.include_audio_response:
+            print(f"🔊 Generating speech in {request.source_language}...")
+            audio_bytes = await openai_voice_service.generate_speech(
+                text=translated_answer,
+                language=request.source_language,
+                voice=request.voice or 'alloy',
+                speed=1.0
+            )
+            # Encode to base64 for JSON response
+            audio_data = base64.b64encode(audio_bytes).decode('utf-8')
+            audio_format = 'mp3'
+            print(f"✅ Audio generated: {len(audio_bytes)} bytes")
+
+        return ConversationalQuestionResponse(
+            answer=translated_answer,
+            original_answer=english_answer if was_translated else None,
+            audio_data=audio_data,
+            audio_format=audio_format,
+            rules_used=result.get('rules_used', []),
+            confidence=result.get('confidence', 'medium'),
+            source_language=request.source_language,
+            target_language=request.source_language,
+            was_translated=was_translated,
+            tokens_used=result.get('orchestration_metadata', {}).get('tokens_used', 0)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Conversational question error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process question: {str(e)}"
+        )
+
+
+@router.post("/voice/transcribe", response_model=TranscribeAudioResponse)
+async def transcribe_audio_endpoint(
+    request: TranscribeAudioRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Transcribe audio using OpenAI Whisper
+
+    Converts speech to text in 50+ languages with high accuracy.
+    Better than browser Speech Recognition API.
+    """
+    try:
+        from app.services.openai_voice_service import openai_voice_service
+
+        # Decode base64 audio
+        audio_bytes = base64.b64decode(request.audio_data)
+
+        print(f"🎤 Transcribing audio: {len(audio_bytes)} bytes, language: {request.language}")
+
+        # Transcribe with Whisper
+        result = await openai_voice_service.transcribe_audio(
+            audio_data=audio_bytes,
+            language=request.language,
+            format=request.format
+        )
+
+        print(f"✅ Transcription complete: {result['text'][:100]}...")
+
+        return TranscribeAudioResponse(**result)
+
+    except Exception as e:
+        print(f"❌ Transcription error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to transcribe audio: {str(e)}"
+        )
+
+
+@router.post("/voice/generate", response_model=GenerateSpeechResponse)
+async def generate_speech_endpoint(
+    request: GenerateSpeechRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Generate speech using OpenAI TTS
+
+    High-quality text-to-speech in multiple languages.
+    Supports 6 voices: alloy, echo, fable, onyx, nova, shimmer
+    """
+    try:
+        from app.services.openai_voice_service import openai_voice_service
+
+        print(f"🔊 Generating speech: {len(request.text)} chars, voice: {request.voice}")
+
+        # Generate audio
+        audio_bytes = await openai_voice_service.generate_speech(
+            text=request.text,
+            language=request.language,
+            voice=request.voice,
+            speed=request.speed
+        )
+
+        # Encode to base64
+        audio_data = base64.b64encode(audio_bytes).decode('utf-8')
+
+        print(f"✅ Speech generated: {len(audio_bytes)} bytes")
+
+        return GenerateSpeechResponse(
+            audio_data=audio_data,
+            format='mp3'
+        )
+
+    except Exception as e:
+        print(f"❌ Speech generation error: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to generate speech: {str(e)}"
         )

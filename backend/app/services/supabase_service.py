@@ -51,9 +51,12 @@ class SupabaseService:
         response = self.client.table("profiles").select("*").eq("user_id", user_id).order("is_primary", desc=True).order("created_at", desc=True).execute()
         return response.data if response.data else []
 
-    async def get_profile(self, profile_id: str, user_id: str) -> Optional[Dict[str, Any]]:
-        """Get a specific profile"""
-        response = self.client.table("profiles").select("*").eq("id", profile_id).eq("user_id", user_id).execute()
+    async def get_profile(self, profile_id: str, user_id: str = None) -> Optional[Dict[str, Any]]:
+        """Get a specific profile - user_id is optional for admin access"""
+        query = self.client.table("profiles").select("*").eq("id", profile_id)
+        if user_id:
+            query = query.eq("user_id", user_id)
+        response = query.execute()
         return response.data[0] if response.data else None
 
     async def update_profile(self, profile_id: str, user_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
@@ -65,9 +68,12 @@ class SupabaseService:
         response = self.client.table("profiles").update(update_data).eq("id", profile_id).eq("user_id", user_id).execute()
         return response.data[0] if response.data else None
 
-    async def delete_profile(self, profile_id: str, user_id: str) -> bool:
-        """Delete a profile"""
-        response = self.client.table("profiles").delete().eq("id", profile_id).eq("user_id", user_id).execute()
+    async def delete_profile(self, profile_id: str, user_id: str = None) -> bool:
+        """Delete a profile - user_id is optional for admin deletion"""
+        query = self.client.table("profiles").delete().eq("id", profile_id)
+        if user_id:
+            query = query.eq("user_id", user_id)
+        response = query.execute()
         return len(response.data) > 0 if response.data else False
 
     # Chart operations
@@ -165,6 +171,127 @@ class SupabaseService:
             "average_rating": round(avg_rating, 2),
             "rating_distribution": distribution
         }
+
+    # Admin operations
+    async def get_admin_by_username_or_email(self, username_or_email: str) -> Optional[Dict[str, Any]]:
+        """Get admin user by username or email"""
+        try:
+            # Try by username first
+            response = self.client.table("admin_users").select("*").eq("username", username_or_email).execute()
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+
+            # Try by email if username didn't match
+            response = self.client.table("admin_users").select("*").eq("email", username_or_email).execute()
+            if response.data and len(response.data) > 0:
+                return response.data[0]
+
+            return None
+        except Exception as e:
+            print(f"Error fetching admin user: {str(e)}")
+            return None
+
+    async def get_admin_by_id(self, admin_id: str) -> Optional[Dict[str, Any]]:
+        """Get admin user by ID"""
+        try:
+            response = self.client.table("admin_users").select("*").eq("id", admin_id).execute()
+            return response.data[0] if response.data and len(response.data) > 0 else None
+        except Exception as e:
+            print(f"Error fetching admin user by ID: {str(e)}")
+            return None
+
+    async def update_admin_last_login(self, admin_id: str) -> bool:
+        """Update admin last login timestamp"""
+        try:
+            self.client.table("admin_users").update({
+                "last_login": datetime.utcnow().isoformat()
+            }).eq("id", admin_id).execute()
+            return True
+        except Exception as e:
+            print(f"Error updating admin last login: {str(e)}")
+            return False
+
+    async def create_admin_user(self, admin_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Create a new admin user"""
+        try:
+            data = {
+                "id": str(uuid.uuid4()),
+                **admin_data,
+                "created_at": datetime.utcnow().isoformat()
+            }
+            response = self.client.table("admin_users").insert(data).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            print(f"Error creating admin user: {str(e)}")
+            return None
+
+    async def get_all_profiles_admin(self, limit: int = 100, offset: int = 0) -> List[Dict[str, Any]]:
+        """Get all user profiles (admin only)"""
+        try:
+            response = self.client.table("profiles").select("*").range(offset, offset + limit - 1).execute()
+            return response.data if response.data else []
+        except Exception as e:
+            print(f"Error fetching all profiles: {str(e)}")
+            return []
+
+    async def get_knowledge_documents(self, document_type: Optional[str] = None, limit: int = 50, offset: int = 0) -> tuple[List[Dict[str, Any]], int]:
+        """Get knowledge documents with optional filtering"""
+        try:
+            query = self.client.table("knowledge_documents").select("*", count="exact")
+
+            if document_type:
+                query = query.eq("document_type", document_type)
+
+            query = query.range(offset, offset + limit - 1).order("created_at", desc=True)
+            response = query.execute()
+
+            total = response.count if hasattr(response, 'count') else len(response.data)
+            return response.data if response.data else [], total
+        except Exception as e:
+            print(f"Error fetching knowledge documents: {str(e)}")
+            return [], 0
+
+    async def get_knowledge_document(self, document_id: str) -> Optional[Dict[str, Any]]:
+        """Get a specific knowledge document"""
+        try:
+            response = self.client.table("knowledge_documents").select("*").eq("id", document_id).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            print(f"Error fetching knowledge document: {str(e)}")
+            return None
+
+    async def create_knowledge_document(self, document_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Create a new knowledge document"""
+        try:
+            data = {
+                "id": str(uuid.uuid4()),
+                **document_data,
+                "created_at": datetime.utcnow().isoformat()
+            }
+            response = self.client.table("knowledge_documents").insert(data).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            print(f"Error creating knowledge document: {str(e)}")
+            return None
+
+    async def update_knowledge_document(self, document_id: str, update_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Update a knowledge document"""
+        try:
+            update_data["updated_at"] = datetime.utcnow().isoformat()
+            response = self.client.table("knowledge_documents").update(update_data).eq("id", document_id).execute()
+            return response.data[0] if response.data else None
+        except Exception as e:
+            print(f"Error updating knowledge document: {str(e)}")
+            return None
+
+    async def delete_knowledge_document(self, document_id: str) -> bool:
+        """Delete a knowledge document"""
+        try:
+            self.client.table("knowledge_documents").delete().eq("id", document_id).execute()
+            return True
+        except Exception as e:
+            print(f"Error deleting knowledge document: {str(e)}")
+            return False
 
 
 # Singleton instance

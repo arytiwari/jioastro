@@ -217,7 +217,7 @@ export default function RemediesPage() {
               min="3"
               max="10"
               value={maxRemedies}
-              onChange={(e) => setMaxRemedies(parseInt(e.target.value))}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setMaxRemedies(parseInt(e.target.value))}
               className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-jio-600"
             />
             <div className="flex justify-between text-xs text-gray-600">

@@ -61,20 +61,45 @@ const formatDate = (dateStr: string) => {
 }
 
 export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
-  // Extract planet name - support both old and new formats
-  const currentMahaPlanet = typeof dasha.current_mahadasha === 'string'
-    ? (dasha.current_mahadasha || dasha.current_dasha || 'Unknown')
-    : (dasha.current_mahadasha?.planet || 'Unknown')
+  // Helper to check if a period is current
+  const isCurrentPeriod = (startDate: string, endDate: string) => {
+    const current = new Date().toISOString().split('T')[0]
+    return current >= startDate && current <= endDate
+  }
 
-  const remainingYears = typeof dasha.current_mahadasha === 'string'
-    ? (dasha.mahadasha_years || 0)
-    : (dasha.current_mahadasha?.remaining_years || 0)
+  // Calculate remaining years from end date
+  const calculateRemainingYears = (endDate: string) => {
+    const now = new Date()
+    const end = new Date(endDate)
+    const diffMs = end.getTime() - now.getTime()
+    const diffYears = diffMs / (1000 * 60 * 60 * 24 * 365.25)
+    return Math.max(0, diffYears)
+  }
+
+  const mahadashas = dasha.mahadashas || []
+  const antardashas = dasha.antardashas || []
+
+  // Find the actual current Mahadasha by checking dates
+  const currentMahaIndex = mahadashas.findIndex(maha =>
+    isCurrentPeriod(maha.start_date, maha.end_date)
+  )
+
+  const actualCurrentMaha = currentMahaIndex >= 0 ? mahadashas[currentMahaIndex] : null
+  const currentMahaPlanet = actualCurrentMaha?.planet ||
+    (typeof dasha.current_mahadasha === 'string'
+      ? (dasha.current_mahadasha || dasha.current_dasha || 'Unknown')
+      : (dasha.current_mahadasha?.planet || 'Unknown'))
+
+  // Get total duration for the mahadasha at birth
+  const mahadashaAtBirth = mahadashas.find(m => m.planet === currentMahaPlanet)
+  const totalYears = mahadashaAtBirth ? mahadashaAtBirth.years :
+    (typeof dasha.current_mahadasha === 'string'
+      ? (dasha.mahadasha_years || 0)
+      : (dasha.current_mahadasha?.remaining_years || 0))
 
   const [expandedMaha, setExpandedMaha] = useState<string | null>(currentMahaPlanet)
 
   const currentMaha = currentMahaPlanet
-  const mahadashas = dasha.mahadashas || []
-  const antardashas = dasha.antardashas || []
 
   // Handle old format
   const isOldFormat = !dasha.mahadashas
@@ -113,12 +138,12 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
 
   return (
     <div className="space-y-6">
-      {/* Current Mahadasha Highlight */}
+      {/* Mahadasha at Birth Highlight */}
       <Card className="border-2 border-jio-500">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-jio-700">
             <Clock className="w-5 h-5" />
-            Current Mahadasha
+            Mahadasha at Birth
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -126,7 +151,7 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
             <div>
               <p className="text-2xl font-bold">{currentMaha}</p>
               <p className="text-sm text-gray-600 mt-1">
-                {remainingYears.toFixed(1)} years remaining
+                {totalYears} years total duration
               </p>
             </div>
             <div className={`px-6 py-3 rounded-lg text-2xl ${dashaColors[currentMaha]}`}>
@@ -146,7 +171,7 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
           <div className="space-y-2">
             {mahadashas.map((maha, idx) => {
               const isExpanded = expandedMaha === maha.planet
-              const isCurrent = maha.planet === currentMaha && idx === 0
+              const isCurrent = isCurrentPeriod(maha.start_date, maha.end_date)
               const colorClass = dashaColors[maha.planet] || 'bg-gray-100'
 
               return (

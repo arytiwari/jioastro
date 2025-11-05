@@ -10,12 +10,27 @@ export const metadata: Metadata = {
   description: 'AI-powered Vedic astrology service with birth chart generation and personalized interpretations by JioAstro',
   keywords: 'jioastro, vedic astrology, birth chart, jyotish, ai astrology, horoscope',
   authors: [{ name: 'JioAstro' }],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'JioAstro',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: '/icon-192x192.png',
+    apple: '/icon-192x192.png',
+  },
 }
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 5,
   themeColor: '#0056d6',
+  userScalable: true,
 }
 
 export default function RootLayout({

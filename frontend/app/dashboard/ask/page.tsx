@@ -9,7 +9,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sparkles, Briefcase, Heart, Activity, TrendingUp, Home, BookOpen } from '@/components/icons'
+import { Sparkles, Briefcase, Heart, Activity, TrendingUp, Home, BookOpen, MessageCircle, FileText } from '@/components/icons'
+import { VoiceConversation } from '@/components/VoiceConversation'
 
 const CATEGORIES = [
   { id: 'career', label: 'Career & Work', icon: Briefcase, color: 'text-blue-600' },
@@ -26,13 +27,15 @@ export default function AskQuestionPage() {
   const [question, setQuestion] = useState('')
   const [category, setCategory] = useState('')
   const [selectedProfile, setSelectedProfile] = useState('')
+  const [mode, setMode] = useState<'conversation' | 'form'>('conversation')
+  const [selectedLanguage, setSelectedLanguage] = useState('en-US')
 
   // Fetch profiles
-  const { data: profiles, isLoading: profilesLoading } = useQuery({
+  const { data: profiles = [], isLoading: profilesLoading } = useQuery({
     queryKey: ['profiles'],
     queryFn: async () => {
       const response = await apiClient.getProfiles()
-      return response.data
+      return response.data as any[]
     },
   })
 
@@ -75,6 +78,28 @@ export default function AskQuestionPage() {
     setCategory(cat)
   }
 
+  // Handler for conversational mode
+  const handleConversationalMessage = async (message: string, language: string, isVoice: boolean): Promise<string> => {
+    if (!selectedProfile) {
+      throw new Error('Please select a birth profile first')
+    }
+
+    try {
+      const response = await apiClient.askConversationalQuestion({
+        profile_id: selectedProfile,
+        question: message,
+        source_language: language,
+        is_voice: isVoice,
+        include_audio_response: false, // Using browser TTS instead
+      })
+
+      return (response.data as { answer: string }).answer
+    } catch (error: any) {
+      console.error('Conversational question error:', error)
+      throw new Error(error?.message || 'Failed to get response. Please try again.')
+    }
+  }
+
   if (profilesLoading) {
     return (
       <div className="text-center py-12">
@@ -110,51 +135,137 @@ export default function AskQuestionPage() {
         </p>
       </div>
 
-      {/* Quick Category Selection */}
+      {/* Mode Toggle */}
       <Card>
-        <CardHeader>
-          <CardTitle>Choose a Topic</CardTitle>
-          <CardDescription>Select a category or scroll down to ask a custom question</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {CATEGORIES.map((cat) => {
-              const Icon = cat.icon
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setCategory(cat.id)}
-                  className={`p-4 border rounded-lg text-left hover:border-jio-300 hover:bg-jio-50 transition-colors ${
-                    category === cat.id ? 'border-jio-500 bg-jio-50' : ''
-                  }`}
-                >
-                  <Icon className={`w-5 h-5 ${cat.color} mb-2`} />
-                  <p className="text-sm font-semibold">{cat.label}</p>
-                </button>
-              )
-            })}
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => setMode('conversation')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all ${
+                mode === 'conversation'
+                  ? 'bg-jio-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="font-medium">Conversation Mode</span>
+            </button>
+            <button
+              onClick={() => setMode('form')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all ${
+                mode === 'form'
+                  ? 'bg-jio-600 text-white shadow-md'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              <FileText className="w-5 h-5" />
+              <span className="font-medium">Traditional Form</span>
+            </button>
           </div>
+          <p className="text-center text-sm text-gray-500 mt-3">
+            {mode === 'conversation'
+              ? '🎤 Voice & text chat with multi-language support'
+              : '📝 Classic question form with category selection'}
+          </p>
         </CardContent>
       </Card>
 
-      {/* Question Form */}
-      <Card>
+      {/* Conversation Mode */}
+      {mode === 'conversation' && (
+        <>
+          {/* Profile Selection for Conversation Mode */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Select Birth Profile</CardTitle>
+              <CardDescription>Choose the profile for your questions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedProfile} onValueChange={setSelectedProfile}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a profile" />
+                </SelectTrigger>
+                <SelectContent>
+                  {profiles.map((profile: any) => (
+                    <SelectItem key={profile.id} value={profile.id}>
+                      {profile.name} {profile.is_primary && '(Primary)'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {/* Voice Conversation Interface */}
+          {selectedProfile ? (
+            <div className="min-h-[600px]">
+              <VoiceConversation
+                onSendMessage={handleConversationalMessage}
+                selectedLanguage={selectedLanguage}
+                profileId={selectedProfile}
+              />
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="text-center py-12">
+                <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">Please select a birth profile above to start the conversation</p>
+              </CardContent>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* Traditional Form Mode */}
+      {mode === 'form' && (
+        <>
+          {/* Quick Category Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Choose a Topic</CardTitle>
+              <CardDescription>Select a category or scroll down to ask a custom question</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {CATEGORIES.map((cat) => {
+                  const Icon = cat.icon
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setCategory(cat.id)}
+                      className={`p-4 border rounded-lg text-left hover:border-jio-300 hover:bg-jio-50 transition-colors ${
+                        category === cat.id ? 'border-jio-500 bg-jio-50' : ''
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 ${cat.color} mb-2`} />
+                      <p className="text-sm font-semibold">{cat.label}</p>
+                    </button>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Question Form */}
+          <Card>
         <CardHeader>
           <CardTitle>Your Question</CardTitle>
           <CardDescription>Be specific for better insights (10 queries per day limit)</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {createQueryMutation.error && (
+            {createQueryMutation.error ? (
               <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md">
-                {(createQueryMutation.error as any)?.response?.data?.detail || 'Failed to submit question'}
+                {(() => {
+                  const errorDetail = (createQueryMutation.error as any)?.response?.data?.detail
+                  return String(errorDetail || 'Failed to submit question')
+                })()}
               </div>
-            )}
+            ) : null}
 
             {/* Profile Selection */}
             <div className="space-y-2">
               <Label htmlFor="profile">Birth Profile</Label>
-              <Select value={selectedProfile} onValueChange={setSelectedProfile} required>
+              <Select value={selectedProfile} onValueChange={setSelectedProfile}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select a profile" />
                 </SelectTrigger>
@@ -174,7 +285,7 @@ export default function AskQuestionPage() {
               <Textarea
                 id="question"
                 value={question}
-                onChange={(e) => setQuestion(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setQuestion(e.target.value)}
                 placeholder="Example: What career path is most suitable for me based on my chart?"
                 rows={5}
                 required
@@ -206,60 +317,61 @@ export default function AskQuestionPage() {
         </CardContent>
       </Card>
 
-      {/* Sample Questions */}
-      {category && (
-        <Card className="bg-gradient-to-r from-jio-50 to-blue-50">
-          <CardHeader>
-            <CardTitle>Sample Questions for {CATEGORIES.find(c => c.id === category)?.label}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {category === 'career' && (
-                <>
-                  <button
-                    onClick={() => handleQuickQuestion('What career path is most suitable for me based on my planetary positions?', 'career')}
-                    className="text-left text-sm text-jio-700 hover:underline block"
-                  >
-                    • What career path is most suitable for me?
-                  </button>
-                  <button
-                    onClick={() => handleQuickQuestion('When is the best time for a career change or job switch?', 'career')}
-                    className="text-left text-sm text-jio-700 hover:underline block"
-                  >
-                    • When is the best time for a career change?
-                  </button>
-                </>
-              )}
-              {category === 'relationship' && (
-                <>
-                  <button
-                    onClick={() => handleQuickQuestion('What does my chart reveal about my romantic relationships and marriage prospects?', 'relationship')}
-                    className="text-left text-sm text-jio-700 hover:underline block"
-                  >
-                    • What does my chart reveal about marriage prospects?
-                  </button>
-                  <button
-                    onClick={() => handleQuickQuestion('How can I improve my relationships based on my birth chart?', 'relationship')}
-                    className="text-left text-sm text-jio-700 hover:underline block"
-                  >
-                    • How can I improve my relationships?
-                  </button>
-                </>
-              )}
-              {category === 'health' && (
-                <>
-                  <button
-                    onClick={() => handleQuickQuestion('What health areas should I pay special attention to based on my chart?', 'health')}
-                    className="text-left text-sm text-jio-700 hover:underline block"
-                  >
-                    • What health areas should I focus on?
-                  </button>
-                </>
-              )}
-              {/* Add more categories as needed */}
-            </div>
-          </CardContent>
-        </Card>
+          {/* Sample Questions */}
+          {category && (
+            <Card className="bg-gradient-to-r from-jio-50 to-blue-50">
+              <CardHeader>
+                <CardTitle>Sample Questions for {CATEGORIES.find(c => c.id === category)?.label}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {category === 'career' && (
+                    <>
+                      <button
+                        onClick={() => handleQuickQuestion('What career path is most suitable for me based on my planetary positions?', 'career')}
+                        className="text-left text-sm text-jio-700 hover:underline block"
+                      >
+                        • What career path is most suitable for me?
+                      </button>
+                      <button
+                        onClick={() => handleQuickQuestion('When is the best time for a career change or job switch?', 'career')}
+                        className="text-left text-sm text-jio-700 hover:underline block"
+                      >
+                        • When is the best time for a career change?
+                      </button>
+                    </>
+                  )}
+                  {category === 'relationship' && (
+                    <>
+                      <button
+                        onClick={() => handleQuickQuestion('What does my chart reveal about my romantic relationships and marriage prospects?', 'relationship')}
+                        className="text-left text-sm text-jio-700 hover:underline block"
+                      >
+                        • What does my chart reveal about marriage prospects?
+                      </button>
+                      <button
+                        onClick={() => handleQuickQuestion('How can I improve my relationships based on my birth chart?', 'relationship')}
+                        className="text-left text-sm text-jio-700 hover:underline block"
+                      >
+                        • How can I improve my relationships?
+                      </button>
+                    </>
+                  )}
+                  {category === 'health' && (
+                    <>
+                      <button
+                        onClick={() => handleQuickQuestion('What health areas should I pay special attention to based on my chart?', 'health')}
+                        className="text-left text-sm text-jio-700 hover:underline block"
+                      >
+                        • What health areas should I focus on?
+                      </button>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </>
       )}
 
       {/* Info */}

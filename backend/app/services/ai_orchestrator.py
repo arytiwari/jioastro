@@ -168,6 +168,27 @@ class AIOrchestrator:
 
         print(f"🎉 Orchestration Complete! Total tokens: {self.tokens_used}/{self.token_budget['max_total']}")
 
+        # Debug: Print comprehensive final result
+        print(f"\n{'='*100}")
+        print(f"📊 FINAL COMPREHENSIVE READING RESULT")
+        print(f"{'='*100}")
+        print(f"\n📝 Interpretation Length: {len(final_result['interpretation'])} characters")
+        print(f"\n🎯 Domain Analyses: {list(final_result.get('domain_analyses', {}).keys())}")
+        print(f"\n🔮 Predictions Count: {len(final_result['predictions'])}")
+        if final_result['predictions']:
+            print("\n📅 PREDICTIONS DETAIL:")
+            for i, pred in enumerate(final_result['predictions'], 1):
+                print(f"\n  Prediction #{i}:")
+                print(f"    Domain: {pred.get('domain', 'N/A')}")
+                print(f"    Summary: {pred.get('prediction_summary', 'N/A')[:100]}...")
+                print(f"    Key Periods: {len(pred.get('key_periods', []))} periods")
+                print(f"    Confidence: {pred.get('confidence_score', 'N/A')}%")
+        else:
+            print("\n⚠️  NO PREDICTIONS IN FINAL RESULT!")
+        print(f"\n📚 Rules Used: {len(final_result['rules_used'])} rules")
+        print(f"\n✅ Verification Quality Score: {final_result['verification'].get('quality_score', 'N/A')}/10")
+        print(f"\n{'='*100}\n")
+
         return final_result
 
     async def _coordinator_role(
@@ -401,6 +422,13 @@ Return JSON:
 
             self.tokens_used += response.usage.total_tokens
             prediction = json.loads(response.choices[0].message.content)
+
+            # Debug: Print the LLM-generated prediction
+            print(f"\n{'='*80}")
+            print(f"🔮 PREDICTION GENERATED for {domain.upper()} domain:")
+            print(f"{'='*80}")
+            print(f"Raw LLM Response:\n{json.dumps(prediction, indent=2)}")
+            print(f"{'='*80}\n")
 
             # Add confidence level enum
             prediction['confidence_level'] = self._score_to_confidence_level(

@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     AZURE_OPENAI_API_VERSION: str = "2024-02-15-preview"
     USE_AZURE_OPENAI: bool = False
 
+    # Azure OpenAI Voice Services (Whisper, TTS)
+    AZURE_WHISPER_DEPLOYMENT_NAME: str = "whisper"
+    AZURE_TTS_DEPLOYMENT_NAME: str = "tts-1"
+    AZURE_GPT4_DEPLOYMENT_NAME: str = ""  # For translation (can reuse main deployment)
+
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
 

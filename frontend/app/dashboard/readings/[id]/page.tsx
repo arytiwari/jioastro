@@ -39,23 +39,23 @@ const CONFIDENCE_LABELS: Record<string, string> = {
 
 interface Reading {
   session_id: string
-  interpretation: string
+  interpretation?: string
   domain_analyses?: Record<string, any>
   predictions?: any[]
-  verification: {
+  verification?: {
     quality_score: number
     citation_accuracy: number
     contradictions_found: number
     confidence_level: string
   }
-  rule_citations: any[]
-  metadata: {
+  rule_citations?: any[]
+  metadata?: {
     tokens_used: number
     cost_usd: number
     cached: boolean
     generation_time_seconds?: number
   }
-  created_at: string
+  created_at?: string
 }
 
 export default function ReadingDetailsPage() {
@@ -74,7 +74,75 @@ export default function ReadingDetailsPage() {
 
     const loadReading = async () => {
       try {
+        // First, check if we have the reading data in sessionStorage (freshly generated)
+        const cachedData = sessionStorage.getItem(`reading_${sessionId}`)
+        if (cachedData) {
+          console.log('📦 Using cached reading data from sessionStorage')
+          const readingData = JSON.parse(cachedData)
+          console.log('📊 Raw cached data:', {
+            interpretation_length: readingData.interpretation?.length,
+            predictions_count: readingData.predictions?.length,
+            rules_count: readingData.rules_used?.length,
+            has_verification: !!readingData.verification,
+            has_metadata: !!readingData.orchestration_metadata
+          })
+
+          // Map rules_used to rule_citations for compatibility
+          if (readingData.rules_used && !readingData.rule_citations) {
+            readingData.rule_citations = readingData.rules_used
+          }
+          // Map orchestration_metadata to metadata for compatibility
+          if (readingData.orchestration_metadata && !readingData.metadata) {
+            const tokens = readingData.orchestration_metadata.tokens_used || 0
+            readingData.metadata = {
+              tokens_used: tokens,
+              cost_usd: tokens * 0.00002,
+              cached: readingData.was_cache_hit || false, // Use the cache hit flag from POST response
+              generation_time_seconds: 0
+            }
+          }
+
+          console.log('✅ Setting reading state with:', {
+            interpretation_length: readingData.interpretation?.length,
+            predictions_count: readingData.predictions?.length,
+            rule_citations_count: readingData.rule_citations?.length,
+            metadata_tokens: readingData.metadata?.tokens_used
+          })
+
+          setReading(readingData)
+          setLoading(false)
+          // DON'T clean up sessionStorage yet - keep it in case of Fast Refresh
+          // sessionStorage.removeItem(`reading_${sessionId}`)
+          return
+        }
+
+        // Otherwise, fetch from API (for readings from list or after refresh)
+        console.log('🌐 No cached data in sessionStorage - fetching reading from database API')
         const response = await apiClient.getReading(sessionId)
+        console.log('📊 Fetched reading from API:', {
+          has_interpretation: !!response.data.interpretation,
+          predictions_count: response.data.predictions?.length,
+          rules_count: response.data.rules_used?.length,
+          verification: response.data.verification
+        })
+
+        // Map rules_used to rule_citations for compatibility
+        if (response.data.rules_used && !response.data.rule_citations) {
+          response.data.rule_citations = response.data.rules_used
+        }
+        // Map orchestration_metadata to metadata for compatibility
+        if (response.data.orchestration_metadata && !response.data.metadata) {
+          const tokens = response.data.orchestration_metadata.tokens_used || 0
+          response.data.metadata = {
+            tokens_used: tokens,
+            cost_usd: tokens * 0.00002,
+            cached: false, // This reading was generated fresh (but loaded from database)
+            generation_time_seconds: 0,
+            loaded_from: 'database' // Indicates this came from database storage
+          }
+        }
+
+        console.log('✅ Setting reading state from API')
         setReading(response.data)
       } catch (err: any) {
         console.error('Failed to load reading:', err)
@@ -131,8 +199,29 @@ export default function ReadingDetailsPage() {
 
   const domainAnalyses = reading.domain_analyses || {}
   const predictions = reading.predictions || []
-  const verification = reading.verification
+  const verification = reading.verification || {
+    quality_score: 0,
+    citation_accuracy: 0,
+    contradictions_found: 0,
+    confidence_level: 'medium'
+  }
   const citations = reading.rule_citations || []
+
+  // Debug: Log what we're about to render
+  console.log('🎨 Rendering with data:', {
+    interpretation_length: reading.interpretation?.length,
+    predictions_count: predictions.length,
+    citations_count: citations.length,
+    quality_score: verification.quality_score,
+    confidence_level: verification.confidence_level,
+    domain_analyses_keys: Object.keys(domainAnalyses),
+    metadata_tokens: reading.metadata?.tokens_used
+  })
+
+  // Safely get confidence level with fallback
+  const confidenceLevel = verification.confidence_level || 'medium'
+  const confidenceColor = CONFIDENCE_COLORS[confidenceLevel] || CONFIDENCE_COLORS['medium']
+  const confidenceLabel = CONFIDENCE_LABELS[confidenceLevel] || CONFIDENCE_LABELS['medium']
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -149,7 +238,7 @@ export default function ReadingDetailsPage() {
           </Button>
           <h1 className="text-3xl font-bold text-gray-900">Comprehensive Reading</h1>
           <p className="text-gray-600 mt-1">
-            Generated on {new Date(reading.created_at).toLocaleString()}
+            {reading.created_at ? `Generated on ${new Date(reading.created_at).toLocaleString()}` : 'Reading session'}
           </p>
         </div>
         <Button
@@ -176,12 +265,12 @@ export default function ReadingDetailsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full ${CONFIDENCE_COLORS[verification.confidence_level]} bg-opacity-20 flex items-center justify-center`}>
-                <Award className={`w-5 h-5 ${CONFIDENCE_COLORS[verification.confidence_level].replace('bg-', 'text-')}`} />
+              <div className={`w-10 h-10 rounded-full ${confidenceColor} bg-opacity-20 flex items-center justify-center`}>
+                <Award className={`w-5 h-5 ${confidenceColor.replace('bg-', 'text-')}`} />
               </div>
               <div>
                 <p className="text-xs text-gray-600">Confidence</p>
-                <p className="font-semibold">{CONFIDENCE_LABELS[verification.confidence_level]}</p>
+                <p className="font-semibold">{confidenceLabel}</p>
               </div>
             </div>
           </CardContent>
@@ -223,7 +312,7 @@ export default function ReadingDetailsPage() {
               </div>
               <div>
                 <p className="text-xs text-gray-600">Tokens</p>
-                <p className="font-semibold">{reading.metadata.tokens_used.toLocaleString()}</p>
+                <p className="font-semibold">{(reading.metadata?.tokens_used || 0).toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -253,7 +342,7 @@ export default function ReadingDetailsPage() {
             <TabsContent value="interpretation" className="space-y-4 mt-6">
               <div className="prose prose-sm max-w-none">
                 <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-                  {reading.interpretation}
+                  {reading.interpretation || 'No interpretation available. This reading session may not have been fully generated yet.'}
                 </div>
               </div>
             </TabsContent>
@@ -398,17 +487,17 @@ export default function ReadingDetailsPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-gray-600">Tokens Used</p>
-              <p className="font-semibold">{reading.metadata.tokens_used.toLocaleString()}</p>
+              <p className="font-semibold">{(reading.metadata?.tokens_used || 0).toLocaleString()}</p>
             </div>
             <div>
               <p className="text-gray-600">Cost</p>
-              <p className="font-semibold">${reading.metadata.cost_usd.toFixed(4)}</p>
+              <p className="font-semibold">${(reading.metadata?.cost_usd || 0).toFixed(4)}</p>
             </div>
             <div>
               <p className="text-gray-600">Cached</p>
-              <p className="font-semibold">{reading.metadata.cached ? 'Yes' : 'No'}</p>
+              <p className="font-semibold">{reading.metadata?.cached ? 'Yes' : 'No'}</p>
             </div>
-            {reading.metadata.generation_time_seconds && (
+            {reading.metadata?.generation_time_seconds && (
               <div>
                 <p className="text-gray-600">Generation Time</p>
                 <p className="font-semibold">{reading.metadata.generation_time_seconds.toFixed(1)}s</p>

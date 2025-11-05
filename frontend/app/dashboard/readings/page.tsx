@@ -63,7 +63,9 @@ export default function ComprehensiveReadingsPage() {
   useEffect(() => {
     const loadReadings = async () => {
       try {
+        console.log('📚 Loading past readings from API...')
         const response = await apiClient.listReadings(10, 0)
+        console.log('📚 Loaded readings:', response.data?.length || 0)
         setPastReadings(response.data || [])
       } catch (err) {
         console.error('Failed to load readings:', err)
@@ -73,6 +75,30 @@ export default function ComprehensiveReadingsPage() {
     }
     loadReadings()
   }, [])
+
+  // Refresh readings list when page becomes visible (after navigation back)
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && !loadingReadings) {
+        console.log('👁️ Page visible - refreshing readings list...')
+        setLoadingReadings(true)
+        try {
+          const response = await apiClient.listReadings(10, 0)
+          console.log('📚 Refreshed readings:', response.data?.length || 0)
+          setPastReadings(response.data || [])
+        } catch (err) {
+          console.error('Failed to refresh readings:', err)
+        } finally {
+          setLoadingReadings(false)
+        }
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [loadingReadings])
 
   const toggleDomain = (domainId: string) => {
     setSelectedDomains((prev) =>
@@ -113,8 +139,45 @@ export default function ComprehensiveReadingsPage() {
         prediction_window_months: predictionMonths,
       })
 
-      // Redirect to reading details page
-      const sessionId = response.data.session_id
+      // Store the full reading data and redirect to details page
+      console.log('🎯 Full API Response:', response.data)
+
+      const reading = response.data.reading
+      console.log('📖 Extracted reading:', reading)
+
+      const sessionId = reading?.session_id || response.data.session_id
+      console.log('🆔 Session ID:', sessionId)
+
+      if (!sessionId) {
+        throw new Error('No session ID returned from API')
+      }
+
+      // Store reading data in sessionStorage so details page can use it
+      if (reading) {
+        // Include cache_hit flag from response
+        const readingWithCacheStatus = {
+          ...reading,
+          was_cache_hit: response.data.cache_hit || false
+        }
+        const readingJson = JSON.stringify(readingWithCacheStatus)
+        console.log('💾 Storing reading in sessionStorage:', `reading_${sessionId}`)
+        console.log('📦 Data being stored:', {
+          interpretation_length: reading.interpretation?.length,
+          predictions_count: reading.predictions?.length,
+          rules_count: reading.rules_used?.length,
+          verification: reading.verification,
+          was_cache_hit: response.data.cache_hit
+        })
+        sessionStorage.setItem(`reading_${sessionId}`, readingJson)
+
+        // Verify it was stored
+        const stored = sessionStorage.getItem(`reading_${sessionId}`)
+        console.log('✅ Verified storage:', stored !== null)
+      } else {
+        console.warn('⚠️ No reading data to store!')
+      }
+
+      console.log('🚀 Navigating to:', `/dashboard/readings/${sessionId}`)
       router.push(`/dashboard/readings/${sessionId}`)
     } catch (err: any) {
       console.error('Failed to generate reading:', err)
@@ -187,9 +250,9 @@ export default function ComprehensiveReadingsPage() {
 
           {/* Profile Selection */}
           <div className="space-y-2">
-            <Label htmlFor="profile">Birth Profile</Label>
-            <Select value={selectedProfile} onValueChange={setSelectedProfile} required>
-              <SelectTrigger>
+            <Label>Birth Profile</Label>
+            <Select value={selectedProfile} onValueChange={setSelectedProfile}>
+              <SelectTrigger id="profile">
                 <SelectValue placeholder="Select a profile" />
               </SelectTrigger>
               <SelectContent>
@@ -276,7 +339,7 @@ export default function ComprehensiveReadingsPage() {
             <Textarea
               id="query"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setQuery(e.target.value)}
               placeholder="Example: I'm considering a career change. What does my chart suggest?"
               rows={3}
               disabled={generating}
@@ -292,15 +355,17 @@ export default function ComprehensiveReadingsPage() {
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gray-600" />
-                <Label htmlFor="predictions" className="cursor-pointer">Include Time-Based Predictions</Label>
+                <Label htmlFor="predictions-toggle" className="cursor-pointer">Include Time-Based Predictions</Label>
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 Dasha × Transit analysis for upcoming events
               </p>
             </div>
             <button
+              id="predictions-toggle"
               type="button"
               onClick={() => setIncludePredictions(!includePredictions)}
+              aria-label="Toggle predictions"
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 includePredictions ? 'bg-jio-600' : 'bg-gray-300'
               }`}
@@ -323,7 +388,7 @@ export default function ComprehensiveReadingsPage() {
                 min="1"
                 max="12"
                 value={predictionMonths}
-                onChange={(e) => setPredictionMonths(parseInt(e.target.value))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setPredictionMonths(parseInt(e.target.value))}
                 className="w-full h-2 bg-purple-200 rounded-lg appearance-none cursor-pointer accent-jio-600"
                 disabled={generating}
               />
@@ -381,45 +446,54 @@ export default function ComprehensiveReadingsPage() {
             </div>
           ) : (
             <div className="space-y-3">
-              {pastReadings.map((reading: any) => (
-                <button
-                  key={reading.session_id}
-                  onClick={() => router.push(`/dashboard/readings/${reading.session_id}`)}
-                  className="w-full p-4 border rounded-lg text-left hover:border-jio-300 hover:bg-jio-50 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-gray-900">
-                          {reading.profile_name || 'Reading'}
-                        </p>
-                        {reading.domains && reading.domains.length > 0 && (
-                          <span className="text-xs text-gray-500">
-                            • {reading.domains.length} domain{reading.domains.length !== 1 ? 's' : ''}
-                          </span>
+              {pastReadings.map((reading: any) => {
+                const sessionId = reading.id || reading.session_id
+                const domainCount = reading.domains?.length || 0
+                const predictionCount = reading.predictions?.length || 0
+
+                return (
+                  <button
+                    key={sessionId}
+                    onClick={() => {
+                      console.log('🖱️ Clicking reading:', sessionId)
+                      router.push(`/dashboard/readings/${sessionId}`)
+                    }}
+                    className="w-full p-4 border rounded-lg text-left hover:border-jio-300 hover:bg-jio-50 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-medium text-gray-900">
+                            {reading.profile_name || 'Comprehensive Reading'}
+                          </p>
+                          {domainCount > 0 && (
+                            <span className="text-xs text-gray-500">
+                              • {domainCount} domain{domainCount !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                        {reading.query && (
+                          <p className="text-sm text-gray-600 line-clamp-2">{reading.query}</p>
                         )}
+                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                          <span>{new Date(reading.created_at).toLocaleDateString()}</span>
+                          {predictionCount > 0 && (
+                            <span className="inline-flex items-center">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {predictionCount} prediction{predictionCount !== 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      {reading.query && (
-                        <p className="text-sm text-gray-600 line-clamp-2">{reading.query}</p>
-                      )}
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
-                        <span>{new Date(reading.created_at).toLocaleDateString()}</span>
-                        {reading.include_predictions && (
-                          <span className="inline-flex items-center">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            {reading.prediction_window_months}mo predictions
-                          </span>
-                        )}
+                      <div className="text-jio-600">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
                       </div>
                     </div>
-                    <div className="text-jio-600">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                )
+              })}
             </div>
           )}
         </CardContent>

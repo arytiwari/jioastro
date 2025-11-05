@@ -143,7 +143,7 @@ export default function RectificationPage() {
               <Input
                 id="name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setName(e.target.value)}
                 placeholder="Enter name"
               />
             </div>
@@ -154,7 +154,7 @@ export default function RectificationPage() {
                 id="birth-date"
                 type="date"
                 value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setBirthDate(e.target.value)}
               />
             </div>
 
@@ -164,7 +164,7 @@ export default function RectificationPage() {
                 id="time"
                 type="time"
                 value={approximateTime}
-                onChange={(e) => setApproximateTime(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setApproximateTime(e.target.value)}
               />
             </div>
 
@@ -176,7 +176,7 @@ export default function RectificationPage() {
                 min="5"
                 max="120"
                 value={timeWindow}
-                onChange={(e) => setTimeWindow(parseInt(e.target.value))}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTimeWindow(parseInt(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-jio-600"
               />
               <div className="flex justify-between text-xs text-gray-600">
@@ -190,7 +190,7 @@ export default function RectificationPage() {
               <Input
                 id="city"
                 value={city}
-                onChange={(e) => setCity(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCity(e.target.value)}
                 placeholder="Birth city"
               />
             </div>
@@ -200,7 +200,7 @@ export default function RectificationPage() {
               <Input
                 id="timezone"
                 value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTimezone(e.target.value)}
                 placeholder="e.g., Asia/Kolkata"
               />
             </div>
@@ -212,7 +212,7 @@ export default function RectificationPage() {
                 type="number"
                 step="0.0001"
                 value={latitude}
-                onChange={(e) => setLatitude(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setLatitude(e.target.value)}
                 placeholder="e.g., 28.6139"
               />
             </div>
@@ -224,7 +224,7 @@ export default function RectificationPage() {
                 type="number"
                 step="0.0001"
                 value={longitude}
-                onChange={(e) => setLongitude(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setLongitude(e.target.value)}
                 placeholder="e.g., 77.2090"
               />
             </div>
@@ -276,7 +276,7 @@ export default function RectificationPage() {
                       <Input
                         type="date"
                         value={event.event_date}
-                        onChange={(e) => updateEvent(index, 'event_date', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => updateEvent(index, 'event_date', e.target.value)}
                       />
                     </div>
 
@@ -284,7 +284,7 @@ export default function RectificationPage() {
                       <Label>Description (Optional)</Label>
                       <Input
                         value={event.description}
-                        onChange={(e) => updateEvent(index, 'description', e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => updateEvent(index, 'description', e.target.value)}
                         placeholder="Additional details about this event"
                       />
                     </div>
@@ -296,7 +296,7 @@ export default function RectificationPage() {
                         min="1"
                         max="5"
                         value={event.significance}
-                        onChange={(e) => updateEvent(index, 'significance', parseInt(e.target.value))}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => updateEvent(index, 'significance', parseInt(e.target.value))}
                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-jio-600"
                       />
                       <div className="flex justify-between text-xs text-gray-600">

@@ -78,9 +78,10 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
     ? dashaData.current_mahadasha
     : dashaData.current_mahadasha.planet
 
-  const remainingYears = typeof dashaData.current_mahadasha === 'string'
-    ? (dashaData.mahadasha_years || 0)
-    : dashaData.current_mahadasha.remaining_years
+  // Get total duration from the mahadashas array
+  const currentMahadashaData = dashaData.mahadashas.find(m => m.planet === currentPlanet)
+  const totalYears = currentMahadashaData ? currentMahadashaData.years :
+    (typeof dashaData.current_mahadasha === 'string' ? (dashaData.mahadasha_years || 0) : 0)
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -98,16 +99,16 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
 
   return (
     <div className="w-full space-y-6 p-6 bg-white rounded-lg shadow-md">
-      {/* Current Mahadasha Highlight */}
+      {/* Mahadasha at Birth Highlight */}
       <div className="bg-gradient-to-r from-jio-100 to-blue-100 rounded-lg p-4 border-2 border-jio-300">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Current Mahadasha</h3>
+            <h3 className="text-lg font-bold text-gray-900">Mahadasha at Birth</h3>
             <p className="text-2xl font-extrabold text-jio-700 mt-1">
               {PLANET_SYMBOLS[currentPlanet] || ''} {currentPlanet}
             </p>
             <p className="text-sm text-gray-600 mt-1">
-              {remainingYears.toFixed(1)} years remaining
+              {totalYears} years total duration
             </p>
           </div>
           <div

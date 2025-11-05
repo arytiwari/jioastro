@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useQuery } from '@/lib/query'
+import { useQuery, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,14 +11,16 @@ import { BirthChartNew as BirthChart } from '@/components/chart/BirthChartNew'
 import { PlanetPositions } from '@/components/chart/PlanetPositions'
 import { YogaList } from '@/components/chart/YogaList'
 import { VimshottariDashaTable } from '@/components/chart/VimshottariDashaTable'
-import { ArrowLeft, Calendar, MapPin, Sparkles } from '@/components/icons'
+import { ArrowLeft, Calendar, MapPin, Sparkles, Trash2 } from '@/components/icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
 
 export default function ProfileViewPage() {
   const params = useParams()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const profileId = params.id as string
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   // Fetch profile
   const { data: profile, isLoading: profileLoading } = useQuery({
@@ -87,6 +89,22 @@ export default function ProfileViewPage() {
     )
   }
 
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
+      return
+    }
+
+    setDeleteLoading(true)
+    try {
+      await apiClient.deleteProfile(profileId)
+      queryClient.invalidateQueries({ queryKey: ['profiles'] })
+      router.push('/dashboard/profiles')
+    } catch (error: any) {
+      alert(error?.message || 'Failed to delete profile')
+      setDeleteLoading(false)
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -121,12 +139,22 @@ export default function ProfileViewPage() {
           </div>
         </div>
 
-        <Link href="/dashboard/ask">
-          <Button>
-            <Sparkles className="w-4 h-4 mr-2" />
-            Ask Question
+        <div className="flex gap-2">
+          <Link href="/dashboard/ask">
+            <Button>
+              <Sparkles className="w-4 h-4 mr-2" />
+              Ask Question
+            </Button>
+          </Link>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={deleteLoading}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            {deleteLoading ? 'Deleting...' : 'Delete'}
           </Button>
-        </Link>
+        </div>
       </div>
 
       {/* Charts Tabs */}

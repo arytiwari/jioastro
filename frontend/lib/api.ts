@@ -24,15 +24,55 @@ class APIClient {
   }
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<{ data: T }> {
+    // Get valid session before making request (will auto-refresh if needed)
+    if (typeof window !== 'undefined') {
+      const { getValidSession } = await import('./supabase')
+      const session = await getValidSession()
+      if (session?.access_token) {
+        this.token = session.access_token
+      }
+    }
+
     const response = await fetch(`${API_URL}${path}`, {
       ...init,
       headers: this.buildHeaders(init.headers),
     })
 
     if (response.status === 401) {
+      // Try to refresh token once
+      if (typeof window !== 'undefined') {
+        const { refreshSession } = await import('./supabase')
+        const refreshResult = await refreshSession()
+
+        if (refreshResult.data.session?.access_token) {
+          // Retry request with new token
+          this.token = refreshResult.data.session.access_token
+          const retryResponse = await fetch(`${API_URL}${path}`, {
+            ...init,
+            headers: this.buildHeaders(init.headers),
+          })
+
+          if (retryResponse.ok) {
+            // Process successful retry
+            let payload: any = null
+            const hasBody = retryResponse.status !== 204
+            if (hasBody) {
+              const contentType = retryResponse.headers.get('content-type') ?? ''
+              if (contentType.includes('application/json')) {
+                payload = await retryResponse.json()
+              } else {
+                payload = await retryResponse.text()
+              }
+            }
+            return { data: payload as T }
+          }
+        }
+      }
+
+      // If refresh failed or retry failed, clear token and redirect
       this.clearToken()
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login'
+        window.location.href = '/auth/login?reason=session_expired'
       }
     }
 
@@ -121,6 +161,23 @@ class APIClient {
     return this.request(`/profiles/${id}`, {
       method: 'DELETE',
     })
+  }
+
+  // City endpoints
+  async getCities(search?: string, state?: string, limit = 100) {
+    const params = new URLSearchParams()
+    if (search) params.append('search', search)
+    if (state) params.append('state', state)
+    params.append('limit', limit.toString())
+    return this.request(`/cities?${params.toString()}`)
+  }
+
+  async getStates() {
+    return this.request('/cities/states')
+  }
+
+  async getCity(id: number) {
+    return this.request(`/cities/${id}`)
   }
 
   // Chart endpoints
@@ -223,6 +280,62 @@ class APIClient {
 
   async getReading(sessionId: string) {
     return this.request(`/readings/${sessionId}`)
+  }
+
+  // Voice Conversation endpoints (OpenAI Whisper + TTS + Translation)
+  async askConversationalQuestion(data: {
+    profile_id: string
+    question: string
+    source_language?: string
+    is_voice?: boolean
+    include_audio_response?: boolean
+    voice?: string
+    context?: any[]
+  }) {
+    return this.request('/readings/ask/conversational', {
+      method: 'POST',
+      body: JSON.stringify({
+        profile_id: data.profile_id,
+        question: data.question,
+        source_language: data.source_language || 'en-US',
+        is_voice: data.is_voice || false,
+        include_audio_response: data.include_audio_response || false,
+        voice: data.voice || 'alloy',
+        context: data.context || null,
+      }),
+    })
+  }
+
+  async transcribeAudio(data: {
+    audio_data: string
+    language?: string
+    format?: string
+  }) {
+    return this.request('/readings/voice/transcribe', {
+      method: 'POST',
+      body: JSON.stringify({
+        audio_data: data.audio_data,
+        language: data.language || 'en',
+        format: data.format || 'webm',
+      }),
+    })
+  }
+
+  async generateSpeech(data: {
+    text: string
+    language?: string
+    voice?: string
+    speed?: number
+  }) {
+    return this.request('/readings/voice/generate', {
+      method: 'POST',
+      body: JSON.stringify({
+        text: data.text,
+        language: data.language || 'en-US',
+        voice: data.voice || 'alloy',
+        speed: data.speed || 1.0,
+      }),
+    })
   }
 
   // Phase 3: Knowledge Base - Rule Retrieval
