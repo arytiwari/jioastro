@@ -76,6 +76,12 @@ class ShadbalaRequest(BaseModel):
     profile_id: str = Field(..., description="Birth profile ID")
 
 
+class ShadbalaFromChartRequest(BaseModel):
+    """Request for Shadbala calculation from chart data"""
+    chart_data: dict = Field(..., description="Chart data with planets and houses")
+    birth_datetime: Optional[str] = Field(None, description="Birth datetime (ISO format)")
+
+
 # ============================================================================
 # REMEDY ENDPOINTS
 # ============================================================================
@@ -139,8 +145,17 @@ async def generate_remedies_from_chart(
     Generate remedies directly from chart data (for testing/demo)
     """
     try:
+        # Extract nested chart_data if present (FastAPI may pass entire body as chart_data)
+        if "chart_data" in chart_data and isinstance(chart_data.get("chart_data"), dict):
+            print(f"🔧 Remedies: Extracting nested chart_data")
+            actual_chart_data = chart_data["chart_data"]
+        else:
+            actual_chart_data = chart_data
+
+        print(f"🔍 Remedies: Chart data keys: {actual_chart_data.keys() if isinstance(actual_chart_data, dict) else 'NOT A DICT'}")
+
         remedies = remedy_service.generate_remedies(
-            chart_data=chart_data,
+            chart_data=actual_chart_data,
             domain=domain,
             max_remedies=max_remedies,
             include_practical=include_practical
@@ -273,6 +288,21 @@ async def get_current_transits_from_chart(
     Calculate transits directly from chart data (for testing/demo)
     """
     try:
+        # Extract nested chart_data if present (FastAPI may pass entire body as chart_data)
+        print(f"🔍 Transits: chart_data type: {type(chart_data)}")
+        print(f"🔍 Transits: chart_data keys: {list(chart_data.keys()) if isinstance(chart_data, dict) else 'NOT A DICT'}")
+        if isinstance(chart_data, dict) and "chart_data" in chart_data:
+            nested_data = chart_data.get("chart_data")
+            if isinstance(nested_data, dict):
+                print(f"🔧 Transits: Extracting nested chart_data")
+                actual_chart_data = nested_data
+            else:
+                actual_chart_data = chart_data
+        else:
+            actual_chart_data = chart_data
+
+        print(f"🔍 Transits: Chart data keys after extraction: {actual_chart_data.keys() if isinstance(actual_chart_data, dict) else 'NOT A DICT'}")
+
         # Parse transit date
         if transit_date:
             transit_dt = datetime.fromisoformat(transit_date)
@@ -281,19 +311,24 @@ async def get_current_transits_from_chart(
 
         # Calculate transits
         transits = transit_service.calculate_current_transits(
-            birth_chart=chart_data,
+            birth_chart=actual_chart_data,
             transit_date=transit_dt,
             latitude=latitude,
             longitude=longitude,
             timezone_str=timezone_str
         )
 
+        print(f"🔍 Transits: Result keys: {transits.keys() if isinstance(transits, dict) else 'NOT A DICT'}")
+
+        # Return transits data directly (not nested under "transits" key)
+        # Frontend expects: response.data.transit_planets, response.data.significant_aspects, etc.
         return {
             "success": True,
-            "transits": transits
+            **transits  # Spread the transits dict into the response
         }
 
     except Exception as e:
+        print(f"❌ Transits error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
@@ -419,18 +454,58 @@ async def calculate_shadbala_from_chart(
         if birth_datetime:
             birth_dt = datetime.fromisoformat(birth_datetime)
 
+        # Extract nested chart_data if present (FastAPI may pass entire body as chart_data)
+        print(f"🔍 DEBUG: chart_data type: {type(chart_data)}")
+        print(f"🔍 DEBUG: chart_data keys: {list(chart_data.keys()) if isinstance(chart_data, dict) else 'NOT A DICT'}")
+        print(f"🔍 DEBUG: Has 'chart_data' key: {'chart_data' in chart_data if isinstance(chart_data, dict) else False}")
+        if isinstance(chart_data, dict) and "chart_data" in chart_data:
+            nested_data = chart_data.get("chart_data")
+            print(f"🔍 DEBUG: Nested chart_data type: {type(nested_data)}")
+            print(f"🔍 DEBUG: Nested chart_data is dict: {isinstance(nested_data, dict)}")
+            if isinstance(nested_data, dict):
+                print(f"🔧 Extracting nested chart_data")
+                actual_chart_data = nested_data
+            else:
+                actual_chart_data = chart_data
+        else:
+            actual_chart_data = chart_data
+
+        print(f"🔍 Chart data keys after extraction: {actual_chart_data.keys() if isinstance(actual_chart_data, dict) else 'NOT A DICT'}")
+
         # Calculate Shadbala
-        shadbala = shadbala_service.calculate_shadbala(
-            chart_data=chart_data,
+        shadbala_result = shadbala_service.calculate_shadbala(
+            chart_data=actual_chart_data,
             birth_datetime=birth_dt
         )
 
+        print(f"🔍 Shadbala service returned: {shadbala_result}")
+        print(f"🔍 Keys in result: {shadbala_result.keys() if isinstance(shadbala_result, dict) else 'Not a dict'}")
+
+        # Transform the response to match frontend expectations
+        # Convert shadbala_by_planet dict to planet_strengths array
+        planet_strengths = []
+        if "shadbala_by_planet" in shadbala_result:
+            print(f"🔍 Found shadbala_by_planet with {len(shadbala_result['shadbala_by_planet'])} planets")
+            for planet_name, strength_data in shadbala_result["shadbala_by_planet"].items():
+                planet_strengths.append({
+                    "planet": planet_name,
+                    "total_shadbala": strength_data.get("total_shadbala", 0),
+                    "required_shadbala": strength_data.get("required_shadbala", 0),
+                    "percentage": strength_data.get("percentage", 0),
+                    "strength_rating": strength_data.get("strength_rating", "Unknown"),
+                    "components": strength_data.get("components", {})
+                })
+        else:
+            print(f"⚠️ No 'shadbala_by_planet' key in result!")
+
+        print(f"🔍 Returning {len(planet_strengths)} planet strengths")
         return {
             "success": True,
-            "shadbala": shadbala
+            "planet_strengths": planet_strengths
         }
 
     except Exception as e:
+        print(f"Error calculating Shadbala: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

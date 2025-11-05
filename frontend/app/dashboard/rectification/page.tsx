@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { CityAutocomplete } from '@/components/CityAutocomplete'
 import { Sparkles, Clock, Calendar, Plus, X, Award, AlertTriangle } from '@/components/icons'
 
 const EVENT_TYPES = [
@@ -70,6 +71,16 @@ export default function RectificationPage() {
     const updated = [...events]
     updated[index] = { ...updated[index], [field]: value }
     setEvents(updated)
+  }
+
+  const handleCitySelect = (cityData: { id: number; name: string; state: string; latitude: number; longitude: number; display_name: string; timezone?: string }) => {
+    setCity(cityData.display_name)
+    setLatitude(cityData.latitude.toString())
+    setLongitude(cityData.longitude.toString())
+    // Auto-populate timezone if available from city data, otherwise keep current value
+    if (cityData.timezone) {
+      setTimezone(cityData.timezone)
+    }
   }
 
   const handleCalculate = async () => {
@@ -185,13 +196,10 @@ export default function RectificationPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="city">City *</Label>
-              <Input
-                id="city"
-                value={city}
-                onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setCity(e.target.value)}
-                placeholder="Birth city"
+            <div className="md:col-span-2">
+              <CityAutocomplete
+                onCitySelect={handleCitySelect}
+                initialValue={city}
               />
             </div>
 
@@ -203,6 +211,7 @@ export default function RectificationPage() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setTimezone(e.target.value)}
                 placeholder="e.g., Asia/Kolkata"
               />
+              <p className="text-xs text-gray-500">Auto-populated when city is selected</p>
             </div>
 
             <div className="space-y-2">
@@ -214,7 +223,9 @@ export default function RectificationPage() {
                 value={latitude}
                 onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setLatitude(e.target.value)}
                 placeholder="e.g., 28.6139"
+                readOnly
               />
+              <p className="text-xs text-gray-500">Auto-populated when city is selected</p>
             </div>
 
             <div className="space-y-2">
@@ -226,7 +237,9 @@ export default function RectificationPage() {
                 value={longitude}
                 onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setLongitude(e.target.value)}
                 placeholder="e.g., 77.2090"
+                readOnly
               />
+              <p className="text-xs text-gray-500">Auto-populated when city is selected</p>
             </div>
           </div>
         </CardContent>
@@ -368,14 +381,15 @@ export default function RectificationPage() {
           </Card>
 
           {/* Top Candidates */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top 3 Candidate Times</CardTitle>
-              <CardDescription>Alternative birth times with high correlation scores</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {result.top_candidates.slice(0, 3).map((candidate, index) => (
+          {result.top_candidates && result.top_candidates.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Top 3 Candidate Times</CardTitle>
+                <CardDescription>Alternative birth times with high correlation scores</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {result.top_candidates.slice(0, 3).map((candidate, index) => (
                   <div key={index} className="p-4 border rounded-lg flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -393,10 +407,11 @@ export default function RectificationPage() {
                       </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       )}
 

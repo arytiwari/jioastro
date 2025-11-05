@@ -61,6 +61,9 @@ export default function TransitsPage() {
   }, [])
 
   const handleCalculate = async () => {
+    console.log('🎯 Transits: handleCalculate called')
+    console.log('🎯 Selected profile:', selectedProfile)
+
     if (!selectedProfile) {
       setError('Please select a birth profile')
       return
@@ -70,19 +73,25 @@ export default function TransitsPage() {
     setCalculating(true)
     setTransitData(null)
 
+    console.log('🎯 Transits: Fetching chart data...')
     try {
       // Get chart data
       const chartResponse = await apiClient.getChart(selectedProfile, 'D1')
       const chartData = chartResponse.data
+      console.log('🎯 Transits: Chart data received:', chartData)
+      console.log('🎯 Transits: Sending chart_data:', chartData.chart_data)
 
       // Calculate current transits
       const response = await apiClient.getCurrentTransits({
-        chart_data: chartData,
+        chart_data: chartData.chart_data,  // Send nested chart_data, not full chartData
         transit_date: currentDate,
         latitude: chartData.location?.latitude || 0,
         longitude: chartData.location?.longitude || 0,
         timezone_str: chartData.timezone || 'UTC',
       })
+      console.log('🎯 Transits: Response received:', response)
+      console.log('🎯 Transits: Response data:', response.data)
+      console.log('🎯 Transits: transit_planets:', response.data?.transit_planets)
 
       setTransitData(response.data)
     } catch (err: any) {

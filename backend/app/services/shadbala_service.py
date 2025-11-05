@@ -129,10 +129,15 @@ class ShadbalaService:
             Dictionary with Shadbala values for each planet
         """
         print("🔢 Calculating Shadbala (6-fold planetary strength)...")
+        print(f"🔍 SHADBALA: chart_data keys: {chart_data.keys() if isinstance(chart_data, dict) else 'NOT A DICT'}")
+        print(f"🔍 SHADBALA: chart_data type: {type(chart_data)}")
 
         planets = chart_data.get("planets", {})
         houses = chart_data.get("houses", [])
         ascendant = chart_data.get("ascendant", {})
+
+        print(f"🔍 SHADBALA: Found {len(planets) if isinstance(planets, dict) else 0} planets")
+        print(f"🔍 SHADBALA: Planet names: {list(planets.keys()) if isinstance(planets, dict) else 'N/A'}")
 
         shadbala_results = {}
 

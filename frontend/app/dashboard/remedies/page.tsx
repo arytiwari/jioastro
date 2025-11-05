@@ -91,13 +91,21 @@ export default function RemediesPage() {
     const newExpanded = new Set(expandedRemedies)
     if (newExpanded.has(index)) {
       newExpanded.delete(index)
+      console.log(`🔽 Collapsing remedy ${index}`)
     } else {
       newExpanded.add(index)
+      console.log(`🔼 Expanding remedy ${index}`)
+      console.log(`📋 Full remedy data:`, remedies[index])
+      console.log(`📋 Available fields:`, Object.keys(remedies[index]))
     }
     setExpandedRemedies(newExpanded)
+    console.log(`📊 Expanded remedies set:`, Array.from(newExpanded))
   }
 
   const handleGenerate = async () => {
+    console.log('🎯 Remedies: handleGenerate called')
+    console.log('🎯 Selected profile:', selectedProfile)
+
     if (!selectedProfile) {
       setError('Please select a birth profile')
       return
@@ -107,20 +115,29 @@ export default function RemediesPage() {
     setGenerating(true)
     setRemedies([])
 
+    console.log('🎯 Remedies: Fetching chart data...')
     try {
       // First get the chart data
       const chartResponse = await apiClient.getChart(selectedProfile, 'D1')
       const chartData = chartResponse.data
+      console.log('🎯 Remedies: Chart data received:', chartData)
+      console.log('🎯 Remedies: Sending chart_data:', chartData.chart_data)
 
       // Generate remedies
       const response = await apiClient.generateRemedies({
-        chart_data: chartData,
+        chart_data: chartData.chart_data,
         domain: selectedDomain || undefined,
         max_remedies: maxRemedies,
         include_practical: includePractical,
       })
+      console.log('🎯 Remedies: Response received:', response)
 
-      setRemedies(response.data.remedies || [])
+      // Backend returns {success, remedies: {remedies: [], weak_planets: [], ...}}
+      const remediesData = response.data.remedies?.remedies || response.data.remedies || []
+      console.log('🎯 Remedies: remediesData type:', Array.isArray(remediesData), 'length:', remediesData.length)
+      console.log('🎯 Remedies: First remedy:', remediesData[0])
+      setRemedies(remediesData)
+      console.log('🎯 Remedies: Set remedies:', remediesData)
     } catch (err: any) {
       console.error('Failed to generate remedies:', err)
       setError(err.message || 'Failed to generate remedies. Please try again.')
@@ -278,7 +295,7 @@ export default function RemediesPage() {
           </div>
 
           {remedies.map((remedy, index) => {
-            const Icon = REMEDY_TYPE_ICONS[remedy.remedy_type] || Info
+            const Icon = REMEDY_TYPE_ICONS[remedy.type] || Info
             const isExpanded = expandedRemedies.has(index)
 
             return (
@@ -291,18 +308,14 @@ export default function RemediesPage() {
                       </div>
                       <div className="flex-1">
                         <CardTitle className="capitalize text-lg">
-                          {remedy.remedy_type.replace('_', ' ')}
+                          {remedy.title || (remedy.type ? remedy.type.replace('_', ' ') : 'Remedy')}
                         </CardTitle>
                         <CardDescription className="mt-1">
-                          For {remedy.planet}
-                          {remedy.description && ` • ${remedy.description}`}
+                          {remedy.planet && `For ${remedy.planet}`}
                         </CardDescription>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs font-medium px-2 py-1 rounded border ${PRIORITY_COLORS[remedy.priority]}`}>
-                        {remedy.priority} priority
-                      </span>
                       <button
                         onClick={() => toggleRemedy(index)}
                         className="p-1 hover:bg-gray-100 rounded"
@@ -317,77 +330,91 @@ export default function RemediesPage() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {/* Primary Remedy */}
                   <div className="space-y-3">
-                    <div>
-                      <p className="text-sm font-semibold text-gray-700 mb-1">Primary Recommendation:</p>
-                      <div className="pl-4 space-y-1">
-                        {typeof remedy.primary === 'string' ? (
-                          <p className="text-sm text-gray-700">{remedy.primary}</p>
-                        ) : (
-                          <>
-                            {remedy.primary.text && (
-                              <p className="text-sm text-gray-700">{remedy.primary.text}</p>
-                            )}
-                            {remedy.primary.name && (
-                              <p className="text-sm text-gray-700">{remedy.primary.name}</p>
-                            )}
-                            {remedy.primary.weight && (
-                              <p className="text-xs text-gray-600">Weight: {remedy.primary.weight}</p>
-                            )}
-                            {remedy.primary.finger && (
-                              <p className="text-xs text-gray-600">Wear on: {remedy.primary.finger}</p>
-                            )}
-                            {remedy.primary.metal && (
-                              <p className="text-xs text-gray-600">Metal: {remedy.primary.metal}</p>
-                            )}
-                            {remedy.primary.count && (
-                              <p className="text-xs text-gray-600">Repetitions: {remedy.primary.count}</p>
-                            )}
-                          </>
-                        )}
+                    {/* Description */}
+                    {remedy.description && (
+                      <div>
+                        <p className="text-sm text-gray-700">{remedy.description}</p>
                       </div>
-                    </div>
+                    )}
+
+                    {/* Day (for fasting, rituals, etc.) */}
+                    {remedy.day && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="w-4 h-4 text-jio-600" />
+                        <span className="font-semibold text-gray-700">Day:</span>
+                        <span className="text-gray-700">{remedy.day}</span>
+                      </div>
+                    )}
 
                     {isExpanded && (
                       <>
-                        {/* Timing */}
-                        {remedy.timing && (
-                          <div>
-                            <p className="text-sm font-semibold text-gray-700 mb-1 flex items-center gap-1">
-                              <Clock className="w-4 h-4" />
-                              Timing:
-                            </p>
-                            <p className="text-sm text-gray-700 pl-4">{remedy.timing}</p>
+                        {/* Purpose */}
+                        {remedy.purpose && (
+                          <div className="p-3 bg-jio-50 rounded border border-jio-200">
+                            <p className="text-sm font-semibold text-jio-900 mb-1">Purpose:</p>
+                            <p className="text-sm text-jio-800">{remedy.purpose}</p>
                           </div>
                         )}
 
-                        {/* Instructions */}
-                        {remedy.instructions && (
-                          <div>
-                            <p className="text-sm font-semibold text-gray-700 mb-1">Instructions:</p>
-                            <p className="text-sm text-gray-700 pl-4">{remedy.instructions}</p>
-                          </div>
-                        )}
+                        {/* Difficulty & Cost */}
+                        <div className="flex gap-3">
+                          {remedy.difficulty && (
+                            <div className="flex-1 p-2 bg-gray-50 rounded border border-gray-200">
+                              <p className="text-xs font-semibold text-gray-700">Difficulty</p>
+                              <p className="text-sm text-gray-900 capitalize">{remedy.difficulty}</p>
+                            </div>
+                          )}
+                          {remedy.cost && (
+                            <div className="flex-1 p-2 bg-gray-50 rounded border border-gray-200">
+                              <p className="text-xs font-semibold text-gray-700">Cost</p>
+                              <p className="text-sm text-gray-900 capitalize">{remedy.cost}</p>
+                            </div>
+                          )}
+                        </div>
 
-                        {/* Alternatives */}
-                        {includePractical && remedy.alternatives && remedy.alternatives.length > 0 && (
+                        {/* Recommended Foods */}
+                        {remedy.recommended_foods && remedy.recommended_foods.length > 0 && (
                           <div>
-                            <p className="text-sm font-semibold text-gray-700 mb-2">Modern Alternatives:</p>
-                            <div className="space-y-2 pl-4">
-                              {remedy.alternatives.map((alt: any, altIndex: number) => (
-                                <div key={altIndex} className="p-3 bg-gray-50 rounded border border-gray-200">
-                                  {typeof alt === 'string' ? (
-                                    <p className="text-sm text-gray-700">{alt}</p>
-                                  ) : (
-                                    <>
-                                      {alt.name && <p className="text-sm font-medium text-gray-900">{alt.name}</p>}
-                                      {alt.description && <p className="text-xs text-gray-600 mt-1">{alt.description}</p>}
-                                      {alt.text && <p className="text-sm text-gray-700">{alt.text}</p>}
-                                    </>
-                                  )}
-                                </div>
+                            <p className="text-sm font-semibold text-green-900 mb-2">✓ Recommended Foods:</p>
+                            <div className="flex flex-wrap gap-2 pl-4">
+                              {remedy.recommended_foods.map((food: string, idx: number) => (
+                                <span key={idx} className="px-3 py-1 bg-green-50 text-green-800 text-sm rounded-full border border-green-200">
+                                  {food}
+                                </span>
                               ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Foods to Avoid */}
+                        {remedy.foods_to_avoid && remedy.foods_to_avoid.length > 0 && (
+                          <div>
+                            <p className="text-sm font-semibold text-red-900 mb-2">✗ Foods to Avoid:</p>
+                            <div className="flex flex-wrap gap-2 pl-4">
+                              {remedy.foods_to_avoid.map((food: string, idx: number) => (
+                                <span key={idx} className="px-3 py-1 bg-red-50 text-red-800 text-sm rounded-full border border-red-200">
+                                  {food}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Practical Alternative */}
+                        {includePractical && remedy.practical_alternative && (
+                          <div className="mt-3 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm font-semibold text-blue-900 mb-2">💡 Modern Alternative</p>
+                            <div className="space-y-2">
+                              {remedy.practical_alternative.title && (
+                                <p className="text-sm font-medium text-blue-900">{remedy.practical_alternative.title}</p>
+                              )}
+                              {remedy.practical_alternative.description && (
+                                <p className="text-sm text-blue-800">{remedy.practical_alternative.description}</p>
+                              )}
+                              {remedy.practical_alternative.action && (
+                                <p className="text-xs text-blue-700 italic">→ {remedy.practical_alternative.action}</p>
+                              )}
                             </div>
                           </div>
                         )}
