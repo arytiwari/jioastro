@@ -75,3 +75,11 @@ screenshots/*.jpg
 screenshots/*.jpeg
 screenshots/*.gif
 screenshots/*.webp
+
+# Large files and reference materials
+Reference Books/
+*.pdf
+*.zip
+*.tar.gz
+*.rar
+*.7z
