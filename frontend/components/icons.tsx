@@ -65,5 +65,8 @@ export {
   MicOff,
   Send,
   Volume2,
-  VolumeX
+  VolumeX,
+  BarChart3,
+  Wrench,
+  Database
 } from 'lucide-react'
