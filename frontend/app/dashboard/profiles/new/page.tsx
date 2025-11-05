@@ -61,7 +61,7 @@ export default function NewProfilePage() {
       const response = await apiClient.createProfile(payload)
 
       // Redirect to the new profile's chart page
-      router.push(`/dashboard/profiles/${response.data.id}`)
+      router.push(`/dashboard/chart/${response.data.id}`)
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Failed to create profile')
     } finally {

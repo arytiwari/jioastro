@@ -115,18 +115,11 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </div>
-                    <div className="flex gap-2">
-                      <Link href={`/dashboard/chart/${profile.id}`} className="flex-1">
-                        <Button variant="default" size="sm" className="w-full">
-                          Enhanced Chart
-                        </Button>
-                      </Link>
-                      <Link href={`/dashboard/profiles/${profile.id}`} className="flex-1">
-                        <Button variant="outline" size="sm" className="w-full">
-                          Basic Profile
-                        </Button>
-                      </Link>
-                    </div>
+                    <Link href={`/dashboard/chart/${profile.id}`} className="w-full">
+                      <Button variant="default" size="sm" className="w-full">
+                        View Chart
+                      </Button>
+                    </Link>
                   </div>
                 ))}
                 {profiles.length > 3 && (
@@ -233,9 +226,9 @@ export default function DashboardPage() {
                   2
                 </div>
                 <div>
-                  <p className="font-semibold">View Your Charts</p>
+                  <p className="font-semibold">View Your Chart</p>
                   <p className="text-sm text-gray-600">
-                    Choose <strong>Enhanced Chart</strong> for North/South/Western styles with yogas and dasha timeline, or <strong>Basic Profile</strong> for standard view
+                    Explore your birth chart with North/South/Western styles, planetary yogas, and dasha timeline
                   </p>
                 </div>
               </li>

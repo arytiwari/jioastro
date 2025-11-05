@@ -62,7 +62,7 @@ export default function ProfilesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {profiles.map((profile: any) => (
-            <Link key={profile.id} href={`/dashboard/profiles/${profile.id}`}>
+            <Link key={profile.id} href={`/dashboard/chart/${profile.id}`}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -90,17 +90,10 @@ export default function ProfilesPage() {
                       {profile.birth_lat.toFixed(2)}°, {profile.birth_lon.toFixed(2)}°
                     </div>
                   </div>
-                  <div className="mt-4 space-y-2">
-                    <Link href={`/dashboard/chart/${profile.id}`} onClick={(e) => e.stopPropagation()}>
-                      <Button variant="default" className="w-full">
-                        View Enhanced Chart
-                      </Button>
-                    </Link>
-                    <Link href={`/dashboard/profiles/${profile.id}`} onClick={(e) => e.stopPropagation()}>
-                      <Button variant="outline" className="w-full text-xs">
-                        View Standard Chart
-                      </Button>
-                    </Link>
+                  <div className="mt-4">
+                    <Button variant="default" className="w-full">
+                      View Chart
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
