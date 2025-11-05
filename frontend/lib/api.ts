@@ -227,29 +227,6 @@ class APIClient {
     return this.request('/feedback/stats')
   }
 
-  // VedAstro endpoints
-  async getVedAstroStatus() {
-    return this.request('/vedastro/status')
-  }
-
-  async calculateComprehensiveChart(profileId: string) {
-    return this.request('/vedastro/chart/comprehensive', {
-      method: 'POST',
-      body: JSON.stringify({
-        profile_id: profileId,
-        chart_type: 'D1',
-      }),
-    })
-  }
-
-  async getVedicKnowledge(topic: string) {
-    return this.request(`/vedastro/knowledge/${topic}`)
-  }
-
-  async listKnowledgeTopics() {
-    return this.request('/vedastro/knowledge')
-  }
-
   // Phase 3: AI Orchestrator - Comprehensive Readings
   async generateComprehensiveReading(data: {
     profile_id: string

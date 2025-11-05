@@ -348,11 +348,8 @@ export default function KnowledgeBasePage() {
       <Card className="border-jio-200 bg-jio-50">
         <CardContent className="py-4">
           <p className="text-xs text-gray-600 text-center">
-            Based on classical Vedic astrology texts including Brihat Parashara Hora Shastra. Calculations powered by{' '}
-            <a href="https://vedastro.org" target="_blank" rel="noopener noreferrer" className="font-semibold text-jio-700 hover:underline">
-              VedAstro
-            </a>
-            {' '}(MIT License)
+            Based on classical Vedic astrology texts including Brihat Parashara Hora Shastra.
+            Calculations powered by Swiss Ephemeris and Kerykeion libraries.
           </p>
         </CardContent>
       </Card>

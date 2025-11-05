@@ -17,5 +17,3 @@ python-dotenv==1.0.0
 sqlalchemy[asyncio]==2.0.23
 asyncpg==0.29.0
 greenlet==3.0.3
-# VedAstro integration for comprehensive Vedic astrology calculations
-vedastro>=1.0.0
