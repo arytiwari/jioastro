@@ -79,9 +79,9 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-jio-50 to-white p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
+          <Link href="/dashboard" className="flex justify-center mb-4 hover:opacity-80 transition-opacity">
             <Logo size={64} />
-          </div>
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
           <p className="text-gray-600 mt-2">Start your astrological journey today</p>
         </div>

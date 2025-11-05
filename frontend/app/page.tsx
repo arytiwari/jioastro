@@ -9,9 +9,9 @@ export default function HomePage() {
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <div className="text-center max-w-3xl mx-auto">
-          <div className="flex justify-center mb-6">
+          <Link href="/dashboard" className="flex justify-center mb-6 hover:opacity-80 transition-opacity">
             <Logo size={80} />
-          </div>
+          </Link>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
             JioAstro
