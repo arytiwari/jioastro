@@ -54,9 +54,24 @@ class DocumentProcessorService:
 
         try:
             if file_type == "text" or path.suffix in ['.txt', '.md']:
-                # Plain text files
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    return f.read()
+                # Plain text files - try multiple encodings
+                encodings = ['utf-8', 'latin-1', 'cp1252', 'iso-8859-1']
+
+                for encoding in encodings:
+                    try:
+                        with open(file_path, 'r', encoding=encoding) as f:
+                            content = f.read()
+                            print(f"  ✅ Successfully read text file with {encoding} encoding")
+                            return content
+                    except UnicodeDecodeError:
+                        continue
+
+                # If all encodings fail, try reading as binary and decode with errors='ignore'
+                print(f"  ⚠️  Standard encodings failed, reading with error handling...")
+                with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                    print(f"  ⚠️  Some characters may have been skipped due to encoding issues")
+                    return content
 
             elif file_type == "pdf" or path.suffix == '.pdf':
                 # PDF files - try pdfplumber first (better), then PyPDF2, then OCR
