@@ -36,7 +36,7 @@ def verify_processing():
         print(f"   Status: {doc['is_indexed']}")
         print(f"   File: {doc.get('original_filename', 'N/A')}")
 
-        meta = doc.get('doc_metadata', {})
+        meta = doc.get('doc_metadata') or {}
         text_length = meta.get('text_length', 0)
         num_chunks = meta.get('num_chunks', 0)
         num_embeddings = meta.get('num_embeddings', 0)
@@ -94,7 +94,7 @@ def verify_processing():
     has_issues = False
 
     for doc in documents:
-        meta = doc.get('doc_metadata', {})
+        meta = doc.get('doc_metadata') or {}
         text_length = meta.get('text_length', 0)
 
         if text_length < 1000:
