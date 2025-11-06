@@ -1,7 +1,7 @@
 """Knowledge Document schemas"""
 
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from uuid import UUID
 
@@ -30,7 +30,7 @@ class DocumentResponse(BaseModel):
     file_path: str
     file_size: Optional[int]
     original_filename: Optional[str]
-    is_indexed: bool
+    is_indexed: Union[str, bool]  # Can be "true", "false", "processing", "failed", or boolean
     tags: Optional[List[str]]
     doc_metadata: Optional[Dict[str, Any]]
     created_at: datetime
