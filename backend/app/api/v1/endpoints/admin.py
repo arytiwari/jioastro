@@ -403,7 +403,7 @@ async def get_knowledge_overview(
 
         # Calculate total text processed
         total_text_chars = sum(
-            d.get("doc_metadata", {}).get("text_length", 0)
+            (d.get("doc_metadata") or {}).get("text_length", 0)
             for d in indexed_docs
         )
 
@@ -454,7 +454,7 @@ async def get_knowledge_overview(
                     "status": d.get("is_indexed"),
                     "uploaded_at": d.get("created_at"),
                     "embeddings": len(d.get("vector_ids", []) or []),
-                    "text_chars": d.get("doc_metadata", {}).get("text_length", 0)
+                    "text_chars": (d.get("doc_metadata") or {}).get("text_length", 0)
                 }
                 for d in sorted(
                     all_documents,
