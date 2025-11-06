@@ -296,6 +296,30 @@ async def generate_ai_reading(
                     "success": True
                 }
 
+        # Fetch numerology data for holistic reading
+        numerology_data = None
+        try:
+            print(f"🔢 Fetching numerology profile for holistic reading...")
+            numerology_profiles = await supabase_service.get_numerology_profiles(
+                user_id=user_id,
+                profile_id=str(request.profile_id)
+            )
+
+            if numerology_profiles and len(numerology_profiles) > 0:
+                latest_profile = numerology_profiles[0]
+                numerology_data = {
+                    "western": latest_profile.get("western_data"),
+                    "vedic": latest_profile.get("vedic_data"),
+                    "full_name": latest_profile.get("full_name"),
+                    "birth_date": latest_profile.get("birth_date"),
+                    "system": latest_profile.get("system")
+                }
+                print(f"✅ Numerology data found: {numerology_data.get('system')} system")
+            else:
+                print(f"ℹ️  No numerology profile found for this user/profile")
+        except Exception as e:
+            print(f"⚠️  Could not fetch numerology data: {str(e)}")
+
         # Generate comprehensive reading using orchestrator
         print(f"🎭 Generating comprehensive reading with orchestrator...")
         result = await ai_orchestrator.generate_comprehensive_reading(
@@ -304,7 +328,8 @@ async def generate_ai_reading(
             domains=request.domains,
             include_predictions=request.include_predictions,
             include_transits=request.include_transits,
-            prediction_window_months=request.prediction_window_months
+            prediction_window_months=request.prediction_window_months,
+            numerology_data=numerology_data
         )
 
         # Store reading session
