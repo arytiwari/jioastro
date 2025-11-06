@@ -78,7 +78,8 @@ class AIOrchestrator:
         domains: Optional[List[str]] = None,
         include_predictions: bool = True,
         include_transits: bool = False,
-        prediction_window_months: int = 12
+        prediction_window_months: int = 12,
+        numerology_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Generate comprehensive reading using multi-role orchestration
@@ -90,12 +91,16 @@ class AIOrchestrator:
             include_predictions: Whether to generate time-based predictions
             include_transits: Whether to include current transit analysis
             prediction_window_months: How many months ahead to predict
+            numerology_data: Optional numerology profile data (Western & Vedic)
 
         Returns:
             Dictionary with comprehensive reading, predictions, citations, and metadata
         """
         print("🎭 Starting Multi-Role Orchestration...")
         self.tokens_used = 0
+
+        if numerology_data:
+            print(f"🔢 Numerology data available for holistic analysis")
 
         # Step 1: Coordinator - Analyze query and route
         coordination_result = await self._coordinator_role(
@@ -132,7 +137,8 @@ class AIOrchestrator:
             query=query,
             coordination=coordination_result,
             retrieval=retrieval_results,
-            predictions=prediction_results
+            predictions=prediction_results,
+            numerology_data=numerology_data
         )
 
         print(f"✍️  Synthesizer: Generated {len(synthesis_result['interpretation'])} character interpretation")
@@ -489,7 +495,8 @@ Return JSON:
         query: Optional[str],
         coordination: Dict[str, Any],
         retrieval: Dict[str, Any],
-        predictions: Optional[Dict[str, Any]]
+        predictions: Optional[Dict[str, Any]],
+        numerology_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Synthesizer role: Combine all information into comprehensive interpretation
@@ -501,6 +508,14 @@ Return JSON:
 
         # Prepare chart context
         chart_context = self._prepare_chart_context(chart_data)
+
+        # Prepare numerology context if available
+        numerology_context = ""
+        if numerology_data:
+            numerology_context = self._prepare_numerology_context(numerology_data)
+            print(f"📊 Numerology context prepared for synthesis: {len(numerology_context)} characters")
+        else:
+            print(f"ℹ️  No numerology data for synthesis")
 
         # Prepare rules context
         rules_context = self._format_rules_for_synthesis(retrieval['by_domain'])
@@ -514,20 +529,50 @@ Return JSON:
                 predictions_context += f"\nConfidence: {pred.get('confidence_score', 0)}%"
 
         # Create synthesis prompt
-        system_prompt = """You are an expert Vedic astrology synthesizer.
-Your role is to combine chart data, scriptural rules, and predictions into a comprehensive, personalized interpretation.
+        system_prompt = """You are an expert Vedic astrology and numerology synthesizer.
+Your role is to combine chart data, numerology profiles, scriptural rules, and predictions into a comprehensive, personalized interpretation.
 
 Guidelines:
-- Synthesize information from multiple sources
+- Synthesize information from multiple sources (astrology AND numerology)
 - CITE rules using [RULE-ID] format
-- Be specific about planetary positions and their effects
+- Be specific about planetary positions, houses, yogas AND numerology numbers
+- Show correlations between astrological planets and numerological planetary rulerships
 - Include time-based predictions if provided
 - Maintain warm, empowering tone
 - Organize by domain if analyzing multiple areas
-- End with practical remedies"""
+- End with practical remedies
+
+When numerology is provided:
+- Integrate numerology insights with astrological analysis
+- Show how Life Path, Expression, Soul Urge numbers align with chart indications
+- Reference Personal Year/Month cycles for timing
+- Note Vedic Psychic and Destiny number correlations
+- Create an integrated synthesis showing both sciences working together
+
+Format your response with these sections:
+
+**Key Insight:** (2-3 sentences directly answering the question, synthesizing astrology and numerology if available)
+
+**Astrological Analysis:** (Planetary positions, houses, yogas, dasha period, scriptural rules with [RULE-ID] citations)
+
+**Numerology Insights:** (REQUIRED if numerology data is provided. Analyze Life Path, Expression, Soul Urge, current cycles, Vedic numbers, and their correlations with astrological findings)
+
+**Integrated Synthesis:** (Show how astrology and numerology complement each other. Explain the combined picture)
+
+**Guidance:** (Practical advice based on the complete analysis)
+
+**Remedy:** (One simple Vedic remedy - mantra, gemstone, charity, or practice)"""
+
+        # Build context sections
+        context_sections = [chart_context]
+
+        if numerology_context:
+            context_sections.append(f"\n--- NUMEROLOGY PROFILE ---\n{numerology_context}\n--- END OF NUMEROLOGY ---")
+
+        full_context = "\n".join(context_sections)
 
         user_prompt = f"""
-{chart_context}
+{full_context}
 
 {rules_context}
 
@@ -538,14 +583,24 @@ Domains to Analyze: {', '.join(coordination['domains_to_analyze'])}
 
 Create a comprehensive interpretation that:
 1. Addresses the query directly
-2. Analyzes each requested domain
+2. Analyzes each requested domain using BOTH astrology and numerology (if numerology data provided above)
 3. Cites scriptural rules using [RULE-ID]
-4. Includes predictions with timeframes if available
-5. Provides practical guidance
-6. Suggests appropriate remedies
+4. {"**MUST include Numerology Insights section** analyzing the numerology data provided above" if numerology_data else "Focus on astrological analysis"}
+5. Shows correlations between astrological and numerological factors
+6. Includes predictions with timeframes if available
+7. Provides practical guidance
+8. Suggests appropriate remedies
 
-Format the response in clear sections for each domain.
-Length: 400-600 words total.
+CRITICAL: If numerology data is provided above, you MUST include a dedicated "**Numerology Insights:**" section that analyzes:
+- Life Path number and its meaning for this question
+- Expression number and natural talents
+- Soul Urge and inner motivations
+- Current Personal Year/Month cycles for timing
+- Vedic Psychic and Destiny numbers
+- How these numerology factors correlate with the astrological indicators
+
+Format the response with the required sections (Key Insight, Astrological Analysis, Numerology Insights, Integrated Synthesis, Guidance, Remedy).
+Length: 500-700 words total to accommodate all sections.
 """
 
         try:
@@ -616,6 +671,84 @@ Length: 400-600 words total.
                     formatted += f"Effect: {rule.get('effect', '')}\n"
 
         return formatted
+
+    def _prepare_numerology_context(self, numerology_data: Dict[str, Any]) -> str:
+        """Prepare numerology context for synthesis"""
+
+        context_parts = []
+
+        print(f"🔍 DEBUG: Numerology data keys: {numerology_data.keys() if numerology_data else 'None'}")
+
+        # Western numerology
+        if "western" in numerology_data and numerology_data["western"]:
+            western = numerology_data["western"]
+            context_parts.append("\n=== WESTERN NUMEROLOGY ===")
+            print(f"   Western data found: {western.keys() if isinstance(western, dict) else type(western)}")
+
+            if "core_numbers" in western and western["core_numbers"]:
+                core = western["core_numbers"]
+                context_parts.append("\nCore Numbers:")
+
+                # Life Path
+                if "life_path" in core:
+                    lp = core["life_path"]
+                    context_parts.append(f"  Life Path {lp.get('number')}: Your life's purpose and journey")
+                    if "meaning" in lp and isinstance(lp["meaning"], dict):
+                        if "description" in lp["meaning"]:
+                            context_parts.append(f"    {lp['meaning']['description']}")
+
+                # Expression
+                if "expression" in core:
+                    exp = core["expression"]
+                    context_parts.append(f"  Expression {exp.get('number')}: Your natural talents and abilities")
+
+                # Soul Urge
+                if "soul_urge" in core:
+                    su = core["soul_urge"]
+                    context_parts.append(f"  Soul Urge {su.get('number')}: Your inner desires and motivations")
+
+                # Personality
+                if "personality" in core:
+                    pers = core["personality"]
+                    context_parts.append(f"  Personality {pers.get('number')}: How others perceive you")
+
+            if "current_cycles" in western:
+                cycles = western["current_cycles"]
+                context_parts.append("\nCurrent Cycles:")
+                if "personal_year" in cycles:
+                    py = cycles["personal_year"]
+                    context_parts.append(f"  Personal Year {py.get('number')}: This year's theme and opportunities")
+                if "personal_month" in cycles:
+                    pm = cycles["personal_month"]
+                    context_parts.append(f"  Personal Month {pm.get('number')}: This month's focus")
+                if "personal_day" in cycles:
+                    pd = cycles["personal_day"]
+                    context_parts.append(f"  Personal Day {pd.get('number')}: Today's energy")
+
+        # Vedic numerology
+        if "vedic" in numerology_data and numerology_data["vedic"]:
+            vedic = numerology_data["vedic"]
+            context_parts.append("\n=== VEDIC NUMEROLOGY ===")
+            print(f"   Vedic data found: {vedic.keys() if isinstance(vedic, dict) else type(vedic)}")
+
+            if "psychic_number" in vedic and vedic["psychic_number"]:
+                pn = vedic["psychic_number"]
+                planet = pn.get("planet", "")
+                context_parts.append(f"\nPsychic Number (Moolank): {pn.get('number')} - Ruled by {planet}")
+                if "meaning" in pn and isinstance(pn["meaning"], dict):
+                    if "description" in pn["meaning"]:
+                        context_parts.append(f"  {pn['meaning']['description']}")
+
+            if "destiny_number" in vedic:
+                dn = vedic["destiny_number"]
+                planet = dn.get("planet", "")
+                context_parts.append(f"\nDestiny Number (Bhagyank): {dn.get('number')} - Ruled by {planet}")
+                if "meaning" in dn:
+                    meaning_text = dn["meaning"] if isinstance(dn["meaning"], str) else dn["meaning"].get("description", "")
+                    if meaning_text:
+                        context_parts.append(f"  {meaning_text}")
+
+        return "\n".join(context_parts)
 
     async def _verifier_role(
         self,
