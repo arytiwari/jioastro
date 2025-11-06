@@ -244,13 +244,23 @@ class KnowledgeBaseService:
             text: Text to embed
 
         Returns:
-            List of floats (1536 dimensions for ada-002)
+            List of floats (1536 dimensions)
         """
         try:
-            response = self.openai_client.embeddings.create(
-                input=text,
-                model=self.embedding_model
-            )
+            # For text-embedding-3-large, specify dimensions=1536 to match database
+            # Note: Azure OpenAI doesn't support dimensions parameter yet
+            if settings.USE_AZURE_OPENAI:
+                response = self.openai_client.embeddings.create(
+                    input=text,
+                    model=self.embedding_model
+                    # Azure: dimensions configured at deployment level
+                )
+            else:
+                response = self.openai_client.embeddings.create(
+                    input=text,
+                    model=self.embedding_model,
+                    dimensions=1536  # OpenAI: force 1536 dimensions
+                )
             return response.data[0].embedding
 
         except Exception as e:

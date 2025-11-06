@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import {
@@ -65,6 +65,7 @@ export default function DashboardLayout({
 
   const chartsMenu = [
     { name: 'AI Readings', href: '/dashboard/readings', icon: Sparkles, badge: 'NEW' },
+    { name: 'Yoga Analysis', href: '/dashboard/yogas', icon: Award, badge: 'NEW' },
     { name: 'Strength Analysis', href: '/dashboard/strength', icon: Award },
     { name: 'Current Transits', href: '/dashboard/transits', icon: Sun },
   ]
@@ -169,6 +170,14 @@ export default function DashboardLayout({
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+
+              {/* Numerology */}
+              <Link href="/dashboard/numerology">
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Numerology
+                </Button>
+              </Link>
 
               {/* Knowledge */}
               <Link href="/dashboard/knowledge">
@@ -279,6 +288,14 @@ export default function DashboardLayout({
                   </Link>
                 ))}
               </div>
+
+              {/* Numerology */}
+              <Link href="/dashboard/numerology" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Numerology
+                </Button>
+              </Link>
 
               {/* Knowledge */}
               <Link href="/dashboard/knowledge" onClick={() => setMobileMenuOpen(false)}>

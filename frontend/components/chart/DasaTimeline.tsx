@@ -73,15 +73,15 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
     )
   }
 
-  // Extract planet name and years - support both old and new formats
+  // Mahadasha at birth is the FIRST one in the array
+  const birthMahadasha = dashaData.mahadashas.length > 0 ? dashaData.mahadashas[0] : null
+  const birthPlanet = birthMahadasha?.planet || 'Unknown'
+  const birthYears = birthMahadasha?.years || 0
+
+  // Current mahadasha - support both old and new formats
   const currentPlanet = typeof dashaData.current_mahadasha === 'string'
     ? dashaData.current_mahadasha
     : dashaData.current_mahadasha.planet
-
-  // Get total duration from the mahadashas array
-  const currentMahadashaData = dashaData.mahadashas.find(m => m.planet === currentPlanet)
-  const totalYears = currentMahadashaData ? currentMahadashaData.years :
-    (typeof dashaData.current_mahadasha === 'string' ? (dashaData.mahadasha_years || 0) : 0)
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -100,22 +100,22 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
   return (
     <div className="w-full space-y-6 p-6 bg-white rounded-lg shadow-md">
       {/* Mahadasha at Birth Highlight */}
-      <div className="bg-gradient-to-r from-jio-100 to-blue-100 rounded-lg p-4 border-2 border-jio-300">
+      <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg p-4 border-2 border-purple-300">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-bold text-gray-900">Mahadasha at Birth</h3>
-            <p className="text-2xl font-extrabold text-jio-700 mt-1">
-              {PLANET_SYMBOLS[currentPlanet] || ''} {currentPlanet}
+            <p className="text-2xl font-extrabold text-purple-700 mt-1">
+              {PLANET_SYMBOLS[birthPlanet] || ''} {birthPlanet}
             </p>
             <p className="text-sm text-gray-600 mt-1">
-              {totalYears} years total duration
+              {birthYears} years total duration
             </p>
           </div>
           <div
             className="w-20 h-20 rounded-full flex items-center justify-center text-4xl"
-            style={{ backgroundColor: PLANET_COLORS[currentPlanet] || '#9ca3af' }}
+            style={{ backgroundColor: PLANET_COLORS[birthPlanet] || '#9ca3af' }}
           >
-            {PLANET_SYMBOLS[currentPlanet] || '?'}
+            {PLANET_SYMBOLS[birthPlanet] || '?'}
           </div>
         </div>
       </div>
@@ -172,7 +172,7 @@ export function DasaTimeline({ dashaData }: DasaTimelineProps) {
       {dashaData.antardashas && dashaData.antardashas.length > 0 && (
         <div>
           <h4 className="text-lg font-bold text-gray-900 mb-4">
-            Antardashas in {currentPlanet} Period
+            Antardashas in Current {currentPlanet} Mahadasha
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {dashaData.antardashas.slice(0, 9).map((antar, index) => {

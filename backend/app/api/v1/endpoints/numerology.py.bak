@@ -1,0 +1,702 @@
+"""
+Numerology API Endpoints
+
+Provides Western/Pythagorean and Vedic/Chaldean numerology calculations,
+profile management, name trials, and privacy preferences.
+"""
+
+from typing import List, Optional
+from datetime import date, datetime
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+
+from app.schemas.numerology import (
+    NumerologyCalculateRequest,
+    NumerologyCalculationResponse,
+    NumerologyProfile,
+    NumerologyProfileResponse,
+    NumerologyProfileList,
+    NameTrialCreate,
+    NameTrialResponse,
+    NameTrialList,
+    PrivacyPreferencesUpdate,
+    PrivacyPreferencesResponse
+)
+from app.core.security import get_current_user
+from app.services.numerology_service import NumerologyService
+from app.services.supabase_service import supabase_service
+
+router = APIRouter()
+
+
+# ============================================================================
+# CALCULATION ENDPOINTS
+# ============================================================================
+
+@router.post("/calculate", response_model=NumerologyCalculationResponse, status_code=status.HTTP_200_OK)
+async def calculate_numerology(
+    request: NumerologyCalculateRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Calculate numerology profile on-demand (no saving to database).
+
+    Supports:
+    - Western/Pythagorean system
+    - Vedic/Chaldean system
+    - Both systems combined
+
+    **Parameters:**
+    - full_name: Full birth name
+    - birth_date: Date of birth (YYYY-MM-DD)
+    - system: 'western', 'vedic', 'chaldean', or 'both' (default: 'both')
+    - profile_id: Optional profile ID to associate with
+
+    **Returns:**
+    - Complete numerology calculation based on requested system(s)
+    """
+    try:
+        # Convert to current date for cycles (if needed)
+        current_date = date.today()
+
+        # Calculate numerology
+        result = NumerologyService.calculate(
+            full_name=request.full_name,
+            birth_date=request.birth_date,
+            system=request.system,
+            current_date=current_date
+        )
+
+        return NumerologyCalculationResponse(**result)
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid input: {str(e)}"
+        )
+    except Exception as e:
+        print(f"Error calculating numerology: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate numerology: {str(e)}"
+        )
+
+
+# ============================================================================
+# PROFILE ENDPOINTS
+# ============================================================================
+
+@router.post("/profiles", response_model=NumerologyProfileResponse, status_code=status.HTTP_201_CREATED)
+async def create_numerology_profile(
+    request: NumerologyCalculateRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Create and save a numerology profile.
+
+    Calculates numerology and stores in database for future reference.
+    Profiles are cached using calculation_hash to avoid duplicate calculations.
+
+    **Parameters:**
+    - full_name: Full birth name
+    - birth_date: Date of birth (YYYY-MM-DD)
+    - system: 'western', 'vedic', or 'both'
+    - profile_id: Optional birth profile ID to link
+
+    **Returns:**
+    - Saved profile with complete calculation data
+    """
+    try:
+        # Calculate numerology
+        current_date = date.today()
+        calculation = NumerologyService.calculate(
+            full_name=request.full_name,
+            birth_date=request.birth_date,
+            system=request.system,
+            current_date=current_date
+        )
+
+        # Prepare profile data
+        profile_data = {
+            "user_id": current_user["user_id"],
+            "profile_id": request.profile_id,
+            "full_name": request.full_name,
+            "birth_date": request.birth_date.isoformat(),
+            "system": request.system,
+            "western_data": calculation.get("western"),
+            "vedic_data": calculation.get("vedic"),
+            "cycles": calculation.get("western", {}).get("current_cycles") if calculation.get("western") else None,
+            "calculation_hash": calculation["calculation_hash"],
+            "calculated_at": calculation["calculated_at"]
+        }
+
+        # Check if profile already exists with same hash
+        existing = supabase_service.client.table("numerology_profiles")\
+            .select("*")\
+            .eq("user_id", current_user["user_id"])\
+            .eq("calculation_hash", calculation["calculation_hash"])\
+            .execute()
+
+        if existing.data:
+            # Return existing profile
+            profile = existing.data[0]
+        else:
+            # Create new profile
+            response = supabase_service.client.table("numerology_profiles")\
+                .insert(profile_data)\
+                .execute()
+
+            if not response.data:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="Failed to create numerology profile"
+                )
+
+            profile = response.data[0]
+
+        return NumerologyProfileResponse(
+            profile=NumerologyProfile(**profile),
+            calculation=NumerologyCalculationResponse(**calculation)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error creating numerology profile: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create numerology profile: {str(e)}"
+        )
+
+
+@router.get("/profiles", response_model=NumerologyProfileList)
+async def list_numerology_profiles(
+    current_user: dict = Depends(get_current_user),
+    profile_id: Optional[str] = Query(None, description="Filter by birth profile ID"),
+    system: Optional[str] = Query(None, description="Filter by system (western/vedic/both)"),
+    limit: int = Query(50, ge=1, le=100, description="Number of profiles to return"),
+    offset: int = Query(0, ge=0, description="Pagination offset")
+):
+    """
+    List all numerology profiles for the current user.
+
+    **Parameters:**
+    - profile_id: Optional filter by birth profile ID
+    - system: Optional filter by numerology system
+    - limit: Number of results (max 100)
+    - offset: Pagination offset
+
+    **Returns:**
+    - List of numerology profiles with metadata
+    """
+    try:
+        # Build query
+        query = supabase_service.client.table("numerology_profiles")\
+            .select("*")\
+            .eq("user_id", current_user["user_id"])
+
+        # Apply filters
+        if profile_id:
+            query = query.eq("profile_id", profile_id)
+        if system:
+            query = query.eq("system", system)
+
+        # Apply pagination and order
+        query = query.order("created_at", desc=True)\
+            .limit(limit)\
+            .offset(offset)
+
+        response = await query.execute()
+
+        profiles = [NumerologyProfile(**p) for p in response.data] if response.data else []
+
+        return NumerologyProfileList(
+            profiles=profiles,
+            count=len(profiles)
+        )
+
+    except Exception as e:
+        print(f"Error listing numerology profiles: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list numerology profiles: {str(e)}"
+        )
+
+
+@router.get("/profiles/{numerology_profile_id}", response_model=NumerologyProfileResponse)
+async def get_numerology_profile(
+    numerology_profile_id: str,
+    current_user: dict = Depends(get_current_user),
+    include_calculation: bool = Query(True, description="Include full calculation data")
+):
+    """
+    Get a specific numerology profile by ID.
+
+    **Parameters:**
+    - numerology_profile_id: UUID of the numerology profile
+    - include_calculation: Whether to include full calculation data
+
+    **Returns:**
+    - Numerology profile with optional calculation data
+    """
+    try:
+        # Get profile
+        response = await supabase_service.client.table("numerology_profiles")\
+            .select("*")\
+            .eq("id", numerology_profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if not response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Numerology profile not found"
+            )
+
+        profile = NumerologyProfile(**response.data)
+
+        # Optionally include full calculation
+        calculation = None
+        if include_calculation:
+            # Reconstruct calculation response from stored data
+            calc_data = {
+                "full_name": profile.full_name,
+                "birth_date": profile.birth_date,
+                "system": profile.system,
+                "western": profile.western_data,
+                "vedic": profile.vedic_data,
+                "calculation_hash": profile.calculation_hash,
+                "calculated_at": profile.calculated_at.isoformat()
+            }
+            calculation = NumerologyCalculationResponse(**calc_data)
+
+        return NumerologyProfileResponse(
+            profile=profile,
+            calculation=calculation
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting numerology profile: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get numerology profile: {str(e)}"
+        )
+
+
+@router.delete("/profiles/{numerology_profile_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_numerology_profile(
+    numerology_profile_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Delete a numerology profile.
+
+    Also deletes all associated name trials (CASCADE).
+
+    **Parameters:**
+    - numerology_profile_id: UUID of the numerology profile
+
+    **Returns:**
+    - 204 No Content on success
+    """
+    try:
+        # Check if profile exists and belongs to user
+        check_response = await supabase_service.client.table("numerology_profiles")\
+            .select("id")\
+            .eq("id", numerology_profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if not check_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Numerology profile not found"
+            )
+
+        # Delete profile (CASCADE will delete name_trials)
+        await supabase_service.client.table("numerology_profiles")\
+            .delete()\
+            .eq("id", numerology_profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .execute()
+
+        return None
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting numerology profile: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete numerology profile: {str(e)}"
+        )
+
+
+# ============================================================================
+# NAME TRIAL ENDPOINTS
+# ============================================================================
+
+@router.post("/trials", response_model=NameTrialResponse, status_code=status.HTTP_201_CREATED)
+async def create_name_trial(
+    request: NameTrialCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Create a name trial for testing name corrections.
+
+    Allows experimenting with different name spellings to find
+    favorable numerology numbers.
+
+    **Parameters:**
+    - numerology_profile_id: Parent profile ID
+    - trial_name: Name to test
+    - system: System to use for calculation
+    - notes: Optional notes about this trial
+
+    **Returns:**
+    - Created name trial with calculated values
+    """
+    try:
+        # Verify profile exists and belongs to user
+        profile_check = await supabase_service.client.table("numerology_profiles")\
+            .select("birth_date")\
+            .eq("id", request.numerology_profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if not profile_check.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Numerology profile not found"
+            )
+
+        # Get birth date for calculation
+        birth_date_str = profile_check.data["birth_date"]
+        birth_date = date.fromisoformat(birth_date_str) if isinstance(birth_date_str, str) else birth_date_str
+
+        # Calculate numerology for trial name
+        calculation = NumerologyService.calculate(
+            full_name=request.trial_name,
+            birth_date=birth_date,
+            system=request.system
+        )
+
+        # Prepare trial data
+        trial_data = {
+            "numerology_profile_id": request.numerology_profile_id,
+            "user_id": current_user["user_id"],
+            "trial_name": request.trial_name,
+            "system": request.system,
+            "calculated_values": calculation,
+            "notes": request.notes,
+            "is_preferred": False
+        }
+
+        # Create trial
+        response = await supabase_service.client.table("numerology_name_trials")\
+            .insert(trial_data)\
+            .execute()
+
+        if not response.data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to create name trial"
+            )
+
+        return NameTrialResponse(**response.data[0])
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error creating name trial: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create name trial: {str(e)}"
+        )
+
+
+@router.get("/trials/{numerology_profile_id}", response_model=NameTrialList)
+async def list_name_trials(
+    numerology_profile_id: str,
+    current_user: dict = Depends(get_current_user),
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0)
+):
+    """
+    List all name trials for a numerology profile.
+
+    **Parameters:**
+    - numerology_profile_id: Parent profile ID
+    - limit: Number of results (max 100)
+    - offset: Pagination offset
+
+    **Returns:**
+    - List of name trials with calculated values
+    """
+    try:
+        # Verify profile belongs to user
+        profile_check = await supabase_service.client.table("numerology_profiles")\
+            .select("id")\
+            .eq("id", numerology_profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if not profile_check.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Numerology profile not found"
+            )
+
+        # Get trials
+        response = await supabase_service.client.table("numerology_name_trials")\
+            .select("*")\
+            .eq("numerology_profile_id", numerology_profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .order("created_at", desc=True)\
+            .limit(limit)\
+            .offset(offset)\
+            .execute()
+
+        trials = [NameTrialResponse(**t) for t in response.data] if response.data else []
+
+        return NameTrialList(
+            trials=trials,
+            count=len(trials)
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error listing name trials: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to list name trials: {str(e)}"
+        )
+
+
+@router.patch("/trials/{trial_id}/favorite", response_model=NameTrialResponse)
+async def mark_trial_as_preferred(
+    trial_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Mark a name trial as preferred.
+
+    Only one trial can be preferred per profile (automatically unmarks others).
+
+    **Parameters:**
+    - trial_id: UUID of the name trial
+
+    **Returns:**
+    - Updated name trial
+    """
+    try:
+        # Get trial and verify ownership
+        trial_response = await supabase_service.client.table("numerology_name_trials")\
+            .select("*")\
+            .eq("id", trial_id)\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if not trial_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Name trial not found"
+            )
+
+        trial = trial_response.data
+        profile_id = trial["numerology_profile_id"]
+
+        # Unmark all other trials for this profile
+        await supabase_service.client.table("numerology_name_trials")\
+            .update({"is_preferred": False})\
+            .eq("numerology_profile_id", profile_id)\
+            .eq("user_id", current_user["user_id"])\
+            .execute()
+
+        # Mark this trial as preferred
+        updated_response = await supabase_service.client.table("numerology_name_trials")\
+            .update({"is_preferred": True})\
+            .eq("id", trial_id)\
+            .eq("user_id", current_user["user_id"])\
+            .execute()
+
+        return NameTrialResponse(**updated_response.data[0])
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error marking trial as preferred: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to mark trial as preferred: {str(e)}"
+        )
+
+
+@router.delete("/trials/{trial_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_name_trial(
+    trial_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Delete a name trial.
+
+    **Parameters:**
+    - trial_id: UUID of the name trial
+
+    **Returns:**
+    - 204 No Content on success
+    """
+    try:
+        # Verify trial exists and belongs to user
+        check_response = await supabase_service.client.table("numerology_name_trials")\
+            .select("id")\
+            .eq("id", trial_id)\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if not check_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Name trial not found"
+            )
+
+        # Delete trial
+        await supabase_service.client.table("numerology_name_trials")\
+            .delete()\
+            .eq("id", trial_id)\
+            .eq("user_id", current_user["user_id"])\
+            .execute()
+
+        return None
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting name trial: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete name trial: {str(e)}"
+        )
+
+
+# ============================================================================
+# PRIVACY PREFERENCES ENDPOINTS
+# ============================================================================
+
+@router.get("/privacy", response_model=PrivacyPreferencesResponse)
+async def get_privacy_preferences(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get user's privacy preferences for numerology.
+
+    Creates default preferences if none exist.
+
+    **Returns:**
+    - Privacy preferences for the current user
+    """
+    try:
+        # Try to get existing preferences
+        response = await supabase_service.client.table("privacy_preferences")\
+            .select("*")\
+            .eq("user_id", current_user["user_id"])\
+            .single()\
+            .execute()
+
+        if response.data:
+            return PrivacyPreferencesResponse(**response.data)
+
+        # Create default preferences if none exist
+        default_prefs = {
+            "user_id": current_user["user_id"],
+            "store_numerology_trials": True,
+            "share_numerology_anonymously": False,
+            "store_palm_images": False,
+            "store_palm_features": True,
+            "erasable_audit": True,
+            "data_retention_days": 365
+        }
+
+        create_response = await supabase_service.client.table("privacy_preferences")\
+            .insert(default_prefs)\
+            .execute()
+
+        return PrivacyPreferencesResponse(**create_response.data[0])
+
+    except Exception as e:
+        print(f"Error getting privacy preferences: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get privacy preferences: {str(e)}"
+        )
+
+
+@router.put("/privacy", response_model=PrivacyPreferencesResponse)
+async def update_privacy_preferences(
+    preferences: PrivacyPreferencesUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Update user's privacy preferences for numerology.
+
+    **Parameters:**
+    - store_numerology_trials: Store name trial experiments
+    - share_numerology_anonymously: Share data for research
+    - data_retention_days: Auto-delete data after N days (0 = forever)
+
+    **Returns:**
+    - Updated privacy preferences
+    """
+    try:
+        # Prepare update data (only include non-None values)
+        update_data = preferences.model_dump(exclude_unset=True)
+
+        if not update_data:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No preferences to update"
+            )
+
+        # Try to update existing preferences
+        response = await supabase_service.client.table("privacy_preferences")\
+            .update(update_data)\
+            .eq("user_id", current_user["user_id"])\
+            .execute()
+
+        if response.data:
+            return PrivacyPreferencesResponse(**response.data[0])
+
+        # If no existing preferences, create new with provided values
+        default_prefs = {
+            "user_id": current_user["user_id"],
+            "store_numerology_trials": True,
+            "share_numerology_anonymously": False,
+            "store_palm_images": False,
+            "store_palm_features": True,
+            "erasable_audit": True,
+            "data_retention_days": 365
+        }
+        default_prefs.update(update_data)
+
+        create_response = await supabase_service.client.table("privacy_preferences")\
+            .insert(default_prefs)\
+            .execute()
+
+        return PrivacyPreferencesResponse(**create_response.data[0])
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error updating privacy preferences: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update privacy preferences: {str(e)}"
+        )

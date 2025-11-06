@@ -294,9 +294,14 @@ export default function AdminDashboardPage() {
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
               <p className="text-sm text-gray-600">Welcome back, {adminUsername}</p>
             </div>
-            <Button onClick={handleLogout} variant="outline">
-              Logout
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => router.push('/admin/dashboard/knowledge')} variant="default">
+                📊 View Knowledge Base
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </header>

@@ -322,20 +322,41 @@ class AccurateVedicAstrology:
             })
             current_date = end_date
 
-        # Calculate Antardashas for current Mahadasha
+        # Find currently active Mahadasha (based on today's date)
+        today = datetime.now()
+        current_maha_idx = 0
+        for idx, maha in enumerate(mahadashas):
+            start = datetime.strptime(maha["start_date"], "%Y-%m-%d")
+            end = datetime.strptime(maha["end_date"], "%Y-%m-%d")
+            if start <= today <= end:
+                current_maha_idx = idx
+                break
+
+        # Calculate Antardashas for the CURRENT Mahadasha (not birth mahadasha)
+        current_maha = mahadashas[current_maha_idx]
         antardashas = self._calculate_antardashas(
-            mahadashas[0]["planet"],
-            datetime.strptime(mahadashas[0]["start_date"], "%Y-%m-%d"),
-            mahadashas[0]["years"]
+            current_maha["planet"],
+            datetime.strptime(current_maha["start_date"], "%Y-%m-%d"),
+            current_maha["years"]
         )
+
+        # Find currently active Antardasha within current Mahadasha
+        current_antar = None
+        for antar in antardashas:
+            start = datetime.strptime(antar["start_date"], "%Y-%m-%d")
+            end = datetime.strptime(antar["end_date"], "%Y-%m-%d")
+            if start <= today <= end:
+                current_antar = antar
+                break
 
         return {
             "current_mahadasha": {
-                "planet": mahadashas[0]["planet"],
-                "start_date": mahadashas[0]["start_date"],
-                "end_date": mahadashas[0]["end_date"],
-                "remaining_years": round(mahadashas[0]["years"], 2)
+                "planet": current_maha["planet"],
+                "start_date": current_maha["start_date"],
+                "end_date": current_maha["end_date"],
+                "remaining_years": round(current_maha["years"], 2)
             },
+            "current_antardasha": current_antar if current_antar else None,
             "mahadashas": mahadashas,
             "antardashas": antardashas,
             "total_cycle_years": 120,

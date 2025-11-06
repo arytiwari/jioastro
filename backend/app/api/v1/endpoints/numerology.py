@@ -130,7 +130,7 @@ async def create_numerology_profile(
         }
 
         # Check if profile already exists with same hash
-        existing = await supabase_service.client.table("numerology_profiles")\
+        existing = supabase_service.client.table("numerology_profiles")\
             .select("*")\
             .eq("user_id", current_user["user_id"])\
             .eq("calculation_hash", calculation["calculation_hash"])\
@@ -141,7 +141,7 @@ async def create_numerology_profile(
             profile = existing.data[0]
         else:
             # Create new profile
-            response = await supabase_service.client.table("numerology_profiles")\
+            response = supabase_service.client.table("numerology_profiles")\
                 .insert(profile_data)\
                 .execute()
 
@@ -205,7 +205,7 @@ async def list_numerology_profiles(
             .limit(limit)\
             .offset(offset)
 
-        response = await query.execute()
+        response = query.execute()
 
         profiles = [NumerologyProfile(**p) for p in response.data] if response.data else []
 
@@ -240,7 +240,7 @@ async def get_numerology_profile(
     """
     try:
         # Get profile
-        response = await supabase_service.client.table("numerology_profiles")\
+        response = supabase_service.client.table("numerology_profiles")\
             .select("*")\
             .eq("id", numerology_profile_id)\
             .eq("user_id", current_user["user_id"])\
@@ -303,7 +303,7 @@ async def delete_numerology_profile(
     """
     try:
         # Check if profile exists and belongs to user
-        check_response = await supabase_service.client.table("numerology_profiles")\
+        check_response = supabase_service.client.table("numerology_profiles")\
             .select("id")\
             .eq("id", numerology_profile_id)\
             .eq("user_id", current_user["user_id"])\
@@ -317,7 +317,7 @@ async def delete_numerology_profile(
             )
 
         # Delete profile (CASCADE will delete name_trials)
-        await supabase_service.client.table("numerology_profiles")\
+        supabase_service.client.table("numerology_profiles")\
             .delete()\
             .eq("id", numerology_profile_id)\
             .eq("user_id", current_user["user_id"])\
@@ -361,7 +361,7 @@ async def create_name_trial(
     """
     try:
         # Verify profile exists and belongs to user
-        profile_check = await supabase_service.client.table("numerology_profiles")\
+        profile_check = supabase_service.client.table("numerology_profiles")\
             .select("birth_date")\
             .eq("id", request.numerology_profile_id)\
             .eq("user_id", current_user["user_id"])\
@@ -397,7 +397,7 @@ async def create_name_trial(
         }
 
         # Create trial
-        response = await supabase_service.client.table("numerology_name_trials")\
+        response = supabase_service.client.table("numerology_name_trials")\
             .insert(trial_data)\
             .execute()
 
@@ -439,7 +439,7 @@ async def list_name_trials(
     """
     try:
         # Verify profile belongs to user
-        profile_check = await supabase_service.client.table("numerology_profiles")\
+        profile_check = supabase_service.client.table("numerology_profiles")\
             .select("id")\
             .eq("id", numerology_profile_id)\
             .eq("user_id", current_user["user_id"])\
@@ -453,7 +453,7 @@ async def list_name_trials(
             )
 
         # Get trials
-        response = await supabase_service.client.table("numerology_name_trials")\
+        response = supabase_service.client.table("numerology_name_trials")\
             .select("*")\
             .eq("numerology_profile_id", numerology_profile_id)\
             .eq("user_id", current_user["user_id"])\
@@ -497,7 +497,7 @@ async def mark_trial_as_preferred(
     """
     try:
         # Get trial and verify ownership
-        trial_response = await supabase_service.client.table("numerology_name_trials")\
+        trial_response = supabase_service.client.table("numerology_name_trials")\
             .select("*")\
             .eq("id", trial_id)\
             .eq("user_id", current_user["user_id"])\
@@ -514,14 +514,14 @@ async def mark_trial_as_preferred(
         profile_id = trial["numerology_profile_id"]
 
         # Unmark all other trials for this profile
-        await supabase_service.client.table("numerology_name_trials")\
+        supabase_service.client.table("numerology_name_trials")\
             .update({"is_preferred": False})\
             .eq("numerology_profile_id", profile_id)\
             .eq("user_id", current_user["user_id"])\
             .execute()
 
         # Mark this trial as preferred
-        updated_response = await supabase_service.client.table("numerology_name_trials")\
+        updated_response = supabase_service.client.table("numerology_name_trials")\
             .update({"is_preferred": True})\
             .eq("id", trial_id)\
             .eq("user_id", current_user["user_id"])\
@@ -555,7 +555,7 @@ async def delete_name_trial(
     """
     try:
         # Verify trial exists and belongs to user
-        check_response = await supabase_service.client.table("numerology_name_trials")\
+        check_response = supabase_service.client.table("numerology_name_trials")\
             .select("id")\
             .eq("id", trial_id)\
             .eq("user_id", current_user["user_id"])\
@@ -569,7 +569,7 @@ async def delete_name_trial(
             )
 
         # Delete trial
-        await supabase_service.client.table("numerology_name_trials")\
+        supabase_service.client.table("numerology_name_trials")\
             .delete()\
             .eq("id", trial_id)\
             .eq("user_id", current_user["user_id"])\
@@ -605,7 +605,7 @@ async def get_privacy_preferences(
     """
     try:
         # Try to get existing preferences
-        response = await supabase_service.client.table("privacy_preferences")\
+        response = supabase_service.client.table("privacy_preferences")\
             .select("*")\
             .eq("user_id", current_user["user_id"])\
             .single()\
@@ -625,7 +625,7 @@ async def get_privacy_preferences(
             "data_retention_days": 365
         }
 
-        create_response = await supabase_service.client.table("privacy_preferences")\
+        create_response = supabase_service.client.table("privacy_preferences")\
             .insert(default_prefs)\
             .execute()
 
@@ -666,7 +666,7 @@ async def update_privacy_preferences(
             )
 
         # Try to update existing preferences
-        response = await supabase_service.client.table("privacy_preferences")\
+        response = supabase_service.client.table("privacy_preferences")\
             .update(update_data)\
             .eq("user_id", current_user["user_id"])\
             .execute()
@@ -686,7 +686,7 @@ async def update_privacy_preferences(
         }
         default_prefs.update(update_data)
 
-        create_response = await supabase_service.client.table("privacy_preferences")\
+        create_response = supabase_service.client.table("privacy_preferences")\
             .insert(default_prefs)\
             .execute()
 

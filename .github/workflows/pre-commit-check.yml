@@ -1,0 +1,53 @@
+name: Pre-commit Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  quick-checks:
+    name: Quick Pre-commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+
+    - name: Install Python dependencies
+      run: |
+        cd backend
+        pip install pytest pytest-asyncio black flake8 mypy
+
+    - name: Check Python formatting (Black)
+      run: |
+        cd backend
+        black --check app/ tests/ || echo "::warning::Python code needs formatting. Run 'black app/ tests/'"
+
+    - name: Check Python linting (Flake8)
+      run: |
+        cd backend
+        flake8 app/ tests/ --max-line-length=120 --ignore=E203,W503 || echo "::warning::Python linting issues found"
+
+    - name: Install Frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+
+    - name: Check TypeScript compilation
+      run: |
+        cd frontend
+        npm run build
+
+    - name: Run smoke tests
+      run: |
+        cd backend
+        pytest tests/unit/test_numerology_service.py::TestNumerologyService::test_full_calculation_both_systems -v

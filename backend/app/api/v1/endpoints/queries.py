@@ -99,15 +99,44 @@ async def create_query(
                     detail=f"Failed to calculate birth chart: {str(e)}"
                 )
 
-        # Generate AI interpretation
+        # Fetch numerology data for holistic reading
+        numerology_data = None
+        try:
+            print(f"🔢 Fetching numerology profile for holistic reading...")
+            # Get numerology profiles for this user's birth profile
+            numerology_profiles = await supabase_service.get_numerology_profiles(
+                user_id=user_id,
+                profile_id=str(query_data.profile_id)
+            )
+
+            if numerology_profiles and len(numerology_profiles) > 0:
+                # Use the most recent numerology profile
+                latest_profile = numerology_profiles[0]
+                numerology_data = {
+                    "western": latest_profile.get("western_data"),
+                    "vedic": latest_profile.get("vedic_data"),
+                    "full_name": latest_profile.get("full_name"),
+                    "birth_date": latest_profile.get("birth_date"),
+                    "system": latest_profile.get("system")
+                }
+                print(f"✅ Numerology data found: {numerology_data.get('system')} system")
+            else:
+                print(f"ℹ️  No numerology profile found for this user/profile")
+        except Exception as e:
+            print(f"⚠️  Could not fetch numerology data: {str(e)}")
+            # Continue without numerology data
+
+        # Generate AI interpretation with all available data
         try:
             print(f"🤖 Generating AI interpretation for question: {query_data.question[:50]}...")
             print(f"📊 Chart data available: {bool(chart.get('chart_data'))}")
+            print(f"🔢 Numerology data available: {bool(numerology_data)}")
 
             ai_result = await ai_service.generate_interpretation(
                 chart_data=chart.get("chart_data", {}),
                 question=query_data.question,
-                category=query_data.category or "general"
+                category=query_data.category or "general",
+                numerology_data=numerology_data
             )
 
             print(f"✅ AI interpretation generated: {len(ai_result.get('interpretation', ''))} characters")

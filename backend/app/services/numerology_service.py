@@ -87,6 +87,437 @@ VOWELS = set('AEIOU')
 
 
 # ============================================================================
+# COMPREHENSIVE NUMBER MEANINGS AND INTERPRETATIONS
+# ============================================================================
+
+# Life Path Number Meanings (Western/Pythagorean)
+LIFE_PATH_MEANINGS = {
+    1: {
+        "title": "The Leader - The Pioneer",
+        "description": "Independent, innovative, and pioneering spirit. Natural leaders who forge new paths.",
+        "keywords": ["leadership", "independence", "innovation", "originality", "ambition"],
+        "traits": "Independent, pioneering, innovative, courageous, determined, self-reliant",
+        "challenges": "Can be domineering, stubborn, impatient, or overly self-centered",
+        "purpose": "To develop independence and lead others through innovation and original thinking",
+        "career": "Entrepreneur, CEO, inventor, director, self-employed professional",
+        "relationships": "Needs independence in relationships; compatible with 3, 5, 6"
+    },
+    2: {
+        "title": "The Peacemaker - The Diplomat",
+        "description": "Diplomatic, cooperative, and sensitive. Natural mediators who value harmony.",
+        "keywords": ["diplomacy", "cooperation", "harmony", "sensitivity", "partnership"],
+        "traits": "Diplomatic, cooperative, sensitive, patient, understanding, intuitive",
+        "challenges": "Can be overly dependent, indecisive, passive-aggressive, or too sensitive",
+        "purpose": "To bring peace and harmony through cooperation and understanding",
+        "career": "Counselor, mediator, diplomat, therapist, HR professional, team player",
+        "relationships": "Natural partner; compatible with 6, 8, 9"
+    },
+    3: {
+        "title": "The Creative - The Communicator",
+        "description": "Expressive, artistic, and communicative. Natural entertainers and creators.",
+        "keywords": ["creativity", "expression", "communication", "joy", "optimism"],
+        "traits": "Creative, expressive, optimistic, charming, entertaining, articulate",
+        "challenges": "Can be scattered, superficial, extravagant, or avoid serious issues",
+        "purpose": "To inspire and uplift others through creative self-expression",
+        "career": "Artist, writer, performer, speaker, designer, social media influencer",
+        "relationships": "Fun-loving partner; compatible with 1, 5, 7"
+    },
+    4: {
+        "title": "The Builder - The Organizer",
+        "description": "Practical, stable, and hardworking. Master builders of solid foundations.",
+        "keywords": ["stability", "organization", "discipline", "practicality", "foundation"],
+        "traits": "Practical, disciplined, hardworking, reliable, organized, methodical",
+        "challenges": "Can be rigid, stubborn, narrow-minded, or workaholic tendencies",
+        "purpose": "To build lasting structures and systems through discipline and hard work",
+        "career": "Engineer, architect, accountant, project manager, craftsperson, builder",
+        "relationships": "Loyal partner; compatible with 2, 7, 8"
+    },
+    5: {
+        "title": "The Freedom Seeker - The Adventurer",
+        "description": "Adventurous, versatile, and dynamic. Seekers of freedom and new experiences.",
+        "keywords": ["freedom", "adventure", "change", "versatility", "experience"],
+        "traits": "Adventurous, versatile, dynamic, curious, adaptable, freedom-loving",
+        "challenges": "Can be restless, irresponsible, scattered, or fear commitment",
+        "purpose": "To experience life fully and inspire others to embrace change",
+        "career": "Travel agent, journalist, salesperson, photographer, entrepreneur, consultant",
+        "relationships": "Needs freedom in relationships; compatible with 1, 3, 7"
+    },
+    6: {
+        "title": "The Nurturer - The Caregiver",
+        "description": "Responsible, harmonious, and caring. Natural nurturers and problem solvers.",
+        "keywords": ["nurturing", "responsibility", "harmony", "service", "family"],
+        "traits": "Responsible, nurturing, harmonious, compassionate, protective, family-oriented",
+        "challenges": "Can be interfering, anxious, self-righteous, or martyr complex",
+        "purpose": "To bring harmony and healing through service and responsibility",
+        "career": "Teacher, nurse, counselor, interior designer, chef, social worker",
+        "relationships": "Devoted partner; compatible with 1, 2, 9"
+    },
+    7: {
+        "title": "The Seeker - The Analyst",
+        "description": "Analytical, spiritual, and introspective. Seekers of truth and wisdom.",
+        "keywords": ["spirituality", "analysis", "wisdom", "introspection", "truth"],
+        "traits": "Analytical, spiritual, introspective, intuitive, perfectionist, mysterious",
+        "challenges": "Can be aloof, secretive, pessimistic, or overly critical",
+        "purpose": "To seek truth and share wisdom through deep analysis and spiritual insight",
+        "career": "Researcher, analyst, scientist, philosopher, spiritual teacher, investigator",
+        "relationships": "Needs intellectual connection; compatible with 3, 4, 5"
+    },
+    8: {
+        "title": "The Powerhouse - The Executive",
+        "description": "Ambitious, authoritative, and materially successful. Masters of the material world.",
+        "keywords": ["power", "success", "authority", "abundance", "achievement"],
+        "traits": "Ambitious, authoritative, confident, business-minded, powerful, successful",
+        "challenges": "Can be materialistic, domineering, workaholic, or abuse power",
+        "purpose": "To achieve material success and use power for the greater good",
+        "career": "Executive, banker, investor, politician, business owner, financial advisor",
+        "relationships": "Strong partner; compatible with 2, 4, 6"
+    },
+    9: {
+        "title": "The Humanitarian - The Philanthropist",
+        "description": "Compassionate, idealistic, and selfless. Born to serve humanity.",
+        "keywords": ["humanitarianism", "compassion", "idealism", "selflessness", "completion"],
+        "traits": "Compassionate, idealistic, humanitarian, artistic, romantic, selfless",
+        "challenges": "Can be self-sacrificing, emotionally distant, or impractical",
+        "purpose": "To serve humanity with compassion and complete the cycle of growth",
+        "career": "Humanitarian, non-profit leader, healer, artist, teacher, counselor",
+        "relationships": "Universal love; compatible with 2, 3, 6"
+    },
+    11: {
+        "title": "Master Number 11 - The Spiritual Messenger",
+        "description": "Intuitive, inspirational, and enlightened. Spiritual messenger with heightened awareness.",
+        "keywords": ["intuition", "inspiration", "enlightenment", "spirituality", "idealism"],
+        "traits": "Intuitive, inspirational, enlightened, idealistic, visionary, spiritual",
+        "challenges": "Can be impractical, nervous, overly sensitive, or struggle with high expectations",
+        "purpose": "To inspire and enlighten others through spiritual insight and intuition",
+        "career": "Spiritual teacher, psychic, counselor, motivational speaker, artist, healer",
+        "relationships": "Seeks spiritual connection; needs understanding partner"
+    },
+    22: {
+        "title": "Master Number 22 - The Master Builder",
+        "description": "Visionary, practical idealist, and world-changer. Can turn dreams into reality.",
+        "keywords": ["mastery", "vision", "manifestation", "building", "legacy"],
+        "traits": "Visionary, practical, master builder, disciplined, powerful, legacy-focused",
+        "challenges": "Can be overwhelmed, anxious, demanding, or frustrated by limitations",
+        "purpose": "To build lasting structures that benefit humanity on a grand scale",
+        "career": "Architect, engineer, CEO of major organization, social entrepreneur, planner",
+        "relationships": "Needs supportive partner who understands their grand vision"
+    },
+    33: {
+        "title": "Master Number 33 - The Master Teacher",
+        "description": "Compassionate leader and spiritual guide. The most spiritually advanced number.",
+        "keywords": ["mastery", "teaching", "compassion", "healing", "guidance"],
+        "traits": "Master teacher, compassionate, healing, nurturing, selfless, spiritually advanced",
+        "challenges": "Can be burdened by responsibility, self-sacrificing, or struggle with boundaries",
+        "purpose": "To uplift humanity through compassionate teaching and spiritual guidance",
+        "career": "Spiritual teacher, healer, counselor, humanitarian leader, guide",
+        "relationships": "Universal love and compassion; devoted to service"
+    }
+}
+
+# Expression Number Meanings
+EXPRESSION_MEANINGS = {
+    1: {
+        "title": "Natural Leader",
+        "description": "Talented at initiating, leading, and pioneering new ventures.",
+        "traits": "Leadership ability, originality, independence, determination, courage"
+    },
+    2: {
+        "title": "Natural Diplomat",
+        "description": "Talented at bringing people together and creating harmony.",
+        "traits": "Diplomacy, cooperation, sensitivity, patience, musical ability"
+    },
+    3: {
+        "title": "Natural Communicator",
+        "description": "Talented at expressing yourself creatively through various mediums.",
+        "traits": "Artistic expression, communication, creativity, optimism, charm"
+    },
+    4: {
+        "title": "Natural Organizer",
+        "description": "Talented at building structures, systems, and practical solutions.",
+        "traits": "Organization, discipline, practicality, reliability, craftsmanship"
+    },
+    5: {
+        "title": "Natural Networker",
+        "description": "Talented at adapting, communicating, and experiencing life fully.",
+        "traits": "Versatility, adaptability, communication, curiosity, freedom-seeking"
+    },
+    6: {
+        "title": "Natural Counselor",
+        "description": "Talented at nurturing, healing, and creating harmony.",
+        "traits": "Nurturing, responsibility, harmony, artistic sense, counseling ability"
+    },
+    7: {
+        "title": "Natural Analyst",
+        "description": "Talented at research, analysis, and uncovering hidden truths.",
+        "traits": "Analysis, research, intuition, spirituality, perfectionism"
+    },
+    8: {
+        "title": "Natural Executive",
+        "description": "Talented at managing, organizing, and achieving material success.",
+        "traits": "Business acumen, management, ambition, authority, material success"
+    },
+    9: {
+        "title": "Natural Humanitarian",
+        "description": "Talented at serving others and making a positive impact on the world.",
+        "traits": "Humanitarianism, compassion, artistic ability, idealism, generosity"
+    },
+    11: {
+        "title": "Natural Illuminator",
+        "description": "Talented at inspiring and enlightening others through spiritual insight.",
+        "traits": "Intuition, inspiration, spiritual awareness, idealism, inventiveness"
+    },
+    22: {
+        "title": "Natural Master Builder",
+        "description": "Talented at manifesting grand visions into practical reality.",
+        "traits": "Master building, large-scale vision, practical idealism, discipline"
+    },
+    33: {
+        "title": "Natural Master Healer",
+        "description": "Talented at healing and uplifting humanity through compassionate service.",
+        "traits": "Master healing, compassionate teaching, selfless service, spiritual guidance"
+    }
+}
+
+# Soul Urge Number Meanings (Heart's Desire)
+SOUL_URGE_MEANINGS = {
+    1: "Desires independence, leadership, and recognition for individual achievements",
+    2: "Desires peace, harmony, and meaningful partnerships",
+    3: "Desires creative expression, joy, and social interaction",
+    4: "Desires stability, order, and practical accomplishments",
+    5: "Desires freedom, adventure, and varied experiences",
+    6: "Desires to nurture, create harmony, and be appreciated for service",
+    7: "Desires wisdom, understanding, and spiritual growth",
+    8: "Desires success, recognition, and material abundance",
+    9: "Desires to serve humanity and make the world better",
+    11: "Desires spiritual enlightenment and to inspire others",
+    22: "Desires to leave a lasting legacy that benefits humanity",
+    33: "Desires to heal and uplift the world through compassionate teaching"
+}
+
+# Personality Number Meanings (First Impression)
+PERSONALITY_MEANINGS = {
+    1: "Appears confident, independent, and capable - a natural leader",
+    2: "Appears gentle, diplomatic, and approachable - easy to talk to",
+    3: "Appears charming, creative, and entertaining - life of the party",
+    4: "Appears practical, reliable, and trustworthy - solid and stable",
+    5: "Appears energetic, adventurous, and exciting - fun to be around",
+    6: "Appears warm, responsible, and caring - like home",
+    7: "Appears mysterious, intelligent, and dignified - intriguing",
+    8: "Appears powerful, successful, and authoritative - commanding presence",
+    9: "Appears compassionate, artistic, and idealistic - old soul",
+    11: "Appears intuitive, inspiring, and otherworldly - spiritually aware",
+    22: "Appears capable, disciplined, and visionary - impressive",
+    33: "Appears nurturing, wise, and healing - spiritually advanced"
+}
+
+# Vedic Psychic Number Meanings (Who You Think You Are)
+PSYCHIC_NUMBER_MEANINGS = {
+    1: {
+        "title": "Sun - Born Leader",
+        "planet": "Sun",
+        "description": "Natural leadership, confidence, and individuality. Strong ego and sense of self.",
+        "personality": "Ambitious, confident, authoritative, dignified, generous, creative",
+        "favorable_dates": [1, 10, 19, 28],
+        "favorable_colors": ["gold", "orange", "yellow", "copper"],
+        "favorable_gems": ["ruby", "red garnet"],
+        "favorable_days": ["Sunday"],
+        "element": "Fire",
+        "characteristics": "Born leaders with strong willpower. Independent, creative, and ambitious. Natural authority figures who inspire others."
+    },
+    2: {
+        "title": "Moon - The Emotional Soul",
+        "planet": "Moon",
+        "description": "Sensitive, intuitive, and emotionally attuned. Needs emotional security.",
+        "personality": "Gentle, diplomatic, imaginative, intuitive, moody, romantic",
+        "favorable_dates": [2, 11, 20, 29],
+        "favorable_colors": ["white", "cream", "light green", "silver"],
+        "favorable_gems": ["pearl", "moonstone"],
+        "favorable_days": ["Monday"],
+        "element": "Water",
+        "characteristics": "Gentle and sensitive souls. Strong intuition and imagination. Need emotional connection and security."
+    },
+    3: {
+        "title": "Jupiter - The Wise Teacher",
+        "planet": "Jupiter",
+        "description": "Optimistic, wise, and generous. Natural teachers and guides.",
+        "personality": "Optimistic, wise, expansive, generous, disciplined, spiritual",
+        "favorable_dates": [3, 12, 21, 30],
+        "favorable_colors": ["yellow", "gold", "orange", "saffron"],
+        "favorable_gems": ["yellow sapphire", "topaz"],
+        "favorable_days": ["Thursday"],
+        "element": "Ether",
+        "characteristics": "Wise, optimistic, and generous. Natural teachers who seek knowledge and spiritual growth."
+    },
+    4: {
+        "title": "Rahu - The Unconventional",
+        "planet": "Rahu",
+        "description": "Unconventional, mysterious, and materialistic. Sudden changes and transformations.",
+        "personality": "Unconventional, secretive, rebellious, materialistic, sudden",
+        "favorable_dates": [4, 13, 22, 31],
+        "favorable_colors": ["grey", "black", "dark blue"],
+        "favorable_gems": ["hessonite", "gomed"],
+        "favorable_days": ["Saturday", "Sunday"],
+        "element": "Air",
+        "characteristics": "Unconventional and mysterious. Experience sudden changes. May face obstacles but achieve through perseverance."
+    },
+    5: {
+        "title": "Mercury - The Communicator",
+        "planet": "Mercury",
+        "description": "Quick-thinking, communicative, and versatile. Youthful and adaptable.",
+        "personality": "Quick, communicative, versatile, youthful, restless, intelligent",
+        "favorable_dates": [5, 14, 23],
+        "favorable_colors": ["green", "light shades"],
+        "favorable_gems": ["emerald", "green tourmaline"],
+        "favorable_days": ["Wednesday"],
+        "element": "Earth",
+        "characteristics": "Quick-witted and versatile. Excellent communicators who adapt easily. Youthful energy throughout life."
+    },
+    6: {
+        "title": "Venus - The Artistic Lover",
+        "planet": "Venus",
+        "description": "Artistic, loving, and luxurious. Attracted to beauty and comfort.",
+        "personality": "Artistic, loving, luxurious, charismatic, sensual, magnetic",
+        "favorable_dates": [6, 15, 24],
+        "favorable_colors": ["white", "light blue", "pink", "cream"],
+        "favorable_gems": ["diamond", "white sapphire"],
+        "favorable_days": ["Friday"],
+        "element": "Water",
+        "characteristics": "Artistic and charming. Love beauty, luxury, and comfort. Magnetic personality that attracts others."
+    },
+    7: {
+        "title": "Ketu - The Spiritual Seeker",
+        "planet": "Ketu",
+        "description": "Spiritual, mysterious, and detached. Seeks inner wisdom and enlightenment.",
+        "personality": "Spiritual, mysterious, intuitive, restless, philosophical, detached",
+        "favorable_dates": [7, 16, 25],
+        "favorable_colors": ["white", "grey", "light colors"],
+        "favorable_gems": ["cat's eye"],
+        "favorable_days": ["Monday"],
+        "element": "Fire",
+        "characteristics": "Deeply spiritual and intuitive. Mysterious and philosophical. Seek enlightenment and inner peace."
+    },
+    8: {
+        "title": "Saturn - The Disciplined Worker",
+        "planet": "Saturn",
+        "description": "Disciplined, patient, and karmic. Success through hard work and perseverance.",
+        "personality": "Disciplined, serious, patient, karmic, authoritative, enduring",
+        "favorable_dates": [8, 17, 26],
+        "favorable_colors": ["black", "dark blue", "purple"],
+        "favorable_gems": ["blue sapphire", "amethyst"],
+        "favorable_days": ["Saturday"],
+        "element": "Air",
+        "characteristics": "Disciplined and hardworking. Face delays but achieve lasting success. Strong sense of duty and responsibility."
+    },
+    9: {
+        "title": "Mars - The Energetic Warrior",
+        "planet": "Mars",
+        "description": "Energetic, courageous, and action-oriented. Natural fighters and pioneers.",
+        "personality": "Energetic, courageous, aggressive, impulsive, competitive, protective",
+        "favorable_dates": [9, 18, 27],
+        "favorable_colors": ["red", "pink", "orange"],
+        "favorable_gems": ["coral", "red carnelian"],
+        "favorable_days": ["Tuesday"],
+        "element": "Fire",
+        "characteristics": "Energetic and courageous. Natural fighters who take action. Competitive spirit and strong will."
+    }
+}
+
+# Vedic Destiny Number Meanings (How Others See You)
+DESTINY_NUMBER_MEANINGS = {
+    1: "Others see you as a leader and authority figure. Commanding presence and respect.",
+    2: "Others see you as diplomatic and cooperative. Peaceful and approachable demeanor.",
+    3: "Others see you as optimistic and creative. Inspiring and uplifting presence.",
+    4: "Others see you as reliable and hardworking. Stable and trustworthy presence.",
+    5: "Others see you as dynamic and versatile. Exciting and unpredictable presence.",
+    6: "Others see you as responsible and caring. Nurturing and harmonious presence.",
+    7: "Others see you as wise and mysterious. Spiritual and analytical presence.",
+    8: "Others see you as powerful and successful. Authoritative and business-like presence.",
+    9: "Others see you as compassionate and humanitarian. Idealistic and generous presence."
+}
+
+# Personal Year Meanings (Annual Cycle)
+PERSONAL_YEAR_MEANINGS = {
+    1: {
+        "title": "Year of New Beginnings",
+        "theme": "Start fresh, take initiative, plant seeds for the future",
+        "energy": "New opportunities, fresh starts, independence, leadership"
+    },
+    2: {
+        "title": "Year of Cooperation",
+        "theme": "Patience, partnerships, and diplomacy. Let seeds grow.",
+        "energy": "Relationships, cooperation, patience, sensitivity, balance"
+    },
+    3: {
+        "title": "Year of Creative Expression",
+        "theme": "Express yourself, socialize, enjoy life. First harvest.",
+        "energy": "Creativity, communication, joy, social expansion, self-expression"
+    },
+    4: {
+        "title": "Year of Building Foundations",
+        "theme": "Hard work, discipline, and building for the future.",
+        "energy": "Hard work, discipline, organization, building, stability"
+    },
+    5: {
+        "title": "Year of Change and Freedom",
+        "theme": "Embrace change, travel, experience new things.",
+        "energy": "Change, freedom, adventure, travel, expansion, unpredictability"
+    },
+    6: {
+        "title": "Year of Responsibility",
+        "theme": "Focus on home, family, and service to others.",
+        "energy": "Responsibility, family, home, service, nurturing, harmony"
+    },
+    7: {
+        "title": "Year of Introspection",
+        "theme": "Rest, reflect, and seek inner wisdom. Spiritual growth.",
+        "energy": "Introspection, spirituality, rest, analysis, inner growth"
+    },
+    8: {
+        "title": "Year of Power and Achievement",
+        "theme": "Achieve goals, gain recognition, financial success.",
+        "energy": "Achievement, power, recognition, financial success, authority"
+    },
+    9: {
+        "title": "Year of Completion",
+        "theme": "Let go, complete projects, prepare for new cycle.",
+        "energy": "Completion, release, humanitarianism, endings, transformation"
+    }
+}
+
+# Karmic Debt Number Meanings
+KARMIC_DEBT_MEANINGS = {
+    13: {
+        "number": "13/4",
+        "title": "Karmic Debt of Laziness",
+        "lesson": "Must overcome laziness and work hard in this lifetime. Previous life had wasted opportunities.",
+        "challenge": "Tendency to take shortcuts, avoid hard work, or give up easily",
+        "resolution": "Develop discipline, persistence, and commitment to hard work"
+    },
+    14: {
+        "number": "14/5",
+        "title": "Karmic Debt of Abuse of Freedom",
+        "lesson": "Must learn moderation and responsibility. Previous life had excessive indulgence.",
+        "challenge": "Tendency toward excess, addiction, or irresponsible behavior",
+        "resolution": "Practice moderation, responsibility, and constructive use of freedom"
+    },
+    16: {
+        "number": "16/7",
+        "title": "Karmic Debt of Abuse of Love",
+        "lesson": "Must rebuild relationships with humility. Previous life had ego issues in relationships.",
+        "challenge": "Relationship challenges, ego battles, unexpected setbacks",
+        "resolution": "Develop humility, authentic love, and spiritual awareness"
+    },
+    19: {
+        "number": "19/1",
+        "title": "Karmic Debt of Abuse of Power",
+        "lesson": "Must learn to serve others. Previous life misused power and authority.",
+        "challenge": "Difficulty accepting help, tendency toward isolation or domination",
+        "resolution": "Learn interdependence, serve others, develop humility"
+    }
+}
+
+
+# ============================================================================
 # HELPER FUNCTIONS
 # ============================================================================
 
@@ -235,36 +666,60 @@ class WesternNumerology:
         month = birth_date.month
         day = birth_date.day
 
-        # Reduce each component separately (more accurate for master numbers)
+        # Calculate component sums, but preserve master numbers for day/month
+        month_sum = sum(int(d) for d in str(month))
+        year_sum = sum(int(digit) for digit in str(year))
+
+        # If day is master number (11, 22), preserve it; otherwise sum digits
+        if day in MASTER_NUMBERS:
+            day_sum = day
+        else:
+            day_sum = sum(int(d) for d in str(day))
+
+        # If month is master number (11), preserve it; otherwise use sum
+        if month in MASTER_NUMBERS:
+            month_sum_for_total = month
+        else:
+            month_sum_for_total = month_sum
+
+        # Sum all components (with master numbers preserved)
+        all_digits_sum = month_sum_for_total + day_sum + year_sum
+
+        # For breakdown, show component-wise reduction
         month_reduced = reduce_to_single_digit(month, preserve_master=True)
         day_reduced = reduce_to_single_digit(day, preserve_master=True)
-
-        # Year reduction
-        year_sum = sum(int(digit) for digit in str(year))
         year_reduced = reduce_to_single_digit(year_sum, preserve_master=True)
 
-        # Detect karmic debt in intermediate sums
+        # Detect karmic debt in intermediate sums (check both methods)
         karmic_debt = None
-        intermediate_sums = [day, month + day, month + day + year_sum]
-        for num in intermediate_sums:
+        # Method 1: Check sums with component digits
+        intermediate_sums_1 = [day, month + day, month_sum + day_sum + year_sum, all_digits_sum]
+        # Method 2: Check sums with fully reduced components
+        reduced_sum = month_reduced + day_reduced + year_reduced
+        intermediate_sums_2 = [reduced_sum]
+
+        for num in intermediate_sums_1 + intermediate_sums_2:
             if num in KARMIC_DEBT_NUMBERS:
                 karmic_debt = num
                 break
 
-        # Add reduced components
-        total = month_reduced + day_reduced + year_reduced
+        # Reduce to life path number (preserving master numbers)
+        life_path = reduce_to_single_digit(all_digits_sum, preserve_master=True)
 
-        # Check if this intermediate sum is karmic debt
-        if total in KARMIC_DEBT_NUMBERS and karmic_debt is None:
-            karmic_debt = total
+        # Get meaning/interpretation
+        meaning_data = LIFE_PATH_MEANINGS.get(life_path, {})
 
-        # Final reduction
-        life_path = reduce_to_single_digit(total, preserve_master=True)
+        # Get karmic debt meaning if applicable
+        karmic_meaning = None
+        if karmic_debt:
+            karmic_meaning = KARMIC_DEBT_MEANINGS.get(karmic_debt, {})
 
         return {
             'number': life_path,
             'is_master': life_path in MASTER_NUMBERS,
             'karmic_debt': karmic_debt,
+            'karmic_debt_meaning': karmic_meaning,
+            'meaning': meaning_data,
             'breakdown': {
                 'month': month,
                 'day': day,
@@ -272,7 +727,7 @@ class WesternNumerology:
                 'month_reduced': month_reduced,
                 'day_reduced': day_reduced,
                 'year_reduced': year_reduced,
-                'sum_before_reduction': total,
+                'sum_before_reduction': all_digits_sum,
                 'final': life_path
             }
         }
@@ -301,10 +756,20 @@ class WesternNumerology:
         # Reduce to single digit or master number
         expression = reduce_to_single_digit(total, preserve_master=True)
 
+        # Get meaning/interpretation
+        meaning_data = EXPRESSION_MEANINGS.get(expression, {})
+
+        # Get karmic debt meaning if applicable
+        karmic_meaning = None
+        if karmic_debt:
+            karmic_meaning = KARMIC_DEBT_MEANINGS.get(karmic_debt, {})
+
         return {
             'number': expression,
             'is_master': expression in MASTER_NUMBERS,
             'karmic_debt': karmic_debt,
+            'karmic_debt_meaning': karmic_meaning,
+            'meaning': meaning_data,
             'letter_values': letter_breakdown,
             'breakdown': {
                 'total_before_reduction': total,
@@ -333,10 +798,14 @@ class WesternNumerology:
         karmic_debt = total if total in KARMIC_DEBT_NUMBERS else None
         soul_urge = reduce_to_single_digit(total, preserve_master=True)
 
+        # Get meaning/interpretation
+        meaning_text = SOUL_URGE_MEANINGS.get(soul_urge, "Inner desires and motivations")
+
         return {
             'number': soul_urge,
             'is_master': soul_urge in MASTER_NUMBERS,
             'karmic_debt': karmic_debt,
+            'meaning': {'description': meaning_text},
             'vowel_values': vowel_breakdown,
             'breakdown': {
                 'total_before_reduction': total,
@@ -369,10 +838,14 @@ class WesternNumerology:
         karmic_debt = total if total in KARMIC_DEBT_NUMBERS else None
         personality = reduce_to_single_digit(total, preserve_master=True)
 
+        # Get meaning/interpretation
+        meaning_text = PERSONALITY_MEANINGS.get(personality, "How others perceive you")
+
         return {
             'number': personality,
             'is_master': personality in MASTER_NUMBERS,
             'karmic_debt': karmic_debt,
+            'meaning': {'description': meaning_text},
             'consonant_values': consonant_breakdown,
             'breakdown': {
                 'total_before_reduction': total,
@@ -524,10 +997,14 @@ class WesternNumerology:
         total = birth_month + birth_day + current_year
         personal_year = reduce_to_single_digit(total, preserve_master=False)  # Personal Year doesn't preserve master numbers
 
+        # Get meaning/interpretation
+        meaning_data = PERSONAL_YEAR_MEANINGS.get(personal_year, {})
+
         return {
             'number': personal_year,
             'year': current_year,
             'cycle_position': f"Year {personal_year} of 9",
+            'meaning': meaning_data,
             'breakdown': {
                 'birth_month': birth_month,
                 'birth_day': birth_day,
@@ -881,10 +1358,14 @@ class VedicNumerology:
         day = birth_date.day
         psychic = reduce_to_single_digit(day, preserve_master=False)  # Vedic doesn't use master numbers the same way
 
+        # Get comprehensive meaning/interpretation
+        meaning_data = PSYCHIC_NUMBER_MEANINGS.get(psychic, {})
+
         return {
             'number': psychic,
             'planet': PLANET_MAP[psychic],
             'day_of_birth': day,
+            'meaning': meaning_data,
             'breakdown': {
                 'day': day,
                 'final': psychic
@@ -892,33 +1373,71 @@ class VedicNumerology:
         }
 
     @staticmethod
-    def calculate_destiny_number(full_name: str) -> Dict[str, Any]:
+    def calculate_destiny_number(input_value) -> Dict[str, Any]:
         """
-        Calculate Destiny Number (Bhagyank) using Chaldean system.
+        Calculate Destiny Number (Bhagyank).
 
         The Destiny Number represents how others see you and your
-        destiny/life path. Uses Chaldean letter-to-number mapping.
+        destiny/life path. Can be calculated from birth date or name.
 
-        Method: Convert name using Chaldean values, reduce to single digit.
+        Method:
+        - If date: Sum all digits of birth date (month + day + year)
+        - If name: Convert using Chaldean letter-to-number mapping
 
         Args:
-            full_name: Full name (current name, not necessarily birth name)
+            input_value: Either a date object (for date-based) or string (for name-based)
 
         Returns:
-            Dict with 'number', 'planet', 'letter_values', 'breakdown'
+            Dict with 'number', 'planet', 'meaning', and 'breakdown'
         """
-        total, letter_breakdown = calculate_name_value(full_name, 'chaldean')
-        destiny = reduce_to_single_digit(total, preserve_master=False)
+        # Check if input is a date or string
+        if isinstance(input_value, date):
+            # Date-based calculation: sum all digits
+            month = input_value.month
+            day = input_value.day
+            year = input_value.year
 
-        return {
-            'number': destiny,
-            'planet': PLANET_MAP[destiny],
-            'letter_values': letter_breakdown,
-            'breakdown': {
-                'total_before_reduction': total,
-                'final': destiny
+            # Sum all individual digits
+            total = sum(int(d) for d in str(month)) + \
+                    sum(int(d) for d in str(day)) + \
+                    sum(int(d) for d in str(year))
+
+            destiny = reduce_to_single_digit(total, preserve_master=False)
+
+            # Get meaning/interpretation
+            meaning_text = DESTINY_NUMBER_MEANINGS.get(destiny, "How others perceive you")
+
+            return {
+                'number': destiny,
+                'planet': PLANET_MAP[destiny],
+                'meaning': meaning_text,
+                'breakdown': {
+                    'month': month,
+                    'day': day,
+                    'year': year,
+                    'total_before_reduction': total,
+                    'final': destiny
+                }
             }
-        }
+        else:
+            # Name-based calculation using Chaldean system
+            full_name = str(input_value)
+            total, letter_breakdown = calculate_name_value(full_name, 'chaldean')
+            destiny = reduce_to_single_digit(total, preserve_master=False)
+
+            # Get meaning/interpretation
+            meaning_text = DESTINY_NUMBER_MEANINGS.get(destiny, "How others perceive you")
+
+            return {
+                'number': destiny,
+                'planet': PLANET_MAP[destiny],
+                'meaning': meaning_text,  # Keep as string for VedicNameNumber schema
+                'letter_values': letter_breakdown,
+                'breakdown': {
+                    'total_before_reduction': total,
+                    'final': destiny
+                }
+            }
 
     @staticmethod
     def calculate_name_value(name: str) -> Dict[str, Any]:
@@ -929,16 +1448,20 @@ class VedicNumerology:
             name: Name to calculate
 
         Returns:
-            Dict with 'value', 'reduced', 'letter_values'
+            Dict with 'number', 'planet', 'letter_values', 'breakdown'
         """
         total, letter_breakdown = calculate_name_value(name, 'chaldean')
         reduced = reduce_to_single_digit(total, preserve_master=False)
 
         return {
-            'value': total,
-            'reduced': reduced,
+            'number': reduced,  # Use 'number' to match schema
+            'reduced': reduced,  # Alias for backward compatibility
             'planet': PLANET_MAP[reduced],
-            'letter_values': letter_breakdown
+            'letter_values': letter_breakdown,
+            'breakdown': {
+                'total_before_reduction': total,
+                'final': reduced
+            }
         }
 
     @staticmethod

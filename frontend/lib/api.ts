@@ -26,10 +26,14 @@ class APIClient {
   private async request<T>(path: string, init: RequestInit = {}): Promise<{ data: T }> {
     // Get valid session before making request (will auto-refresh if needed)
     if (typeof window !== 'undefined') {
-      const { getValidSession } = await import('./supabase')
-      const session = await getValidSession()
-      if (session?.access_token) {
-        this.token = session.access_token
+      try {
+        const { getValidSession } = await import('./supabase')
+        const session = await Promise.resolve(getValidSession())
+        if (session?.access_token) {
+          this.token = session.access_token
+        }
+      } catch (sessionError) {
+        console.warn('Failed to get session:', sessionError)
       }
     }
 
@@ -41,31 +45,35 @@ class APIClient {
     if (response.status === 401) {
       // Try to refresh token once
       if (typeof window !== 'undefined') {
-        const { refreshSession } = await import('./supabase')
-        const refreshResult = await refreshSession()
+        try {
+          const { refreshSession } = await import('./supabase')
+          const refreshResult = await Promise.resolve(refreshSession())
 
-        if (refreshResult.data.session?.access_token) {
-          // Retry request with new token
-          this.token = refreshResult.data.session.access_token
-          const retryResponse = await fetch(`${API_URL}${path}`, {
-            ...init,
-            headers: this.buildHeaders(init.headers),
-          })
+          if (refreshResult?.data?.session?.access_token) {
+            // Retry request with new token
+            this.token = refreshResult.data.session.access_token
+            const retryResponse = await fetch(`${API_URL}${path}`, {
+              ...init,
+              headers: this.buildHeaders(init.headers),
+            })
 
-          if (retryResponse.ok) {
-            // Process successful retry
-            let payload: any = null
-            const hasBody = retryResponse.status !== 204
-            if (hasBody) {
-              const contentType = retryResponse.headers.get('content-type') ?? ''
-              if (contentType.includes('application/json')) {
-                payload = await retryResponse.json()
-              } else {
-                payload = await retryResponse.text()
+            if (retryResponse.ok) {
+              // Process successful retry
+              let payload: any = null
+              const hasBody = retryResponse.status !== 204
+              if (hasBody) {
+                const contentType = retryResponse.headers.get('content-type') ?? ''
+                if (contentType.includes('application/json')) {
+                  payload = await retryResponse.json()
+                } else {
+                  payload = await retryResponse.text()
+                }
               }
+              return { data: payload as T }
             }
-            return { data: payload as T }
           }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError)
         }
       }
 
@@ -344,7 +352,21 @@ class APIClient {
     return this.request(`/knowledge/rules/domain/${domain}?limit=${limit}&min_weight=${minWeight}`)
   }
 
-  // Phase 4: Enhancements - Remedies
+  // Phase 4: Enhancements - Remedies (Profile-based)
+  async generateRemediesForProfile(data: {
+    profile_id: string
+    domain?: 'career' | 'wealth' | 'health' | 'relationships' | 'education' | 'spirituality' | 'general'
+    specific_issue?: string
+    max_remedies?: number
+    include_practical?: boolean
+  }) {
+    return this.request('/enhancements/remedies/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Remedies (From Chart - for testing)
   async generateRemedies(data: {
     chart_data: any
     domain?: string
@@ -380,7 +402,20 @@ class APIClient {
     })
   }
 
-  // Phase 4: Enhancements - Transits
+  // Phase 4: Enhancements - Transits (Profile-based)
+  async getCurrentTransitsForProfile(data: {
+    profile_id: string
+    transit_date?: string
+    include_timeline?: boolean
+    focus_planets?: string[]
+  }) {
+    return this.request('/enhancements/transits/current', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Transits (From Chart - for testing)
   async getCurrentTransits(data: {
     chart_data: any
     transit_date?: string
@@ -408,12 +443,35 @@ class APIClient {
     })
   }
 
-  // Phase 4: Enhancements - Shadbala (Planetary Strength)
+  // Phase 4: Enhancements - Shadbala (Profile-based)
+  async calculateShadbalaForProfile(data: {
+    profile_id: string
+    include_breakdown?: boolean
+    comparison?: boolean
+  }) {
+    return this.request('/enhancements/shadbala/calculate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Shadbala (From Chart - for testing)
   async calculateShadbala(data: {
     chart_data: any
     birth_datetime?: string
   }) {
     return this.request('/enhancements/shadbala/calculate-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 4: Enhancements - Yoga Detection (Profile-based)
+  async analyzeYogasForProfile(data: {
+    profile_id: string
+    include_all?: boolean
+  }) {
+    return this.request('/enhancements/yogas/analyze', {
       method: 'POST',
       body: JSON.stringify(data),
     })
@@ -429,6 +487,90 @@ class APIClient {
     remedy_domain?: string
   }) {
     return this.request('/enhancements/all-from-chart', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // Phase 1: Numerology - Calculate and Profile Management
+  async calculateNumerology(data: {
+    full_name: string
+    birth_date: string
+    system?: 'western' | 'vedic' | 'chaldean' | 'both'
+    common_name?: string
+    name_at_birth?: string
+    profile_id?: string
+  }) {
+    return this.request('/numerology/calculate', {
+      method: 'POST',
+      body: JSON.stringify({
+        full_name: data.full_name,
+        birth_date: data.birth_date,
+        system: data.system || 'both',
+        common_name: data.common_name,
+        name_at_birth: data.name_at_birth,
+        profile_id: data.profile_id,
+      }),
+    })
+  }
+
+  async createNumerologyProfile(data: {
+    full_name: string
+    birth_date: string
+    system?: 'western' | 'vedic' | 'chaldean' | 'both'
+    common_name?: string
+    name_at_birth?: string
+    profile_id?: string
+  }) {
+    return this.request('/numerology/profiles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getNumerologyProfiles() {
+    return this.request('/numerology/profiles')
+  }
+
+  async getNumerologyProfile(id: string) {
+    return this.request(`/numerology/profiles/${id}`)
+  }
+
+  async updateNumerologyProfile(id: string, data: any) {
+    return this.request(`/numerology/profiles/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteNumerologyProfile(id: string) {
+    return this.request(`/numerology/profiles/${id}`, {
+      method: 'DELETE',
+    })
+  }
+
+  async createNameTrial(profileId: string, data: {
+    trial_name: string
+    system: 'western' | 'vedic' | 'chaldean'
+    notes?: string
+    is_preferred?: boolean
+  }) {
+    return this.request(`/numerology/profiles/${profileId}/name-trials`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getNameTrials(profileId: string) {
+    return this.request(`/numerology/profiles/${profileId}/name-trials`)
+  }
+
+  async compareNames(data: {
+    names: string[]
+    birth_date: string
+    system: 'western' | 'vedic' | 'chaldean'
+  }) {
+    return this.request('/numerology/compare', {
       method: 'POST',
       body: JSON.stringify(data),
     })

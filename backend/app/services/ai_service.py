@@ -37,17 +37,22 @@ class AIInterpretationService:
         chart_data: Dict[str, Any],
         question: str,
         category: str = "general",
-        use_knowledge_base: bool = True
+        use_knowledge_base: bool = True,
+        numerology_data: Optional[Dict[str, Any]] = None,
+        palmistry_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Generate AI interpretation based on birth chart and user question
         Enhanced with scripture-grounded rules from BPHS knowledge base
+        Now includes numerology and palmistry for holistic readings
 
         Args:
             chart_data: Complete birth chart data (from astrology service)
             question: User's specific question
             category: Query category (career, relationship, health, etc.)
             use_knowledge_base: Whether to retrieve and use BPHS rules (default: True)
+            numerology_data: Optional numerology profile data
+            palmistry_data: Optional palmistry analysis data
 
         Returns:
             Dictionary containing interpretation, metadata, and rule citations
@@ -74,13 +79,33 @@ class AIInterpretationService:
         # Prepare context from chart data
         context = self._prepare_chart_context(chart_data)
 
+        # Add numerology context if available
+        numerology_context = ""
+        if numerology_data:
+            numerology_context = self._prepare_numerology_context(numerology_data)
+
+        # Add palmistry context if available
+        palmistry_context = ""
+        if palmistry_data:
+            palmistry_context = self._prepare_palmistry_context(palmistry_data)
+
         # Create system prompt
         system_prompt = self._create_system_prompt()
 
-        # Create user message with optional rules context
+        # Create user message with optional contexts
+        context_sections = [context]
+
+        if numerology_context:
+            context_sections.append(f"\n--- NUMEROLOGY PROFILE ---\n{numerology_context}\n--- END OF NUMEROLOGY ---")
+
+        if palmistry_context:
+            context_sections.append(f"\n--- PALMISTRY ANALYSIS ---\n{palmistry_context}\n--- END OF PALMISTRY ---")
+
+        full_context = "\n".join(context_sections)
+
         if rules_context:
             user_message = f"""
-{context}
+{full_context}
 
 --- SCRIPTURAL RULES FROM BRIHAT PARASHARA HORA SHASTRA ---
 {rules_context}
@@ -90,34 +115,37 @@ Query Category: {category.upper()}
 
 User's Question: {question}
 
-Please provide a personalized Vedic astrology interpretation that:
-1. Directly answers their question using chart insights AND the scriptural rules provided above
+Please provide a holistic interpretation that:
+1. Directly answers their question using ALL available insights (astrology, numerology, palmistry)
 2. CITE specific rules using their Rule IDs in brackets like [BPHS-18-PAN-03]
-3. References specific planetary positions, houses, yogas, and the scriptural basis
-4. Offers practical, actionable guidance grounded in classical texts
-5. Includes traditional Vedic wisdom from the rules
-6. Is warm, empowering, and hopeful (never fatalistic)
-7. Is approximately 250-350 words
-8. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+3. Synthesizes insights from multiple disciplines for a comprehensive reading
+4. References specific planetary positions, houses, yogas, numerology numbers, and scriptural basis
+5. Offers practical, actionable guidance grounded in classical texts
+6. Shows how astrology, numerology, and palmistry complement each other
+7. Is warm, empowering, and hopeful (never fatalistic)
+8. Is approximately 300-400 words
+9. Ends with one simple remedy (mantra, gemstone, charity, or practice)
 
 IMPORTANT: When referencing a rule, include its Rule ID in brackets [RULE-ID] so users can trace back to the source text.
 """
         else:
             user_message = f"""
-{context}
+{full_context}
 
 Query Category: {category.upper()}
 
 User's Question: {question}
 
-Please provide a personalized Vedic astrology interpretation that:
-1. Directly answers their question using chart insights
-2. References specific planetary positions, houses, and yogas
-3. Offers practical, actionable guidance
-4. Includes traditional Vedic wisdom
-5. Is warm, empowering, and hopeful (never fatalistic)
-6. Is approximately 250-300 words
-7. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+Please provide a holistic interpretation that:
+1. Directly answers their question using ALL available insights (astrology, numerology, palmistry)
+2. Synthesizes insights from multiple disciplines for a comprehensive reading
+3. References specific planetary positions, houses, yogas, and numerology numbers
+4. Offers practical, actionable guidance
+5. Includes traditional Vedic wisdom
+6. Shows how astrology, numerology, and palmistry complement each other
+7. Is warm, empowering, and hopeful (never fatalistic)
+8. Is approximately 300-350 words
+9. Ends with one simple remedy (mantra, gemstone, charity, or practice)
 """
 
         try:
@@ -206,18 +234,119 @@ Please provide a personalized Vedic astrology interpretation that:
 
         return "\n".join(context_parts)
 
+    def _prepare_numerology_context(self, numerology_data: Dict[str, Any]) -> str:
+        """Prepare numerology context for AI prompt"""
+
+        context_parts = []
+
+        # Western numerology
+        if "western" in numerology_data:
+            western = numerology_data["western"]
+            context_parts.append("\n=== WESTERN NUMEROLOGY ===")
+
+            if "core_numbers" in western:
+                core = western["core_numbers"]
+                context_parts.append("\nCore Numbers:")
+
+                # Life Path
+                if "life_path" in core:
+                    lp = core["life_path"]
+                    context_parts.append(f"  Life Path {lp.get('number')}: Your life's purpose and journey")
+                    if "meaning" in lp and isinstance(lp["meaning"], dict):
+                        if "description" in lp["meaning"]:
+                            context_parts.append(f"    {lp['meaning']['description']}")
+
+                # Expression
+                if "expression" in core:
+                    exp = core["expression"]
+                    context_parts.append(f"  Expression {exp.get('number')}: Your natural talents and abilities")
+
+                # Soul Urge
+                if "soul_urge" in core:
+                    su = core["soul_urge"]
+                    context_parts.append(f"  Soul Urge {su.get('number')}: Your inner desires and motivations")
+
+                # Personality
+                if "personality" in core:
+                    pers = core["personality"]
+                    context_parts.append(f"  Personality {pers.get('number')}: How others perceive you")
+
+            if "current_cycles" in western:
+                cycles = western["current_cycles"]
+                context_parts.append("\nCurrent Cycles:")
+                if "personal_year" in cycles:
+                    py = cycles["personal_year"]
+                    context_parts.append(f"  Personal Year {py.get('number')}: This year's theme and opportunities")
+                if "personal_month" in cycles:
+                    pm = cycles["personal_month"]
+                    context_parts.append(f"  Personal Month {pm.get('number')}: This month's focus")
+                if "personal_day" in cycles:
+                    pd = cycles["personal_day"]
+                    context_parts.append(f"  Personal Day {pd.get('number')}: Today's energy")
+
+        # Vedic numerology
+        if "vedic" in numerology_data:
+            vedic = numerology_data["vedic"]
+            context_parts.append("\n=== VEDIC NUMEROLOGY ===")
+
+            if "psychic_number" in vedic:
+                pn = vedic["psychic_number"]
+                planet = pn.get("planet", "")
+                context_parts.append(f"\nPsychic Number (Moolank): {pn.get('number')} - Ruled by {planet}")
+                if "meaning" in pn and isinstance(pn["meaning"], dict):
+                    if "description" in pn["meaning"]:
+                        context_parts.append(f"  {pn['meaning']['description']}")
+
+            if "destiny_number" in vedic:
+                dn = vedic["destiny_number"]
+                planet = dn.get("planet", "")
+                context_parts.append(f"\nDestiny Number (Bhagyank): {dn.get('number')} - Ruled by {planet}")
+                if "meaning" in dn:
+                    meaning_text = dn["meaning"] if isinstance(dn["meaning"], str) else dn["meaning"].get("description", "")
+                    if meaning_text:
+                        context_parts.append(f"  {meaning_text}")
+
+        return "\n".join(context_parts)
+
+    def _prepare_palmistry_context(self, palmistry_data: Dict[str, Any]) -> str:
+        """Prepare palmistry context for AI prompt"""
+
+        context_parts = []
+        context_parts.append("Palmistry Analysis Available")
+
+        # Add relevant palmistry insights if data structure is known
+        # This is a placeholder for future palmistry integration
+        if "life_line" in palmistry_data:
+            context_parts.append(f"Life Line: {palmistry_data['life_line']}")
+
+        if "heart_line" in palmistry_data:
+            context_parts.append(f"Heart Line: {palmistry_data['heart_line']}")
+
+        if "head_line" in palmistry_data:
+            context_parts.append(f"Head Line: {palmistry_data['head_line']}")
+
+        return "\n".join(context_parts)
+
     def _create_system_prompt(self) -> str:
         """Create system prompt for AI"""
 
-        return """You are an expert Vedic astrologer with 20+ years of experience in Jyotish (Vedic astrology). You combine deep traditional knowledge from classical texts like Brihat Parashara Hora Shastra (BPHS) with compassionate, practical guidance.
+        return """You are an expert Vedic astrologer, numerologist, and palmist with 20+ years of experience in the ancient Indian sciences. You combine deep traditional knowledge from classical texts like Brihat Parashara Hora Shastra (BPHS) with compassionate, practical guidance. You excel at synthesizing insights from astrology, numerology, and palmistry to provide comprehensive, holistic readings.
 
 Your interpretation style:
 - Warm, personalized, and empowering
 - Grounded in classical Vedic astrology principles from authoritative texts
 - Scripture-based analysis using specific rules from BPHS when provided
+- Holistic synthesis of astrology, numerology, and palmistry
 - Practical and actionable
 - Hopeful and solution-oriented (never fatalistic or fear-based)
-- Clear references to specific chart factors AND textual sources
+- Clear references to specific chart factors, numerology numbers, palmistry signs, AND textual sources
+
+When numerology is provided:
+- Integrate numerology insights with astrological analysis
+- Show how the person's Life Path, Expression, Soul Urge numbers align with planetary positions
+- Reference Personal Year/Month/Day cycles for timing guidance
+- Note correlations between numerology planetary rulerships and astrological planets
+- Use Vedic Psychic and Destiny numbers to deepen personality understanding
 
 When scriptural rules are provided:
 - CITE the rules using their Rule IDs in brackets like [BPHS-18-PAN-03]

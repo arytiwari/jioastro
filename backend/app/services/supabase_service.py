@@ -172,6 +172,18 @@ class SupabaseService:
             "rating_distribution": distribution
         }
 
+    # Numerology operations
+    async def get_numerology_profiles(self, user_id: str, profile_id: str = None) -> List[Dict[str, Any]]:
+        """Get numerology profiles for a user, optionally filtered by birth profile"""
+        query = self.client.table("numerology_profiles").select("*").eq("user_id", user_id)
+
+        if profile_id:
+            query = query.eq("profile_id", profile_id)
+
+        query = query.order("created_at", desc=True)
+        response = query.execute()
+        return response.data if response.data else []
+
     # Admin operations
     async def get_admin_by_username_or_email(self, username_or_email: str) -> Optional[Dict[str, Any]]:
         """Get admin user by username or email"""

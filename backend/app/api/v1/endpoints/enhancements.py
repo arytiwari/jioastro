@@ -4,9 +4,8 @@ Remedies, Rectification, Transits, and Shadbala
 """
 
 from typing import List, Dict, Any, Optional
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
 
 from app.core.security import get_current_user
 from app.services.remedy_service import remedy_service
@@ -14,81 +13,29 @@ from app.services.rectification_service import rectification_service
 from app.services.transit_service import transit_service
 from app.services.shadbala_service import shadbala_service
 from app.services.astrology import astrology_service
+from app.services.supabase_service import supabase_service
+from app.services.extended_yoga_service import extended_yoga_service
+
+# Import the new schemas
+from app.schemas.enhancements import (
+    RemedyGenerateRequest, RemedyGenerateResponse,
+    RectificationRequest, RectificationResponse,
+    TransitCalculateRequest, TransitResponse,
+    ShadbalaCalculateRequest, ShadbalaResponse,
+    YogaCalculateRequest, YogaResponse
+)
 
 
 router = APIRouter()
 
 
 # ============================================================================
-# REQUEST/RESPONSE SCHEMAS
-# ============================================================================
-
-class RemedyRequest(BaseModel):
-    """Request for remedy generation"""
-    profile_id: str = Field(..., description="Birth profile ID")
-    domain: Optional[str] = Field(None, description="Specific domain (career, relationships, etc.)")
-    max_remedies: int = Field(5, ge=1, le=10, description="Maximum number of remedies")
-    include_practical: bool = Field(True, description="Include modern alternatives")
-
-
-class EventAnchor(BaseModel):
-    """Life event for rectification"""
-    event_type: str = Field(..., description="Type of event (marriage, job_start, etc.)")
-    event_date: str = Field(..., description="Event date (ISO format)")
-    event_significance: str = Field("medium", description="Significance (very_high, high, medium, low)")
-    description: Optional[str] = Field(None, description="Optional description")
-
-
-class RectificationRequest(BaseModel):
-    """Request for birth time rectification"""
-    name: str = Field(..., description="Person's name")
-    birth_date: str = Field(..., description="Birth date (YYYY-MM-DD)")
-    approximate_time: str = Field(..., description="Approximate birth time (HH:MM)")
-    time_window_minutes: int = Field(30, ge=5, le=120, description="Uncertainty window in minutes")
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
-    timezone_str: str = Field("UTC", description="Timezone")
-    city: str = Field(..., description="Birth city")
-    event_anchors: List[EventAnchor] = Field(..., min_items=1, description="Life events for correlation")
-
-
-class TransitRequest(BaseModel):
-    """Request for transit calculation"""
-    profile_id: str = Field(..., description="Birth profile ID")
-    transit_date: Optional[str] = Field(None, description="Transit date (ISO format, default: now)")
-    latitude: Optional[float] = Field(None, ge=-90, le=90, description="Observer latitude (default: birth location)")
-    longitude: Optional[float] = Field(None, ge=-180, le=180, description="Observer longitude")
-    timezone_str: Optional[str] = Field(None, description="Timezone")
-
-
-class TransitTimelineRequest(BaseModel):
-    """Request for transit timeline"""
-    profile_id: str = Field(..., description="Birth profile ID")
-    start_date: Optional[str] = Field(None, description="Start date (default: now)")
-    end_date: Optional[str] = Field(None, description="End date (default: +30 days)")
-    latitude: Optional[float] = Field(None, ge=-90, le=90)
-    longitude: Optional[float] = Field(None, ge=-180, le=180)
-    timezone_str: Optional[str] = Field(None)
-
-
-class ShadbalaRequest(BaseModel):
-    """Request for Shadbala calculation"""
-    profile_id: str = Field(..., description="Birth profile ID")
-
-
-class ShadbalaFromChartRequest(BaseModel):
-    """Request for Shadbala calculation from chart data"""
-    chart_data: dict = Field(..., description="Chart data with planets and houses")
-    birth_datetime: Optional[str] = Field(None, description="Birth datetime (ISO format)")
-
-
-# ============================================================================
 # REMEDY ENDPOINTS
 # ============================================================================
 
-@router.post("/remedies/generate", response_model=dict)
+@router.post("/remedies/generate", response_model=RemedyGenerateResponse)
 async def generate_remedies(
-    request: RemedyRequest,
+    request: RemedyGenerateRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -100,36 +47,52 @@ async def generate_remedies(
     - Planet strength analysis
     """
     try:
-        # Get birth profile and chart
-        # Note: In production, fetch from database
-        # For now, we'll need chart data passed or profile lookup
+        user_id = current_user["user_id"]
 
-        # This is a placeholder - in production, fetch profile from DB
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Profile lookup not yet implemented. Pass chart_data directly for now."
+        # Get profile
+        profile = await supabase_service.get_profile(
+            profile_id=request.profile_id,
+            user_id=user_id
         )
 
-        # Example implementation:
-        # profile = await get_profile(request.profile_id, current_user['id'])
-        # chart = astrology_service.calculate_birth_chart(...)
-        #
-        # remedies = remedy_service.generate_remedies(
-        #     chart_data=chart,
-        #     domain=request.domain,
-        #     max_remedies=request.max_remedies,
-        #     include_practical=request.include_practical
-        # )
-        #
-        # return {
-        #     "success": True,
-        #     "remedies": remedies
-        # }
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
 
+        # Get chart (will recalculate dasha if cached)
+        chart = await supabase_service.get_chart(
+            profile_id=request.profile_id,
+            chart_type="D1"
+        )
+
+        if not chart or 'chart_data' not in chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chart not found. Please calculate chart first."
+            )
+
+        chart_data = chart['chart_data']
+
+        # Generate remedies
+        remedies_result = remedy_service.generate_remedies(
+            chart_data=chart_data,
+            domain=request.domain.value if request.domain else None,
+            specific_issue=request.specific_issue,
+            max_remedies=request.max_remedies,
+            include_practical=request.include_practical
+        )
+
+        return RemedyGenerateResponse(**remedies_result)
+
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Error generating remedies: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail=f"Failed to generate remedies: {str(e)}"
         )
 
 
@@ -196,17 +159,17 @@ async def rectify_birth_time(
     - Event-dasha correlations
     """
     try:
-        # Parse dates
-        birth_date = datetime.fromisoformat(request.birth_date).date()
-        approx_time = datetime.strptime(request.approximate_time, "%H:%M").time()
+        # Get dates (already parsed by Pydantic)
+        birth_date = request.birth_date
+        approx_time = request.approximate_time
 
         # Convert event anchors to dict format
         event_anchors_list = [
             {
                 "event_type": anchor.event_type,
                 "event_date": anchor.event_date,
-                "event_significance": anchor.event_significance,
-                "description": anchor.description
+                "significance": anchor.significance,
+                "description": anchor.description if anchor.description else ""
             }
             for anchor in request.event_anchors
         ]
@@ -217,10 +180,10 @@ async def rectify_birth_time(
             birth_date=birth_date,
             approximate_time=approx_time,
             time_window_minutes=request.time_window_minutes,
-            latitude=request.latitude,
-            longitude=request.longitude,
-            timezone_str=request.timezone_str,
-            city=request.city,
+            latitude=request.birth_lat,
+            longitude=request.birth_lon,
+            timezone_str=request.birth_timezone,
+            city=request.birth_city,
             event_anchors=event_anchors_list
         )
 
@@ -245,9 +208,9 @@ async def rectify_birth_time(
 # TRANSIT ENDPOINTS
 # ============================================================================
 
-@router.post("/transits/current", response_model=dict)
+@router.post("/transits/current", response_model=TransitResponse)
 async def get_current_transits(
-    request: TransitRequest,
+    request: TransitCalculateRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -261,17 +224,67 @@ async def get_current_transits(
     - Strength analysis
     """
     try:
-        # Get birth chart
-        # Note: In production, fetch from database using profile_id
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Profile lookup not yet implemented. Use /transits/current-from-chart for now."
+        user_id = current_user["user_id"]
+
+        # Get profile
+        profile = await supabase_service.get_profile(
+            profile_id=request.profile_id,
+            user_id=user_id
         )
 
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Get chart
+        chart = await supabase_service.get_chart(
+            profile_id=request.profile_id,
+            chart_type="D1"
+        )
+
+        if not chart or 'chart_data' not in chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chart not found. Please calculate chart first."
+            )
+
+        chart_data = chart['chart_data']
+
+        # Parse transit date
+        transit_dt = datetime.fromisoformat(request.transit_date) if request.transit_date else datetime.now()
+
+        # Calculate transits
+        transits_result = transit_service.calculate_current_transits(
+            birth_chart=chart_data,
+            transit_date=transit_dt,
+            latitude=float(profile['birth_lat']),
+            longitude=float(profile['birth_lon']),
+            timezone_str=profile.get('birth_timezone', 'UTC')
+        )
+
+        # Add timeline if requested
+        if request.include_timeline:
+            timeline_result = transit_service.calculate_transit_timeline(
+                birth_chart=chart_data,
+                start_date=transit_dt,
+                end_date=transit_dt + timedelta(days=30),
+                latitude=float(profile['birth_lat']),
+                longitude=float(profile['birth_lon']),
+                timezone_str=profile.get('birth_timezone', 'UTC')
+            )
+            transits_result['timeline_events'] = timeline_result.get('timeline', [])
+
+        return TransitResponse(**transits_result)
+
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Error calculating transits: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail=f"Failed to calculate transits: {str(e)}"
         )
 
 
@@ -335,28 +348,29 @@ async def get_current_transits_from_chart(
         )
 
 
-@router.post("/transits/timeline", response_model=dict)
-async def get_transit_timeline(
-    request: TransitTimelineRequest,
-    current_user: dict = Depends(get_current_user)
-):
-    """
-    Calculate transit timeline for a date range
-
-    Returns significant events (aspects, sign changes) over time
-    """
-    try:
-        # Get birth chart
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Profile lookup not yet implemented. Use /transits/timeline-from-chart for now."
-        )
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
-        )
+# NOTE: Temporarily commented out - TransitTimelineRequest schema needs to be defined
+# @router.post("/transits/timeline", response_model=dict)
+# async def get_transit_timeline(
+#     request: TransitTimelineRequest,
+#     current_user: dict = Depends(get_current_user)
+# ):
+#     """
+#     Calculate transit timeline for a date range
+#
+#     Returns significant events (aspects, sign changes) over time
+#     """
+#     try:
+#         # Get birth chart
+#         raise HTTPException(
+#             status_code=status.HTTP_501_NOT_IMPLEMENTED,
+#             detail="Profile lookup not yet implemented. Use /transits/timeline-from-chart for now."
+#         )
+#
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=str(e)
+#         )
 
 
 @router.post("/transits/timeline-from-chart", response_model=dict)
@@ -411,9 +425,9 @@ async def get_transit_timeline_from_chart(
 # SHADBALA ENDPOINTS
 # ============================================================================
 
-@router.post("/shadbala/calculate", response_model=dict)
+@router.post("/shadbala/calculate", response_model=ShadbalaResponse)
 async def calculate_shadbala(
-    request: ShadbalaRequest,
+    request: ShadbalaCalculateRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -426,16 +440,89 @@ async def calculate_shadbala(
     - Comparison against required minimums
     """
     try:
-        # Get birth profile
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Profile lookup not yet implemented. Use /shadbala/calculate-from-chart for now."
+        user_id = current_user["user_id"]
+
+        # Get profile
+        profile = await supabase_service.get_profile(
+            profile_id=request.profile_id,
+            user_id=user_id
         )
 
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Get chart
+        chart = await supabase_service.get_chart(
+            profile_id=request.profile_id,
+            chart_type="D1"
+        )
+
+        if not chart or 'chart_data' not in chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chart not found. Please calculate chart first."
+            )
+
+        chart_data = chart['chart_data']
+
+        # Parse birth datetime from profile
+        birth_dt = datetime.combine(
+            datetime.fromisoformat(str(profile['birth_date'])).date(),
+            datetime.fromisoformat(f"2000-01-01T{profile['birth_time']}").time()
+        )
+
+        # Calculate Shadbala
+        shadbala_result = shadbala_service.calculate_shadbala(
+            chart_data=chart_data,
+            birth_datetime=birth_dt
+        )
+
+        # Transform response to match schema
+        planetary_strengths = []
+        if 'shadbala_by_planet' in shadbala_result:
+            for planet_name, strength_data in shadbala_result['shadbala_by_planet'].items():
+                components = []
+                if request.include_breakdown and 'components' in strength_data:
+                    for comp_name, comp_value in strength_data['components'].items():
+                        components.append({
+                            'name': comp_name,
+                            'value': comp_value,
+                            'percentage': 0,  # Calculate if needed
+                            'description': f"{comp_name.replace('_', ' ').title()} strength"
+                        })
+
+                planetary_strengths.append({
+                    'planet': planet_name,
+                    'total_strength': strength_data.get('total_shadbala', 0),
+                    'required_minimum': strength_data.get('required_shadbala', 0),
+                    'percentage_of_required': strength_data.get('percentage', 0),
+                    'rating': strength_data.get('strength_rating', 'Unknown'),
+                    'components': components if request.include_breakdown else None,
+                    'is_above_minimum': strength_data.get('percentage', 0) >= 100,
+                    'interpretation': f"Planet has {strength_data.get('strength_rating', 'Unknown').lower()} strength"
+                })
+
+        return ShadbalaResponse(
+            planetary_strengths=planetary_strengths,
+            strongest_planet=shadbala_result.get('strongest_planet', 'Unknown'),
+            weakest_planet=shadbala_result.get('weakest_planet', 'Unknown'),
+            average_strength=shadbala_result.get('average_percentage', 0),
+            planets_above_minimum=shadbala_result.get('planets_above_required', 0),
+            overall_chart_strength=shadbala_result.get('overall_strength', 'Unknown'),
+            recommendations=[],
+            calculation_date=datetime.now()
+        )
+
+    except HTTPException:
+        raise
     except Exception as e:
+        print(f"Error calculating Shadbala: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail=f"Failed to calculate Shadbala: {str(e)}"
         )
 
 
@@ -509,6 +596,108 @@ async def calculate_shadbala_from_chart(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
+        )
+
+
+# ============================================================================
+# YOGA DETECTION ENDPOINTS
+# ============================================================================
+
+@router.post("/yogas/analyze", response_model=YogaResponse)
+async def analyze_yogas(
+    request: YogaCalculateRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Analyze chart for 25+ classical Vedic yogas
+
+    Returns:
+    - All detected yogas with descriptions
+    - Yoga categories and counts
+    - Strongest yogas
+    - Overall chart quality assessment
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Get profile
+        profile = await supabase_service.get_profile(
+            profile_id=request.profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Get chart
+        chart = await supabase_service.get_chart(
+            profile_id=request.profile_id,
+            chart_type="D1"
+        )
+
+        if not chart or 'chart_data' not in chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chart not found. Please calculate chart first."
+            )
+
+        chart_data = chart['chart_data']
+        planets = chart_data.get('planets', {})
+
+        # Detect yogas
+        yogas = extended_yoga_service.detect_extended_yogas(planets)
+
+        # Filter if needed
+        if not request.include_all:
+            yogas = [y for y in yogas if y.get('strength') in ['Very Strong', 'Strong']]
+
+        # Calculate categories
+        categories = {}
+        for yoga in yogas:
+            cat = yoga.get('category', 'Other')
+            categories[cat] = categories.get(cat, 0) + 1
+
+        # Find strongest yogas
+        strongest_yogas = [y['name'] for y in yogas if y.get('strength') == 'Very Strong']
+
+        # Generate summary
+        total = len(yogas)
+        if total == 0:
+            summary = "No major yogas detected. The chart has basic planetary positions without special combinations."
+            chart_quality = "Average"
+        elif total <= 5:
+            summary = f"Chart has {total} yoga(s), indicating specific strengths in certain life areas."
+            chart_quality = "Good"
+        elif total <= 10:
+            summary = f"Chart has {total} yogas, indicating multiple strengths and fortunate combinations."
+            chart_quality = "Very Good"
+        else:
+            summary = f"Chart has {total} yogas, indicating exceptional potential and multiple fortunate combinations!"
+            chart_quality = "Excellent"
+
+        if strongest_yogas:
+            chart_quality = "Exceptional"
+            summary += f" Notably, the chart features {', '.join(strongest_yogas[:3])}."
+
+        return YogaResponse(
+            yogas=yogas,
+            total_yogas=total,
+            categories=categories,
+            strongest_yogas=strongest_yogas,
+            summary=summary,
+            chart_quality=chart_quality
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error analyzing yogas: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to analyze yogas: {str(e)}"
         )
 
 

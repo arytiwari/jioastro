@@ -115,29 +115,20 @@ export default function RemediesPage() {
     setGenerating(true)
     setRemedies([])
 
-    console.log('🎯 Remedies: Fetching chart data...')
     try {
-      // First get the chart data
-      const chartResponse = await apiClient.getChart(selectedProfile, 'D1')
-      const chartData = chartResponse.data
-      console.log('🎯 Remedies: Chart data received:', chartData)
-      console.log('🎯 Remedies: Sending chart_data:', chartData.chart_data)
-
-      // Generate remedies
-      const response = await apiClient.generateRemedies({
-        chart_data: chartData.chart_data,
-        domain: selectedDomain || undefined,
+      // Use new profile-based API (automatically fetches chart)
+      const response = await apiClient.generateRemediesForProfile({
+        profile_id: selectedProfile,
+        domain: selectedDomain as any || undefined,
         max_remedies: maxRemedies,
         include_practical: includePractical,
       })
       console.log('🎯 Remedies: Response received:', response)
 
-      // Backend returns {success, remedies: {remedies: [], weak_planets: [], ...}}
-      const remediesData = response.data.remedies?.remedies || response.data.remedies || []
-      console.log('🎯 Remedies: remediesData type:', Array.isArray(remediesData), 'length:', remediesData.length)
-      console.log('🎯 Remedies: First remedy:', remediesData[0])
+      // Backend returns remedies array directly
+      const remediesData = response.data.remedies || []
+      console.log('🎯 Remedies: remediesData:', remediesData)
       setRemedies(remediesData)
-      console.log('🎯 Remedies: Set remedies:', remediesData)
     } catch (err: any) {
       console.error('Failed to generate remedies:', err)
       setError(err.message || 'Failed to generate remedies. Please try again.')

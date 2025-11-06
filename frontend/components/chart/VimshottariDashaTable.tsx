@@ -90,13 +90,12 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
       ? (dasha.current_mahadasha || dasha.current_dasha || 'Unknown')
       : (dasha.current_mahadasha?.planet || 'Unknown'))
 
-  // Get total duration for the mahadasha at birth
-  const mahadashaAtBirth = mahadashas.find(m => m.planet === currentMahaPlanet)
-  const totalYears = mahadashaAtBirth ? mahadashaAtBirth.years :
-    (typeof dasha.current_mahadasha === 'string'
-      ? (dasha.mahadasha_years || 0)
-      : (dasha.current_mahadasha?.remaining_years || 0))
+  // Mahadasha at birth is the FIRST one in the array
+  const mahadashaAtBirth = mahadashas.length > 0 ? mahadashas[0] : null
+  const birthMahaPlanet = mahadashaAtBirth?.planet || 'Unknown'
+  const birthMahaYears = mahadashaAtBirth?.years || 0
 
+  // Auto-expand the current mahadasha (not the birth mahadasha)
   const [expandedMaha, setExpandedMaha] = useState<string | null>(currentMahaPlanet)
 
   const currentMaha = currentMahaPlanet
@@ -139,9 +138,9 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
   return (
     <div className="space-y-6">
       {/* Mahadasha at Birth Highlight */}
-      <Card className="border-2 border-jio-500">
+      <Card className="border-2 border-purple-500">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-jio-700">
+          <CardTitle className="flex items-center gap-2 text-purple-700">
             <Clock className="w-5 h-5" />
             Mahadasha at Birth
           </CardTitle>
@@ -149,13 +148,13 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-2xl font-bold">{currentMaha}</p>
+              <p className="text-2xl font-bold">{birthMahaPlanet}</p>
               <p className="text-sm text-gray-600 mt-1">
-                {totalYears} years total duration
+                {birthMahaYears} years total duration
               </p>
             </div>
-            <div className={`px-6 py-3 rounded-lg text-2xl ${dashaColors[currentMaha]}`}>
-              {currentMaha.charAt(0)}
+            <div className={`px-6 py-3 rounded-lg text-2xl ${dashaColors[birthMahaPlanet]}`}>
+              {birthMahaPlanet.charAt(0)}
             </div>
           </div>
         </CardContent>
@@ -205,7 +204,7 @@ export function VimshottariDashaTable({ dasha }: VimshottariDashaTableProps) {
                   {isExpanded && isCurrent && antardashas.length > 0 && (
                     <div className="p-4 bg-gray-50">
                       <h4 className="font-semibold text-sm text-gray-700 mb-3">
-                        Antardasha Periods (Sub-periods)
+                        Antardasha Periods for Current {maha.planet} Mahadasha
                       </h4>
                       <div className="space-y-1">
                         {antardashas.map((antara, antaraIdx) => {

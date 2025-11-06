@@ -344,13 +344,23 @@ export default function KnowledgeBasePage() {
         </TabsContent>
       </Tabs>
 
-      {/* Attribution */}
+      {/* Attribution & System Information */}
       <Card className="border-jio-200 bg-jio-50">
-        <CardContent className="py-4">
+        <CardContent className="py-4 space-y-3">
           <p className="text-xs text-gray-600 text-center">
             Based on classical Vedic astrology texts including Brihat Parashara Hora Shastra.
             Calculations powered by Swiss Ephemeris and Kerykeion libraries.
           </p>
+          <div className="border-t border-jio-200 pt-3">
+            <p className="text-xs font-semibold text-jio-700 text-center mb-1">
+              Astrological System
+            </p>
+            <p className="text-xs text-gray-600 text-center">
+              All astrological calculations use the <span className="font-semibold">Sidereal Zodiac</span> with{' '}
+              <span className="font-semibold">Lahiri Ayanamsa</span> (Government of India standard). This accounts for
+              the precession of equinoxes and aligns planetary positions with actual constellations in the sky.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

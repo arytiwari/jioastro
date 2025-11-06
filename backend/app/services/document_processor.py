@@ -9,6 +9,7 @@ import openai
 
 from app.core.config import settings
 from app.services.supabase_service import supabase_service
+from app.services.rule_extraction_service import rule_extraction_service
 
 
 class DocumentProcessorService:
@@ -58,18 +59,70 @@ class DocumentProcessorService:
                     return f.read()
 
             elif file_type == "pdf" or path.suffix == '.pdf':
-                # PDF files - try PyPDF2 first, fall back to simple read
+                # PDF files - try pdfplumber first (better), then PyPDF2, then OCR
+                text = ""
+
+                # Try pdfplumber (best for text-based PDFs)
                 try:
-                    import PyPDF2
+                    import pdfplumber
+                    print(f"  📄 Using pdfplumber to extract text...")
                     text_parts = []
-                    with open(file_path, 'rb') as f:
-                        pdf_reader = PyPDF2.PdfReader(f)
-                        for page in pdf_reader.pages:
-                            text_parts.append(page.extract_text())
-                    return "\n\n".join(text_parts)
+                    with pdfplumber.open(file_path) as pdf:
+                        total_pages = len(pdf.pages)
+                        print(f"  📊 Total pages: {total_pages}")
+
+                        # Extract from first 50 pages only (for speed)
+                        max_pages = min(50, total_pages)
+                        for i in range(max_pages):
+                            if i % 10 == 0:
+                                print(f"  Processing page {i+1}/{max_pages}...")
+                            page_text = pdf.pages[i].extract_text()
+                            if page_text:
+                                text_parts.append(page_text)
+
+                        text = "\n\n".join(text_parts)
+
+                        if len(text.strip()) > 100:
+                            print(f"  ✅ Extracted {len(text)} characters from {max_pages} pages")
+                            if total_pages > max_pages:
+                                print(f"  ℹ️  Note: Only processed first {max_pages}/{total_pages} pages for performance")
+                            return text
+                        else:
+                            print(f"  ⚠️  pdfplumber extracted little text (possibly image-based PDF)")
                 except ImportError:
-                    print("⚠️ PyPDF2 not installed. Install with: pip install PyPDF2")
-                    return f"[PDF file: {path.name}] - Install PyPDF2 to extract text"
+                    print("  ⚠️ pdfplumber not installed. Install with: pip install pdfplumber")
+                except Exception as e:
+                    print(f"  ⚠️ pdfplumber error: {e}")
+
+                # Fallback to PyPDF2
+                if not text or len(text.strip()) < 100:
+                    try:
+                        import PyPDF2
+                        print(f"  📄 Trying PyPDF2...")
+                        text_parts = []
+                        with open(file_path, 'rb') as f:
+                            pdf_reader = PyPDF2.PdfReader(f)
+                            max_pages = min(50, len(pdf_reader.pages))
+                            for i in range(max_pages):
+                                page_text = pdf_reader.pages[i].extract_text()
+                                if page_text:
+                                    text_parts.append(page_text)
+                        text = "\n\n".join(text_parts)
+
+                        if len(text.strip()) > 100:
+                            print(f"  ✅ PyPDF2 extracted {len(text)} characters")
+                            return text
+                    except ImportError:
+                        print("  ⚠️ PyPDF2 not installed")
+                    except Exception as e:
+                        print(f"  ⚠️ PyPDF2 error: {e}")
+
+                # If still no text, this is likely a scanned image PDF
+                if not text or len(text.strip()) < 100:
+                    print(f"  ⚠️ This appears to be a scanned image PDF (no text layer)")
+                    print(f"  ℹ️  OCR extraction would be needed but is very slow for large documents")
+                    print(f"  💡 Consider uploading a text version of this document instead")
+                    return f"[Scanned PDF: {path.name}] - No text layer found. OCR required for text extraction."
 
             elif file_type == "word" or path.suffix in ['.doc', '.docx']:
                 # Word documents - try python-docx
@@ -137,14 +190,24 @@ class DocumentProcessorService:
             return None
 
         try:
-            # Truncate text if too long (max 8191 tokens for ada-002)
+            # Truncate text if too long (max 8191 tokens for text-embedding-3-large)
             if len(text) > 30000:  # Conservative estimate: 1 token ≈ 4 chars
                 text = text[:30000]
 
-            response = self.openai_client.embeddings.create(
-                model=self.embedding_model,
-                input=text
-            )
+            # For text-embedding-3-large, specify dimensions=1536 to match database
+            # Note: Azure OpenAI doesn't support dimensions parameter yet
+            if settings.USE_AZURE_OPENAI:
+                response = self.openai_client.embeddings.create(
+                    model=self.embedding_model,
+                    input=text
+                    # Azure: dimensions configured at deployment level
+                )
+            else:
+                response = self.openai_client.embeddings.create(
+                    model=self.embedding_model,
+                    input=text,
+                    dimensions=1536  # OpenAI: force 1536 dimensions
+                )
 
             return response.data[0].embedding
 
@@ -197,14 +260,30 @@ class DocumentProcessorService:
             text_length = len(text)
             print(f"  ✅ Extracted {text_length} characters")
 
-            # Step 2: Chunk text
-            print(f"  2️⃣ Chunking text...")
+            # Step 2: Extract rules using GPT-4
+            print(f"  2️⃣ Extracting rules using GPT-4...")
+            rule_extraction_result = await rule_extraction_service.extract_rules_from_document(
+                document_id=document_id,
+                text=text,
+                document_title=document['title'],
+                document_type=document['document_type']
+            )
+
+            rules_stored = 0
+            if rule_extraction_result.get('success'):
+                rules_stored = rule_extraction_result.get('rules_stored', 0)
+                print(f"  ✅ Extracted and stored {rules_stored} rules")
+            else:
+                print(f"  ⚠️ Rule extraction had issues, continuing with embeddings...")
+
+            # Step 3: Chunk text
+            print(f"  3️⃣ Chunking text...")
             chunks = self.chunk_text(text, chunk_size=1000, overlap=100)
             num_chunks = len(chunks)
             print(f"  ✅ Created {num_chunks} chunks")
 
-            # Step 3: Generate embeddings
-            print(f"  3️⃣ Generating embeddings for {num_chunks} chunks...")
+            # Step 4: Generate embeddings
+            print(f"  4️⃣ Generating embeddings for {num_chunks} chunks...")
             vector_ids = []
 
             if self.openai_client:
@@ -228,7 +307,7 @@ class DocumentProcessorService:
 
             processing_time = (datetime.utcnow() - start_time).total_seconds()
 
-            # Step 4: Update document record
+            # Step 5: Update document record
             update_data = {
                 "is_indexed": "true",
                 "vector_ids": vector_ids if vector_ids else None,
@@ -236,6 +315,7 @@ class DocumentProcessorService:
                     "text_length": text_length,
                     "num_chunks": num_chunks,
                     "num_embeddings": len(vector_ids),
+                    "rules_extracted": rules_stored,
                     "processing_time_seconds": processing_time,
                     "processed_at": datetime.utcnow().isoformat()
                 },
@@ -253,6 +333,7 @@ class DocumentProcessorService:
                     "text_length": text_length,
                     "num_chunks": num_chunks,
                     "num_embeddings": len(vector_ids),
+                    "rules_extracted": rules_stored,
                     "processing_time_seconds": processing_time
                 }
             }

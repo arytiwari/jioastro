@@ -59,6 +59,8 @@ class NumberDetail(BaseModel):
     number: int = Field(..., description="The calculated number")
     is_master: bool = Field(default=False, description="Whether this is a master number (11, 22, 33)")
     karmic_debt: Optional[int] = Field(None, description="Karmic debt number if present")
+    karmic_debt_meaning: Optional[Dict[str, Any]] = Field(None, description="Karmic debt interpretation if present")
+    meaning: Dict[str, Any] = Field(default_factory=dict, description="Interpretation and meaning of this number")
     breakdown: Dict[str, Any] = Field(default_factory=dict, description="Calculation breakdown")
 
 
@@ -73,6 +75,8 @@ class NameBasedNumber(BaseModel):
     number: int
     is_master: bool = False
     karmic_debt: Optional[int] = None
+    karmic_debt_meaning: Optional[Dict[str, Any]] = None
+    meaning: Dict[str, Any] = {}
     letter_values: List[LetterValue] = []
     breakdown: Dict[str, Any] = {}
 
@@ -80,6 +84,7 @@ class NameBasedNumber(BaseModel):
 class CycleNumber(BaseModel):
     """Current cycle number (Personal Year/Month/Day)"""
     number: int
+    meaning: Dict[str, Any] = {}
     breakdown: Dict[str, Any] = {}
 
 
@@ -145,6 +150,7 @@ class VedicNumber(BaseModel):
     number: int
     planet: str
     day_of_birth: Optional[int] = None
+    meaning: Dict[str, Any] = {}
     breakdown: Dict[str, Any] = {}
 
 
@@ -152,6 +158,7 @@ class VedicNameNumber(BaseModel):
     """Vedic name-based number"""
     number: int
     planet: str
+    meaning: str = ""
     letter_values: List[LetterValue] = []
     breakdown: Dict[str, Any] = {}
 

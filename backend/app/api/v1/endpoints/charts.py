@@ -41,7 +41,38 @@ async def calculate_chart(
         )
 
         if existing_chart:
-            # Return cached chart
+            # Recalculate dasha periods based on current date
+            # (planetary positions are cached, but dashas need to be current)
+            chart_data = existing_chart.get('chart_data', {})
+
+            if 'planets' in chart_data and 'Moon' in chart_data['planets']:
+                from datetime import datetime, date, time
+
+                # Parse birth data from profile
+                if isinstance(profile['birth_date'], str):
+                    birth_date = datetime.fromisoformat(profile['birth_date']).date()
+                else:
+                    birth_date = profile['birth_date']
+
+                if isinstance(profile['birth_time'], str):
+                    birth_time = datetime.fromisoformat(f"2000-01-01T{profile['birth_time']}").time()
+                else:
+                    birth_time = profile['birth_time']
+
+                birth_datetime = datetime.combine(birth_date, birth_time)
+
+                # Recalculate dasha with current date
+                from app.services.vedic_astrology_accurate import accurate_vedic_astrology
+                updated_dasha = accurate_vedic_astrology._calculate_vimshottari_dasha(
+                    chart_data['planets']['Moon'],
+                    birth_datetime
+                )
+
+                # Update chart data with fresh dasha calculation
+                chart_data['dasha'] = updated_dasha
+                existing_chart['chart_data'] = chart_data
+
+            # Return chart with updated dasha
             return existing_chart
 
         # Calculate new chart
@@ -186,6 +217,36 @@ async def get_chart(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Chart {chart_type} not found. Please calculate it first."
             )
+
+        # Recalculate dasha periods based on current date
+        chart_data = chart.get('chart_data', {})
+
+        if 'planets' in chart_data and 'Moon' in chart_data['planets']:
+            from datetime import datetime
+
+            # Parse birth data from profile
+            if isinstance(profile['birth_date'], str):
+                birth_date = datetime.fromisoformat(profile['birth_date']).date()
+            else:
+                birth_date = profile['birth_date']
+
+            if isinstance(profile['birth_time'], str):
+                birth_time = datetime.fromisoformat(f"2000-01-01T{profile['birth_time']}").time()
+            else:
+                birth_time = profile['birth_time']
+
+            birth_datetime = datetime.combine(birth_date, birth_time)
+
+            # Recalculate dasha with current date
+            from app.services.vedic_astrology_accurate import accurate_vedic_astrology
+            updated_dasha = accurate_vedic_astrology._calculate_vimshottari_dasha(
+                chart_data['planets']['Moon'],
+                birth_datetime
+            )
+
+            # Update chart data with fresh dasha calculation
+            chart_data['dasha'] = updated_dasha
+            chart['chart_data'] = chart_data
 
         return chart
 

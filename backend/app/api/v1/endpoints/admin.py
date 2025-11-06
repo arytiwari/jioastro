@@ -376,3 +376,137 @@ async def process_knowledge_document(
         "document_id": document_id,
         "status": "processing"
     }
+
+
+@router.get("/knowledge/stats/overview")
+async def get_knowledge_overview(
+    current_admin: dict = Depends(get_current_admin)
+):
+    """
+    Get comprehensive overview of all knowledge in the system.
+    Shows documents, rules, embeddings, and processing stats.
+    """
+    try:
+        # Get all documents
+        all_documents, total_docs = await supabase_service.get_knowledge_documents(limit=1000)
+
+        # Calculate stats
+        indexed_docs = [d for d in all_documents if d.get("is_indexed") == "true"]
+        processing_docs = [d for d in all_documents if d.get("is_indexed") == "processing"]
+        failed_docs = [d for d in all_documents if d.get("is_indexed") == "failed"]
+
+        # Calculate total embeddings
+        total_embeddings = sum(
+            len(d.get("vector_ids", []) or [])
+            for d in indexed_docs
+        )
+
+        # Calculate total text processed
+        total_text_chars = sum(
+            d.get("doc_metadata", {}).get("text_length", 0)
+            for d in indexed_docs
+        )
+
+        # Get all rules from knowledge_base table
+        try:
+            rules_response = supabase_service.client.table("knowledge_base")\
+                .select("*")\
+                .execute()
+            all_rules = rules_response.data if rules_response.data else []
+            total_rules = len(all_rules)
+
+            # Count rules by domain
+            rules_by_domain = {}
+            for rule in all_rules:
+                domain = rule.get("domain", "unknown")
+                rules_by_domain[domain] = rules_by_domain.get(domain, 0) + 1
+
+        except Exception as e:
+            print(f"Error fetching rules: {e}")
+            all_rules = []
+            total_rules = 0
+            rules_by_domain = {}
+
+        # Document type breakdown
+        doc_types = {}
+        for doc in all_documents:
+            doc_type = doc.get("document_type", "unknown")
+            doc_types[doc_type] = doc_types.get(doc_type, 0) + 1
+
+        return {
+            "summary": {
+                "total_documents": total_docs,
+                "indexed_documents": len(indexed_docs),
+                "processing_documents": len(processing_docs),
+                "failed_documents": len(failed_docs),
+                "total_rules": total_rules,
+                "total_embeddings": total_embeddings,
+                "total_text_chars": total_text_chars,
+                "total_text_mb": round(total_text_chars / (1024 * 1024), 2)
+            },
+            "documents_by_type": doc_types,
+            "rules_by_domain": rules_by_domain,
+            "recent_documents": [
+                {
+                    "id": d.get("id"),
+                    "title": d.get("title"),
+                    "type": d.get("document_type"),
+                    "status": d.get("is_indexed"),
+                    "uploaded_at": d.get("created_at"),
+                    "embeddings": len(d.get("vector_ids", []) or []),
+                    "text_chars": d.get("doc_metadata", {}).get("text_length", 0)
+                }
+                for d in sorted(
+                    all_documents,
+                    key=lambda x: x.get("created_at", ""),
+                    reverse=True
+                )[:10]
+            ]
+        }
+
+    except Exception as e:
+        print(f"Error getting knowledge overview: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get knowledge overview: {str(e)}"
+        )
+
+
+@router.get("/knowledge/rules/all")
+async def get_all_rules(
+    limit: int = 100,
+    offset: int = 0,
+    domain: str = None,
+    current_admin: dict = Depends(get_current_admin)
+):
+    """
+    Get all rules from the knowledge base.
+    Returns rules with their metadata for admin review.
+    """
+    try:
+        query = supabase_service.client.table("knowledge_base").select("*")
+
+        if domain:
+            query = query.eq("domain", domain)
+
+        query = query.order("created_at", desc=True)\
+            .limit(limit)\
+            .offset(offset)
+
+        response = query.execute()
+
+        rules = response.data if response.data else []
+
+        return {
+            "rules": rules,
+            "count": len(rules),
+            "limit": limit,
+            "offset": offset
+        }
+
+    except Exception as e:
+        print(f"Error fetching rules: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch rules: {str(e)}"
+        )

@@ -87,20 +87,16 @@ export default function PlanetaryStrengthPage() {
     setCalculating(true)
     setPlanetStrengths([])
 
-    console.log('🎯 Shadbala: Fetching chart data...')
     try {
-      const chartResponse = await apiClient.getChart(selectedProfile, 'D1')
-      const chartData = chartResponse.data
-      console.log('🎯 Shadbala: Chart data received:', chartData)
-      console.log('🎯 Shadbala: Sending chart_data:', chartData.chart_data)
-
-      const response = await apiClient.calculateShadbala({
-        chart_data: chartData.chart_data,
-        birth_datetime: chartData.birth_datetime,
+      // Use new profile-based API (automatically fetches chart)
+      const response = await apiClient.calculateShadbalaForProfile({
+        profile_id: selectedProfile,
+        include_breakdown: true,
+        comparison: true,
       })
       console.log('🎯 Shadbala: Response received:', response)
 
-      const strengths = response.data.planet_strengths || []
+      const strengths = response.data.planetary_strengths || []
       console.log('🎯 Shadbala: Planet strengths:', strengths)
       setPlanetStrengths(strengths)
     } catch (err: any) {
