@@ -83,6 +83,10 @@ class AIInterpretationService:
         numerology_context = ""
         if numerology_data:
             numerology_context = self._prepare_numerology_context(numerology_data)
+            print(f"📊 Numerology context prepared: {len(numerology_context)} characters")
+            print(f"   Preview: {numerology_context[:200]}...")
+        else:
+            print(f"ℹ️  No numerology data provided")
 
         # Add palmistry context if available
         palmistry_context = ""
@@ -115,16 +119,19 @@ Query Category: {category.upper()}
 
 User's Question: {question}
 
-Please provide a holistic interpretation that:
+Please provide a COMPLETE holistic interpretation that:
 1. Directly answers their question using ALL available insights (astrology, numerology, palmistry)
 2. CITE specific rules using their Rule IDs in brackets like [BPHS-18-PAN-03]
-3. Synthesizes insights from multiple disciplines for a comprehensive reading
-4. References specific planetary positions, houses, yogas, numerology numbers, and scriptural basis
-5. Offers practical, actionable guidance grounded in classical texts
-6. Shows how astrology, numerology, and palmistry complement each other
-7. Is warm, empowering, and hopeful (never fatalistic)
-8. Is approximately 300-400 words
-9. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+3. {"**MUST include Numerology Insights section** analyzing the numerology data provided above" if numerology_data else "Focus on astrological analysis"}
+4. Synthesizes insights from multiple disciplines showing correlations
+5. References specific planetary positions, houses, yogas, numerology numbers, and scriptural basis
+6. Offers practical, actionable guidance grounded in classical texts
+7. Shows how astrology and numerology complement and reinforce each other
+8. Is warm, empowering, and hopeful (never fatalistic)
+9. Is approximately 400-500 words (to cover all sections)
+10. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+
+CRITICAL: If numerology data is provided above, you MUST include a dedicated "**Numerology Insights:**" section analyzing those numbers and their correlations with the astrological factors.
 
 IMPORTANT: When referencing a rule, include its Rule ID in brackets [RULE-ID] so users can trace back to the source text.
 """
@@ -136,16 +143,27 @@ Query Category: {category.upper()}
 
 User's Question: {question}
 
-Please provide a holistic interpretation that:
+Please provide a COMPLETE holistic interpretation that:
 1. Directly answers their question using ALL available insights (astrology, numerology, palmistry)
-2. Synthesizes insights from multiple disciplines for a comprehensive reading
-3. References specific planetary positions, houses, yogas, and numerology numbers
-4. Offers practical, actionable guidance
-5. Includes traditional Vedic wisdom
-6. Shows how astrology, numerology, and palmistry complement each other
-7. Is warm, empowering, and hopeful (never fatalistic)
-8. Is approximately 300-350 words
-9. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+2. {"**MUST include Numerology Insights section** analyzing the numerology data provided above" if numerology_data else "Focus on astrological analysis"}
+3. Synthesizes insights from multiple disciplines showing correlations and patterns
+4. References specific planetary positions, houses, yogas, and numerology numbers
+5. Offers practical, actionable guidance based on both systems
+6. Includes traditional Vedic wisdom from both astrology and numerology
+7. Shows how astrology and numerology complement and validate each other
+8. Is warm, empowering, and hopeful (never fatalistic)
+9. Is approximately 400-500 words (to cover all sections)
+10. Ends with one simple remedy (mantra, gemstone, charity, or practice)
+
+CRITICAL: If numerology data is provided above, you MUST include a dedicated "**Numerology Insights:**" section that analyzes:
+- Life Path number and its meaning for this question
+- Expression number and natural talents
+- Soul Urge and inner motivations
+- Current Personal Year/Month cycles for timing
+- Vedic Psychic and Destiny numbers
+- How these numerology factors correlate with the astrological indicators
+
+Do NOT skip the numerology section if data is available above.
 """
 
         try:
@@ -157,7 +175,7 @@ Please provide a holistic interpretation that:
                     {"role": "user", "content": user_message}
                 ],
                 temperature=0.7,
-                max_tokens=800
+                max_tokens=1200  # Increased to accommodate numerology section
             )
 
             interpretation = response.choices[0].message.content
@@ -239,12 +257,15 @@ Please provide a holistic interpretation that:
 
         context_parts = []
 
+        print(f"🔍 DEBUG: Numerology data keys: {numerology_data.keys() if numerology_data else 'None'}")
+
         # Western numerology
-        if "western" in numerology_data:
+        if "western" in numerology_data and numerology_data["western"]:
             western = numerology_data["western"]
             context_parts.append("\n=== WESTERN NUMEROLOGY ===")
+            print(f"   Western data found: {western.keys() if isinstance(western, dict) else type(western)}")
 
-            if "core_numbers" in western:
+            if "core_numbers" in western and western["core_numbers"]:
                 core = western["core_numbers"]
                 context_parts.append("\nCore Numbers:")
 
@@ -285,11 +306,12 @@ Please provide a holistic interpretation that:
                     context_parts.append(f"  Personal Day {pd.get('number')}: Today's energy")
 
         # Vedic numerology
-        if "vedic" in numerology_data:
+        if "vedic" in numerology_data and numerology_data["vedic"]:
             vedic = numerology_data["vedic"]
             context_parts.append("\n=== VEDIC NUMEROLOGY ===")
+            print(f"   Vedic data found: {vedic.keys() if isinstance(vedic, dict) else type(vedic)}")
 
-            if "psychic_number" in vedic:
+            if "psychic_number" in vedic and vedic["psychic_number"]:
                 pn = vedic["psychic_number"]
                 planet = pn.get("planet", "")
                 context_parts.append(f"\nPsychic Number (Moolank): {pn.get('number')} - Ruled by {planet}")
@@ -306,7 +328,13 @@ Please provide a holistic interpretation that:
                     if meaning_text:
                         context_parts.append(f"  {meaning_text}")
 
-        return "\n".join(context_parts)
+        final_context = "\n".join(context_parts)
+        if not final_context or len(final_context) < 50:
+            print(f"⚠️  WARNING: Numerology context is empty or too short!")
+            print(f"   Context parts: {len(context_parts)}")
+            print(f"   Numerology data provided: {bool(numerology_data)}")
+
+        return final_context
 
     def _prepare_palmistry_context(self, palmistry_data: Dict[str, Any]) -> str:
         """Prepare palmistry context for AI prompt"""
@@ -356,13 +384,17 @@ When scriptural rules are provided:
 
 Format your response with these sections:
 
-**Key Insight:** (2-3 sentences directly answering the question)
+**Key Insight:** (2-3 sentences directly answering the question, synthesizing both astrology and numerology if available)
 
-**Astrological Analysis:** (Explain what you see in the chart - planetary positions, houses, yogas, dasha period that relate to the question. When rules are provided, reference them with citations.)
+**Astrological Analysis:** (Explain planetary positions, houses, yogas, dasha period. When rules are provided, cite them with [RULE-ID].)
 
-**Guidance:** (Practical advice and recommendations based on the analysis)
+**Numerology Insights:** (REQUIRED if numerology data is provided. Analyze Life Path, Expression, Soul Urge, current cycles, and Vedic numbers. Show correlations with astrological findings.)
 
-**Remedy:** (One simple, accessible Vedic remedy - such as a mantra, gemstone recommendation, charitable act, or spiritual practice)
+**Integrated Synthesis:** (Show how astrology and numerology complement each other. Explain the combined picture.)
+
+**Guidance:** (Practical advice based on the complete analysis)
+
+**Remedy:** (One simple Vedic remedy - mantra, gemstone, charity, or practice)
 
 Remember:
 - Always reference specific chart elements (planets, signs, houses, yogas)
