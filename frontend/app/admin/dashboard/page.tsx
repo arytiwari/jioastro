@@ -97,10 +97,10 @@ export default function AdminDashboardPage() {
 
     if (!hasProcessingDocs) return // No need to poll
 
-    // Poll every 3 seconds only when documents are processing
+    // Poll every 5 seconds only when documents are processing
     const pollInterval = setInterval(() => {
-      loadDocuments()
-    }, 3000)
+      loadDocuments(true) // Pass true to indicate this is a background refresh
+    }, 5000) // Increased to 5 seconds to reduce refresh frequency
 
     return () => clearInterval(pollInterval)
   }, [isAuthenticated, activeTab, documents])
@@ -118,8 +118,11 @@ export default function AdminDashboardPage() {
     }
   }
 
-  const loadDocuments = async () => {
-    setLoadingDocuments(true)
+  const loadDocuments = async (isBackgroundRefresh = false) => {
+    // Only show loading spinner during initial load, not during background polling
+    if (!isBackgroundRefresh) {
+      setLoadingDocuments(true)
+    }
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/admin/knowledge?limit=100`,
@@ -129,13 +132,19 @@ export default function AdminDashboardPage() {
       if (!response.ok) throw new Error('Failed to load documents')
 
       const data = await response.json()
-      console.log('📄 Documents loaded:', data.documents)
+      if (!isBackgroundRefresh) {
+        console.log('📄 Documents loaded:', data.documents)
+      }
       setDocuments(data.documents || [])
     } catch (err) {
       console.error('Error loading documents:', err)
-      alert('Failed to load documents')
+      if (!isBackgroundRefresh) {
+        alert('Failed to load documents')
+      }
     } finally {
-      setLoadingDocuments(false)
+      if (!isBackgroundRefresh) {
+        setLoadingDocuments(false)
+      }
     }
   }
 
@@ -222,6 +231,32 @@ export default function AdminDashboardPage() {
       alert(`Upload failed: ${err.message}`)
     } finally {
       setUploadingFile(false)
+    }
+  }
+
+  const handleProcessDocument = async (docId: string, title: string) => {
+    if (!confirm(`Process "${title}"? This will extract rules and generate embeddings.`)) return
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/knowledge/${docId}/process`,
+        {
+          method: 'POST',
+          headers: getAuthHeaders(),
+        }
+      )
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.detail || 'Processing failed')
+      }
+
+      const result = await response.json()
+      alert(result.message || 'Processing started successfully')
+      loadDocuments() // Refresh to show updated status
+    } catch (err: any) {
+      console.error('Process error:', err)
+      alert(`Failed to process document: ${err.message}`)
     }
   }
 
@@ -418,7 +453,7 @@ export default function AdminDashboardPage() {
               <CardHeader>
                 <CardTitle>Uploaded Documents</CardTitle>
                 <CardDescription>
-                  Document status updates automatically
+                  Document status updates automatically every 5 seconds (only when processing)
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -482,13 +517,26 @@ export default function AdminDashboardPage() {
                             </div>
                           )}
                         </div>
-                        <Button
-                          onClick={() => handleDeleteDocument(doc.id)}
-                          variant="destructive"
-                          size="sm"
-                        >
-                          Delete
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {/* Show Process button for pending or failed documents */}
+                          {(normalizeIndexedStatus(doc.is_indexed) === 'false' ||
+                            normalizeIndexedStatus(doc.is_indexed) === 'failed') && (
+                            <Button
+                              onClick={() => handleProcessDocument(doc.id, doc.title)}
+                              variant="default"
+                              size="sm"
+                            >
+                              Process
+                            </Button>
+                          )}
+                          <Button
+                            onClick={() => handleDeleteDocument(doc.id)}
+                            variant="destructive"
+                            size="sm"
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
                     ))}
                   </div>
