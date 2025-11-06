@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Database, FileText, TrendingUp, AlertCircle, CheckCircle, Clock, BookOpen, Sparkles } from '@/components/icons'
@@ -41,6 +42,8 @@ interface Rule {
 }
 
 export default function AdminKnowledgePage() {
+  const router = useRouter()
+  const [adminUsername, setAdminUsername] = useState('')
   const [overview, setOverview] = useState<KnowledgeOverview | null>(null)
   const [rules, setRules] = useState<Rule[]>([])
   const [selectedDomain, setSelectedDomain] = useState<string>('all')
@@ -48,6 +51,16 @@ export default function AdminKnowledgePage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'documents' | 'rules'>('overview')
 
   useEffect(() => {
+    // Check authentication
+    const token = localStorage.getItem('admin_token')
+    const username = localStorage.getItem('admin_username')
+
+    if (!token || !username) {
+      router.push('/admin/login')
+      return
+    }
+
+    setAdminUsername(username)
     fetchOverview()
   }, [])
 
@@ -99,6 +112,12 @@ export default function AdminKnowledgePage() {
     }
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token')
+    localStorage.removeItem('admin_username')
+    router.push('/admin/login')
+  }
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'true':
@@ -131,22 +150,44 @@ export default function AdminKnowledgePage() {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Database className="w-8 h-8 text-blue-600" />
-            Knowledge Base
-          </h1>
-          <p className="text-gray-600 mt-1">
-            View all ingested knowledge, embeddings, and rules
-          </p>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm text-gray-600">Welcome back, {adminUsername}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => router.push('/admin/dashboard')} variant="outline">
+                ← Back to Dashboard
+              </Button>
+              <Button onClick={handleLogout} variant="outline">
+                Logout
+              </Button>
+            </div>
+          </div>
         </div>
-        <Button onClick={fetchOverview} variant="outline">
-          <TrendingUp className="w-4 h-4 mr-2" />
-          Refresh
-        </Button>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-3xl font-bold flex items-center gap-3">
+              <Database className="w-8 h-8 text-blue-600" />
+              Knowledge Base
+            </h2>
+            <p className="text-gray-600 mt-1">
+              View all ingested knowledge, embeddings, and rules
+            </p>
+          </div>
+          <Button onClick={fetchOverview} variant="outline">
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
 
       {/* Tab Navigation */}
       <div className="flex gap-2 mb-6">
@@ -379,6 +420,7 @@ export default function AdminKnowledgePage() {
           </Card>
         </div>
       )}
+      </main>
     </div>
   )
 }
