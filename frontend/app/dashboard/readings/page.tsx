@@ -34,6 +34,7 @@ export default function ComprehensiveReadingsPage() {
   const [query, setQuery] = useState('')
   const [includePredictions, setIncludePredictions] = useState(true)
   const [predictionMonths, setPredictionMonths] = useState(6)
+  const [forceRegenerate, setForceRegenerate] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
   const [pastReadings, setPastReadings] = useState<any[]>([])
@@ -137,6 +138,7 @@ export default function ComprehensiveReadingsPage() {
         domains: selectedDomains,
         include_predictions: includePredictions,
         prediction_window_months: predictionMonths,
+        force_regenerate: forceRegenerate,
       })
 
       // Store the full reading data and redirect to details page
@@ -399,6 +401,27 @@ export default function ComprehensiveReadingsPage() {
               </div>
             </div>
           )}
+
+          {/* Force Regenerate Option */}
+          <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <input
+              id="force-regenerate"
+              type="checkbox"
+              checked={forceRegenerate}
+              onChange={(e) => setForceRegenerate(e.target.checked)}
+              className="mt-0.5 h-4 w-4 text-jio-600 border-gray-300 rounded focus:ring-jio-500"
+              disabled={generating}
+            />
+            <div className="flex-1">
+              <Label htmlFor="force-regenerate" className="cursor-pointer font-medium text-amber-900">
+                Force Regenerate (Bypass Cache)
+              </Label>
+              <p className="text-xs text-amber-700 mt-1">
+                Check this to generate a fresh reading with the latest numerology data, ignoring any cached results.
+                Useful when you've updated your numerology profile or want to ensure all new features are included.
+              </p>
+            </div>
+          </div>
 
           {/* Generate Button */}
           <Button
