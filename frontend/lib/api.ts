@@ -242,6 +242,7 @@ class APIClient {
     domains?: string[]
     include_predictions?: boolean
     prediction_window_months?: number
+    force_regenerate?: boolean
   }) {
     return this.request('/readings/ai', {
       method: 'POST',
