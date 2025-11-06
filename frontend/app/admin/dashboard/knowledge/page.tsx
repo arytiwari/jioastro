@@ -50,6 +50,11 @@ export default function AdminKnowledgePage() {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'overview' | 'documents' | 'rules'>('overview')
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalRules, setTotalRules] = useState(0)
+  const [rulesPerPage] = useState(20)
+
   useEffect(() => {
     // Check authentication
     const token = localStorage.getItem('admin_token')
@@ -66,9 +71,16 @@ export default function AdminKnowledgePage() {
 
   useEffect(() => {
     if (activeTab === 'rules') {
+      setCurrentPage(1) // Reset to page 1 when changing domain
       fetchRules()
     }
   }, [activeTab, selectedDomain])
+
+  useEffect(() => {
+    if (activeTab === 'rules') {
+      fetchRules()
+    }
+  }, [currentPage])
 
   const fetchOverview = async () => {
     try {
@@ -93,9 +105,11 @@ export default function AdminKnowledgePage() {
   const fetchRules = async () => {
     try {
       const token = localStorage.getItem('admin_token')
+      const offset = (currentPage - 1) * rulesPerPage
+
       const url = selectedDomain === 'all'
-        ? `${process.env.NEXT_PUBLIC_API_URL}/admin/knowledge/rules/all?limit=100`
-        : `${process.env.NEXT_PUBLIC_API_URL}/admin/knowledge/rules/all?domain=${selectedDomain}&limit=100`
+        ? `${process.env.NEXT_PUBLIC_API_URL}/admin/knowledge/rules/all?limit=${rulesPerPage}&offset=${offset}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/admin/knowledge/rules/all?domain=${selectedDomain}&limit=${rulesPerPage}&offset=${offset}`
 
       const response = await fetch(url, {
         headers: {
@@ -106,6 +120,15 @@ export default function AdminKnowledgePage() {
       if (response.ok) {
         const data = await response.json()
         setRules(data.rules || [])
+
+        // Get total count from overview if available
+        if (overview) {
+          if (selectedDomain === 'all') {
+            setTotalRules(overview.summary.total_rules)
+          } else {
+            setTotalRules(overview.rules_by_domain[selectedDomain] || 0)
+          }
+        }
       }
     } catch (error) {
       console.error('Error fetching rules:', error)
@@ -378,6 +401,18 @@ export default function AdminKnowledgePage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
+                {/* Pagination Summary */}
+                {totalRules > 0 && (
+                  <div className="flex items-center justify-between text-sm text-gray-600 pb-2 border-b">
+                    <div>
+                      Showing {((currentPage - 1) * rulesPerPage) + 1}-{Math.min(currentPage * rulesPerPage, totalRules)} of {totalRules} rules
+                    </div>
+                    <div>
+                      Page {currentPage} of {Math.ceil(totalRules / rulesPerPage)}
+                    </div>
+                  </div>
+                )}
+
                 {rules.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     No rules found for selected domain
@@ -414,6 +449,55 @@ export default function AdminKnowledgePage() {
                       </div>
                     </div>
                   ))
+                )}
+
+                {/* Pagination Controls */}
+                {totalRules > rulesPerPage && (
+                  <div className="flex items-center justify-center gap-2 pt-4 border-t">
+                    <Button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      variant="outline"
+                      size="sm"
+                    >
+                      ← Previous
+                    </Button>
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.ceil(totalRules / rulesPerPage) }, (_, i) => i + 1)
+                        .filter(page => {
+                          // Show first page, last page, current page, and pages around current
+                          const totalPages = Math.ceil(totalRules / rulesPerPage)
+                          return page === 1 ||
+                                 page === totalPages ||
+                                 Math.abs(page - currentPage) <= 2
+                        })
+                        .map((page, index, array) => (
+                          <div key={page} className="flex items-center">
+                            {index > 0 && array[index - 1] !== page - 1 && (
+                              <span className="px-2 text-gray-400">...</span>
+                            )}
+                            <Button
+                              onClick={() => setCurrentPage(page)}
+                              variant={currentPage === page ? 'default' : 'outline'}
+                              size="sm"
+                              className="min-w-[2.5rem]"
+                            >
+                              {page}
+                            </Button>
+                          </div>
+                        ))}
+                    </div>
+
+                    <Button
+                      onClick={() => setCurrentPage(Math.min(Math.ceil(totalRules / rulesPerPage), currentPage + 1))}
+                      disabled={currentPage === Math.ceil(totalRules / rulesPerPage)}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Next →
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardContent>
