@@ -189,7 +189,9 @@ export default function RemediesPage() {
             <Label htmlFor="profile">Birth Profile</Label>
             <Select value={selectedProfile} onValueChange={setSelectedProfile}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a profile" />
+                <SelectValue>
+                  {profiles.find(p => p.id === selectedProfile)?.name || 'Select a profile'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {profiles.map((profile) => (

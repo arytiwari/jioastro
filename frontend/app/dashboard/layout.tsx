@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import {
@@ -179,6 +179,14 @@ export default function DashboardLayout({
                 </Button>
               </Link>
 
+              {/* Advanced Systems */}
+              <Link href="/dashboard/advanced">
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Advanced
+                </Button>
+              </Link>
+
               {/* Knowledge */}
               <Link href="/dashboard/knowledge">
                 <Button variant="ghost" className="flex items-center gap-2">
@@ -294,6 +302,14 @@ export default function DashboardLayout({
                 <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
                   <TrendingUp className="w-4 h-4" />
                   Numerology
+                </Button>
+              </Link>
+
+              {/* Advanced Systems */}
+              <Link href="/dashboard/advanced" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Advanced
                 </Button>
               </Link>
 

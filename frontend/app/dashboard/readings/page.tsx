@@ -276,7 +276,9 @@ export default function ComprehensiveReadingsPage() {
             <Label>Birth Profile</Label>
             <Select value={selectedProfile} onValueChange={setSelectedProfile}>
               <SelectTrigger id="profile">
-                <SelectValue placeholder="Select a profile" />
+                <SelectValue>
+                  {profiles.find(p => p.id === selectedProfile)?.name || 'Select a profile'}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {profiles.map((profile) => (

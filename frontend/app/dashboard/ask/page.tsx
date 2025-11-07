@@ -182,7 +182,9 @@ export default function AskQuestionPage() {
             <CardContent>
               <Select value={selectedProfile} onValueChange={setSelectedProfile}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a profile" />
+                  <SelectValue>
+                    {profiles.find(p => p.id === selectedProfile)?.name || 'Select a profile'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {profiles.map((profile: any) => (
@@ -267,7 +269,9 @@ export default function AskQuestionPage() {
               <Label htmlFor="profile">Birth Profile</Label>
               <Select value={selectedProfile} onValueChange={setSelectedProfile}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a profile" />
+                  <SelectValue>
+                    {profiles.find(p => p.id === selectedProfile)?.name || 'Select a profile'}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {profiles.map((profile: any) => (

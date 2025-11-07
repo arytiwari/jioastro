@@ -3,9 +3,12 @@ API Endpoints for Phase 4 Enhancement Services
 Remedies, Rectification, Transits, and Shadbala
 """
 
+import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date, time, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
+
+logger = logging.getLogger(__name__)
 
 from app.core.security import get_current_user
 from app.services.remedy_service import remedy_service
@@ -767,3 +770,372 @@ async def get_all_enhancements_from_chart(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)
         )
+
+
+# ============================================================================
+# ADVANCED ASTROLOGICAL SYSTEMS (Phase 5)
+# Jaimini, Lal Kitab, Ashtakavarga
+# ============================================================================
+
+# Import the new services
+from app.services.jaimini_service import jaimini_service
+from app.services.lal_kitab_service import lal_kitab_service
+from app.services.ashtakavarga_service import ashtakavarga_service
+
+
+# Helper function to get chart data
+async def get_chart_data_helper(profile_id: str, user_id: str) -> Dict[str, Any]:
+    """Fetch chart data for a profile (D1 and D9)."""
+    # Get profile
+    profile_response = supabase_service.client.table("profiles")\
+        .select("*")\
+        .eq("id", profile_id)\
+        .eq("user_id", user_id)\
+        .execute()
+
+    if not profile_response.data or len(profile_response.data) == 0:
+        raise HTTPException(status_code=404, detail="Profile not found")
+
+    profile = profile_response.data[0]
+
+    # Get D1 chart
+    d1_response = supabase_service.client.table("charts")\
+        .select("*")\
+        .eq("profile_id", profile_id)\
+        .eq("chart_type", "D1")\
+        .execute()
+
+    if not d1_response.data or len(d1_response.data) == 0:
+        raise HTTPException(status_code=404, detail="D1 chart not found")
+
+    d1_chart = d1_response.data[0]
+
+    # Get D9 chart (optional)
+    d9_response = supabase_service.client.table("charts")\
+        .select("*")\
+        .eq("profile_id", profile_id)\
+        .eq("chart_type", "D9")\
+        .execute()
+
+    d9_chart = d9_response.data[0] if d9_response.data else None
+
+    return {
+        "profile": profile,
+        "d1_chart": d1_chart,
+        "d9_chart": d9_chart
+    }
+
+
+# ==================== Jaimini System Endpoints ====================
+
+@router.get("/jaimini/chara-karakas/{profile_id}")
+async def get_chara_karakas(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Calculate Chara Karakas (7 significators based on degrees)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"]).get("chart_data", chart_data["d1_chart"])
+
+        planets = d1_chart.get("planets", {})
+        karakas = jaimini_service.calculate_chara_karakas(planets)
+
+        return {
+            "profile_id": profile_id,
+            "chara_karakas": karakas,
+            "atmakaraka": jaimini_service.get_atmakaraka(karakas)
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating Chara Karakas: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/jaimini/karakamsha/{profile_id}")
+async def get_karakamsha(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Calculate Karakamsha (Navamsa position of Atmakaraka)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d9_chart = chart_data["d9_chart"]
+
+        if not d9_chart:
+            raise HTTPException(status_code=404, detail="D9 chart required")
+
+        planets = d1_chart.get("planets", {})
+        karakas = jaimini_service.calculate_chara_karakas(planets)
+        atmakaraka = jaimini_service.get_atmakaraka(karakas)
+
+        karakamsha = jaimini_service.calculate_karakamsha(atmakaraka, d9_chart)
+
+        return {
+            "profile_id": profile_id,
+            "atmakaraka": atmakaraka,
+            "karakamsha": karakamsha
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating Karakamsha: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/jaimini/arudha-padas/{profile_id}")
+async def get_arudha_padas(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Calculate all Arudha Padas (AL, UL, A1-A12)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+
+        arudha_padas = jaimini_service.calculate_all_arudha_padas(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "arudha_padas": arudha_padas
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating Arudha Padas: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/jaimini/analyze/{profile_id}")
+async def analyze_jaimini(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Comprehensive Jaimini analysis."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+
+        # Extract chart_data from database rows
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"]).get("chart_data", chart_data["d1_chart"])
+        d9_chart = chart_data["d9_chart"].get("chart_data") if chart_data["d9_chart"] else None
+        profile = chart_data["profile"]
+
+        # Parse birth date
+        birth_date_str = profile.get("date_of_birth")
+        birth_date = date.fromisoformat(birth_date_str) if birth_date_str else date.today()
+
+        # Perform comprehensive analysis
+        if d9_chart:
+            analysis = jaimini_service.analyze_jaimini_chart(d1_chart, d9_chart, birth_date)
+        else:
+            # Partial analysis without D9
+            planets = d1_chart.get("planets", {})
+            karakas = jaimini_service.calculate_chara_karakas(planets)
+            arudha_padas = jaimini_service.calculate_all_arudha_padas(d1_chart)
+            chara_dasha = jaimini_service.calculate_chara_dasha_sequence(d1_chart, birth_date)
+
+            analysis = {
+                "chara_karakas": karakas,
+                "atmakaraka": jaimini_service.get_atmakaraka(karakas),
+                "arudha_padas": arudha_padas,
+                "chara_dasha": chara_dasha,
+                "current_dasha": jaimini_service.get_current_chara_dasha(chara_dasha),
+                "note": "D9 chart required for Karakamsha"
+            }
+
+        # Debug logging
+        logger.info(f"🔍 Jaimini Analysis Response:")
+        logger.info(f"   Atmakaraka: {analysis.get('atmakaraka', {})}")
+        logger.info(f"   Chara Karakas keys: {list(analysis.get('chara_karakas', {}).keys())}")
+
+        return {
+            "profile_id": profile_id,
+            "profile_name": profile.get("name"),
+            "analysis": analysis
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in Jaimini analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== Lal Kitab Endpoints ====================
+
+@router.get("/lal-kitab/debts/{profile_id}")
+async def get_planetary_debts(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Detect all planetary debts (Rins)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+
+        debts = lal_kitab_service.detect_planetary_debts(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "planetary_debts": debts
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error detecting planetary debts: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/lal-kitab/blind-planets/{profile_id}")
+async def get_blind_planets(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Identify blind planets (Andhe Graha)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+
+        blind_planets = lal_kitab_service.detect_blind_planets(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "blind_planets": blind_planets
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error detecting blind planets: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/lal-kitab/analyze/{profile_id}")
+async def analyze_lal_kitab(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Comprehensive Lal Kitab analysis."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        profile = chart_data["profile"]
+
+        analysis = lal_kitab_service.analyze_lal_kitab_chart(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "profile_name": profile.get("name"),
+            "analysis": analysis
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in Lal Kitab analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== Ashtakavarga Endpoints ====================
+
+@router.get("/ashtakavarga/bhinna/{profile_id}")
+async def get_bhinna_ashtakavarga(
+    profile_id: str,
+    planet: Optional[str] = None,
+    user: dict = Depends(get_current_user)
+):
+    """Get Bhinna Ashtakavarga (individual planet chart)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+
+        if planet:
+            bhinna = ashtakavarga_service.calculate_bhinna_ashtakavarga(planet, d1_chart)
+        else:
+            bhinna = ashtakavarga_service.calculate_all_bhinna_ashtakavarga(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "planet": planet,
+            "bhinna_ashtakavarga": bhinna
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating Bhinna Ashtakavarga: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/ashtakavarga/sarva/{profile_id}")
+async def get_sarva_ashtakavarga(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Get Sarva Ashtakavarga (collective chart)."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+
+        sarva = ashtakavarga_service.calculate_sarva_ashtakavarga(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "sarva_ashtakavarga": sarva
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating Sarva Ashtakavarga: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/ashtakavarga/transit/{profile_id}")
+async def analyze_transit_strength(
+    profile_id: str,
+    planet: str,
+    house: int,
+    user: dict = Depends(get_current_user)
+):
+    """Analyze transit strength for a planet through a house."""
+    try:
+        if house < 1 or house > 12:
+            raise HTTPException(status_code=400, detail="House must be 1-12")
+
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+
+        transit_analysis = ashtakavarga_service.analyze_transit(planet, house, d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "transit_analysis": transit_analysis
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error analyzing transit: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/ashtakavarga/analyze/{profile_id}")
+async def analyze_ashtakavarga(
+    profile_id: str,
+    user: dict = Depends(get_current_user)
+):
+    """Comprehensive Ashtakavarga analysis."""
+    try:
+        chart_data = await get_chart_data_helper(profile_id, user["user_id"])
+        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        profile = chart_data["profile"]
+
+        analysis = ashtakavarga_service.analyze_ashtakavarga(d1_chart)
+
+        return {
+            "profile_id": profile_id,
+            "profile_name": profile.get("name"),
+            "analysis": analysis
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in Ashtakavarga analysis: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
