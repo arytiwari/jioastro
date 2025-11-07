@@ -18,9 +18,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // Check if form is valid
+  const isFormValid = email.trim().length > 0 && password.trim().length > 0
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Validate before submitting
+    if (!isFormValid) {
+      setError('Please enter both email and password')
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -89,6 +99,7 @@ export default function LoginPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   required
                   disabled={loading}
+                  autoComplete="email"
                 />
               </div>
 
@@ -102,6 +113,7 @@ export default function LoginPage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   required
                   disabled={loading}
+                  autoComplete="current-password"
                 />
               </div>
             </CardContent>
@@ -110,10 +122,17 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={loading}
+                disabled={loading || !isFormValid}
               >
                 {loading ? 'Signing in...' : 'Sign In'}
               </Button>
+
+              {/* Debug info - remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="text-xs text-gray-400">
+                  Email: {email.length} chars | Password: {password.length} chars | Valid: {isFormValid ? 'Yes' : 'No'}
+                </div>
+              )}
 
               <div className="text-sm text-center text-gray-600">
                 Don't have an account?{' '}

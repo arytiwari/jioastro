@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Star, BookOpen, TrendingUp } from '@/components/icons'
+import { Star, BookOpen, TrendingUp, Zap } from '@/components/icons'
 import { Logo } from '@/components/ui/logo'
 
 export default function HomePage() {
@@ -22,17 +22,31 @@ export default function HomePage() {
             Get personalized insights from your birth chart.
           </p>
 
-          <div className="flex gap-4 justify-center">
-            <Link href="/auth/signup">
-              <Button size="lg" className="bg-jio-600 hover:bg-jio-700 text-white">
-                Get Started Free
-              </Button>
-            </Link>
-            <Link href="/auth/login">
-              <Button size="lg" variant="outline" className="border-jio-600 text-jio-700 hover:bg-jio-50">
-                Sign In
-              </Button>
-            </Link>
+          <div className="flex flex-col gap-4 items-center">
+            <div className="flex gap-4 justify-center">
+              <Link href="/auth/signup">
+                <Button size="lg" className="bg-jio-600 hover:bg-jio-700 text-white">
+                  Get Started Free
+                </Button>
+              </Link>
+              <Link href="/auth/login">
+                <Button size="lg" variant="outline" className="border-jio-600 text-jio-700 hover:bg-jio-50">
+                  Sign In
+                </Button>
+              </Link>
+            </div>
+
+            <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-3">
+                <Zap className="w-5 h-5 text-blue-600" />
+                <span className="text-sm font-medium text-gray-700">Try it now - No signup required!</span>
+                <Link href="/dashboard/instant-onboarding">
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Get Your Chart in 90s
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
 

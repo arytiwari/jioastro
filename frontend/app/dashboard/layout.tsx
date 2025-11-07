@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { getCurrentUser, signOut } from '@/lib/supabase'
+import { getCurrentUser, signOut, getValidSession } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart, Zap, Eye, Shield } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import {
@@ -21,30 +21,70 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [loading, setLoading] = useState(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   useEffect(() => {
     const checkAuth = async () => {
-      console.log('🔍 Dashboard: Checking authentication...')
+      console.log('🔍 Dashboard Layout: Checking authentication...')
+      console.log('📍 Dashboard Layout: Current pathname:', pathname)
+      console.log('📍 Dashboard Layout: Pathname type:', typeof pathname)
+      console.log('📍 Dashboard Layout: Pathname length:', pathname?.length)
 
-      const user = await getCurrentUser()
-      console.log('👤 Dashboard: Got user:', user)
+      // Public routes that don't require authentication (Magical 12 features)
+      const publicRoutes = ['/dashboard/instant-onboarding', '/dashboard/life-snapshot', '/dashboard/evidence-mode']
 
-      if (!user) {
-        console.warn('⚠️ Dashboard: No user found, redirecting to login')
+      // More defensive route checking - normalize pathname
+      const normalizedPath = pathname?.toLowerCase().replace(/\/+$/, '') || ''
+      console.log('📍 Dashboard Layout: Normalized path:', normalizedPath)
+
+      const isPublicRoute = publicRoutes.some(route => {
+        const match = normalizedPath.startsWith(route.toLowerCase())
+        console.log(`  Checking ${route}: ${match}`)
+        return match
+      })
+
+      console.log('🔓 Dashboard Layout: Is public route?', isPublicRoute)
+
+      if (isPublicRoute) {
+        console.log('✅ Dashboard Layout: Public route detected, skipping auth check')
+        setLoading(false)
+        return
+      }
+
+      console.log('🔒 Dashboard Layout: Protected route, checking session...')
+
+      // First, get a valid session (auto-refreshes if expired)
+      const session = await getValidSession()
+      console.log('📦 Dashboard Layout: Got session:', session ? 'valid' : 'null')
+
+      if (!session) {
+        console.warn('⚠️ Dashboard Layout: No valid session, redirecting to login from dashboard layout')
+        console.log('📞 Dashboard Layout redirect stack:', new Error().stack)
         router.push('/auth/login')
         return
       }
 
-      console.log('✅ Dashboard: User authenticated, loading token...')
+      // Then verify the user
+      const user = await getCurrentUser()
+      console.log('👤 Dashboard Layout: Got user:', user)
+
+      if (!user) {
+        console.warn('⚠️ Dashboard Layout: No user found, redirecting to login from dashboard layout')
+        console.log('📞 Dashboard Layout redirect stack:', new Error().stack)
+        router.push('/auth/login')
+        return
+      }
+
+      console.log('✅ Dashboard Layout: User authenticated, loading token...')
       await apiClient.loadToken()
-      console.log('✅ Dashboard: Token loaded, rendering dashboard')
+      console.log('✅ Dashboard Layout: Token loaded, rendering dashboard')
       setLoading(false)
     }
 
     checkAuth()
-  }, [router])
+  }, [pathname, router])
 
   const handleSignOut = async () => {
     await signOut()
@@ -79,6 +119,12 @@ export default function DashboardLayout({
   const myDataMenu = [
     { name: 'My Profiles', href: '/dashboard/profiles', icon: User },
     { name: 'Query History', href: '/dashboard/history', icon: History },
+  ]
+
+  const magical12Menu = [
+    { name: 'Instant Onboarding', href: '/dashboard/instant-onboarding', icon: Zap, badge: 'NEW' },
+    { name: 'Life Snapshot', href: '/dashboard/life-snapshot', icon: Eye, badge: 'NEW' },
+    { name: 'Evidence Mode', href: '/dashboard/evidence-mode', icon: Shield, badge: 'NEW' },
   ]
 
   return (
@@ -165,6 +211,32 @@ export default function DashboardLayout({
                       <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
                         <item.icon className="w-4 h-4" />
                         <span>{item.name}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Magical 12 Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-1">
+                    <Sparkles className="w-4 h-4" />
+                    Magical 12
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  {magical12Menu.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -300,6 +372,31 @@ export default function DashboardLayout({
                     <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
                       <item.icon className="w-4 h-4" />
                       {item.name}
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+
+              {/* Magical 12 Section */}
+              <div className="pl-2">
+                <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-gray-600">
+                  <Sparkles className="w-4 h-4" />
+                  Magical 12
+                </div>
+                {magical12Menu.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
+                      <item.icon className="w-4 h-4" />
+                      {item.name}
+                      {item.badge && (
+                        <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          {item.badge}
+                        </span>
+                      )}
                     </Button>
                   </Link>
                 ))}

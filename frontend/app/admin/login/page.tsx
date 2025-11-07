@@ -15,9 +15,19 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
+  // Check if form is valid
+  const isFormValid = username.trim().length > 0 && password.trim().length > 0
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    // Validate before submitting
+    if (!isFormValid) {
+      setError('Please enter both username and password')
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -26,7 +36,10 @@ export default function AdminLoginPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({
+          username: username.trim(),
+          password: password.trim()
+        }),
       })
 
       if (!response.ok) {
@@ -84,6 +97,7 @@ export default function AdminLoginPage() {
                   className="pl-10"
                   disabled={isLoading}
                   autoComplete="username"
+                  required
                 />
               </div>
             </div>
@@ -101,6 +115,7 @@ export default function AdminLoginPage() {
                   className="pl-10"
                   disabled={isLoading}
                   autoComplete="current-password"
+                  required
                 />
               </div>
             </div>
@@ -108,7 +123,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading || !username || !password}
+              disabled={isLoading || !isFormValid}
             >
               {isLoading ? (
                 <>
@@ -119,6 +134,13 @@ export default function AdminLoginPage() {
                 'Log In'
               )}
             </Button>
+
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === 'development' && (
+              <div className="text-xs text-gray-400 mt-2">
+                Username: {username.length} chars | Password: {password.length} chars | Valid: {isFormValid ? 'Yes' : 'No'}
+              </div>
+            )}
           </form>
 
           <div className="mt-6 text-center text-xs text-gray-500">

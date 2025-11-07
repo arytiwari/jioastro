@@ -67,3 +67,26 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         )
 
     return {"user_id": user_id, "email": payload.get("email")}
+
+
+# Create optional security that doesn't auto-error
+security_optional = HTTPBearer(auto_error=False)
+
+
+async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_optional)) -> Optional[dict]:
+    """Get current authenticated user from JWT token, or None if not authenticated"""
+    if credentials is None:
+        return None
+
+    try:
+        token = credentials.credentials
+        payload = verify_token(token)
+
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+
+        return {"user_id": user_id, "email": payload.get("email")}
+    except HTTPException:
+        # If token verification fails, return None instead of raising
+        return None

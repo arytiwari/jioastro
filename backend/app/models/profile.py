@@ -2,6 +2,7 @@
 
 from sqlalchemy import Column, String, Date, Time, Numeric, Boolean, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
 
@@ -24,6 +25,10 @@ class Profile(Base):
     birth_timezone = Column(String(50))
     is_primary = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    # TODO: Re-enable after fixing import order - requires VarshapalData to be imported
+    # varshaphals = relationship("VarshapalData", back_populates="profile", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Profile {self.name} ({self.id})>"

@@ -36,6 +36,11 @@ export function CityAutocomplete({ onCitySelect, disabled, initialValue = '' }: 
         return
       }
 
+      // Don't search if the searchTerm matches the selected city
+      if (selectedCity && searchTerm === selectedCity.display_name) {
+        return
+      }
+
       setLoading(true)
       try {
         const response = await apiClient.getCities(searchTerm, undefined, 50)
@@ -55,7 +60,7 @@ export function CityAutocomplete({ onCitySelect, disabled, initialValue = '' }: 
     }, 300)
 
     return () => clearTimeout(timeoutId)
-  }, [searchTerm])
+  }, [searchTerm, selectedCity])
 
   // Close dropdown when clicking outside
   useEffect(() => {

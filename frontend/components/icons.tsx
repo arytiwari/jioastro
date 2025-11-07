@@ -13,6 +13,7 @@ export {
   Home,
   Calendar,
   Settings,
+  LogIn,
   LogOut,
   Menu,
   X,
@@ -71,5 +72,9 @@ export {
   VolumeX,
   BarChart3,
   Wrench,
-  Database
+  Database,
+  Zap,
+  Shield,
+  Globe,
+  Target
 } from 'lucide-react'

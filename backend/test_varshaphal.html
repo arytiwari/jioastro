@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Varshaphal API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .response pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .error {
+            background: #fee;
+            border-color: #fcc;
+        }
+        .success {
+            background: #efe;
+            border-color: #cfc;
+        }
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .info-box h3 {
+            color: #2196F3;
+            margin-bottom: 10px;
+        }
+        .endpoint-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔮 Varshaphal API Tester</h1>
+            <p class="subtitle">Test Annual Predictions (Solar Return) API endpoints</p>
+
+            <div class="info-box">
+                <h3>⚡ Quick Setup</h3>
+                <p>1. Backend running on: <strong>http://localhost:8001</strong></p>
+                <p>2. Enter your JWT token below (get from Supabase Auth)</p>
+                <p>3. Select an endpoint and test!</p>
+            </div>
+
+            <!-- Authentication -->
+            <div class="form-group">
+                <label for="jwtToken">🔑 JWT Token (Required)</label>
+                <textarea id="jwtToken" rows="3" placeholder="Paste your JWT token here (starts with eyJ...)"></textarea>
+            </div>
+
+            <!-- Endpoint Tabs -->
+            <div class="endpoint-tabs">
+                <button class="tab active" onclick="switchTab('generate')">Generate Varshaphal</button>
+                <button class="tab" onclick="switchTab('get')">Get by ID</button>
+                <button class="tab" onclick="switchTab('list')">List All</button>
+                <button class="tab" onclick="switchTab('delete')">Delete</button>
+            </div>
+
+            <!-- Generate Tab -->
+            <div id="generate" class="tab-content active">
+                <h3>📅 Generate Varshaphal</h3>
+                <div class="form-group">
+                    <label for="profileId">Profile ID (UUID)</label>
+                    <input type="text" id="profileId" placeholder="e.g., 550e8400-e29b-41d4-a716-446655440000">
+                </div>
+                <div class="form-group">
+                    <label for="targetYear">Target Year</label>
+                    <input type="number" id="targetYear" value="2025" min="1900" max="2100">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="forceRefresh"> Force Refresh (ignore cache)
+                    </label>
+                </div>
+                <button class="btn" onclick="generateVarshaphal()">🚀 Generate</button>
+            </div>
+
+            <!-- Get Tab -->
+            <div id="get" class="tab-content">
+                <h3>🔍 Get Varshaphal by ID</h3>
+                <div class="form-group">
+                    <label for="varshapalId">Varshaphal ID (UUID)</label>
+                    <input type="text" id="varshapalId" placeholder="e.g., 550e8400-e29b-41d4-a716-446655440000">
+                </div>
+                <button class="btn" onclick="getVarshaphal()">🔍 Get</button>
+            </div>
+
+            <!-- List Tab -->
+            <div id="list" class="tab-content">
+                <h3>📋 List All Varshaphals</h3>
+                <div class="form-group">
+                    <label for="listProfileId">Filter by Profile ID (optional)</label>
+                    <input type="text" id="listProfileId" placeholder="Leave empty for all profiles">
+                </div>
+                <div class="form-group">
+                    <label for="limit">Limit</label>
+                    <input type="number" id="limit" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label for="offset">Offset</label>
+                    <input type="number" id="offset" value="0" min="0">
+                </div>
+                <button class="btn" onclick="listVarshaphals()">📋 List</button>
+            </div>
+
+            <!-- Delete Tab -->
+            <div id="delete" class="tab-content">
+                <h3>🗑️ Delete Varshaphal</h3>
+                <div class="form-group">
+                    <label for="deleteId">Varshaphal ID to Delete</label>
+                    <input type="text" id="deleteId" placeholder="e.g., 550e8400-e29b-41d4-a716-446655440000">
+                </div>
+                <button class="btn btn-secondary" onclick="deleteVarshaphal()">🗑️ Delete</button>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Processing request...</p>
+            </div>
+
+            <!-- Response -->
+            <div id="response" class="response" style="display: none;">
+                <h3>Response:</h3>
+                <pre id="responseContent"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8001/api/v1/varshaphal';
+
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+
+            // Hide response
+            document.getElementById('response').style.display = 'none';
+        }
+
+        function getHeaders() {
+            const token = document.getElementById('jwtToken').value.trim();
+            if (!token) {
+                showResponse({ error: 'JWT token is required' }, true);
+                throw new Error('No token');
+            }
+            return {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            };
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').classList.toggle('active', show);
+        }
+
+        function showResponse(data, isError = false) {
+            const responseDiv = document.getElementById('response');
+            const responseContent = document.getElementById('responseContent');
+
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'response ' + (isError ? 'error' : 'success');
+            responseContent.textContent = JSON.stringify(data, null, 2);
+
+            // Scroll to response
+            responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        async function generateVarshaphal() {
+            const profileId = document.getElementById('profileId').value.trim();
+            const targetYear = parseInt(document.getElementById('targetYear').value);
+            const forceRefresh = document.getElementById('forceRefresh').checked;
+
+            if (!profileId) {
+                showResponse({ error: 'Profile ID is required' }, true);
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE}/generate`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify({
+                        profile_id: profileId,
+                        target_year: targetYear,
+                        force_refresh: forceRefresh
+                    })
+                });
+
+                const data = await response.json();
+                showResponse(data, !response.ok);
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function getVarshaphal() {
+            const varshapalId = document.getElementById('varshapalId').value.trim();
+
+            if (!varshapalId) {
+                showResponse({ error: 'Varshaphal ID is required' }, true);
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE}/${varshapalId}`, {
+                    method: 'GET',
+                    headers: getHeaders()
+                });
+
+                const data = await response.json();
+                showResponse(data, !response.ok);
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function listVarshaphals() {
+            const profileId = document.getElementById('listProfileId').value.trim();
+            const limit = parseInt(document.getElementById('limit').value);
+            const offset = parseInt(document.getElementById('offset').value);
+
+            const body = { limit, offset };
+            if (profileId) {
+                body.profile_id = profileId;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE}/list`, {
+                    method: 'POST',
+                    headers: getHeaders(),
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+                showResponse(data, !response.ok);
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function deleteVarshaphal() {
+            const varshapalId = document.getElementById('deleteId').value.trim();
+
+            if (!varshapalId) {
+                showResponse({ error: 'Varshaphal ID is required' }, true);
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this Varshaphal?')) {
+                return;
+            }
+
+            try {
+                showLoading(true);
+                const response = await fetch(`${API_BASE}/${varshapalId}`, {
+                    method: 'DELETE',
+                    headers: getHeaders()
+                });
+
+                if (response.ok) {
+                    showResponse({ success: 'Varshaphal deleted successfully' }, false);
+                } else {
+                    const data = await response.json();
+                    showResponse(data, true);
+                }
+            } catch (error) {
+                showResponse({ error: error.message }, true);
+            } finally {
+                showLoading(false);
+            }
+        }
+    </script>
+</body>
+</html>

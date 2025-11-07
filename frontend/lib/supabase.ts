@@ -209,9 +209,23 @@ export async function getCurrentUser(): Promise<SupabaseUser | null> {
     }
 
     return data.user
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ getCurrentUser: Failed to fetch user', error)
-    storeSession(null)
+
+    // Only clear session if it's an authentication error (401/403)
+    // Don't clear on network errors or other transient issues
+    const isAuthError = error.message?.includes('401') ||
+                       error.message?.includes('403') ||
+                       error.message?.includes('Invalid token') ||
+                       error.message?.includes('JWT')
+
+    if (isAuthError) {
+      console.error('🚫 getCurrentUser: Authentication error, clearing session')
+      storeSession(null)
+    } else {
+      console.warn('⚠️ getCurrentUser: Transient error, keeping session')
+    }
+
     return null
   }
 }
@@ -264,8 +278,23 @@ export async function refreshSession(): Promise<AuthResponse> {
     }
   } catch (error: any) {
     console.error('❌ refreshSession: Failed to refresh token', error)
-    // Clear session on refresh failure
-    storeSession(null)
+
+    // Only clear session on authentication errors (invalid/expired refresh token)
+    // Keep session on transient errors (network issues, server errors)
+    const isAuthError = error.message?.includes('401') ||
+                       error.message?.includes('403') ||
+                       error.message?.includes('Invalid') ||
+                       error.message?.includes('invalid') ||
+                       error.message?.includes('expired') ||
+                       error.message?.includes('JWT')
+
+    if (isAuthError) {
+      console.error('🚫 refreshSession: Authentication error, clearing session')
+      storeSession(null)
+    } else {
+      console.warn('⚠️ refreshSession: Transient error, keeping session for retry')
+    }
+
     return {
       data: { user: null, session: null },
       error: error instanceof Error ? error : new Error('Failed to refresh token'),

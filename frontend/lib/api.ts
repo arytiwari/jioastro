@@ -37,14 +37,23 @@ class APIClient {
       }
     }
 
-    const response = await fetch(`${API_URL}${path}`, {
+    // If path starts with /api/, use it as absolute path (for v2 endpoints)
+    // Otherwise, prepend API_URL (for v1 endpoints)
+    const url = path.startsWith('/api/')
+      ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+$/, '') || 'http://localhost:8000'}${path}`
+      : `${API_URL}${path}`
+
+    const response = await fetch(url, {
       ...init,
       headers: this.buildHeaders(init.headers),
     })
 
     if (response.status === 401) {
+      // Only try to refresh if we had a token (meaning user was logged in)
+      const hadToken = !!this.token
+
       // Try to refresh token once
-      if (typeof window !== 'undefined') {
+      if (hadToken && typeof window !== 'undefined') {
         try {
           const { refreshSession } = await import('./supabase')
           const refreshResult = await Promise.resolve(refreshSession())
@@ -52,7 +61,7 @@ class APIClient {
           if (refreshResult?.data?.session?.access_token) {
             // Retry request with new token
             this.token = refreshResult.data.session.access_token
-            const retryResponse = await fetch(`${API_URL}${path}`, {
+            const retryResponse = await fetch(url, {
               ...init,
               headers: this.buildHeaders(init.headers),
             })
@@ -77,10 +86,13 @@ class APIClient {
         }
       }
 
-      // If refresh failed or retry failed, clear token and redirect
-      this.clearToken()
-      if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login?reason=session_expired'
+      // Only redirect to login if we had a valid token before (session expired)
+      // Don't redirect for unauthenticated requests that never had a token
+      if (hadToken) {
+        this.clearToken()
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login?reason=session_expired'
+        }
       }
     }
 
@@ -140,6 +152,33 @@ class APIClient {
     } catch (error) {
       console.error('Failed to load Supabase token:', error)
     }
+  }
+
+  // Generic HTTP methods
+  async get<T = any>(path: string): Promise<{ data: T }> {
+    return this.request<T>(path, {
+      method: 'GET',
+    })
+  }
+
+  async post<T = any>(path: string, data?: any): Promise<{ data: T }> {
+    return this.request<T>(path, {
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    })
+  }
+
+  async patch<T = any>(path: string, data?: any): Promise<{ data: T }> {
+    return this.request<T>(path, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    })
+  }
+
+  async delete<T = any>(path: string): Promise<{ data: T }> {
+    return this.request<T>(path, {
+      method: 'DELETE',
+    })
   }
 
   // Profile endpoints

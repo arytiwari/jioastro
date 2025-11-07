@@ -4,6 +4,8 @@ FastAPI backend for AI-powered JioAstro service
 """
 
 from app.features.instant_onboarding import instant_onboarding_feature
+from app.features.life_snapshot import life_snapshot_feature
+from app.features.evidence_mode import evidence_mode_feature
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -13,7 +15,6 @@ from app.core.config import settings
 from app.api.v1.router import api_router
 from app.db.database import init_db
 from app.features.registry import feature_registry
-from app.features.life_snapshot import life_snapshot_feature
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,19 +31,26 @@ async def lifespan(app: FastAPI):
         print("ℹ️  Using Supabase REST API instead (this is normal if PostgreSQL ports are blocked)")
         print("✅ Application will use Supabase REST API for database operations")
 
-try:
-      feature_registry.register(instant_onboarding_feature)
-      print("✅ Instant Onboarding feature registered (Bonus Feature #13)")
-  except Exception as e:
-      print(f"⚠️  Failed to register Instant Onboarding feature: {e}")
-
     # Register Magical 12 features
     print("📦 Registering Magical 12 features...")
+
+    try:
+        feature_registry.register(instant_onboarding_feature)
+        print("✅ Instant Onboarding feature registered (Bonus Feature #13)")
+    except Exception as e:
+        print(f"⚠️  Failed to register Instant Onboarding feature: {e}")
+
     try:
         feature_registry.register(life_snapshot_feature)
         print("✅ Life Snapshot feature registered (Magical 12 #1)")
     except Exception as e:
         print(f"⚠️  Failed to register Life Snapshot feature: {e}")
+
+    try:
+        feature_registry.register(evidence_mode_feature)
+        print("✅ Evidence Mode feature registered (Magical 12 #8)")
+    except Exception as e:
+        print(f"⚠️  Failed to register Evidence Mode feature: {e}")
 
     yield
     # Shutdown
@@ -66,10 +74,11 @@ app.add_middleware(
 
 # Include API router
 app.include_router(api_router, prefix="/api/v1")
-app.include_router(instant_onboarding_feature.router, prefix="/api/v2", tags=["Bonus Features"])
 
-# Include Magical 12 features routers
+# Include Magical 12 feature routers
+app.include_router(instant_onboarding_feature.router, prefix="/api/v2", tags=["Bonus Features"])
 app.include_router(life_snapshot_feature.router, prefix="/api/v2", tags=["Magical 12"])
+app.include_router(evidence_mode_feature.router, prefix="/api/v2", tags=["Magical 12"])
 
 @app.get("/")
 async def root():
