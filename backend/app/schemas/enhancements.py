@@ -267,10 +267,10 @@ class PlanetaryStrength(BaseModel):
 class ShadbalaResponse(BaseModel):
     """Response with Shadbala calculations"""
     planetary_strengths: List[PlanetaryStrength] = Field(..., description="Strength for each planet")
-    strongest_planet: str = Field(..., description="Strongest planet")
-    weakest_planet: str = Field(..., description="Weakest planet")
+    strongest_planet: Dict[str, Any] = Field(..., description="Strongest planet with strength value")
+    weakest_planet: Dict[str, Any] = Field(..., description="Weakest planet with strength value")
     average_strength: float = Field(..., description="Average strength percentage")
-    planets_above_minimum: int = Field(..., description="How many planets meet minimum")
+    planets_above_minimum: List[str] = Field(default_factory=list, description="List of planets meeting minimum strength")
     overall_chart_strength: str = Field(..., description="Overall chart strength rating")
     recommendations: List[str] = Field(default_factory=list, description="Recommendations based on strengths")
     calculation_date: datetime = Field(..., description="When strength was calculated")

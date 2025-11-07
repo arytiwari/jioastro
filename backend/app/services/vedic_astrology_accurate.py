@@ -8,6 +8,10 @@ from datetime import datetime, date, time, timedelta
 import swisseph as swe
 import pytz
 from app.services.extended_yoga_service import extended_yoga_service
+from app.services.divisional_charts_service import divisional_charts_service
+from app.services.dosha_detection_service import dosha_detection_service
+from app.services.transit_service import transit_service
+from app.services.dasha_interpretation_service import dasha_interpretation_service
 
 
 class AccurateVedicAstrology:
@@ -130,8 +134,63 @@ class AccurateVedicAstrology:
         # Calculate Vimshottari Dasha
         dasha = self._calculate_vimshottari_dasha(planets["Moon"], birth_datetime)
 
+        # Prepare chart context for AI personalization
+        chart_context = {
+            "planets": planets,
+            "ascendant": {
+                "sign": self.SIGNS[asc_sign],
+                "sign_num": asc_sign,
+                "degree": asc_degree
+            }
+        }
+
+        # Enhance dasha with interpretations (includes AI personalization)
+        dasha = dasha_interpretation_service.enhance_dasha_with_interpretations(
+            dasha,
+            chart_data=chart_context,
+            use_ai=True  # Enable AI personalization
+        )
+
         # Detect yogas
         yogas = self._detect_vedic_yogas(planets, asc_sign)
+
+        # Calculate ALL divisional charts (D2-D60 Shodashvarga system)
+        print("🔢 Calculating all divisional charts (D2-D60)...")
+        divisional_charts = divisional_charts_service.calculate_all_divisional_charts(
+            planets,
+            {
+                "sign": self.SIGNS[asc_sign],
+                "sign_num": asc_sign,
+                "degree": asc_degree,
+                "longitude": asc_sidereal
+            },
+            priority="all"  # Calculate all 16 divisional charts (complete Shodashvarga)
+        )
+
+        # Detect doshas
+        print("⚠️  Detecting doshas...")
+        doshas = dosha_detection_service.detect_all_doshas(
+            planets,
+            {
+                "sign_num": asc_sign,
+                "degree": asc_degree,
+                "longitude": asc_sidereal
+            }
+        )
+
+        # Calculate current transits
+        print("🪐 Calculating current transits...")
+        moon_sign = planets["Moon"]["sign_num"]
+        current_transits = transit_service.get_current_transits(
+            moon_sign,
+            asc_sign
+        )
+
+        # Calculate Sade Sati
+        print("🔮 Calculating Sade Sati...")
+        sade_sati = transit_service.calculate_sade_sati(moon_sign)
+
+        print("✅ All calculations complete!")
 
         return {
             "basic_info": {
@@ -158,6 +217,10 @@ class AccurateVedicAstrology:
             "houses": houses,
             "dasha": dasha,
             "yogas": yogas,
+            "divisional_charts": divisional_charts,
+            "doshas": doshas,
+            "transits": current_transits,
+            "sade_sati": sade_sati,
             "chart_type": "D1",
             "calculation_method": "Swiss Ephemeris with Lahiri Ayanamsa",
             "house_system": "Whole Sign (Vedic Standard)"

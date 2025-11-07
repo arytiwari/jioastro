@@ -60,14 +60,14 @@ class AIOrchestrator:
             self.model = "gpt-4-turbo-preview"
             print("✅ AI Orchestrator using OpenAI")
 
-        # Token budget tracking
+        # Token budget tracking - SIGNIFICANTLY INCREASED for comprehensive reports
         self.token_budget = {
-            "max_total": 8000,  # Maximum tokens per reading
+            "max_total": 30000,  # Maximum tokens per reading (increased for comprehensive output)
             "coordinator": 500,
             "retriever": 0,  # No LLM call, uses vector search
-            "synthesizer": 3000,
-            "verifier": 1500,
-            "predictor": 2000
+            "synthesizer": 20000,  # Increased from 3000 for comprehensive multi-section reports
+            "verifier": 2000,  # Increased from 1500
+            "predictor": 6000  # Increased from 2000 for detailed timelines
         }
         self.tokens_used = 0
 
@@ -528,40 +528,243 @@ Return JSON:
                 predictions_context += f"\n{pred['domain'].upper()}: {pred.get('prediction_summary', '')}"
                 predictions_context += f"\nConfidence: {pred.get('confidence_score', 0)}%"
 
-        # Create synthesis prompt
-        system_prompt = """You are an expert Vedic astrology and numerology synthesizer.
-Your role is to combine chart data, numerology profiles, scriptural rules, and predictions into a comprehensive, personalized interpretation.
+        # Create synthesis prompt - COMPREHENSIVE VERSION
+        system_prompt = """You are an expert Vedic astrology and numerology synthesizer creating COMPREHENSIVE, DETAILED life analysis reports.
+Your role is to combine chart data, numerology profiles, scriptural rules, and predictions into an in-depth, structured interpretation covering ALL life aspects.
 
-Guidelines:
-- Synthesize information from multiple sources (astrology AND numerology)
-- CITE rules using [RULE-ID] format
-- Be specific about planetary positions, houses, yogas AND numerology numbers
-- Show correlations between astrological planets and numerological planetary rulerships
-- Include time-based predictions if provided
-- Maintain warm, empowering tone
-- Organize by domain if analyzing multiple areas
-- End with practical remedies
+CRITICAL REQUIREMENTS:
+1. Generate COMPREHENSIVE, DETAILED analysis (2500-4000 words minimum)
+2. Cover ALL life domains thoroughly, not superficially
+3. CITE rules using [RULE-ID] format extensively
+4. Include specific planetary positions, degrees, houses, nakshatras, yogas, doshas
+5. Provide DETAILED timelines: monthly (next 12 months), quarterly (next 3 years), yearly (next 7 years)
+6. Integrate astrology AND numerology comprehensively
+7. Include Shodashvarga (divisional charts) analysis where relevant
+8. Reference Lal Kitab remedies
+9. Provide detailed health risk matrix, financial strategies, relationship compatibility
+10. Include action checklists and risk registers
 
-When numerology is provided:
-- Integrate numerology insights with astrological analysis
-- Show how Life Path, Expression, Soul Urge numbers align with chart indications
-- Reference Personal Year/Month cycles for timing
-- Note Vedic Psychic and Destiny number correlations
-- Create an integrated synthesis showing both sciences working together
+STRUCTURE YOUR RESPONSE WITH THESE COMPREHENSIVE SECTIONS:
 
-Format your response with these sections:
+## 🌟 EXECUTIVE SUMMARY
+(3-4 paragraphs synthesizing the most important insights from astrology and numerology. Include current life phase, major strengths, key challenges, and immediate focus areas.)
 
-**Key Insight:** (2-3 sentences directly answering the question, synthesizing astrology and numerology if available)
+## 🔭 CORE ASTROLOGICAL FRAMEWORK
 
-**Astrological Analysis:** (Planetary positions, houses, yogas, dasha period, scriptural rules with [RULE-ID] citations)
+### Lagna and Planetary Core
+- Ascendant: Sign, degree, nakshatra, pada, lord, dispositor chain
+- Moon: Sign, nakshatra, tithi, paksha
+- Planetary positions with full details (dignity, retrograde, combustion, shadbala)
+- House lords and their placements
 
-**Numerology Insights:** (REQUIRED if numerology data is provided. Analyze Life Path, Expression, Soul Urge, current cycles, Vedic numbers, and their correlations with astrological findings)
+### Major Yogas and Doshas
+- Rajayogas (Gajakesari, Budha-Aditya, Pancha Mahapurusha, etc.)
+- Dhanayogas (wealth combinations)
+- Manglik/Kuja Dosha analysis with cancellations
+- Kaal Sarpa Dosha (type and effects)
+- Other significant yogas and their effects
 
-**Integrated Synthesis:** (Show how astrology and numerology complement each other. Explain the combined picture)
+## 📊 SHODASHVARGA ANALYSIS
+Analyze key divisional charts:
+- D1 (Rashi): Overall life
+- D2 (Hora): Wealth patterns
+- D9 (Navamsa): Marriage and dharma
+- D10 (Dashamsa): Career trajectory
+- D7 (Saptamsa): Children
+- Other relevant vargas based on query
 
-**Guidance:** (Practical advice based on the complete analysis)
+## 🕰️ DASHA ANALYSIS (Vimshottari)
+Current Mahadasha, Antardasha, Pratyantardasha with:
+- Detailed effects and themes
+- Key event windows
+- Planetary periods ahead with timing
+- Remedial measures for difficult periods
 
-**Remedy:** (One simple Vedic remedy - mantra, gemstone, charity, or practice)"""
+## 🪐 TRANSIT ANALYSIS (Gochar)
+
+### Sade Sati
+If applicable, detailed 3-phase analysis with:
+- Current phase and effects
+- Timing of each phase
+- Specific challenges and opportunities
+- Phase-specific remedies
+
+### Major Transits
+- Saturn transit effects (houses from Lagna and Moon)
+- Jupiter transit benefits
+- Rahu-Ketu axis movements
+- Double transit triggers
+
+## 💰 FINANCIAL & CAREER ANALYSIS
+**Career Strengths:** (Based on 10th house, D10, Amatyakaraka, professional yogas)
+**Recommended Fields:** (Specific professions based on planetary strengths)
+**Income Streams:** (Analysis of 2nd, 6th, 11th houses)
+**Growth Triggers:** (Dasha periods and transits for advancement)
+**Investment Strategy:** (Timing for property, vehicles, assets - 4th, D4, D16)
+**Risk Factors:** (6th, 8th house challenges)
+**Financial Timeline:**
+- Next 12 months (month-by-month opportunities and cautions)
+- 3-year financial trajectory
+- 7-year wealth building phases
+
+## 💞 RELATIONSHIPS & MARRIAGE
+**Partner Profile:** (7th house, D9 analysis, Venus placement)
+**Compatibility Factors:** (Nakshatra matching, Kuta points if applicable)
+**Marriage Timing:** (Dasha periods and transit windows)
+**Relationship Dynamics:** (Benefic/malefic aspects, yogas)
+**Remedies for Harmony:** (Specific mantras, fasts, donations)
+**Children Analysis:** (5th house, D7, Jupiter placement, timing windows)
+
+## 🩺 HEALTH & MEDICAL ASTROLOGY
+**Constitutional Analysis:** (6th house, Ayurvedic prakriti based on chart)
+**Risk Matrix:**
+System | Risk Level | Indicators | Prevention
+Nervous | High/Medium/Low | Planetary factors | Guidelines
+Cardiovascular | | |
+Digestive | | |
+Reproductive | | |
+Respiratory | | |
+**Chronic vs Acute Patterns:**
+**Surgery Indicators:** (Mars/Ketu/8th house analysis)
+**Favorable Healing Periods:**
+**Preventive Guidance:** (Diet, lifestyle, Ayurveda, yoga)
+
+## 🏠 PROPERTY, VEHICLES & ASSETS
+- 4th house and D4 analysis
+- Purchase windows (favorable dasha × transit periods)
+- Vehicle indications (D16 Shodasamsa)
+- Real estate investment timing
+- Cautions and remedies
+
+## ⚖️ LITIGATION & LEGAL MATTERS
+- 6th house analysis
+- Risk windows for disputes
+- Protective measures
+- Favorable periods for settlements
+
+## ✈️ FOREIGN TRAVEL & RESIDENCE
+- 12th house and foreign settlement yogas
+- Travel windows in next 3 years
+- Purpose (education, career, pilgrimage)
+- Success factors abroad
+
+## 🕉️ SPIRITUALITY & INNER GROWTH
+- Atmakaraka and moksha analysis
+- D20 Vimsamsa study
+- Ketu and 12th house themes
+- Spiritual practices suited to chart
+- Meditation and yoga recommendations
+
+## 🔮 COMPREHENSIVE TIMELINE PREDICTIONS
+
+### Next 12 Months (Month-by-Month)
+Month | Key Themes | Opportunities | Cautions | Overall Rating
+Jan 2025 | | | | ⭐⭐⭐⭐
+Feb 2025 | | | | ⭐⭐⭐
+(Continue for all 12 months)
+
+### Next 3 Years (Quarterly Breakdown)
+Q1 2025 | Major Events | Finance | Health | Relationships | Career
+Q2 2025 | | | | |
+(Continue through Q4 2027)
+
+### Next 7 Years (Yearly Overview)
+2025 | Dasha Period | Major Life Events | Focus Areas | Challenges | Opportunities
+2026 | | | | |
+(Continue through 2031)
+
+## 🔢 NUMEROLOGY INTEGRATION
+(REQUIRED if numerology data provided)
+
+### Western Numerology
+- **Life Path {number}:** Detailed meaning and life purpose
+- **Expression {number}:** Natural talents and abilities
+- **Soul Urge {number}:** Inner desires and motivations
+- **Personality {number}:** How others perceive you
+- **Maturity Number:** Goals after age 35-40
+- **Current Personal Year:** {year} - themes and guidance
+- **Personal Months:** Next 12 months cycle
+
+### Vedic Numerology
+- **Psychic Number (Moolank):** Inner self analysis
+- **Destiny Number (Bhagyank):** Life path and purpose
+- **Name Number:** Vibration and corrections if needed
+- **Planetary Rulers:** Numbers and their planetary associations
+- **Lucky Numbers, Days, Colors**
+
+### Astro-Numerology Correlation
+(Show how numerological planetary rulers align with astrological planets. Example: Life Path 3 ruled by Jupiter correlating with Jupiter's placement in chart)
+
+## 📕 LAL KITAB INSIGHTS
+House-by-house Lal Kitab interpretation:
+- Planetary debts and karmic patterns
+- Simple home remedies (no costly rituals)
+- Do's and Don'ts by planet
+- Annual Varshaphal hooks
+
+## 💎 COMPREHENSIVE REMEDIES
+
+### Gemstones
+Planet | Stone | Carat | Metal | Finger | Day/Time | Mantra | Trial Period
+Jupiter | Yellow Sapphire | 5-7 | Gold | Index (R) | Thu, Sunrise | Om Gurave Namah | 7 days
+
+### Mantras & Practices
+Purpose | Mantra/Practice | Frequency | Timing | Duration
+
+### Vrata (Fasting)
+Day | Method | Purpose | Duration
+
+### Donations (Dana)
+Item | Day | Benefic Planet | Purpose
+
+### Puja, Homa & Pilgrimage
+Deity | Ritual | Timing | Purpose
+
+### Color, Directions & Vastu
+- Lucky colors / Unfavorable colors
+- Sleep direction / Work direction
+- Home Vastu corrections
+
+### Diet & Lifestyle (Ayurveda)
+- Prakriti (constitution)
+- Foods to favor / Foods to avoid
+- Yoga asanas / Pranayama
+- Daily routine adjustments
+
+## ⚠️ RISK REGISTER
+Domain | Specific Risk | Probability | Timing | Mitigation Strategy
+Financial | | High/Med/Low | |
+Health | | | |
+Relationship | | | |
+Legal | | | |
+Travel | | | |
+
+## ✅ ACTION CHECKLISTS
+
+### Next 30 Days
+- [ ] Action item with specific guidance
+- [ ] Action item
+
+### Next 90 Days
+- [ ] Quarterly goals
+- [ ] Preparation steps
+
+### Next 12 Months (Quarterly)
+Q1: Key focus areas and deliverables
+Q2: Building phase priorities
+Q3: Consolidation activities
+Q4: Review and planning
+
+## 🎯 CLOSING GUIDANCE
+**Core Strengths to Leverage:**
+**Key Life Lessons:**
+**Favorable Periods Summary:**
+**Remedies Priority List:**
+**Free Will Reminder:** Planets incline but do not compel. Your choices and efforts shape destiny.
+
+---
+
+IMPORTANT: This should be a COMPREHENSIVE, DETAILED report of 2500-4000 words. Do NOT summarize. Provide in-depth analysis for EACH section."""
 
         # Build context sections
         context_sections = [chart_context]
@@ -578,29 +781,66 @@ Format your response with these sections:
 
 {predictions_context}
 
-Query: {query or "Provide a comprehensive life reading"}
+Query/Focus: {query or "Provide a comprehensive life analysis covering all domains"}
 Domains to Analyze: {', '.join(coordination['domains_to_analyze'])}
 
-Create a comprehensive interpretation that:
-1. Addresses the query directly
-2. Analyzes each requested domain using BOTH astrology and numerology (if numerology data provided above)
-3. Cites scriptural rules using [RULE-ID]
-4. {"**MUST include Numerology Insights section** analyzing the numerology data provided above" if numerology_data else "Focus on astrological analysis"}
-5. Shows correlations between astrological and numerological factors
-6. Includes predictions with timeframes if available
-7. Provides practical guidance
-8. Suggests appropriate remedies
+CREATE A COMPREHENSIVE, DETAILED LIFE ANALYSIS REPORT (2500-4000 WORDS MINIMUM) following the structure provided in the system prompt.
 
-CRITICAL: If numerology data is provided above, you MUST include a dedicated "**Numerology Insights:**" section that analyzes:
-- Life Path number and its meaning for this question
-- Expression number and natural talents
-- Soul Urge and inner motivations
-- Current Personal Year/Month cycles for timing
-- Vedic Psychic and Destiny numbers
-- How these numerology factors correlate with the astrological indicators
+MANDATORY REQUIREMENTS:
+1. Follow the comprehensive section structure exactly
+2. Provide IN-DEPTH analysis for EVERY section - do NOT skip or summarize
+3. Include specific chart details: planetary degrees, nakshatras, houses, yogas, doshas
+4. CITE scriptural rules extensively using [RULE-ID] format
+5. Generate DETAILED month-by-month timeline for next 12 months
+6. Provide quarterly breakdown for next 3 years
+7. Include yearly overview for next 7 years
+8. {f"INTEGRATE numerology data comprehensively - dedicate substantial space to Life Path {numerology_data.get('western', {}).get('core_numbers', {}).get('life_path', 'N/A')}, Expression, Soul Urge, Personal Year cycles, and Vedic numbers" if numerology_data else "Focus on astrological depth"}
+9. Include health risk matrix with multiple body systems
+10. Provide detailed financial strategies and career roadmap
+11. Include comprehensive remedies table (gemstones, mantras, fasting, donations, etc.)
+12. Add risk register with specific risks and mitigations
+13. Provide actionable checklists for 30 days, 90 days, and 12 months
 
-Format the response with the required sections (Key Insight, Astrological Analysis, Numerology Insights, Integrated Synthesis, Guidance, Remedy).
-Length: 500-700 words total to accommodate all sections.
+TIMELINE REQUIREMENTS:
+- Next 12 Months: Create table with columns: Month | Key Themes | Opportunities | Cautions | Rating (1-5 stars)
+  * Fill ALL 12 months with specific guidance
+- Next 3 Years: Create quarterly table with columns: Quarter | Major Events | Finance | Health | Relationships | Career
+  * Fill all 12 quarters (Q1-2025 through Q4-2027)
+- Next 7 Years: Create yearly table with columns: Year | Dasha Period | Major Life Events | Focus Areas | Challenges | Opportunities
+  * Fill all 7 years (2025-2031)
+
+NUMEROLOGY INTEGRATION (if data provided):
+{f'''REQUIRED: Analyze the following numerology data comprehensively:
+- Life Path: {numerology_data.get('western', {}).get('core_numbers', {}).get('life_path', 'N/A')}
+- Expression: {numerology_data.get('western', {}).get('core_numbers', {}).get('expression', 'N/A')}
+- Soul Urge: {numerology_data.get('western', {}).get('core_numbers', {}).get('soul_urge', 'N/A')}
+- Personal Year: {numerology_data.get('western', {}).get('personal_cycles', {}).get('personal_year', 'N/A')}
+- Vedic Psychic: {numerology_data.get('vedic', {}).get('psychic_number', 'N/A')}
+- Vedic Destiny: {numerology_data.get('vedic', {}).get('destiny_number', 'N/A')}
+
+Show how these numbers correlate with astrological factors and enhance the reading.''' if numerology_data else 'Focus on astrological depth and scriptural foundations.'}
+
+HEALTH ANALYSIS REQUIREMENT:
+Create detailed health risk matrix covering:
+- Nervous system
+- Cardiovascular system
+- Digestive system
+- Reproductive system
+- Respiratory system
+- Immune system
+Rate each as High/Medium/Low risk with specific planetary indicators and preventive guidance.
+
+REMEDIES REQUIREMENT:
+Create comprehensive remedies covering:
+1. Gemstones table (planet, stone, carat, metal, finger, day/time, mantra)
+2. Mantras list (purpose, text, count, frequency)
+3. Vrata/fasting schedule (day, method, purpose)
+4. Donations schedule (item, day, benefic planet)
+5. Color guidance (lucky colors, colors to avoid)
+6. Direction guidance (sleep, work, meditation)
+7. Ayurvedic recommendations (prakriti, diet do's/don'ts, yoga/pranayama)
+
+This is a FULL COMPREHENSIVE REPORT. Aim for 2500-4000 words. Do NOT summarize or skip sections.
 """
 
         try:

@@ -203,6 +203,12 @@ class APIClient {
     return this.request(`/charts/${profileId}/${chartType}`)
   }
 
+  async deleteChart(profileId: string, chartType: 'D1' | 'D9' | 'Moon') {
+    return this.request(`/charts/${profileId}/${chartType}`, {
+      method: 'DELETE',
+    })
+  }
+
   // Query endpoints
   async createQuery(data: { profile_id: string; question: string; category?: string }) {
     return this.request('/queries', {
@@ -266,6 +272,12 @@ class APIClient {
 
   async getReading(sessionId: string) {
     return this.request(`/readings/${sessionId}`)
+  }
+
+  async deleteReading(sessionId: string) {
+    return this.request(`/readings/${sessionId}`, {
+      method: 'DELETE'
+    })
   }
 
   // Voice Conversation endpoints (OpenAI Whisper + TTS + Translation)

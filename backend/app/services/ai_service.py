@@ -1,6 +1,6 @@
 """
-AI Interpretation Service
-Generates personalized Vedic astrology interpretations using OpenAI GPT-4
+AI Interpretation Service for JioAstro
+Generates personalized astrological interpretations using OpenAI GPT-4
 Enhanced with scripture-grounded rules from BPHS knowledge base
 """
 
@@ -205,7 +205,7 @@ Do NOT skip the numerology section if data is available above.
             }
 
     def _prepare_chart_context(self, chart_data: Dict[str, Any]) -> str:
-        """Prepare chart context for AI prompt"""
+        """Prepare chart context for AI prompt - includes Phase 2 enhancements"""
 
         context_parts = []
 
@@ -248,6 +248,85 @@ Do NOT skip the numerology section if data is available above.
                 context_parts.append(
                     f"  - {yoga.get('name')}: {yoga.get('description')} "
                     f"[Strength: {yoga.get('strength', 'Medium')}]"
+                )
+
+        # Phase 2: Divisional Charts (if available)
+        if "divisional_charts" in chart_data and chart_data["divisional_charts"]:
+            context_parts.append("\n=== DIVISIONAL CHARTS (Varga Analysis) ===")
+            div_charts = chart_data["divisional_charts"]
+
+            # Focus on key divisional charts for interpretation
+            key_charts = {
+                "D9": "Navamsa (Marriage & Dharma)",
+                "D10": "Dashamsa (Career & Profession)",
+                "D7": "Saptamsa (Children & Creativity)",
+                "D12": "Dwadasamsa (Parents & Ancestry)"
+            }
+
+            for chart_type, description in key_charts.items():
+                if chart_type in div_charts:
+                    div_data = div_charts[chart_type]
+                    context_parts.append(f"\n{description}:")
+                    if "planets" in div_data:
+                        planet_positions = []
+                        for planet, data in div_data["planets"].items():
+                            planet_positions.append(f"{planet} in {data.get('sign')}")
+                        context_parts.append(f"  Planetary placements: {', '.join(planet_positions[:5])}")  # Limit to top 5
+                    if "strength_indicators" in div_data:
+                        context_parts.append(f"  Strength: {div_data['strength_indicators']}")
+
+        # Phase 2: Doshas (if any present)
+        if "doshas" in chart_data and chart_data["doshas"]:
+            present_doshas = [d for d in chart_data["doshas"] if d.get("present")]
+            if present_doshas:
+                context_parts.append("\n=== DOSHAS (Afflictions) ===")
+                for dosha in present_doshas:
+                    severity = dosha.get("severity", "unknown")
+                    context_parts.append(
+                        f"  - {dosha.get('name')} [{severity.upper()}]: {dosha.get('description')}"
+                    )
+                    if "effects" in dosha and dosha["effects"]:
+                        context_parts.append(f"    Effects: {', '.join(dosha['effects'][:3])}")  # Top 3 effects
+
+        # Phase 2: Current Transits (if available)
+        if "transits" in chart_data and chart_data["transits"]:
+            context_parts.append("\n=== CURRENT TRANSITS (Gochar) ===")
+            transits = chart_data["transits"]
+
+            # Key transits to include
+            if "jupiter" in transits:
+                jup = transits["jupiter"]
+                context_parts.append(
+                    f"  Jupiter Transit: {jup.get('current_sign')} "
+                    f"(house {jup.get('house_from_ascendant')} from Lagna, "
+                    f"house {jup.get('house_from_moon')} from Moon)"
+                )
+
+            if "saturn" in transits:
+                sat = transits["saturn"]
+                context_parts.append(
+                    f"  Saturn Transit: {sat.get('current_sign')} "
+                    f"(house {sat.get('house_from_ascendant')} from Lagna, "
+                    f"house {sat.get('house_from_moon')} from Moon)"
+                )
+
+            if "rahu" in transits:
+                rah = transits["rahu"]
+                context_parts.append(
+                    f"  Rahu Transit: {rah.get('current_sign')} "
+                    f"(house {rah.get('house_from_ascendant')} from Lagna)"
+                )
+
+        # Phase 2: Sade Sati Status (if available)
+        if "sade_sati" in chart_data:
+            sade_sati = chart_data["sade_sati"]
+            if sade_sati.get("in_sade_sati"):
+                context_parts.append("\n=== SADE SATI STATUS ===")
+                context_parts.append(
+                    f"  Currently in Sade Sati - {sade_sati.get('phase')} Phase"
+                )
+                context_parts.append(
+                    f"  Saturn is in house {sade_sati.get('saturn_house_from_moon')} from Moon"
                 )
 
         return "\n".join(context_parts)

@@ -62,21 +62,26 @@ const ZODIAC_SIGNS = [
   { name: 'Pisces', abbr: 'PI', glyph: '♓' }
 ]
 
-// South Indian chart has houses in fixed positions
+// South Indian chart has houses in FIXED positions (clockwise from top-center-right)
 // Signs rotate based on where the ascendant sign is placed
-const HOUSE_POSITIONS: Record<number, { x: number; y: number; label: string }> = {
-  1: { x: 0.25, y: 0.75, label: '1' },   // Bottom-left
-  2: { x: 0.25, y: 0.50, label: '2' },   // Mid-left
-  3: { x: 0.25, y: 0.25, label: '3' },   // Top-left
-  4: { x: 0.50, y: 0.25, label: '4' },   // Top-mid
-  5: { x: 0.75, y: 0.25, label: '5' },   // Top-right
-  6: { x: 0.75, y: 0.50, label: '6' },   // Mid-right
-  7: { x: 0.75, y: 0.75, label: '7' },   // Bottom-right
-  8: { x: 0.50, y: 0.75, label: '8' },   // Bottom-mid
-  9: { x: 0.37, y: 0.625, label: '9' },  // Inner bottom-left
-  10: { x: 0.37, y: 0.375, label: '10' }, // Inner top-left
-  11: { x: 0.63, y: 0.375, label: '11' }, // Inner top-right
-  12: { x: 0.63, y: 0.625, label: '12' }  // Inner bottom-right
+// Traditional 4x4 grid layout:
+//    [11] [12] [1]  [2]
+//    [10] [ CENTER ] [3]
+//    [9]  [ CENTER ] [4]
+//    [8]  [7]  [6]  [5]
+const HOUSE_POSITIONS: Record<number, { row: number; col: number; label: string }> = {
+  1: { row: 0, col: 2, label: '1' },   // Top row, 3rd column
+  2: { row: 0, col: 3, label: '2' },   // Top row, 4th column
+  3: { row: 1, col: 3, label: '3' },   // 2nd row, 4th column
+  4: { row: 2, col: 3, label: '4' },   // 3rd row, 4th column
+  5: { row: 3, col: 3, label: '5' },   // Bottom row, 4th column
+  6: { row: 3, col: 2, label: '6' },   // Bottom row, 3rd column
+  7: { row: 3, col: 1, label: '7' },   // Bottom row, 2nd column
+  8: { row: 3, col: 0, label: '8' },   // Bottom row, 1st column
+  9: { row: 2, col: 0, label: '9' },   // 3rd row, 1st column
+  10: { row: 1, col: 0, label: '10' }, // 2nd row, 1st column
+  11: { row: 0, col: 0, label: '11' }, // Top row, 1st column
+  12: { row: 0, col: 1, label: '12' }  // Top row, 2nd column
 }
 
 export function SouthIndianChart({ chartData, width = 600, height = 600 }: SouthIndianChartProps) {
@@ -114,18 +119,18 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
   })
 
   const boxSize = Math.min(width, height) * 0.9
-  const half = boxSize / 2
   const centerX = width / 2
   const centerY = height / 2
-  const left = centerX - half
-  const top = centerY - half
-  const right = centerX + half
-  const bottom = centerY + half
+  const left = centerX - boxSize / 2
+  const top = centerY - boxSize / 2
+
+  // 4x4 grid: each cell is boxSize/4
+  const cellSize = boxSize / 4
 
   return (
     <div className="flex flex-col items-center p-4">
-      <svg width={width} height={height}>
-        {/* Background square */}
+      <svg width={width} height={height + 80} viewBox={`0 0 ${width} ${height + 80}`}>
+        {/* Main outer border */}
         <rect
           x={left}
           y={top}
@@ -133,26 +138,57 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
           height={boxSize}
           fill="#fef3e2"
           stroke="#c17817"
-          strokeWidth="4"
-          rx="12"
+          strokeWidth="3"
+          rx="8"
         />
 
-        {/* Diagonal cross lines (X) */}
-        <line x1={left} y1={top} x2={right} y2={bottom} stroke="#c17817" strokeWidth="2.5" />
-        <line x1={right} y1={top} x2={left} y2={bottom} stroke="#c17817" strokeWidth="2.5" />
+        {/* Draw 4x4 grid lines */}
+        {/* Vertical lines */}
+        {[1, 2, 3].map((i) => (
+          <line
+            key={`v${i}`}
+            x1={left + i * cellSize}
+            y1={top}
+            x2={left + i * cellSize}
+            y2={top + boxSize}
+            stroke="#c17817"
+            strokeWidth="2"
+          />
+        ))}
 
-        {/* Vertical and horizontal lines */}
-        <line x1={left} y1={centerY} x2={right} y2={centerY} stroke="#c17817" strokeWidth="2.5" />
-        <line x1={centerX} y1={top} x2={centerX} y2={bottom} stroke="#c17817" strokeWidth="2.5" />
+        {/* Horizontal lines */}
+        {[1, 2, 3].map((i) => (
+          <line
+            key={`h${i}`}
+            x1={left}
+            y1={top + i * cellSize}
+            x2={left + boxSize}
+            y2={top + i * cellSize}
+            stroke="#c17817"
+            strokeWidth="2"
+          />
+        ))}
+
+        {/* Center rectangle highlight (optional subtle fill) */}
+        <rect
+          x={left + cellSize}
+          y={top + cellSize}
+          width={cellSize * 2}
+          height={cellSize * 2}
+          fill="#fff9e6"
+          stroke="none"
+        />
 
         {/* Render all 12 zodiac signs in their fixed positions */}
         {ZODIAC_SIGNS.map((zodiacSign, zodiacIdx) => {
           const position = signPositions[zodiacIdx]
           if (!position || !HOUSE_POSITIONS[position]) return null
 
-          const { x: fx, y: fy } = HOUSE_POSITIONS[position]
-          const x = left + (boxSize * fx)
-          const y = top + (boxSize * fy)
+          const { row, col } = HOUSE_POSITIONS[position]
+          const cellX = left + col * cellSize
+          const cellY = top + row * cellSize
+          const centerCellX = cellX + cellSize / 2
+          const centerCellY = cellY + cellSize / 2
 
           // Get planets in this sign
           const planetsInSign = planetsBySign[zodiacIdx] || []
@@ -168,10 +204,10 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
             <g key={zodiacIdx}>
               {/* House number (small, in corner) */}
               <text
-                x={x}
-                y={y - 42}
+                x={centerCellX}
+                y={centerCellY - 32}
                 textAnchor="middle"
-                fontSize="13"
+                fontSize="12"
                 fontWeight="700"
                 fill={houseColor}
                 style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
@@ -181,10 +217,10 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
 
               {/* Sign symbol and abbreviation */}
               <text
-                x={x}
-                y={y - 20}
+                x={centerCellX}
+                y={centerCellY - 12}
                 textAnchor="middle"
-                fontSize="17"
+                fontSize="15"
                 fontWeight="600"
                 fill="#374151"
                 style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
@@ -196,10 +232,10 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
               {planetsInSign.map((planet, idx) => (
                 <text
                   key={idx}
-                  x={x}
-                  y={y + 4 + (idx * 20)}
+                  x={centerCellX}
+                  y={centerCellY + 8 + (idx * 18)}
                   textAnchor="middle"
-                  fontSize="16"
+                  fontSize="15"
                   fontWeight="600"
                   fill={planet.retrograde ? '#dc2626' : '#be123c'}
                   style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
@@ -214,7 +250,7 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
         {/* Ascendant label at bottom */}
         <rect
           x={centerX - 70}
-          y={bottom + 15}
+          y={top + boxSize + 15}
           width={140}
           height={32}
           fill="#7c3aed"
@@ -224,7 +260,7 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
         />
         <text
           x={centerX}
-          y={bottom + 35}
+          y={top + boxSize + 35}
           textAnchor="middle"
           fontSize="15"
           fontWeight="bold"
@@ -236,15 +272,15 @@ export function SouthIndianChart({ chartData, width = 600, height = 600 }: South
       </svg>
 
       {/* Legend */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-md">
+      <div className="mt-12 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-md">
         <p className="text-center font-bold text-lg mb-3 text-gray-800">South Indian Chart (Vedic)</p>
         <div className="text-xs text-gray-600 space-y-1">
-          <p><span className="font-semibold text-jio-700">H1</span> - House 1 (Ascendant/Lagna)</p>
-          <p><span className="font-semibold text-amber-700">Kendra</span> (H1,H4,H7,H10) - Angular houses</p>
-          <p><span className="font-semibold text-blue-700">Trikona</span> (H5,H9) - Trinal houses</p>
+          <p><span className="font-semibold text-jio-700">H1</span> - House 1 (Ascendant/Lagna) - Always top-center-right</p>
+          <p><span className="font-semibold text-amber-700">Kendra</span> (H1,H4,H7,H10) - Angular houses (power)</p>
+          <p><span className="font-semibold text-blue-700">Trikona</span> (H5,H9) - Trinal houses (dharma)</p>
           <p className="mt-2"><span className="font-semibold text-red-600">ʀ</span> = Retrograde planet</p>
           <p className="text-xs text-gray-500 mt-3 italic">
-            Zodiac signs in fixed positions, houses rotate with Ascendant
+            Houses in FIXED positions (clockwise from H1). Signs rotate based on Ascendant sign.
           </p>
         </div>
       </div>

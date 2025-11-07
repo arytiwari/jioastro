@@ -100,7 +100,17 @@ async def delete_user_profile(
     profile_id: str,
     current_admin: dict = Depends(get_current_admin)
 ):
-    """Delete a user profile (admin only)"""
+    """
+    Delete a user profile with ALL associated data (admin only)
+
+    Cascades deletion to:
+    - Birth charts (all divisional charts)
+    - Numerology profiles
+    - Numerology name trials
+    - AI reading sessions
+    - Query history
+    - Feedback
+    """
     try:
         # Check if profile exists
         profile = await supabase_service.get_profile(profile_id=profile_id)
@@ -110,23 +120,111 @@ async def delete_user_profile(
                 detail="Profile not found"
             )
 
-        # Delete from Supabase (admin can delete without user_id check)
+        print(f"🗑️  Admin deletion request for profile: {profile.get('name')} ({profile_id})")
+
+        # Track deletion counts
+        deleted_counts = {}
+
+        # 1. Delete birth charts
+        try:
+            charts_response = supabase_service.client.table("charts")\
+                .delete()\
+                .eq("profile_id", profile_id)\
+                .execute()
+            deleted_counts['charts'] = len(charts_response.data) if charts_response.data else 0
+            print(f"   ✓ Deleted {deleted_counts['charts']} birth charts")
+        except Exception as e:
+            print(f"   ⚠️  Error deleting charts: {e}")
+            deleted_counts['charts'] = 0
+
+        # 2. Delete numerology profiles
+        try:
+            numerology_response = supabase_service.client.table("numerology_profiles")\
+                .delete()\
+                .eq("profile_id", profile_id)\
+                .execute()
+            deleted_counts['numerology_profiles'] = len(numerology_response.data) if numerology_response.data else 0
+            print(f"   ✓ Deleted {deleted_counts['numerology_profiles']} numerology profiles")
+        except Exception as e:
+            print(f"   ⚠️  Error deleting numerology profiles: {e}")
+            deleted_counts['numerology_profiles'] = 0
+
+        # 3. Delete numerology name trials
+        try:
+            trials_response = supabase_service.client.table("numerology_name_trials")\
+                .delete()\
+                .eq("profile_id", profile_id)\
+                .execute()
+            deleted_counts['name_trials'] = len(trials_response.data) if trials_response.data else 0
+            print(f"   ✓ Deleted {deleted_counts['name_trials']} name trials")
+        except Exception as e:
+            print(f"   ⚠️  Error deleting name trials: {e}")
+            deleted_counts['name_trials'] = 0
+
+        # 4. Delete AI reading sessions
+        try:
+            readings_response = supabase_service.client.table("reading_sessions")\
+                .delete()\
+                .eq("profile_id", profile_id)\
+                .execute()
+            deleted_counts['reading_sessions'] = len(readings_response.data) if readings_response.data else 0
+            print(f"   ✓ Deleted {deleted_counts['reading_sessions']} reading sessions")
+        except Exception as e:
+            print(f"   ⚠️  Error deleting reading sessions: {e}")
+            deleted_counts['reading_sessions'] = 0
+
+        # 5. Delete queries
+        try:
+            queries_response = supabase_service.client.table("queries")\
+                .delete()\
+                .eq("profile_id", profile_id)\
+                .execute()
+            deleted_counts['queries'] = len(queries_response.data) if queries_response.data else 0
+            print(f"   ✓ Deleted {deleted_counts['queries']} queries")
+        except Exception as e:
+            print(f"   ⚠️  Error deleting queries: {e}")
+            deleted_counts['queries'] = 0
+
+        # 6. Delete feedback (if any feedback is profile-specific)
+        try:
+            feedback_response = supabase_service.client.table("feedback")\
+                .delete()\
+                .eq("profile_id", profile_id)\
+                .execute()
+            deleted_counts['feedback'] = len(feedback_response.data) if feedback_response.data else 0
+            print(f"   ✓ Deleted {deleted_counts['feedback']} feedback entries")
+        except Exception as e:
+            # Feedback table might not have profile_id column, that's okay
+            deleted_counts['feedback'] = 0
+
+        # 7. Finally, delete the profile itself
         success = await supabase_service.delete_profile(profile_id=profile_id)
 
         if not success:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to delete profile"
+                detail="Failed to delete profile (cascade succeeded but profile deletion failed)"
             )
 
-        return {"message": "User profile deleted successfully", "profile_id": profile_id}
+        print(f"   ✓ Deleted profile: {profile.get('name')}")
+        print(f"✅ Profile deletion complete!")
+
+        return {
+            "message": f"Profile '{profile.get('name')}' and all associated data deleted successfully",
+            "profile_id": profile_id,
+            "deleted": deleted_counts,
+            "total_items_deleted": sum(deleted_counts.values()) + 1  # +1 for profile itself
+        }
+
     except HTTPException:
         raise
     except Exception as e:
-        print(f"Error deleting profile: {str(e)}")
+        print(f"❌ Error during profile deletion: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete user: {str(e)}"
+            detail=f"Failed to delete profile: {str(e)}"
         )
 
 
@@ -407,9 +505,9 @@ async def get_knowledge_overview(
             for d in indexed_docs
         )
 
-        # Get all rules from knowledge_base table
+        # Get all BPHS rules from kb_rules table (curated rules)
         try:
-            rules_response = supabase_service.client.table("knowledge_base")\
+            rules_response = supabase_service.client.table("kb_rules")\
                 .select("*")\
                 .execute()
             all_rules = rules_response.data if rules_response.data else []
@@ -480,11 +578,11 @@ async def get_all_rules(
     current_admin: dict = Depends(get_current_admin)
 ):
     """
-    Get all rules from the knowledge base.
-    Returns rules with their metadata for admin review.
+    Get all BPHS rules from kb_rules table.
+    Returns curated rules with their metadata for admin review.
     """
     try:
-        query = supabase_service.client.table("knowledge_base").select("*")
+        query = supabase_service.client.table("kb_rules").select("*")
 
         if domain:
             query = query.eq("domain", domain)

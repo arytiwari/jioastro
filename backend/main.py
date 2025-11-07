@@ -1,6 +1,6 @@
 """
-Vedic AI Astrology API - Main Application
-FastAPI backend for AI-powered Vedic astrology service
+JioAstro API - Main Application
+FastAPI backend for AI-powered JioAstro service
 """
 
 from fastapi import FastAPI, Depends, HTTPException, status
@@ -16,7 +16,7 @@ from app.db.database import init_db
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
     # Startup
-    print("🚀 Starting Vedic AI Astrology API...")
+    print("🚀 Starting JioAstro API...")
 
     # Try to initialize database, but don't fail if connection is blocked
     try:
@@ -32,8 +32,8 @@ async def lifespan(app: FastAPI):
     print("👋 Shutting down...")
 
 app = FastAPI(
-    title="Vedic AI Astrology API",
-    description="AI-powered Vedic astrology service with birth chart generation and personalized interpretations",
+    title="JioAstro API",
+    description="AI-powered JioAstro service with birth chart generation, numerology, and personalized interpretations",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -55,7 +55,7 @@ async def root():
     """Health check endpoint"""
     return {
         "status": "healthy",
-        "service": "Vedic AI Astrology API",
+        "service": "JioAstro API",
         "version": "1.0.0"
     }
 

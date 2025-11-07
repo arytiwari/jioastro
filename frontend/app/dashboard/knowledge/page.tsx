@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { BookOpen, Search, TrendingUp, Sparkles } from '@/components/icons'
 import { apiClient } from '@/lib/api'
@@ -221,9 +222,17 @@ export default function KnowledgeBasePage() {
               </div>
 
               {loading ? (
-                <div className="text-center py-8">
-                  <div className="w-6 h-6 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                  <p className="text-sm text-gray-600">Loading rules...</p>
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <Card key={i} className="border-l-4 border-blue-500">
+                      <CardContent className="pt-4 space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-3 w-32" />
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               ) : rules.length > 0 ? (
                 <div className="space-y-3 max-h-[600px] overflow-y-auto">

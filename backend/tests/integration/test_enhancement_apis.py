@@ -130,10 +130,10 @@ class TestShadbalaAPI:
                             "components": {}
                         }
                     },
-                    "strongest_planet": "Sun",
-                    "weakest_planet": "Saturn",
-                    "average_percentage": 100.0,
-                    "planets_above_required": 5,
+                    "strongest_planet": {"planet": "Sun", "strength": 115.4},
+                    "weakest_planet": {"planet": "Saturn", "strength": 85.2},
+                    "average_strength": 100.0,
+                    "planets_above_required": ["Sun", "Jupiter", "Mars", "Venus", "Mercury"],
                     "overall_strength": "Good"
                 }
 

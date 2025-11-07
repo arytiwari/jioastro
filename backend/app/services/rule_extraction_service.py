@@ -68,8 +68,11 @@ class RuleExtractionService:
 
         all_rules = []
         tokens_used = 0
+        stored_count = 0
+        failed_count = 0
+        rules_dedup_cache = set()  # Track rule hashes to avoid storing duplicates
 
-        # Process each chunk
+        # Process each chunk with incremental storage
         for i, chunk in enumerate(chunks, 1):
             print(f"\n   📄 Processing chunk {i}/{len(chunks)}...")
 
@@ -81,72 +84,79 @@ class RuleExtractionService:
                     chunk_index=i
                 )
 
-                if extracted_rules:
-                    all_rules.extend(extracted_rules['rules'])
+                if extracted_rules and extracted_rules['rules']:
+                    chunk_rules = extracted_rules['rules']
                     tokens_used += extracted_rules['tokens_used']
-                    print(f"      ✅ Extracted {len(extracted_rules['rules'])} rules")
+                    print(f"      ✅ Extracted {len(chunk_rules)} rules")
+
+                    # Store rules from this chunk immediately
+                    print(f"      💾 Storing {len(chunk_rules)} rules from chunk {i}...")
+
+                    for rule in chunk_rules:
+                        # Check for duplicates using hash
+                        rule_text = f"{rule.get('condition', '')}|{rule.get('effect', '')}"
+                        rule_hash = hashlib.md5(rule_text.lower().encode()).hexdigest()
+
+                        if rule_hash in rules_dedup_cache:
+                            continue  # Skip duplicate
+
+                        rules_dedup_cache.add(rule_hash)
+                        all_rules.append(rule)
+
+                        try:
+                            # Generate embedding and store
+                            embedding = await self._generate_rule_embedding(rule)
+                            await self._store_rule(
+                                document_id=document_id,
+                                rule=rule,
+                                embedding=embedding,
+                                document_title=document_title
+                            )
+                            stored_count += 1
+
+                        except Exception as store_error:
+                            print(f"         ⚠️  Failed to store rule: {store_error}")
+                            failed_count += 1
+
+                    if i % 10 == 0:
+                        print(f"      📊 Progress: {stored_count} rules stored, {failed_count} failed (chunk {i}/{len(chunks)})")
+                        await asyncio.sleep(0.5)  # Rate limiting
+
                 else:
                     print(f"      ℹ️  No rules found in this chunk")
 
-                # Rate limiting - small delay between chunks
+                # Rate limiting between chunks
                 if i < len(chunks):
                     await asyncio.sleep(1)
 
             except Exception as e:
                 print(f"      ❌ Error processing chunk {i}: {e}")
+                import traceback
+                traceback.print_exc()
                 continue
 
         print(f"\n   📊 Total rules extracted: {len(all_rules)}")
-
-        # Deduplicate rules (same rule might appear in overlapping chunks)
-        unique_rules = self._deduplicate_rules(all_rules)
-        print(f"   🔄 After deduplication: {len(unique_rules)} unique rules")
-
-        # Generate embeddings and store rules
-        stored_count = 0
-        failed_count = 0
-
-        print(f"\n   💾 Storing rules in database...")
-
-        for i, rule in enumerate(unique_rules, 1):
-            if i % 5 == 0:
-                print(f"      Processing rule {i}/{len(unique_rules)}...")
-
-            try:
-                # Generate embedding for the rule
-                embedding = await self._generate_rule_embedding(rule)
-
-                # Store in database
-                await self._store_rule(
-                    document_id=document_id,
-                    rule=rule,
-                    embedding=embedding,
-                    document_title=document_title
-                )
-
-                stored_count += 1
-
-                # Rate limiting for embeddings API
-                if i % 10 == 0:
-                    await asyncio.sleep(0.5)
-
-            except Exception as e:
-                print(f"      ❌ Error storing rule {i}: {e}")
-                failed_count += 1
+        print(f"   💾 Total rules stored: {stored_count}")
+        print(f"   ⚠️  Failed to store: {failed_count}")
+        print(f"   📝 Processed {len(chunks)} chunks")
 
         processing_time = (datetime.utcnow() - start_time).total_seconds()
 
-        print(f"\n   ✅ Rule extraction complete!")
+        # Consider success even if some chunks failed, as long as we got some rules
+        success = stored_count > 0 or len(chunks) == 0
+
+        print(f"\n   {'✅' if success else '⚠️'} Rule extraction complete!")
         print(f"      Stored: {stored_count} rules")
         print(f"      Failed: {failed_count} rules")
+        print(f"      Chunks processed: {len(chunks)}")
         print(f"      Time: {processing_time:.1f}s")
         print(f"      Tokens used: {tokens_used}")
 
         return {
-            "success": True,
+            "success": success,
             "document_id": document_id,
             "rules_extracted": len(all_rules),
-            "unique_rules": len(unique_rules),
+            "unique_rules": len(all_rules),  # All rules in list are already deduplicated
             "rules_stored": stored_count,
             "rules_failed": failed_count,
             "tokens_used": tokens_used,
@@ -171,35 +181,56 @@ class RuleExtractionService:
         system_prompt = self._get_extraction_system_prompt(document_type)
         user_prompt = self._get_extraction_user_prompt(chunk, document_title)
 
-        try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=0.1,  # Low temperature for consistent extraction
-                max_tokens=2000,
-                response_format={"type": "json_object"}  # Force JSON output
-            )
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.1,  # Low temperature for consistent extraction
+                    max_tokens=2000,
+                    response_format={"type": "json_object"}  # Force JSON output
+                )
 
-            result_text = response.choices[0].message.content
-            tokens_used = response.usage.total_tokens
+                result_text = response.choices[0].message.content
+                tokens_used = response.usage.total_tokens
 
-            # Parse JSON response
-            result = json.loads(result_text)
+                # Parse JSON response with error recovery
+                try:
+                    result = json.loads(result_text)
+                except json.JSONDecodeError as json_error:
+                    print(f"         ⚠️  JSON parse error (attempt {attempt + 1}/{max_retries})")
+                    # Try to clean and parse again
+                    try:
+                        cleaned = result_text.replace("```json", "").replace("```", "").strip()
+                        result = json.loads(cleaned)
+                    except:
+                        if attempt < max_retries - 1:
+                            print(f"         🔄 Retrying...")
+                            await asyncio.sleep(1)
+                            continue
+                        else:
+                            print(f"         ❌ Skipping chunk after {max_retries} attempts")
+                            return {"rules": [], "tokens_used": tokens_used}
 
-            return {
-                "rules": result.get("rules", []),
-                "tokens_used": tokens_used
-            }
+                return {
+                    "rules": result.get("rules", []),
+                    "tokens_used": tokens_used
+                }
 
-        except json.JSONDecodeError as e:
-            print(f"         ⚠️  Failed to parse JSON response: {e}")
-            return None
-        except Exception as e:
-            print(f"         ⚠️  GPT-4 extraction error: {e}")
-            return None
+            except Exception as e:
+                print(f"         ⚠️  GPT-4 error (attempt {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(1)
+                    continue
+                else:
+                    print(f"         ❌ Skipping chunk after errors")
+                    return {"rules": [], "tokens_used": 0}
+
+        return {"rules": [], "tokens_used": 0}
 
     def _get_extraction_system_prompt(self, document_type: str) -> str:
         """Get system prompt for rule extraction based on document type"""

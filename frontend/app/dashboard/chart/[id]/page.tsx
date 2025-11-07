@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useQuery } from '@/lib/query'
+import { useQuery, useMutation, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { ChartSelector } from '@/components/chart/ChartSelector'
-import { DasaTimeline } from '@/components/chart/DasaTimeline'
+import { EnhancedDashaTimeline } from '@/components/chart/EnhancedDashaTimeline'
 import { YogaDisplay } from '@/components/chart/YogaDisplay'
 import { PlanetaryPositionsTable } from '@/components/chart/PlanetaryPositionsTable'
+import { DivisionalChartsDisplay } from '@/components/chart/DivisionalChartsDisplay'
+import { DoshaDisplay } from '@/components/chart/DoshaDisplay'
+import { TransitsDisplay } from '@/components/chart/TransitsDisplay'
+import { AstroTerm } from '@/components/AstroTerm'
 import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw } from '@/components/icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
@@ -89,6 +94,49 @@ export default function EnhancedChartPage() {
     enabled: !!profile,
   })
 
+  const queryClient = useQueryClient()
+
+  // Check if Phase 2 data is missing (old chart)
+  const hasPhase2Data = d1Chart?.chart_data?.divisional_charts ||
+                        d1Chart?.chart_data?.doshas ||
+                        d1Chart?.chart_data?.transits
+
+  // Regenerate chart mutation
+  const regenerateChartMutation = useMutation({
+    mutationFn: async () => {
+      // Delete existing charts
+      try {
+        await apiClient.deleteChart(profileId, 'D1')
+      } catch (e) {
+        console.log('D1 chart not found or already deleted')
+      }
+      try {
+        await apiClient.deleteChart(profileId, 'D9')
+      } catch (e) {
+        console.log('D9 chart not found or already deleted')
+      }
+      try {
+        await apiClient.deleteChart(profileId, 'Moon')
+      } catch (e) {
+        console.log('Moon chart not found or already deleted')
+      }
+
+      // Recalculate D1 chart (which includes all Phase 2 data)
+      const response = await apiClient.calculateChart(profileId, 'D1')
+      return response.data
+    },
+    onSuccess: () => {
+      // Invalidate all chart caches to refetch
+      queryClient.invalidateQueries(['chart', profileId])
+    },
+  })
+
+  const handleRegenerateChart = () => {
+    if (confirm('Regenerate chart to get enhanced features (Divisional Charts, Doshas, Transits)? This will recalculate all chart data.')) {
+      regenerateChartMutation.mutate()
+    }
+  }
+
   if (profileLoading) {
     return (
       <div className="text-center py-12">
@@ -153,14 +201,65 @@ export default function EnhancedChartPage() {
         </div>
       </div>
 
+      {/* Phase 2 Upgrade Banner */}
+      {d1Chart && !hasPhase2Data && !regenerateChartMutation.isPending && (
+        <Alert className="border-2 border-amber-400 bg-amber-50">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <AlertTitle className="text-amber-900 font-semibold flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                Enhanced Chart Features Available
+              </AlertTitle>
+              <AlertDescription className="text-amber-800 mt-2">
+                Your chart was generated before our latest enhancements. Regenerate to unlock:
+                <ul className="mt-2 space-y-1 ml-4">
+                  <li>• <strong>All 16 Divisional Charts</strong> (D2-D60 Shodashvarga) - Complete life area analysis</li>
+                  <li>• <strong>Enhanced Dasha Interpretations</strong> - AI-powered guidance with remedies and predictions</li>
+                  <li>• <strong>Dosha Analysis</strong> - Manglik, Kaal Sarpa, Pitra, and more with remedies</li>
+                  <li>• <strong>Current Transits</strong> - Live planetary movements and Sade Sati status</li>
+                </ul>
+              </AlertDescription>
+            </div>
+            <Button
+              onClick={handleRegenerateChart}
+              className="flex-shrink-0 bg-amber-600 hover:bg-amber-700"
+              size="lg"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Regenerate Chart
+            </Button>
+          </div>
+        </Alert>
+      )}
+
+      {/* Regeneration in Progress */}
+      {regenerateChartMutation.isPending && (
+        <Alert className="border-2 border-blue-400 bg-blue-50">
+          <div className="flex items-center gap-4">
+            <div className="w-6 h-6 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="flex-1">
+              <AlertTitle className="text-blue-900 font-semibold">
+                Regenerating Chart...
+              </AlertTitle>
+              <AlertDescription className="text-blue-800">
+                Please wait while we recalculate your chart with enhanced features. This may take a moment.
+              </AlertDescription>
+            </div>
+          </div>
+        </Alert>
+      )}
+
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full max-w-3xl grid-cols-5">
+        <TabsList className="grid w-full max-w-6xl grid-cols-4 md:grid-cols-8 gap-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="d1">D1 Chart</TabsTrigger>
-          <TabsTrigger value="moon">Moon Chart</TabsTrigger>
-          <TabsTrigger value="d9">D9 Chart</TabsTrigger>
-          <TabsTrigger value="dasha">Dasha</TabsTrigger>
+          <TabsTrigger value="d1"><AstroTerm term="D1">D1 Chart</AstroTerm></TabsTrigger>
+          <TabsTrigger value="moon"><AstroTerm term="Moon">Moon</AstroTerm></TabsTrigger>
+          <TabsTrigger value="d9"><AstroTerm term="D9">D9</AstroTerm></TabsTrigger>
+          <TabsTrigger value="divisional">Divisional</TabsTrigger>
+          <TabsTrigger value="doshas"><AstroTerm term="Dosha">Doshas</AstroTerm></TabsTrigger>
+          <TabsTrigger value="transits"><AstroTerm term="Transit">Transits</AstroTerm></TabsTrigger>
+          <TabsTrigger value="dasha"><AstroTerm term="Dasha">Dasha</AstroTerm></TabsTrigger>
         </TabsList>
 
         {/* Overview Tab - Comprehensive View */}
@@ -192,16 +291,16 @@ export default function EnhancedChartPage() {
                 <YogaDisplay yogas={d1Chart.chart_data.yogas} />
               )}
 
-              {/* Dasha Timeline */}
+              {/* Enhanced Dasha Timeline with Interpretations */}
               {d1Chart.chart_data.dasha && (
-                <DasaTimeline dashaData={d1Chart.chart_data.dasha} />
+                <EnhancedDashaTimeline dashaData={d1Chart.chart_data.dasha} />
               )}
 
               {/* Quick Info Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Ascendant</CardTitle>
+                    <CardTitle className="text-sm font-medium"><AstroTerm term="Ascendant">Ascendant</AstroTerm></CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-jio-700">
@@ -213,7 +312,7 @@ export default function EnhancedChartPage() {
 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Moon Sign</CardTitle>
+                    <CardTitle className="text-sm font-medium"><AstroTerm term="Moon">Moon Sign</AstroTerm></CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-blue-700">
@@ -225,7 +324,7 @@ export default function EnhancedChartPage() {
 
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Sun Sign</CardTitle>
+                    <CardTitle className="text-sm font-medium"><AstroTerm term="Sun">Sun Sign</AstroTerm></CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold text-amber-700">
@@ -386,6 +485,78 @@ export default function EnhancedChartPage() {
           ) : null}
         </TabsContent>
 
+        {/* Divisional Charts Tab */}
+        <TabsContent value="divisional" className="space-y-6">
+          {d1Loading ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading divisional charts...</p>
+              </CardContent>
+            </Card>
+          ) : d1Chart?.chart_data?.divisional_charts ? (
+            <DivisionalChartsDisplay divisionalCharts={d1Chart.chart_data.divisional_charts} />
+          ) : (
+            <Card className="border-2 border-yellow-300 bg-yellow-50">
+              <CardContent className="py-8 text-center">
+                <p className="text-yellow-800 font-semibold mb-2">No divisional charts data available</p>
+                <p className="text-sm text-yellow-700">
+                  This chart was calculated before Phase 2 enhancements. Please regenerate the chart to get divisional charts data.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Doshas Tab */}
+        <TabsContent value="doshas" className="space-y-6">
+          {d1Loading ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Checking for doshas...</p>
+              </CardContent>
+            </Card>
+          ) : d1Chart?.chart_data?.doshas ? (
+            <DoshaDisplay doshas={d1Chart.chart_data.doshas} />
+          ) : (
+            <Card className="border-2 border-yellow-300 bg-yellow-50">
+              <CardContent className="py-8 text-center">
+                <p className="text-yellow-800 font-semibold mb-2">No dosha data available</p>
+                <p className="text-sm text-yellow-700">
+                  This chart was calculated before Phase 2 enhancements. Please regenerate the chart to check for doshas.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Transits Tab */}
+        <TabsContent value="transits" className="space-y-6">
+          {d1Loading ? (
+            <Card>
+              <CardContent className="text-center py-12">
+                <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading current transits...</p>
+              </CardContent>
+            </Card>
+          ) : d1Chart?.chart_data?.transits && d1Chart?.chart_data?.sade_sati ? (
+            <TransitsDisplay
+              transits={d1Chart.chart_data.transits}
+              sadeSati={d1Chart.chart_data.sade_sati}
+            />
+          ) : (
+            <Card className="border-2 border-yellow-300 bg-yellow-50">
+              <CardContent className="py-8 text-center">
+                <p className="text-yellow-800 font-semibold mb-2">No transit data available</p>
+                <p className="text-sm text-yellow-700">
+                  This chart was calculated before Phase 2 enhancements. Please regenerate the chart to get current transits and Sade Sati analysis.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
         {/* Dasha Tab */}
         <TabsContent value="dasha" className="space-y-6">
           {d1Loading ? (
@@ -397,7 +568,7 @@ export default function EnhancedChartPage() {
             </Card>
           ) : d1Chart && d1Chart.chart_data.dasha ? (
             <>
-              <DasaTimeline dashaData={d1Chart.chart_data.dasha} />
+              <EnhancedDashaTimeline dashaData={d1Chart.chart_data.dasha} />
 
               <Card className="bg-amber-50">
                 <CardContent className="py-6">
@@ -406,7 +577,8 @@ export default function EnhancedChartPage() {
                     Vimshottari Dasha is a 120-year planetary period system based on the Moon's position
                     at birth. Each planet rules for a specific number of years, bringing its unique
                     energy and events. The current Mahadasha (major period) and Antardasha (sub-period)
-                    significantly influence life events.
+                    significantly influence life events. The enhanced timeline above shows detailed
+                    interpretations, planetary relationships, remedies, and AI-personalized guidance.
                   </p>
                 </CardContent>
               </Card>

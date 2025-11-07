@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { BirthChartTemplate } from './BirthChartTemplate'
+import { NorthIndianChart } from './NorthIndianChart'
 import { SouthIndianChart } from './SouthIndianChart'
 import { WesternBirthChart } from './WesternBirthChart'
 
@@ -51,13 +51,13 @@ export function ChartSelector({ chartData, defaultChart = 'north' }: ChartSelect
   const renderChart = () => {
     switch (selectedChart) {
       case 'north':
-        return <BirthChartTemplate chartData={chartData} />
+        return <NorthIndianChart chartData={chartData} />
       case 'south':
         return <SouthIndianChart chartData={chartData} />
       case 'western':
         return <WesternBirthChart chartData={chartData} />
       default:
-        return <BirthChartTemplate chartData={chartData} />
+        return <NorthIndianChart chartData={chartData} />
     }
   }
 

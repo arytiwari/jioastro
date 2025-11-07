@@ -3,12 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { apiClient } from '@/lib/api'
+import { useMutation, useQueryClient } from '@/lib/query'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { CityAutocomplete } from '@/components/CityAutocomplete'
+import { useToast } from '@/hooks/use-toast'
 
 const TIMEZONES = [
   'UTC',
@@ -23,7 +25,8 @@ const TIMEZONES = [
 
 export default function NewProfilePage() {
   const router = useRouter()
-  const [loading, setLoading] = useState(false)
+  const queryClient = useQueryClient()
+  const { toast } = useToast()
   const [error, setError] = useState('')
 
   const [formData, setFormData] = useState({
@@ -46,27 +49,44 @@ export default function NewProfilePage() {
     }))
   }
 
+  const createProfileMutation = useMutation({
+    mutationFn: async (payload: typeof formData) => {
+      const data = {
+        ...payload,
+        birth_lat: parseFloat(payload.birth_lat),
+        birth_lon: parseFloat(payload.birth_lon),
+      }
+      const response = await apiClient.createProfile(data)
+      return response.data
+    },
+    onSuccess: (data) => {
+      // Invalidate profiles cache so the list refreshes
+      queryClient.invalidateQueries(['profiles'])
+      // Show success toast
+      toast({
+        title: "Profile Created!",
+        description: `${data.name}'s profile has been created successfully`,
+        variant: "success"
+      })
+      // Redirect to the new profile's chart page
+      router.push(`/dashboard/chart/${data.id}`)
+    },
+    onError: (err: any) => {
+      const errorMsg = err.response?.data?.detail || 'Failed to create profile'
+      setError(errorMsg)
+      // Show error toast
+      toast({
+        title: "Failed to create profile",
+        description: errorMsg,
+        variant: "destructive"
+      })
+    },
+  })
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
-
-    try {
-      const payload = {
-        ...formData,
-        birth_lat: parseFloat(formData.birth_lat),
-        birth_lon: parseFloat(formData.birth_lon),
-      }
-
-      const response = await apiClient.createProfile(payload)
-
-      // Redirect to the new profile's chart page
-      router.push(`/dashboard/chart/${response.data.id}`)
-    } catch (err: any) {
-      setError(err.response?.data?.detail || 'Failed to create profile')
-    } finally {
-      setLoading(false)
-    }
+    createProfileMutation.mutate(formData)
   }
 
   return (
@@ -102,7 +122,7 @@ export default function NewProfilePage() {
                 onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="John Doe"
                 required
-                disabled={loading}
+                disabled={createProfileMutation.isPending}
               />
             </div>
 
@@ -116,7 +136,7 @@ export default function NewProfilePage() {
                   value={formData.birth_date}
                   onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_date: e.target.value })}
                   required
-                  disabled={loading}
+                  disabled={createProfileMutation.isPending}
                 />
               </div>
 
@@ -128,7 +148,7 @@ export default function NewProfilePage() {
                   value={formData.birth_time}
                   onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_time: e.target.value })}
                   required
-                  disabled={loading}
+                  disabled={createProfileMutation.isPending}
                 />
                 <p className="text-xs text-gray-500">Use 24-hour format (HH:MM)</p>
               </div>
@@ -137,7 +157,7 @@ export default function NewProfilePage() {
             {/* City Selection */}
             <CityAutocomplete
               onCitySelect={handleCitySelect}
-              disabled={loading}
+              disabled={createProfileMutation.isPending}
               initialValue={formData.birth_city}
             />
 
@@ -153,7 +173,7 @@ export default function NewProfilePage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_lat: e.target.value })}
                   placeholder="19.0760"
                   required
-                  disabled={loading}
+                  disabled={createProfileMutation.isPending}
                 />
               </div>
 
@@ -167,7 +187,7 @@ export default function NewProfilePage() {
                   onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, birth_lon: e.target.value })}
                   placeholder="72.8777"
                   required
-                  disabled={loading}
+                  disabled={createProfileMutation.isPending}
                 />
               </div>
             </div>
@@ -178,7 +198,7 @@ export default function NewProfilePage() {
               <Select
                 value={formData.birth_timezone}
                 onValueChange={(value) => setFormData({ ...formData, birth_timezone: value })}
-                disabled={loading}
+                disabled={createProfileMutation.isPending}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -201,7 +221,7 @@ export default function NewProfilePage() {
                 checked={formData.is_primary}
                 onChange={(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData({ ...formData, is_primary: e.target.checked })}
                 className="rounded border-gray-300"
-                disabled={loading}
+                disabled={createProfileMutation.isPending}
               />
               <Label htmlFor="is_primary" className="font-normal cursor-pointer">
                 Set as primary profile
@@ -211,16 +231,16 @@ export default function NewProfilePage() {
             <div className="flex gap-4">
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={createProfileMutation.isPending}
                 className="flex-1"
               >
-                {loading ? 'Creating...' : 'Create Profile & Generate Chart'}
+                {createProfileMutation.isPending ? 'Creating...' : 'Create Profile & Generate Chart'}
               </Button>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.back()}
-                disabled={loading}
+                disabled={createProfileMutation.isPending}
               >
                 Cancel
               </Button>

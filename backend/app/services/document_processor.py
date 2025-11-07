@@ -289,7 +289,9 @@ class DocumentProcessorService:
                 rules_stored = rule_extraction_result.get('rules_stored', 0)
                 print(f"  ✅ Extracted and stored {rules_stored} rules")
             else:
-                print(f"  ⚠️ Rule extraction had issues, continuing with embeddings...")
+                print(f"  ⚠️ Rule extraction had issues but continuing...")
+                rules_stored = rule_extraction_result.get('rules_stored', 0)
+                print(f"  📝 Managed to store {rules_stored} rules despite errors")
 
             # Step 3: Chunk text
             print(f"  3️⃣ Chunking text...")

@@ -5,6 +5,7 @@
 export {
   Plus,
   User,
+  Users,
   MessageSquare,
   MessageCircle,
   FileText,
@@ -22,6 +23,8 @@ export {
   AlertCircle,
   CheckCircle,
   Info,
+  HelpCircle,
+  XCircle,
   Loader,
   Loader2,
   Search,

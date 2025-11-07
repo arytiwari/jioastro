@@ -1,1 +1,1 @@
-"""Vedic AI Astrology API"""
+"""JioAstro API"""

@@ -116,7 +116,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t mt-20 py-8 bg-jio-50">
         <div className="container mx-auto px-4 text-center text-gray-600">
-          <p>&copy; 2024 JioAstro. Built with ancient wisdom and modern technology.</p>
+          <p>&copy; 2025 JioAstro. Built with ancient wisdom and modern technology.</p>
         </div>
       </footer>
     </div>

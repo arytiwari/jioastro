@@ -1,6 +1,6 @@
-# Vedic AI Astrology - Frontend
+# JioAstro - Frontend
 
-Next.js 14 frontend for AI-powered Vedic astrology service.
+Next.js 14 frontend for JioAstro, an AI-powered Vedic astrology service.
 
 ## Features
 
@@ -98,12 +98,12 @@ vercel --prod
 ### Docker
 
 ```bash
-docker build -t vedic-astrology-frontend .
+docker build -t jioastro-frontend .
 docker run -p 3000:3000 \
   -e NEXT_PUBLIC_API_URL=https://api.example.com \
   -e NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co \
   -e NEXT_PUBLIC_SUPABASE_ANON_KEY=your-key \
-  vedic-astrology-frontend
+  jioastro-frontend
 ```
 
 ## License

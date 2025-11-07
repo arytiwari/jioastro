@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Plus, Calendar, MapPin, Star } from '@/components/icons'
 import { formatDate, formatTime } from '@/lib/utils'
 
@@ -19,9 +20,31 @@ export default function ProfilesPage() {
 
   if (isLoading) {
     return (
-      <div className="text-center py-12">
-        <div className="w-8 h-8 border-4 border-jio-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-600">Loading profiles...</p>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-9 w-64 mb-2" />
+            <Skeleton className="h-5 w-80" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-32 mb-2" />
+                <Skeleton className="h-4 w-48" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-3 w-24" />
+                </div>
+                <Skeleton className="h-10 w-full mt-4" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     )
   }

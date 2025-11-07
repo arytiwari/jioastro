@@ -101,6 +101,27 @@ export default function ComprehensiveReadingsPage() {
     }
   }, [loadingReadings])
 
+  const handleDeleteReading = async (sessionId: string, profileName: string, e: React.MouseEvent) => {
+    // Prevent navigation when clicking delete button
+    e.stopPropagation()
+
+    if (!confirm(`Delete reading for "${profileName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      await apiClient.deleteReading(sessionId)
+      // Remove from local state
+      setPastReadings((prev) => prev.filter((r) => {
+        const rId = r.id || r.session_id
+        return rId !== sessionId
+      }))
+    } catch (err: any) {
+      console.error('Failed to delete reading:', err)
+      alert(err.message || 'Failed to delete reading. Please try again.')
+    }
+  }
+
   const toggleDomain = (domainId: string) => {
     setSelectedDomains((prev) =>
       prev.includes(domainId)
@@ -475,16 +496,18 @@ export default function ComprehensiveReadingsPage() {
                 const predictionCount = reading.predictions?.length || 0
 
                 return (
-                  <button
+                  <div
                     key={sessionId}
-                    onClick={() => {
-                      console.log('🖱️ Clicking reading:', sessionId)
-                      router.push(`/dashboard/readings/${sessionId}`)
-                    }}
-                    className="w-full p-4 border rounded-lg text-left hover:border-jio-300 hover:bg-jio-50 transition-colors"
+                    className="w-full p-4 border rounded-lg hover:border-jio-300 hover:bg-jio-50 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
+                      <button
+                        onClick={() => {
+                          console.log('🖱️ Clicking reading:', sessionId)
+                          router.push(`/dashboard/readings/${sessionId}`)
+                        }}
+                        className="flex-1 text-left"
+                      >
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-medium text-gray-900">
                             {reading.profile_name || 'Comprehensive Reading'}
@@ -507,14 +530,31 @@ export default function ComprehensiveReadingsPage() {
                             </span>
                           )}
                         </div>
-                      </div>
-                      <div className="text-jio-600">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => handleDeleteReading(sessionId, reading.profile_name || 'Reading', e)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                          title="Delete reading"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={() => {
+                            console.log('🖱️ Clicking reading:', sessionId)
+                            router.push(`/dashboard/readings/${sessionId}`)
+                          }}
+                          className="text-jio-600"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </button>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 )
               })}
             </div>

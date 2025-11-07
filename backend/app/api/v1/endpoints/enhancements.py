@@ -507,11 +507,11 @@ async def calculate_shadbala(
 
         return ShadbalaResponse(
             planetary_strengths=planetary_strengths,
-            strongest_planet=shadbala_result.get('strongest_planet', 'Unknown'),
-            weakest_planet=shadbala_result.get('weakest_planet', 'Unknown'),
-            average_strength=shadbala_result.get('average_percentage', 0),
-            planets_above_minimum=shadbala_result.get('planets_above_required', 0),
-            overall_chart_strength=shadbala_result.get('overall_strength', 'Unknown'),
+            strongest_planet=shadbala_result.get('strongest_planet', {'planet': 'Unknown', 'strength': 0}),
+            weakest_planet=shadbala_result.get('weakest_planet', {'planet': 'Unknown', 'strength': 0}),
+            average_strength=shadbala_result.get('average_strength', 0),
+            planets_above_minimum=shadbala_result.get('planets_above_required', []),
+            overall_chart_strength='Strong' if shadbala_result.get('average_strength', 0) >= 100 else 'Moderate' if shadbala_result.get('average_strength', 0) >= 70 else 'Weak',
             recommendations=[],
             calculation_date=datetime.now()
         )

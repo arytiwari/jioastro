@@ -114,8 +114,9 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
       ctx.strokeStyle = 'rgba(63, 44, 28, 0.6)'
       for (let i = 0; i < 12; i++) {
         const angle = (Math.PI * 2 * i) / 12
-        const x = center + Math.cos(angle) * 360
-        const y = center + Math.sin(angle) * 360
+        // Reduced from 360 to 340 to match smaller outer ring
+        const x = center + Math.cos(angle) * 340
+        const y = center + Math.sin(angle) * 340
         ctx.beginPath()
         ctx.moveTo(center, center)
         ctx.lineTo(x, y)
@@ -135,7 +136,8 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
         const end = startAngle + (Math.PI * 2 * (i + 1)) / 12
         ctx.beginPath()
         ctx.moveTo(center, center)
-        ctx.arc(center, center, 390, start, end)
+        // Reduced arc radius from 390 to 370 to match smaller outer ring
+        ctx.arc(center, center, 370, start, end)
         ctx.closePath()
         ctx.fillStyle = i % 2 === 0 ? 'rgba(255, 255, 255, 0.72)' : 'rgba(248, 229, 198, 0.76)'
         ctx.fill()
@@ -145,16 +147,18 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
     // Draw house numbers
     function drawHouseNumbers() {
       ctx.save()
-      ctx.fillStyle = 'rgba(63, 44, 28, 0.85)'
-      ctx.font = '600 22px "Inter", "Helvetica Neue", Arial, sans-serif'
+      ctx.fillStyle = 'rgba(63, 44, 28, 0.9)'
+      ctx.font = 'bold 19px "Inter", "Helvetica Neue", Arial, sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
       for (let i = 0; i < 12; i++) {
         // Start from ascendant (house 1 at 180°) and go counter-clockwise
-        const angle = toRad(ascendantDegree) - (i * Math.PI / 6)
-        const x = center + Math.cos(angle) * 235
-        const y = center + Math.sin(angle) * 235
+        // Offset by half a house (PI/12) to center numbers in each house section
+        const angle = toRad(ascendantDegree) - (i * Math.PI / 6) - (Math.PI / 12)
+        // Position at radius 270 - between inner ring (300) and planets (180)
+        const x = center + Math.cos(angle) * 270
+        const y = center + Math.sin(angle) * 270
         ctx.fillText(String(i + 1), x, y)
       }
       ctx.restore()
@@ -164,7 +168,7 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
     function drawZodiacGlyphs() {
       ctx.save()
       ctx.fillStyle = 'rgba(42, 26, 17, 0.85)'
-      ctx.font = '700 44px "Noto Sans Symbols 2", "Segoe UI Symbol", sans-serif'
+      ctx.font = '700 40px "Noto Sans Symbols 2", "Segoe UI Symbol", sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
@@ -173,8 +177,10 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
 
       ZODIAC_SIGNS.forEach((sign, index) => {
         const angle = startAngle + ((index + 0.5) * Math.PI * 2) / 12
-        const x = center + Math.cos(angle) * 325
-        const y = center + Math.sin(angle) * 325
+        // Position between inner ring (300) and outer slice (370)
+        // Using radius 335 for center of zodiac band
+        const x = center + Math.cos(angle) * 335
+        const y = center + Math.sin(angle) * 335
         ctx.fillText(sign.glyph, x, y)
       })
       ctx.restore()
@@ -183,7 +189,7 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
     // Draw planets
     function drawPlanets() {
       ctx.save()
-      ctx.font = '600 28px "Noto Sans Symbols 2", "Segoe UI Symbol", sans-serif'
+      ctx.font = '600 26px "Noto Sans Symbols 2", "Segoe UI Symbol", sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
@@ -196,17 +202,18 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
         const adjustedDegree = ascendantDegree - (chartData.ascendant.sign_num * 30) + absoluteDegree
         const angle = toRad(adjustedDegree)
 
-        const r = 180
+        // Position planets at radius 170 (between center and house numbers)
+        const r = 170
         const x = center + Math.cos(angle) * r
         const y = center + Math.sin(angle) * r
 
         // Draw planet circle background
         ctx.beginPath()
-        ctx.arc(x, y, 22, 0, Math.PI * 2)
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.92)'
+        ctx.arc(x, y, 20, 0, Math.PI * 2)
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.95)'
         ctx.fill()
-        ctx.lineWidth = 2
-        ctx.strokeStyle = planetData.retrograde ? 'rgba(220, 38, 38, 0.6)' : 'rgba(63, 44, 28, 0.4)'
+        ctx.lineWidth = 2.5
+        ctx.strokeStyle = planetData.retrograde ? 'rgba(220, 38, 38, 0.7)' : 'rgba(63, 44, 28, 0.5)'
         ctx.stroke()
 
         // Draw planet symbol
@@ -220,8 +227,8 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
     // Draw zodiac sign names around the outer edge
     function drawRadialLabels() {
       ctx.save()
-      ctx.fillStyle = 'rgba(63, 44, 28, 0.7)'
-      ctx.font = '500 16px "Inter", "Helvetica Neue", Arial, sans-serif'
+      ctx.fillStyle = 'rgba(63, 44, 28, 0.85)'
+      ctx.font = 'bold 15px "Inter", "Helvetica Neue", Arial, sans-serif'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
 
@@ -230,8 +237,9 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
 
       ZODIAC_SIGNS.forEach((sign, index) => {
         const angle = startAngle + ((index + 0.5) * Math.PI * 2) / 12
-        const x = center + Math.cos(angle) * 420
-        const y = center + Math.sin(angle) * 420
+        // Increased radius from 420 to 440 to prevent overlap with outer ring
+        const x = center + Math.cos(angle) * 440
+        const y = center + Math.sin(angle) * 440
         ctx.fillText(sign.name, x, y)
       })
       ctx.restore()
@@ -241,8 +249,8 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
     function drawChart() {
       ctx.clearRect(0, 0, size, size)
 
-      // Draw outer and inner rings
-      drawRing(420, 10, 'rgba(255, 255, 255, 0.75)')
+      // Draw outer and inner rings (reduced outer ring from 420 to 400 for label spacing)
+      drawRing(400, 10, 'rgba(255, 255, 255, 0.75)')
       drawRing(300, 8, '#f4e3c5')
 
       // Draw all elements
@@ -288,8 +296,8 @@ export function WesternBirthChart({ chartData, width = 720, height = 720 }: West
     <div className="flex flex-col items-center p-4">
       <canvas
         ref={canvasRef}
-        width={900}
-        height={900}
+        width={1000}
+        height={1000}
         style={{
           width: `${width}px`,
           height: `${height}px`,

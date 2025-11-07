@@ -128,7 +128,7 @@ async def get_reading(
         from app.services.supabase_service import supabase_service
 
         response = supabase_service.client.table("reading_sessions")\
-            .select("*")\
+            .select("*, profiles(name)")\
             .eq("id", session_id)\
             .eq("user_id", user_id)\
             .execute()
@@ -139,7 +139,15 @@ async def get_reading(
                 detail="Reading session not found"
             )
 
-        return response.data[0]
+        reading = response.data[0]
+        # Add profile_name field for easier frontend access
+        if reading.get('profiles') and reading['profiles'].get('name'):
+            reading['profile_name'] = reading['profiles']['name']
+        # Clean up nested profiles object
+        if 'profiles' in reading:
+            del reading['profiles']
+
+        return reading
 
     except HTTPException:
         raise
@@ -166,7 +174,7 @@ async def list_readings(
         # Select all columns - if table doesn't exist or has different schema, return empty
         try:
             response = supabase_service.client.table("reading_sessions")\
-                .select("*")\
+                .select("*, profiles(name)")\
                 .eq("user_id", user_id)\
                 .order("created_at", desc=True)\
                 .range(offset, offset + limit - 1)\
@@ -176,13 +184,69 @@ async def list_readings(
             print(f"Note: reading_sessions table not available: {e}")
             return []
 
-        return response.data if response.data else []
+        # Add profile_name field to each reading for easier frontend access
+        readings = response.data if response.data else []
+        for reading in readings:
+            if reading.get('profiles') and reading['profiles'].get('name'):
+                reading['profile_name'] = reading['profiles']['name']
+            # Clean up nested profiles object
+            if 'profiles' in reading:
+                del reading['profiles']
+
+        return readings
 
     except Exception as e:
         print(f"Error listing readings: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to list readings: {str(e)}"
+        )
+
+
+@router.delete("/{session_id}")
+async def delete_reading(
+    session_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Delete a reading session"""
+    try:
+        user_id = current_user["user_id"]
+
+        from app.services.supabase_service import supabase_service
+
+        # Verify reading belongs to user before deleting
+        response = supabase_service.client.table("reading_sessions")\
+            .select("id")\
+            .eq("id", session_id)\
+            .eq("user_id", user_id)\
+            .execute()
+
+        if not response.data or len(response.data) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Reading not found or access denied"
+            )
+
+        # Delete the reading
+        delete_response = supabase_service.client.table("reading_sessions")\
+            .delete()\
+            .eq("id", session_id)\
+            .eq("user_id", user_id)\
+            .execute()
+
+        return {
+            "success": True,
+            "message": "Reading deleted successfully",
+            "session_id": session_id
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error deleting reading: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete reading: {str(e)}"
         )
 
 

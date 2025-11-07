@@ -1,6 +1,6 @@
-# Vedic AI Astrology - Backend API
+# JioAstro API - Backend
 
-FastAPI-based backend for AI-powered Vedic astrology service.
+FastAPI-based backend for JioAstro, an AI-powered Vedic astrology service.
 
 ## Features
 
@@ -57,8 +57,8 @@ Once running, visit:
 Build and run with Docker:
 
 ```bash
-docker build -t vedic-astrology-api .
-docker run -p 8000:8000 --env-file .env vedic-astrology-api
+docker build -t jioastro-api .
+docker run -p 8000:8000 --env-file .env jioastro-api
 ```
 
 ## API Endpoints

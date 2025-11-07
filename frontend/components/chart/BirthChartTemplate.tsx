@@ -81,9 +81,10 @@ type LayoutAnchor = {
 }
 
 // North Indian Chart - Anticlockwise from top (House 1)
-// Layout: House numbers go anticlockwise starting from top
+// Layout: House numbers go anticlockwise starting from center top (Ascendant)
+// Anticlockwise means: Top → Top-Left → Left → Bottom-Left → Bottom → Bottom-Right → Right → Top-Right
 const HOUSE_LAYOUT: Record<number, LayoutAnchor> = {
-  1: { label: [0.5, 0.08], sign: [0.5, 0.15], planets: [0.5, 0.22] },           // Top
+  1: { label: [0.5, 0.08], sign: [0.5, 0.15], planets: [0.5, 0.22] },           // Top (Ascendant)
   2: { label: [0.22, 0.22], sign: [0.22, 0.29], planets: [0.22, 0.36], anchor: 'start' },  // Top-Left
   3: { label: [0.08, 0.5], sign: [0.12, 0.57], planets: [0.15, 0.64], anchor: 'start' },   // Left
   4: { label: [0.22, 0.78], sign: [0.22, 0.85], planets: [0.22, 0.92], anchor: 'start' },  // Bottom-Left
