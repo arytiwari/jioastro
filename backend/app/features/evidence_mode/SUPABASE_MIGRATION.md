@@ -167,23 +167,40 @@ Once migration is complete and backend restarted:
 
 ## Troubleshooting
 
-### Error: "type already exists"
+### Error: "type already exists" or "relation already exists"
 
-The migration has already been run. To re-run:
+The migration has been partially or fully run before. To reset and re-run:
 
-1. Drop existing objects first:
-   ```sql
-   DROP VIEW IF EXISTS evidence_mode_summary;
-   DROP TABLE IF EXISTS evidence_mode_validations CASCADE;
-   DROP TABLE IF EXISTS evidence_mode_citations CASCADE;
-   DROP TABLE IF EXISTS evidence_mode_sources CASCADE;
-   DROP TYPE IF EXISTS evidence_validation_status;
-   DROP TYPE IF EXISTS evidence_confidence_level;
-   DROP TYPE IF EXISTS evidence_source_type;
-   DROP FUNCTION IF EXISTS update_updated_at_column CASCADE;
-   ```
+**Option 1: Use Rollback Script (Recommended)**
 
-2. Then run the full migration again
+1. Run the rollback script in Supabase SQL Editor:
+   - Open: `app/features/evidence_mode/supabase_rollback.sql`
+   - Copy entire contents
+   - Paste in SQL Editor and Run
+   - Wait for confirmation message
+
+2. Then run the full migration:
+   - Open: `app/features/evidence_mode/supabase_migration.sql`
+   - Copy and run
+
+**Option 2: Manual Cleanup**
+
+Run these commands in order:
+```sql
+DROP VIEW IF EXISTS evidence_mode_summary CASCADE;
+DROP TRIGGER IF EXISTS update_validations_updated_at ON evidence_mode_validations;
+DROP TRIGGER IF EXISTS update_citations_updated_at ON evidence_mode_citations;
+DROP TRIGGER IF EXISTS update_sources_updated_at ON evidence_mode_sources;
+DROP TABLE IF EXISTS evidence_mode_validations CASCADE;
+DROP TABLE IF EXISTS evidence_mode_citations CASCADE;
+DROP TABLE IF EXISTS evidence_mode_sources CASCADE;
+DROP FUNCTION IF EXISTS update_updated_at_column() CASCADE;
+DROP TYPE IF EXISTS evidence_validation_status CASCADE;
+DROP TYPE IF EXISTS evidence_confidence_level CASCADE;
+DROP TYPE IF EXISTS evidence_source_type CASCADE;
+```
+
+Then run the full migration again.
 
 ### Error: "permission denied"
 
