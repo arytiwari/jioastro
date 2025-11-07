@@ -588,6 +588,34 @@ class APIClient {
       body: JSON.stringify(data),
     })
   }
+
+  // Phase 5: Compatibility Matching endpoints
+  async analyzeCompatibility(data: {
+    boy_profile_id: string
+    girl_profile_id: string
+  }) {
+    return this.request(`/compatibility/analyze?boy_profile_id=${data.boy_profile_id}&girl_profile_id=${data.girl_profile_id}`, {
+      method: 'POST',
+    })
+  }
+
+  async getGunaMilan(boyProfileId: string, girlProfileId: string) {
+    return this.request(`/compatibility/guna-milan/${boyProfileId}/${girlProfileId}`)
+  }
+
+  async getManglikDosha(profileId: string) {
+    return this.request(`/compatibility/manglik/${profileId}`)
+  }
+
+  async getNakshatra(profileId: string) {
+    return this.request(`/compatibility/nakshatra/${profileId}`)
+  }
+
+  async quickMatch(profileId: string) {
+    return this.request(`/compatibility/quick-match?profile_id=${profileId}`, {
+      method: 'POST',
+    })
+  }
 }
 
 export const apiClient = new APIClient()

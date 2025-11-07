@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import profiles, charts, queries, feedback, admin, readings, knowledge, enhancements, setup, cities, numerology
+from app.api.v1.endpoints import profiles, charts, queries, feedback, admin, readings, knowledge, enhancements, setup, cities, numerology, compatibility
 
 api_router = APIRouter()
 
@@ -18,3 +18,4 @@ api_router.include_router(enhancements.router, prefix="/enhancements", tags=["en
 api_router.include_router(setup.router, prefix="/setup", tags=["setup"])
 api_router.include_router(cities.router, prefix="/cities", tags=["cities"])
 api_router.include_router(numerology.router, prefix="/numerology", tags=["numerology"])
+api_router.include_router(compatibility.router, prefix="/compatibility", tags=["compatibility"])

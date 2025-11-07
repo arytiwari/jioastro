@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import {
@@ -184,6 +184,14 @@ export default function DashboardLayout({
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Activity className="w-4 h-4" />
                   Advanced
+                </Button>
+              </Link>
+
+              {/* Compatibility Matching */}
+              <Link href="/dashboard/compatibility">
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" />
+                  Compatibility
                 </Button>
               </Link>
 
