@@ -9,14 +9,12 @@ and insight verification.
 from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.features.base import BaseFeature
 from app.core.feature_flags import require_feature
 from app.core.security import get_current_user
-from app.db.database import get_db
 from . import schemas
-from .service import evidence_mode_service
+from .supabase_service import evidence_mode_supabase_service
 
 
 class EvidenceModeFeature(BaseFeature):
@@ -82,7 +80,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def create_source(
             source_data: schemas.SourceCreate,
-            db: AsyncSession = Depends(get_db),
             current_user: dict = Depends(get_current_user)
         ):
             """
@@ -92,10 +89,9 @@ class EvidenceModeFeature(BaseFeature):
             that can be cited to back astrological insights.
             """
             try:
-                source = await evidence_mode_service.create_source(
-                    db=db,
+                source = await evidence_mode_supabase_service.create_source(
                     source_data=source_data,
-                    created_by=UUID(current_user["user_id"])
+                    user_id=UUID(current_user["user_id"])
                 )
                 return source
             except Exception as e:
@@ -108,8 +104,7 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def get_source(
             source_id: UUID,
-            include_citations: bool = Query(False, description="Include citations for this source"),
-            db: AsyncSession = Depends(get_db)
+            include_citations: bool = Query(False, description="Include citations for this source")
         ):
             """
             Get a source by ID.
@@ -117,11 +112,7 @@ class EvidenceModeFeature(BaseFeature):
             Retrieves detailed information about an evidence source,
             optionally including all citations that reference it.
             """
-            source = await evidence_mode_service.get_source(
-                db=db,
-                source_id=source_id,
-                include_citations=include_citations
-            )
+            source = await evidence_mode_supabase_service.get_source(source_id=source_id)
 
             if not source:
                 raise HTTPException(
@@ -135,7 +126,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def search_sources(
             search_params: schemas.SourceSearchRequest,
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Search for evidence sources.
@@ -144,8 +134,7 @@ class EvidenceModeFeature(BaseFeature):
             and text query. Supports pagination.
             """
             try:
-                sources, total = await evidence_mode_service.search_sources(
-                    db=db,
+                sources, total = await evidence_mode_supabase_service.search_sources(
                     search_params=search_params
                 )
 
@@ -169,7 +158,6 @@ class EvidenceModeFeature(BaseFeature):
         async def update_source(
             source_id: UUID,
             update_data: schemas.SourceUpdate,
-            db: AsyncSession = Depends(get_db),
             current_user: dict = Depends(get_current_user)
         ):
             """
@@ -177,8 +165,7 @@ class EvidenceModeFeature(BaseFeature):
 
             Updates source metadata, credibility score, or verification status.
             """
-            source = await evidence_mode_service.update_source(
-                db=db,
+            source = await evidence_mode_supabase_service.update_source(
                 source_id=source_id,
                 update_data=update_data
             )
@@ -195,7 +182,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def delete_source(
             source_id: UUID,
-            db: AsyncSession = Depends(get_db),
             current_user: dict = Depends(get_current_user)
         ):
             """
@@ -203,7 +189,7 @@ class EvidenceModeFeature(BaseFeature):
 
             Marks the source as not public rather than permanently deleting it.
             """
-            success = await evidence_mode_service.delete_source(db=db, source_id=source_id)
+            success = await evidence_mode_supabase_service.delete_source(source_id=source_id)
 
             if not success:
                 raise HTTPException(
@@ -219,7 +205,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def create_citation(
             citation_data: schemas.CitationCreate,
-            db: AsyncSession = Depends(get_db),
             current_user: dict = Depends(get_current_user)
         ):
             """
@@ -229,10 +214,9 @@ class EvidenceModeFeature(BaseFeature):
             establishing the citation relationship.
             """
             try:
-                citation = await evidence_mode_service.create_citation(
-                    db=db,
+                citation = await evidence_mode_supabase_service.create_citation(
                     citation_data=citation_data,
-                    created_by=UUID(current_user["user_id"])
+                    user_id=UUID(current_user["user_id"])
                 )
                 return citation
             except ValueError as e:
@@ -251,7 +235,6 @@ class EvidenceModeFeature(BaseFeature):
         async def get_citation(
             citation_id: UUID,
             include_validations: bool = Query(False, description="Include validation data"),
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Get a citation by ID.
@@ -259,12 +242,7 @@ class EvidenceModeFeature(BaseFeature):
             Retrieves citation details including source information
             and optionally validation records.
             """
-            citation = await evidence_mode_service.get_citation(
-                db=db,
-                citation_id=citation_id,
-                include_source=True,
-                include_validations=include_validations
-            )
+            citation = await evidence_mode_supabase_service.get_citation(citation_id=citation_id)
 
             if not citation:
                 raise HTTPException(
@@ -278,7 +256,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def search_citations(
             search_params: schemas.CitationSearchRequest,
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Search for citations.
@@ -287,8 +264,7 @@ class EvidenceModeFeature(BaseFeature):
             and other criteria. Supports pagination.
             """
             try:
-                citations, total = await evidence_mode_service.search_citations(
-                    db=db,
+                citations, total = await evidence_mode_supabase_service.search_citations(
                     search_params=search_params
                 )
 
@@ -312,7 +288,6 @@ class EvidenceModeFeature(BaseFeature):
         async def submit_citation_feedback(
             citation_id: UUID,
             feedback: schemas.CitationFeedback,
-            db: AsyncSession = Depends(get_db),
             current_user: dict = Depends(get_current_user)
         ):
             """
@@ -321,8 +296,7 @@ class EvidenceModeFeature(BaseFeature):
             Records whether a user found a citation helpful or not,
             updating the citation's feedback counters.
             """
-            citation = await evidence_mode_service.update_citation_feedback(
-                db=db,
+            citation = await evidence_mode_supabase_service.update_citation_feedback(
                 citation_id=citation_id,
                 is_helpful=feedback.is_helpful
             )
@@ -345,7 +319,6 @@ class EvidenceModeFeature(BaseFeature):
             validation_data: schemas.ValidationCreate,
             validator_name: str = Query(None, description="Validator name"),
             validator_credentials: str = Query(None, description="Validator credentials"),
-            db: AsyncSession = Depends(get_db),
             current_user: dict = Depends(get_current_user)
         ):
             """
@@ -355,8 +328,7 @@ class EvidenceModeFeature(BaseFeature):
             confidence adjustments and feedback.
             """
             try:
-                validation = await evidence_mode_service.create_validation(
-                    db=db,
+                validation = await evidence_mode_supabase_service.create_validation(
                     validation_data=validation_data,
                     validator_id=UUID(current_user["user_id"]),
                     validator_name=validator_name,
@@ -378,7 +350,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def get_validations_for_citation(
             citation_id: UUID,
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Get all validations for a citation.
@@ -386,9 +357,10 @@ class EvidenceModeFeature(BaseFeature):
             Retrieves validation records showing expert reviews
             and peer assessments of the citation.
             """
-            validations = await evidence_mode_service.get_validations_for_citation(
-                db=db,
-                citation_id=citation_id
+            validations, _ = await evidence_mode_supabase_service.list_validations(
+                citation_id=citation_id,
+                page=1,
+                page_size=100
             )
             return validations
 
@@ -400,7 +372,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def verify_insight(
             verification_request: schemas.InsightVerificationRequest,
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Verify an astrological insight.
@@ -409,8 +380,7 @@ class EvidenceModeFeature(BaseFeature):
             returning evidence-backed verification with confidence scores.
             """
             try:
-                verification = await evidence_mode_service.verify_insight(
-                    db=db,
+                verification = await evidence_mode_supabase_service.verify_insight(
                     verification_request=verification_request
                 )
                 return verification
@@ -424,7 +394,6 @@ class EvidenceModeFeature(BaseFeature):
         @require_feature("evidence_mode")
         async def calculate_confidence(
             insight_type: str,
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Calculate confidence score for an insight type.
@@ -436,8 +405,7 @@ class EvidenceModeFeature(BaseFeature):
             - Historical accuracy
             """
             try:
-                confidence = await evidence_mode_service.calculate_confidence_score(
-                    db=db,
+                confidence = await evidence_mode_supabase_service.calculate_confidence_score(
                     insight_type=insight_type
                 )
                 return confidence
@@ -453,7 +421,6 @@ class EvidenceModeFeature(BaseFeature):
             insight_type: str,
             min_confidence: float = Query(0.0, ge=0.0, le=1.0, description="Minimum confidence score"),
             limit: int = Query(10, ge=1, le=50, description="Maximum results"),
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Get citations for a specific insight type.
@@ -461,8 +428,7 @@ class EvidenceModeFeature(BaseFeature):
             Retrieves all citations matching the insight type,
             filtered by minimum confidence threshold.
             """
-            citations = await evidence_mode_service.get_citations_for_insight(
-                db=db,
+            citations = await evidence_mode_supabase_service.get_citations_for_insight(
                 insight_type=insight_type,
                 min_confidence=min_confidence,
                 limit=limit
@@ -483,7 +449,6 @@ class EvidenceModeFeature(BaseFeature):
         @router.get("/stats", response_model=dict)
         @require_feature("evidence_mode")
         async def get_evidence_mode_stats(
-            db: AsyncSession = Depends(get_db)
         ):
             """
             Get Evidence Mode statistics.
