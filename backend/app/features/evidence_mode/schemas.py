@@ -55,7 +55,7 @@ class SourceBase(BaseModel):
 class SourceCreate(SourceBase):
     """Schema for creating a new evidence source."""
     full_text: Optional[str] = Field(None, description="Full text content")
-    publication_year: Optional[int] = Field(None, ge=1000, le=2100, description="Publication year")
+    publication_year: Optional[int] = Field(None, ge=-3000, le=2100, description="Publication year (negative for BCE)")
     publisher: Optional[str] = Field(None, max_length=255)
     isbn_doi: Optional[str] = Field(None, max_length=100, description="ISBN or DOI")
     url: Optional[str] = Field(None, max_length=500, description="Online reference URL")
