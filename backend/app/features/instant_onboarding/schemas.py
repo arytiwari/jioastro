@@ -4,7 +4,7 @@ Pydantic schemas for Instant Onboarding feature.
 
 from pydantic import BaseModel, Field, validator
 from datetime import datetime, date, time
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Literal
 from uuid import UUID
 from enum import Enum
 
@@ -81,6 +81,10 @@ class QuickChartRequest(BaseModel):
     latitude: Optional[float] = Field(None, ge=-90, le=90)
     longitude: Optional[float] = Field(None, ge=-180, le=180)
     timezone: Optional[str] = None
+    gender: Optional[Literal["male", "female", "other"]] = Field(
+        None,
+        description="Optional gender for astrological interpretations"
+    )
 
     # Options
     language: str = Field(default="en")
@@ -90,6 +94,13 @@ class QuickChartRequest(BaseModel):
     def validate_birth_date(cls, v):
         if v and v > datetime.now().date():
             raise ValueError("Birth date cannot be in the future")
+        return v
+
+    @validator("gender")
+    def validate_gender(cls, v):
+        """Validate gender field"""
+        if v is not None and v not in ["male", "female", "other"]:
+            raise ValueError("Gender must be one of: male, female, other")
         return v
 
 

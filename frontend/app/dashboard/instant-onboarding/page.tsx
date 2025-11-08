@@ -27,6 +27,7 @@ export default function InstantOnboardingPage() {
   const [step, setStep] = useState<'form' | 'generating' | 'result'>('form')
   const [formData, setFormData] = useState({
     name: '',
+    gender: '',
     birth_date: '',
     birth_time: '',
     birth_place: '',
@@ -37,6 +38,9 @@ export default function InstantOnboardingPage() {
   const [error, setError] = useState<string | null>(null)
   const [generating, setGenerating] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showSavePrompt, setShowSavePrompt] = useState(false)
+  const [isSavingProfile, setIsSavingProfile] = useState(false)
+  const [profileSaved, setProfileSaved] = useState(false)
 
   // Check authentication status and restore saved data on mount
   useEffect(() => {
@@ -134,6 +138,7 @@ export default function InstantOnboardingPage() {
 
       const response = await apiClient.post('/api/v2/instant-onboarding/quick-chart', {
         name: formData.name,
+        gender: formData.gender || undefined, // Send undefined if empty to omit from request
         birth_date: formData.birth_date,
         birth_time: formData.birth_time + ':00', // Add seconds to match HH:MM:SS format
         birth_place: formData.birth_place,
@@ -152,6 +157,11 @@ export default function InstantOnboardingPage() {
         timestamp: Date.now()
       }))
       console.log('✅ Saved chart data to localStorage')
+
+      // Show save prompt for authenticated users
+      if (isAuthenticated) {
+        setShowSavePrompt(true)
+      }
     } catch (error: any) {
       console.error('Error generating chart:', error)
       setError(error.response?.data?.detail || 'Failed to generate chart. Please try again.')
@@ -173,10 +183,44 @@ export default function InstantOnboardingPage() {
     }
   }
 
+  // Save profile to database
+  const saveProfileToDatabase = async () => {
+    setIsSavingProfile(true)
+    try {
+      await apiClient.loadToken()
+
+      const profileData = {
+        name: formData.name,
+        gender: formData.gender || undefined, // Send undefined if empty to omit from request
+        birth_date: formData.birth_date,
+        birth_time: formData.birth_time + ':00',
+        birth_lat: parseFloat(formData.latitude),
+        birth_lon: parseFloat(formData.longitude),
+        birth_city: formData.birth_place,
+        birth_timezone: 'Asia/Kolkata',
+        is_primary: false
+      }
+
+      await apiClient.createProfile(profileData)
+      setProfileSaved(true)
+      setShowSavePrompt(false)
+      console.log('✅ Profile saved successfully')
+
+      // Clear localStorage after successful save
+      localStorage.removeItem('instant_onboarding_data')
+    } catch (error: any) {
+      console.error('Error saving profile:', error)
+      setError(error.response?.data?.detail || 'Failed to save profile. Please try again.')
+    } finally {
+      setIsSavingProfile(false)
+    }
+  }
+
   const resetForm = () => {
     setStep('form')
     setFormData({
       name: '',
+      gender: '',
       birth_date: '',
       birth_time: '',
       birth_place: '',
@@ -254,6 +298,26 @@ export default function InstantOnboardingPage() {
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter your full name"
                 />
+              </div>
+
+              {/* Gender (Optional) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Gender (Optional)
+                </label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => handleInputChange('gender', e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select gender (optional)</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Gender helps provide more personalized astrological interpretations
+                </p>
               </div>
 
               {/* Birth Date */}
@@ -435,6 +499,51 @@ export default function InstantOnboardingPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Save Profile Prompt - Show for authenticated users */}
+          {isAuthenticated && showSavePrompt && !profileSaved && (
+            <Card className="border-2 border-green-500 bg-gradient-to-r from-green-50 to-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  Save to Birth Profiles?
+                </CardTitle>
+                <CardDescription>
+                  Would you like to save this chart to your Birth Profiles for easy access later?
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3">
+                  <Button
+                    onClick={saveProfileToDatabase}
+                    disabled={isSavingProfile}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {isSavingProfile ? 'Saving...' : 'Yes, Save Profile'}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowSavePrompt(false)}
+                    disabled={isSavingProfile}
+                  >
+                    No, Thanks
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Profile Saved Success Message */}
+          {isAuthenticated && profileSaved && (
+            <Card className="border-2 border-green-500 bg-green-50">
+              <CardContent className="py-4">
+                <div className="flex items-center gap-2 text-green-700">
+                  <CheckCircle className="w-5 h-5" />
+                  <p className="font-medium">Profile saved successfully to your Birth Profiles!</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Login CTA for Unauthenticated Users */}
           {!isAuthenticated && (

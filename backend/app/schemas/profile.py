@@ -1,8 +1,8 @@
 """Profile Schemas"""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 from datetime import date, time, datetime
-from typing import Optional
+from typing import Optional, Literal
 from uuid import UUID
 
 
@@ -16,7 +16,18 @@ class ProfileBase(BaseModel):
     birth_lon: float = Field(..., ge=-180, le=180)
     birth_city: Optional[str] = Field(None, max_length=100)
     birth_timezone: Optional[str] = Field(None, max_length=50)
+    gender: Optional[Literal["male", "female", "other"]] = Field(
+        None,
+        description="Optional gender for astrological interpretations. Values: male, female, other"
+    )
     is_primary: bool = False
+
+    @validator("gender")
+    def validate_gender(cls, v):
+        """Validate gender field"""
+        if v is not None and v not in ["male", "female", "other"]:
+            raise ValueError("Gender must be one of: male, female, other")
+        return v
 
 
 class ProfileCreate(ProfileBase):
@@ -29,6 +40,7 @@ class ProfileUpdate(BaseModel):
     """Schema for updating a profile"""
 
     name: Optional[str] = Field(None, min_length=1, max_length=100)
+    gender: Optional[Literal["male", "female", "other"]] = None
     is_primary: Optional[bool] = None
 
 

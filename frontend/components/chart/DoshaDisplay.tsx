@@ -145,9 +145,34 @@ export function DoshaDisplay({ doshas }: DoshaDisplayProps) {
                       <h4 className="font-semibold mb-2 flex items-center gap-2">
                         ⚠️ Effects:
                       </h4>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {dosha.effects}
-                      </p>
+                      {typeof dosha.effects === 'string' ? (
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {dosha.effects}
+                        </p>
+                      ) : typeof dosha.effects === 'object' && dosha.effects !== null ? (
+                        <div className="space-y-2">
+                          {Object.entries(dosha.effects).map(([category, effectsList]) => (
+                            <div key={category} className="text-sm">
+                              <p className="font-medium text-gray-800 capitalize mb-1">
+                                {category.replace(/_/g, ' ')}:
+                              </p>
+                              {Array.isArray(effectsList) ? (
+                                <ul className="list-disc list-inside pl-2 space-y-1">
+                                  {effectsList.map((effect: string, idx: number) => (
+                                    <li key={idx} className="text-gray-700">{effect}</li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-gray-700 pl-2">{String(effectsList)}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          {String(dosha.effects)}
+                        </p>
+                      )}
                     </div>
                   )}
 

@@ -31,6 +31,7 @@ export default function NewProfilePage() {
 
   const [formData, setFormData] = useState({
     name: '',
+    gender: '',
     birth_date: '',
     birth_time: '',
     birth_city: '',
@@ -55,6 +56,7 @@ export default function NewProfilePage() {
         ...payload,
         birth_lat: parseFloat(payload.birth_lat),
         birth_lon: parseFloat(payload.birth_lon),
+        gender: payload.gender || undefined, // Send undefined if empty to omit from request
       }
       const response = await apiClient.createProfile(data)
       return response.data
@@ -124,6 +126,28 @@ export default function NewProfilePage() {
                 required
                 disabled={createProfileMutation.isPending}
               />
+            </div>
+
+            {/* Gender (Optional) */}
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender (Optional)</Label>
+              <Select
+                value={formData.gender}
+                onValueChange={(value) => setFormData({ ...formData, gender: value })}
+                disabled={createProfileMutation.isPending}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select gender (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-500">
+                Gender helps provide more personalized astrological interpretations
+              </p>
             </div>
 
             {/* Birth Date and Time */}
