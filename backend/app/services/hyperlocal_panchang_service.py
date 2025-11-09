@@ -112,8 +112,8 @@ class HyperlocalPanchangService:
             request.location_name
         )
 
-        # Cache it
-        await self._cache_panchang(panchang_data)
+        # Cache it (disabled for now - will implement proper caching later)
+        # await self._cache_panchang(panchang_data)
 
         return Panchang(**panchang_data)
 
@@ -159,9 +159,13 @@ class HyperlocalPanchangService:
         # Calculate Sun/Moon times
         sun_moon_data = self._calculate_sun_moon_times(panchang_date, latitude, longitude)
 
+        # Extract datetime objects for calculations (stored with _dt suffix)
+        sunrise_dt = sun_moon_data["sunrise_dt"]
+        sunset_dt = sun_moon_data["sunset_dt"]
+        sunrise_time = sunrise_dt.time()
+        sunset_time = sunset_dt.time()
+
         # Calculate Rahukaal
-        sunrise_time = sun_moon_data["sunrise"].time()
-        sunset_time = sun_moon_data["sunset"].time()
         rahukaal_start, rahukaal_end = self._calculate_rahukaal(
             (weekday + 1) % 7,  # Adjust to Sunday=0
             sunrise_time,
@@ -211,8 +215,8 @@ class HyperlocalPanchangService:
             # Auspicious times
             "abhijit_muhurta_start": self._calculate_abhijit_muhurta(sunrise_time, sunset_time)[0].isoformat(),
             "abhijit_muhurta_end": self._calculate_abhijit_muhurta(sunrise_time, sunset_time)[1].isoformat(),
-            "brahma_muhurta_start": self._calculate_brahma_muhurta(sun_moon_data["sunrise"])[0].isoformat(),
-            "brahma_muhurta_end": self._calculate_brahma_muhurta(sun_moon_data["sunrise"])[1].isoformat(),
+            "brahma_muhurta_start": self._calculate_brahma_muhurta(sunrise_dt)[0].isoformat(),
+            "brahma_muhurta_end": self._calculate_brahma_muhurta(sunrise_dt)[1].isoformat(),
 
             # Hora
             "hora_sequence": hora_sequence,
@@ -369,22 +373,20 @@ class HyperlocalPanchangService:
         # Use Swiss Ephemeris for rise/set
         jd = swe.julday(panchang_date.year, panchang_date.month, panchang_date.day, 0.0)
 
-        # Geographic position tuple: (longitude, latitude, altitude)
-        geopos = (longitude, latitude, 0.0)
+        # Geographic position list: [longitude, latitude, altitude]
+        geopos = [longitude, latitude, 0.0]
 
-        # Sunrise
+        # Sunrise - correct parameter order: (tjdut, body, rsmi, geopos)
         sunrise_result = swe.rise_trans(
-            jd, swe.SUN, geopos,
-            swe.CALC_RISE | swe.BIT_DISC_CENTER
+            jd, swe.SUN, swe.CALC_RISE | swe.BIT_DISC_CENTER, geopos
         )
-        sunrise_jd = sunrise_result[1][0] if sunrise_result[0] == swe.OK else jd
+        sunrise_jd = sunrise_result[1][0] if sunrise_result[0] == 0 else jd
 
         # Sunset
         sunset_result = swe.rise_trans(
-            jd, swe.SUN, geopos,
-            swe.CALC_SET | swe.BIT_DISC_CENTER
+            jd, swe.SUN, swe.CALC_SET | swe.BIT_DISC_CENTER, geopos
         )
-        sunset_jd = sunset_result[1][0] if sunset_result[0] == swe.OK else jd + 0.5
+        sunset_jd = sunset_result[1][0] if sunset_result[0] == 0 else jd + 0.5
 
         # Convert to datetime
         sunrise_utc = swe.jdut1_to_utc(sunrise_jd)
@@ -423,6 +425,8 @@ class HyperlocalPanchangService:
         return {
             "sunrise": sunrise_dt.isoformat(),
             "sunset": sunset_dt.isoformat(),
+            "sunrise_dt": sunrise_dt,  # Keep datetime object for internal use
+            "sunset_dt": sunset_dt,    # Keep datetime object for internal use
             "moonrise": None,  # Would calculate similarly
             "moonset": None,
             "moon_phase": moon_phase.value,

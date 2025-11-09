@@ -206,7 +206,7 @@ export default function DashboardLayout({
             </Link>
 
             {/* Desktop Navigation - Modern 4-Menu Structure */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden md:flex items-center space-x-1">
               {/* Home */}
               <Link href="/dashboard">
                 <Button variant="ghost" className="flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 transition-colors">
@@ -398,7 +398,7 @@ export default function DashboardLayout({
               <Button
                 variant="ghost"
                 size="icon"
-                className="lg:hidden"
+                className="md:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -409,7 +409,7 @@ export default function DashboardLayout({
 
         {/* Mobile Navigation - Reorganized */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t bg-white shadow-lg">
+          <div className="md:hidden border-t bg-white shadow-lg">
             <nav className="container mx-auto px-4 py-4 space-y-2 max-h-[calc(100vh-4rem)] overflow-y-auto">
               {/* Home */}
               <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
