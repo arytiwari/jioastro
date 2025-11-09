@@ -258,8 +258,12 @@ class HyperlocalPanchangService:
 
         # Calculate Tithi end time (simplified - would need iterative calculation)
         # For now, placeholder
-        tithi_start = datetime.fromtimestamp(swe.jdut1_to_utc(jd - 0.5)[1])
-        tithi_end = datetime.fromtimestamp(swe.jdut1_to_utc(jd + 0.5)[1])
+        tithi_start_utc = swe.jdut1_to_utc(jd - 0.5)
+        tithi_start = datetime(tithi_start_utc[0], tithi_start_utc[1], tithi_start_utc[2],
+                               int(tithi_start_utc[3]), int(tithi_start_utc[4]), int(tithi_start_utc[5]))
+        tithi_end_utc = swe.jdut1_to_utc(jd + 0.5)
+        tithi_end = datetime(tithi_end_utc[0], tithi_end_utc[1], tithi_end_utc[2],
+                             int(tithi_end_utc[3]), int(tithi_end_utc[4]), int(tithi_end_utc[5]))
 
         return {
             "tithi_name": tithi_name,
@@ -291,8 +295,12 @@ class HyperlocalPanchangService:
         nakshatra_lord = self.NAKSHATRA_LORDS[nakshatra_index]
 
         # Placeholder times
-        nakshatra_start = datetime.fromtimestamp(swe.jdut1_to_utc(jd - 0.5)[1])
-        nakshatra_end = datetime.fromtimestamp(swe.jdut1_to_utc(jd + 0.5)[1])
+        nakshatra_start_utc = swe.jdut1_to_utc(jd - 0.5)
+        nakshatra_start = datetime(nakshatra_start_utc[0], nakshatra_start_utc[1], nakshatra_start_utc[2],
+                                   int(nakshatra_start_utc[3]), int(nakshatra_start_utc[4]), int(nakshatra_start_utc[5]))
+        nakshatra_end_utc = swe.jdut1_to_utc(jd + 0.5)
+        nakshatra_end = datetime(nakshatra_end_utc[0], nakshatra_end_utc[1], nakshatra_end_utc[2],
+                                 int(nakshatra_end_utc[3]), int(nakshatra_end_utc[4]), int(nakshatra_end_utc[5]))
 
         return {
             "nakshatra_name": nakshatra_name,
@@ -320,8 +328,12 @@ class HyperlocalPanchangService:
         yoga_num = int(yoga_sum / (360 / 27)) + 1
         yoga_name = self.YOGA_NAMES[yoga_num - 1]
 
-        yoga_start = datetime.fromtimestamp(swe.jdut1_to_utc(jd - 0.5)[1])
-        yoga_end = datetime.fromtimestamp(swe.jdut1_to_utc(jd + 0.5)[1])
+        yoga_start_utc = swe.jdut1_to_utc(jd - 0.5)
+        yoga_start = datetime(yoga_start_utc[0], yoga_start_utc[1], yoga_start_utc[2],
+                              int(yoga_start_utc[3]), int(yoga_start_utc[4]), int(yoga_start_utc[5]))
+        yoga_end_utc = swe.jdut1_to_utc(jd + 0.5)
+        yoga_end = datetime(yoga_end_utc[0], yoga_end_utc[1], yoga_end_utc[2],
+                            int(yoga_end_utc[3]), int(yoga_end_utc[4]), int(yoga_end_utc[5]))
 
         return {
             "yoga_name": yoga_name,
@@ -372,8 +384,12 @@ class HyperlocalPanchangService:
         sunset_jd = sunset_result[1][0] if sunset_result[0] == swe.OK else jd + 0.5
 
         # Convert to datetime
-        sunrise_dt = datetime.fromtimestamp(swe.jdut1_to_utc(sunrise_jd)[1])
-        sunset_dt = datetime.fromtimestamp(swe.jdut1_to_utc(sunset_jd)[1])
+        sunrise_utc = swe.jdut1_to_utc(sunrise_jd)
+        sunrise_dt = datetime(sunrise_utc[0], sunrise_utc[1], sunrise_utc[2],
+                              int(sunrise_utc[3]), int(sunrise_utc[4]), int(sunrise_utc[5]))
+        sunset_utc = swe.jdut1_to_utc(sunset_jd)
+        sunset_dt = datetime(sunset_utc[0], sunset_utc[1], sunset_utc[2],
+                             int(sunset_utc[3]), int(sunset_utc[4]), int(sunset_utc[5]))
 
         # Moon phase calculation
         moon_pos = swe.calc_ut(jd, swe.MOON)[0][0]
