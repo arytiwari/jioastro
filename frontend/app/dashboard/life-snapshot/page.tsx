@@ -341,7 +341,7 @@ export default function LifeSnapshotPage() {
                       >
                         {profiles.map((profile) => (
                           <option key={profile.id} value={profile.id}>
-                            {profile.name} ({new Date(profile.birth_date).toLocaleDateString()})
+                            {profile.name} ({new Date(profile.date_of_birth).toLocaleDateString()})
                           </option>
                         ))}
                       </select>

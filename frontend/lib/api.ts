@@ -763,6 +763,24 @@ class APIClient {
     })
   }
 
+  async getDecisionCopilotGuidance(data: {
+    activity_type: string
+    start_date: string
+    end_date: string
+    latitude: number
+    longitude: number
+    max_results?: number
+    chart_id?: string | null
+  }) {
+    return this.request('/muhurta/decision-copilot', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...data,
+        max_results: data.max_results || 5,
+      }),
+    })
+  }
+
   // =============================================================================
   // PRASHNA (Horary Astrology) ENDPOINTS
   // =============================================================================

@@ -227,3 +227,84 @@ class MuhurtaListResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+# ============================================================================
+# DECISION COPILOT SCHEMAS (AI-POWERED)
+# ============================================================================
+
+class DecisionCopilotRequest(BaseModel):
+    """Request for AI-powered decision copilot"""
+    activity_type: str = Field(..., description="Type of activity: marriage, business, travel, property, surgery")
+    start_date: date
+    end_date: date
+    latitude: float
+    longitude: float
+    chart_id: Optional[str] = Field(None, description="User's birth chart ID for personalization")
+    max_results: int = Field(5, ge=3, le=10, description="Number of options to compare (3-10)")
+
+
+class MuhurtaOptionAnalysis(BaseModel):
+    """AI analysis of a single muhurta option"""
+    # Original muhurta data
+    datetime: str
+    date: str
+    time_range: str
+    score: float
+    quality: str
+    tithi: str
+    nakshatra: str
+    vara: str
+    hora_ruler: str
+    yoga: str
+    karana: str
+
+    # AI-generated analysis
+    ai_rating: int = Field(..., ge=1, le=10, description="AI rating 1-10")
+    best_time_within_day: str = Field(default="Full day", description="Specific time period within the day")
+    pros: List[str] = Field(default_factory=list, description="Positive factors")
+    cons: List[str] = Field(default_factory=list, description="Challenges and cautions")
+    personalization_note: str = Field(..., description="How this time relates to user's chart")
+
+
+class BestTimeRecommendation(BaseModel):
+    """AI recommendation for best time"""
+    option_number: int = Field(..., description="Which option number is recommended (1-indexed)")
+    datetime: Optional[str]
+    rating: int = Field(..., ge=1, le=10)
+    specific_time: str = Field(default="", description="Specific time period within the day")
+    reasoning: str = Field(..., description="Why this is the best choice (2-3 sentences)")
+    actionable_advice: str = Field(..., description="Specific guidance for this activity")
+
+    # Include all fields from the selected option
+    date: Optional[str] = None
+    time_range: Optional[str] = None
+    score: Optional[float] = None
+    quality: Optional[str] = None
+    tithi: Optional[str] = None
+    nakshatra: Optional[str] = None
+    vara: Optional[str] = None
+    hora_ruler: Optional[str] = None
+    best_time_within_day: Optional[str] = None
+    pros: List[str] = Field(default_factory=list)
+    cons: List[str] = Field(default_factory=list)
+
+
+class AIGuidance(BaseModel):
+    """AI-powered decision guidance"""
+    comparison: List[MuhurtaOptionAnalysis] = Field(..., description="All options with AI analysis")
+    best_time: BestTimeRecommendation = Field(..., description="Recommended best time")
+    total_options: int
+    has_personalization: bool = Field(..., description="Whether personal chart was used")
+
+
+class DecisionCopilotResponse(BaseModel):
+    """Complete decision copilot response"""
+    activity_type: str
+    search_period: Dict[str, str]
+    location: Dict[str, float]
+    traditional_results: List[MuhurtaResult] = Field(..., description="Traditional Muhurta results")
+    ai_guidance: Optional[AIGuidance] = Field(None, description="AI-powered comparison and recommendation")
+    has_personalization: bool
+    total_options: int
+    message: Optional[str] = Field(None, description="Message if no results found")

@@ -54,11 +54,115 @@ class AccurateVedicAstrology:
         "Ketu": swe.MEAN_NODE   # South Node (Ketu is 180° from Rahu)
     }
 
+    # Exaltation signs (1-indexed)
+    EXALTATION_SIGNS = {
+        "Sun": 1,      # Aries
+        "Moon": 2,     # Taurus
+        "Mars": 10,    # Capricorn
+        "Mercury": 6,  # Virgo
+        "Jupiter": 4,  # Cancer
+        "Venus": 12,   # Pisces
+        "Saturn": 7,   # Libra
+        "Rahu": 3,     # Gemini
+        "Ketu": 9      # Sagittarius
+    }
+
+    # Debilitation signs (1-indexed)
+    DEBILITATION_SIGNS = {
+        "Sun": 7,      # Libra
+        "Moon": 8,     # Scorpio
+        "Mars": 4,     # Cancer
+        "Mercury": 12, # Pisces
+        "Jupiter": 10, # Capricorn
+        "Venus": 6,    # Virgo
+        "Saturn": 1,   # Aries
+        "Rahu": 9,     # Sagittarius
+        "Ketu": 3      # Gemini
+    }
+
+    # Own signs (1-indexed)
+    OWN_SIGNS = {
+        "Sun": [5],          # Leo
+        "Moon": [4],         # Cancer
+        "Mars": [1, 8],      # Aries, Scorpio
+        "Mercury": [3, 6],   # Gemini, Virgo
+        "Jupiter": [9, 12],  # Sagittarius, Pisces
+        "Venus": [2, 7],     # Taurus, Libra
+        "Saturn": [10, 11],  # Capricorn, Aquarius
+        "Rahu": [],          # No ownership
+        "Ketu": []           # No ownership
+    }
+
+    # Combustion distances (degrees from Sun)
+    COMBUSTION_DISTANCES = {
+        "Moon": 12.0,
+        "Mars": 17.0,
+        "Mercury": 14.0,  # 12° when retrograde
+        "Jupiter": 11.0,
+        "Venus": 10.0,    # 8° when retrograde
+        "Saturn": 15.0
+    }
+
     def __init__(self):
         """Initialize Swiss Ephemeris with Lahiri ayanamsa"""
         # Set sidereal mode with Lahiri ayanamsa (Government of India standard)
         swe.set_sid_mode(swe.SIDM_LAHIRI)
         print("✅ Swiss Ephemeris initialized with Lahiri ayanamsa")
+
+    def _is_exalted(self, planet_name: str, sign_num: int) -> bool:
+        """Check if planet is in its exaltation sign"""
+        return self.EXALTATION_SIGNS.get(planet_name) == sign_num
+
+    def _is_debilitated(self, planet_name: str, sign_num: int) -> bool:
+        """Check if planet is in its debilitation sign"""
+        return self.DEBILITATION_SIGNS.get(planet_name) == sign_num
+
+    def _is_own_sign(self, planet_name: str, sign_num: int) -> bool:
+        """Check if planet is in its own sign"""
+        return sign_num in self.OWN_SIGNS.get(planet_name, [])
+
+    def _is_combust(self, planet_name: str, planet_longitude: float, sun_longitude: float, is_retrograde: bool = False) -> bool:
+        """
+        Check if planet is combust (too close to Sun)
+
+        Combustion distances:
+        - Moon: 12°
+        - Mars: 17°
+        - Mercury: 14° (12° when retrograde)
+        - Jupiter: 11°
+        - Venus: 10° (8° when retrograde)
+        - Saturn: 15°
+
+        Note: Sun, Rahu, Ketu cannot be combust
+        """
+        if planet_name in ["Sun", "Rahu", "Ketu"]:
+            return False
+
+        if planet_name not in self.COMBUSTION_DISTANCES:
+            return False
+
+        # Calculate angular distance from Sun
+        distance = abs(planet_longitude - sun_longitude)
+        if distance > 180:
+            distance = 360 - distance
+
+        # Get combustion threshold
+        threshold = self.COMBUSTION_DISTANCES[planet_name]
+
+        # Adjust for retrograde motion
+        if planet_name == "Mercury" and is_retrograde:
+            threshold = 12.0
+        elif planet_name == "Venus" and is_retrograde:
+            threshold = 8.0
+
+        return distance <= threshold
+
+    def _calculate_angular_distance(self, long1: float, long2: float) -> float:
+        """Calculate shortest angular distance between two longitudes"""
+        distance = abs(long1 - long2)
+        if distance > 180:
+            distance = 360 - distance
+        return distance
 
     def calculate_birth_chart(
         self,
@@ -131,6 +235,15 @@ class AccurateVedicAstrology:
         # Calculate nakshatras
         planets = self._add_nakshatras(planets)
 
+        # Add Ascendant to planets dict for Bhava Yoga calculations (Phase 4)
+        planets["Ascendant"] = {
+            "sign": self.SIGNS[asc_sign],
+            "sign_num": asc_sign + 1,  # Convert to 1-indexed (1-12) for Bhava Yogas
+            "degree": asc_degree,
+            "longitude": asc_sidereal,
+            "house": 1  # Ascendant is always in the 1st house
+        }
+
         # Calculate Vimshottari Dasha
         dasha = self._calculate_vimshottari_dasha(planets["Moon"], birth_datetime)
 
@@ -173,6 +286,22 @@ class AccurateVedicAstrology:
             planets,
             divisional_charts
         )
+
+        # Add Vargottama status (same sign in D1 and D9)
+        print("🎯 Detecting Vargottama planets...")
+        if "D9" in divisional_charts and "planets" in divisional_charts["D9"]:
+            d9_planets = divisional_charts["D9"]["planets"]
+            for planet_name in planets:
+                if planet_name in d9_planets:
+                    d1_sign = planets[planet_name]["sign"]
+                    d9_sign = d9_planets[planet_name]["sign"]
+                    planets[planet_name]["vargottama"] = (d1_sign == d9_sign)
+                else:
+                    planets[planet_name]["vargottama"] = False
+        else:
+            # If D9 not available, set all to False
+            for planet_name in planets:
+                planets[planet_name]["vargottama"] = False
 
         # Detect doshas
         print("⚠️  Detecting doshas...")
@@ -283,6 +412,24 @@ class AccurateVedicAstrology:
                 "retrograde": True,  # Always retrograde
                 "house": 0
             }
+
+        # Add special state flags for all planets
+        sun_longitude = planets_data.get("Sun", {}).get("longitude", 0)
+
+        for planet_name, planet_data in planets_data.items():
+            sign_num = planet_data["sign_num"]
+            planet_longitude = planet_data["longitude"]
+            is_retrograde = planet_data["retrograde"]
+
+            # Add special states
+            planet_data["exalted"] = self._is_exalted(planet_name, sign_num)
+            planet_data["debilitated"] = self._is_debilitated(planet_name, sign_num)
+            planet_data["own_sign"] = self._is_own_sign(planet_name, sign_num)
+            planet_data["combust"] = self._is_combust(planet_name, planet_longitude, sun_longitude, is_retrograde)
+
+            # Add combustion distance for debugging/display (only if combust)
+            if planet_data["combust"]:
+                planet_data["combustion_distance"] = round(self._calculate_angular_distance(planet_longitude, sun_longitude), 2)
 
         return planets_data
 
@@ -508,18 +655,31 @@ class AccurateVedicAstrology:
         navamsa_asc_sign = navamsa_asc["sign_num"]
 
         # Calculate Navamsa for each planet
+        sun_d1_data = d1_chart["planets"].get("Sun", {})
+        sun_d1_long = sun_d1_data.get("longitude", 0)
+
         for planet_name, planet_data in d1_chart["planets"].items():
             navamsa_pos = self._get_navamsa_position(planet_data["longitude"])
 
             # Calculate house in Navamsa chart
             navamsa_house = ((navamsa_pos["sign_num"] - navamsa_asc_sign) % 12) + 1
 
+            # Get D1 special states
+            is_retrograde = planet_data["retrograde"]
+
             navamsa_planets[planet_name] = {
                 **navamsa_pos,
                 "house": navamsa_house,
-                "retrograde": planet_data["retrograde"],
+                "retrograde": is_retrograde,
                 "d1_sign": planet_data["sign"],
-                "nakshatra": planet_data["nakshatra"]
+                "nakshatra": planet_data["nakshatra"],
+                # Add special states for D9 chart
+                "exalted": self._is_exalted(planet_name, navamsa_pos["sign_num"]),
+                "debilitated": self._is_debilitated(planet_name, navamsa_pos["sign_num"]),
+                "own_sign": self._is_own_sign(planet_name, navamsa_pos["sign_num"]),
+                "vargottama": planet_data.get("vargottama", False),  # Copy from D1
+                # Combustion calculated from D1 positions
+                "combust": planet_data.get("combust", False)
             }
 
         # Generate Navamsa houses
@@ -687,7 +847,13 @@ class AccurateVedicAstrology:
                 "retrograde": planet_data["retrograde"],
                 "house": house_from_moon,
                 "nakshatra": planet_data["nakshatra"],
-                "d1_house": planet_data["house"]  # Original house from birth chart
+                "d1_house": planet_data["house"],  # Original house from birth chart
+                # Copy all special states from D1
+                "exalted": planet_data.get("exalted", False),
+                "debilitated": planet_data.get("debilitated", False),
+                "own_sign": planet_data.get("own_sign", False),
+                "combust": planet_data.get("combust", False),
+                "vargottama": planet_data.get("vargottama", False)
             }
 
         # Generate Moon chart houses (starting from Moon's sign)

@@ -3,7 +3,7 @@ Prashna (Horary Astrology) Service using Swiss Ephemeris
 Answers specific questions based on the chart cast for the moment the question is asked
 """
 
-from typing import Dict, List, Any, Tuple
+from typing import Dict, List, Any, Tuple, Optional
 from datetime import datetime
 import swisseph as swe
 import pytz
@@ -783,6 +783,65 @@ class PrashnaService:
                 strength = "weak"
 
         return strength
+
+    async def analyze_prashna_with_ai(
+        self,
+        question: str,
+        question_type: str,
+        query_datetime: datetime,
+        latitude: float,
+        longitude: float,
+        timezone_str: str,
+        user_birth_chart_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Enhanced Prashna analysis with AI-powered detailed answer
+
+        Combines traditional calculations with AI-powered interpretation
+
+        Args:
+            question: The question being asked
+            question_type: Type of question (career, relationship, etc.)
+            query_datetime: Exact moment the question was asked
+            latitude: Location latitude
+            longitude: Location longitude
+            timezone_str: Timezone string
+            user_birth_chart_id: Optional user chart ID for personalization
+
+        Returns:
+            Complete analysis with:
+            - Traditional Prashna calculations
+            - AI-powered detailed answer
+            - Timing predictions
+            - Remedies
+            - Confidence assessment
+        """
+        # Get traditional analysis first
+        traditional_analysis = self.analyze_prashna(
+            question=question,
+            question_type=question_type,
+            query_datetime=query_datetime,
+            latitude=latitude,
+            longitude=longitude,
+            timezone_str=timezone_str
+        )
+
+        # Get AI-powered detailed answer
+        from app.services.prashna_ai_service import prashna_ai_service
+
+        ai_answer = await prashna_ai_service.generate_detailed_answer(
+            question=question,
+            question_type=question_type,
+            prashna_chart=traditional_analysis,
+            user_birth_chart=None  # TODO: Fetch user chart if ID provided
+        )
+
+        # Merge traditional and AI answers
+        return {
+            **traditional_analysis,
+            "ai_answer": ai_answer,
+            "has_ai_analysis": True
+        }
 
 
 # Create singleton instance

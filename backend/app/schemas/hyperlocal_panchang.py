@@ -225,6 +225,7 @@ class Panchang(BaseModel):
     is_amavasya: bool = False
     is_purnima: bool = False
     is_panchaka: bool = False
+    special_days: List[str] = Field(default_factory=list)
 
     # Bhadra
     bhadra_periods: List[InauspiciousTime] = Field(default_factory=list)

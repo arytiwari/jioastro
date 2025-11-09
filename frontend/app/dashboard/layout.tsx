@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut, getValidSession } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart, Zap, Eye, Shield, Calendar, HelpCircle, Users, Hand, Star, Compass, Timeline, Flame } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart, Zap, Eye, Shield, Calendar, HelpCircle, Users, Hand, Star, Compass, Timeline, Flame, Target } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import {
@@ -145,6 +145,7 @@ export default function DashboardLayout({
       { name: 'Instant Onboarding', href: '/dashboard/instant-onboarding', icon: Zap, badge: 'NEW' },
       { name: 'Life Snapshot', href: '/dashboard/life-snapshot', icon: Eye, badge: 'NEW' },
       { name: 'Evidence Mode', href: '/dashboard/evidence-mode', icon: Shield, badge: 'NEW' },
+      { name: 'AstroTwin Circles', href: '/dashboard/astrotwin-circles', icon: Users, badge: 'NEW' },
     ]
   }
 
@@ -177,6 +178,8 @@ export default function DashboardLayout({
       { name: 'Remedies', href: '/dashboard/remedies', icon: Gem },
     ],
     analysis: [
+      { name: 'Expert Console', href: '/dashboard/expert-console', icon: Wrench, badge: 'PRO' },
+      { name: 'Reality Check', href: '/dashboard/reality-check', icon: Target, badge: 'NEW' },
       { name: 'Chart Comparison', href: '/dashboard/chart-comparison', icon: Users, badge: 'NEW' },
       { name: 'Muhurta (Times)', href: '/dashboard/muhurta', icon: Clock },
       { name: 'Compatibility', href: '/dashboard/compatibility', icon: Heart },

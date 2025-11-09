@@ -111,8 +111,37 @@ class PrashnaAnswer(BaseModel):
     precautions: List[str]
 
 
+# ============================================================================
+# AI-POWERED ANSWER SCHEMAS
+# ============================================================================
+
+class TimingPrediction(BaseModel):
+    """AI-powered timing prediction"""
+    timeframe: str = Field(..., description="Predicted timeframe (e.g., '2-3 months', '6-12 months')")
+    basis: str = Field(..., description="Astrological reasoning for the timing")
+    key_dates: str = Field(..., description="Specific periods or transits to watch")
+
+
+class RemedyItem(BaseModel):
+    """Individual Vedic remedy"""
+    title: str = Field(..., description="Brief remedy name")
+    description: str = Field(..., description="Detailed instructions for performing the remedy")
+
+
+class AIAnswer(BaseModel):
+    """AI-generated detailed answer for Prashna question"""
+    answer: str = Field(..., description="Direct answer: Yes, No, Maybe, or Uncertain")
+    explanation: str = Field(..., description="Detailed 500-800 word astrological explanation")
+    timing: TimingPrediction
+    obstacles: List[str] = Field(default_factory=list, description="Challenges to overcome")
+    opportunities: List[str] = Field(default_factory=list, description="Favorable factors")
+    remedies: List[RemedyItem] = Field(default_factory=list, description="Specific Vedic remedies")
+    confidence: int = Field(..., ge=0, le=100, description="Confidence level (0-100)")
+    confidence_explanation: str = Field(..., description="Explanation for confidence level")
+
+
 class PrashnaChartResponse(BaseModel):
-    """Complete Prashna chart response"""
+    """Complete Prashna chart response with optional AI analysis"""
     question: str
     question_type: str
     query_datetime: str
@@ -132,6 +161,10 @@ class PrashnaChartResponse(BaseModel):
     yogas_present: List[Dict[str, str]]
     planetary_strengths: Dict[str, str]
     overall_chart_strength: str
+
+    # AI-powered answer (optional)
+    ai_answer: Optional[AIAnswer] = None
+    has_ai_analysis: bool = False
 
 
 # ============================================================================

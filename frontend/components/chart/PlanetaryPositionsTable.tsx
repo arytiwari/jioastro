@@ -7,6 +7,12 @@ interface PlanetData {
   degree: number
   house: number
   retrograde: boolean
+  exalted?: boolean
+  debilitated?: boolean
+  own_sign?: boolean
+  combust?: boolean
+  vargottama?: boolean
+  combustion_distance?: number
   nakshatra?: {
     name: string
     pada: number
@@ -73,11 +79,41 @@ export function PlanetaryPositionsTable({
                       <td className="py-3 px-3">{planet.house}</td>
                     )}
                     <td className="py-3 px-3">
-                      {planet.retrograde && (
-                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                          Retrograde
-                        </span>
-                      )}
+                      <div className="flex flex-wrap gap-1">
+                        {planet.exalted && (
+                          <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded font-semibold" title="Planet in exaltation sign">
+                            Exalted
+                          </span>
+                        )}
+                        {planet.debilitated && (
+                          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded font-semibold" title="Planet in debilitation sign">
+                            Debilitated
+                          </span>
+                        )}
+                        {planet.own_sign && (
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded" title="Planet in its own sign">
+                            Own Sign
+                          </span>
+                        )}
+                        {planet.vargottama && (
+                          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded" title="Same sign in D1 and D9 (powerful position)">
+                            Vargottama
+                          </span>
+                        )}
+                        {planet.retrograde && (
+                          <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded" title="Planet moving backward">
+                            Retrograde
+                          </span>
+                        )}
+                        {planet.combust && (
+                          <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded" title={`Too close to Sun${planet.combustion_distance ? ` (${planet.combustion_distance}°)` : ''}`}>
+                            Combust {planet.combustion_distance && `(${planet.combustion_distance}°)`}
+                          </span>
+                        )}
+                        {!planet.exalted && !planet.debilitated && !planet.own_sign && !planet.vargottama && !planet.retrograde && !planet.combust && (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 )

@@ -226,6 +226,7 @@ class HyperlocalPanchangService:
             "is_amavasya": is_amavasya,
             "is_purnima": is_purnima,
             "is_festival": False,  # Would check database
+            "special_days": self._get_special_days(is_ekadashi, is_amavasya, is_purnima),
 
             # Metadata
             "calculated_at": datetime.now().isoformat(),
@@ -575,6 +576,17 @@ class HyperlocalPanchangService:
         if tithi_num in auspicious:
             return "Auspicious"
         return "Neutral"
+
+    def _get_special_days(self, is_ekadashi: bool, is_amavasya: bool, is_purnima: bool) -> List[str]:
+        """Get list of special days"""
+        special_days = []
+        if is_ekadashi:
+            special_days.append("Ekadashi - Fasting day")
+        if is_amavasya:
+            special_days.append("Amavasya - New Moon")
+        if is_purnima:
+            special_days.append("Purnima - Full Moon")
+        return special_days
 
     async def _cache_panchang(self, panchang_data: Dict[str, Any]):
         """Cache Panchang in database"""

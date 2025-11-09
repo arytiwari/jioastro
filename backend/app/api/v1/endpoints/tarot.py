@@ -130,11 +130,17 @@ async def draw_daily_card(
     Returns existing card if already drawn today
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         result = await service.draw_daily_card(user_id)
         card_data = result["card"]
+
+        # Normalize card data - rename card_id/card_name to id/name for schema compliance
+        if "card_id" in card_data:
+            card_data["id"] = card_data.pop("card_id")
+        if "card_name" in card_data:
+            card_data["name"] = card_data.pop("card_name")
 
         # Get keywords based on orientation
         keywords = card_data.get("reversed_keywords", []) if result["is_reversed"] else card_data.get("upright_keywords", [])
@@ -169,7 +175,7 @@ async def create_tarot_reading(
     Optionally link to birth profile for holistic analysis
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         # Determine number of cards
@@ -226,7 +232,7 @@ async def get_tarot_readings(
     Get user's tarot readings
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         result = await service.get_user_readings(
@@ -268,7 +274,7 @@ async def get_tarot_reading(
     Get a specific tarot reading
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         reading = await service.get_reading_by_id(reading_id, user_id)
@@ -295,7 +301,7 @@ async def update_tarot_reading(
     Update tarot reading (favorite status, notes)
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         updated = await service.update_reading(
@@ -326,7 +332,7 @@ async def delete_tarot_reading(
     Delete a tarot reading
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         # Verify ownership
@@ -357,7 +363,7 @@ async def get_tarot_stats(
     Get user's tarot reading statistics
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = TarotService()
 
         result = await service.get_user_readings(user_id=user_id, limit=1000)

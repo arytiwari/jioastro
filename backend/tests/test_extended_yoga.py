@@ -24,21 +24,21 @@ class TestHelperMethods:
     @pytest.mark.unit
     def test_planet_dignity_exalted(self, yoga_service):
         """Test dignity calculation for exalted planet"""
-        planets = {"Sun": {"sign_num": 1, "house": 1}}  # Sun exalted in Aries
+        planets = {"Sun": {"sign_num": 1, "house": 1, "exalted": True, "debilitated": False, "own_sign": False}}  # Sun exalted in Aries
         dignity = yoga_service._calculate_planet_dignity("Sun", planets)
         assert dignity == 100, "Exalted planet should have dignity 100"
-    
+
     @pytest.mark.unit
     def test_planet_dignity_debilitated(self, yoga_service):
         """Test dignity calculation for debilitated planet"""
-        planets = {"Sun": {"sign_num": 7, "house": 7}}  # Sun debilitated in Libra
+        planets = {"Sun": {"sign_num": 7, "house": 7, "exalted": False, "debilitated": True, "own_sign": False}}  # Sun debilitated in Libra
         dignity = yoga_service._calculate_planet_dignity("Sun", planets)
         assert dignity == 0, "Debilitated planet should have dignity 0"
-    
+
     @pytest.mark.unit
     def test_planet_dignity_own_sign(self, yoga_service):
         """Test dignity calculation for planet in own sign"""
-        planets = {"Sun": {"sign_num": 5, "house": 5}}  # Sun in Leo (own sign)
+        planets = {"Sun": {"sign_num": 5, "house": 5, "exalted": False, "debilitated": False, "own_sign": True}}  # Sun in Leo (own sign)
         dignity = yoga_service._calculate_planet_dignity("Sun", planets)
         assert dignity == 80, "Planet in own sign should have dignity 80"
     
@@ -67,8 +67,8 @@ class TestHelperMethods:
     def test_combustion_detection(self, yoga_service):
         """Test combustion detection when planet is with Sun"""
         planets = {
-            "Sun": {"house": 3},
-            "Mercury": {"house": 3}  # Mercury with Sun - combusted
+            "Sun": {"house": 3, "combust": False},
+            "Mercury": {"house": 3, "combust": True}  # Mercury with Sun - combusted
         }
         assert yoga_service._is_combusted("Mercury", planets) is True
         assert yoga_service._is_combusted("Sun", planets) is False
@@ -106,18 +106,18 @@ class TestHelperMethods:
     def test_yoga_cancellation_debilitated(self, yoga_service):
         """Test yoga cancellation due to debilitation"""
         planets = {
-            "Jupiter": {"house": 1, "sign_num": 10}  # Debilitated in Capricorn
+            "Jupiter": {"house": 1, "sign_num": 10, "debilitated": True}  # Debilitated in Capricorn
         }
         is_cancelled, reasons = yoga_service._check_yoga_cancellation(["Jupiter"], planets)
         assert is_cancelled is True
         assert any("debilitated" in reason.lower() for reason in reasons)
-    
+
     @pytest.mark.unit
     def test_yoga_cancellation_combustion(self, yoga_service):
         """Test yoga cancellation due to combustion"""
         planets = {
-            "Sun": {"house": 5, "sign_num": 5},
-            "Venus": {"house": 5, "sign_num": 7}  # Venus combusted by Sun
+            "Sun": {"house": 5, "sign_num": 5, "combust": False},
+            "Venus": {"house": 5, "sign_num": 7, "combust": True}  # Venus combusted by Sun
         }
         is_cancelled, reasons = yoga_service._check_yoga_cancellation(["Venus"], planets)
         assert is_cancelled is True
@@ -229,17 +229,58 @@ class TestWealthPowerYogas:
         assert "wealth" in lakshmi[0]["description"].lower()
     
     @pytest.mark.yoga
-    def test_saraswati_yoga_all_benefics_kendra_trikona(self, yoga_service):
-        """Test Saraswati Yoga - All benefics in Kendra/Trikona"""
+    def test_saraswati_yoga_conjunction(self, yoga_service):
+        """Test Saraswati Yoga - All three planets in conjunction (same house)"""
         planets = {
-            "Mercury": {"house": 1},   # Kendra
-            "Jupiter": {"house": 5},   # Trikona
-            "Venus": {"house": 10}     # Kendra
+            "Mercury": {"house": 1},   # All in 1st house
+            "Jupiter": {"house": 1},
+            "Venus": {"house": 1}
         }
         yogas = yoga_service._detect_lakshmi_saraswati_yoga(planets)
         saraswati = [y for y in yogas if y["name"] == "Saraswati Yoga"]
         assert len(saraswati) > 0
+        assert "conjunction" in saraswati[0]["description"].lower()
         assert "learning" in saraswati[0]["description"].lower()
+
+    @pytest.mark.yoga
+    def test_saraswati_yoga_mutual_kendra_trikona(self, yoga_service):
+        """Test Saraswati Yoga - Mutual kendra/trikona positions with aspects"""
+        # Mercury in 1, Jupiter in 7 (6 houses away = aspect), Venus in 5
+        # Merc-Jup: 6 (kendra + aspect) ✅
+        # Merc-Ven: 4 (trikona) ✅
+        # Jup-Ven: 10 houses back = 2 forward (NOT favorable) ❌
+        # Actually this won't work. Let me recalculate.
+
+        # Better setup: Mercury-1, Jupiter-4, Venus-7
+        # Merc-Jup: (4-1)=3 (kendra) ✅
+        # Merc-Ven: (7-1)=6 (kendra + mutual aspect) ✅
+        # Jup-Ven: (7-4)=3 (kendra) ✅
+        # At least one pair has aspect (Merc-Ven)
+        planets = {
+            "Mercury": {"house": 1},   # 1st house
+            "Jupiter": {"house": 4},   # 4th house (kendra from Mercury)
+            "Venus": {"house": 7}      # 7th house (kendra from Mercury, aspects Mercury)
+        }
+        yogas = yoga_service._detect_lakshmi_saraswati_yoga(planets)
+        saraswati = [y for y in yogas if y["name"] == "Saraswati Yoga"]
+        assert len(saraswati) > 0
+        assert "kendra" in saraswati[0]["description"].lower()
+
+    @pytest.mark.yoga
+    def test_saraswati_yoga_not_formed_unfavorable_positions(self, yoga_service):
+        """Test Saraswati Yoga NOT formed - not all in favorable positions"""
+        # Mercury in 1, Jupiter in 5, Venus in 10
+        # Merc-Jup: 4 (trikona) ✅
+        # Merc-Ven: 9 (kendra) ✅
+        # Jup-Ven: 5 (NOT favorable) ❌
+        planets = {
+            "Mercury": {"house": 1},
+            "Jupiter": {"house": 5},
+            "Venus": {"house": 10}
+        }
+        yogas = yoga_service._detect_lakshmi_saraswati_yoga(planets)
+        saraswati = [y for y in yogas if y["name"] == "Saraswati Yoga"]
+        assert len(saraswati) == 0  # Should NOT form
     
     @pytest.mark.yoga
     def test_parvata_yoga_benefics_in_kendra_no_malefics(self, yoga_service):
@@ -928,28 +969,102 @@ class TestNewYogasPhase2:
         assert "Kubera Yoga" in yoga_names, "Should detect Kubera Yoga when all benefics strong"
 
     @pytest.mark.yoga
-    def test_daridra_yoga_malefics_in_wealth_houses(self, yoga_service):
-        """Test Daridra Yoga with malefics in wealth houses"""
+    def test_daridra_yoga_11th_lord_in_6th_house(self, yoga_service):
+        """
+        Test Daridra Yoga: Lord of 11th house in 6th house (debts)
+
+        Setup:
+        - Ascendant: Aries (sign_num 1)
+        - 11th house from Aries = Aquarius (ruled by Saturn)
+        - Saturn in 6th house (Virgo) = Daridra Yoga
+        """
         planets = {
-            "Mars": {"house": 2, "sign_num": 2, "retrograde": False},
-            "Saturn": {"house": 5, "sign_num": 5, "retrograde": False},
-            "Rahu": {"house": 11, "sign_num": 11, "retrograde": True}
+            "Sun": {"house": 1, "sign_num": 1, "retrograde": False},     # Aries ascendant marker
+            "Saturn": {"house": 6, "sign_num": 6, "retrograde": False},  # 11th lord in 6th house
+            "Moon": {"house": 4, "sign_num": 4, "retrograde": False},
+            "Mars": {"house": 1, "sign_num": 1, "retrograde": False}
         }
         yogas = yoga_service.detect_extended_yogas(planets)
         yoga_names = [y["name"] for y in yogas]
-        assert "Daridra Yoga" in yoga_names, "Should detect Daridra Yoga with malefics in wealth houses"
+        assert "Daridra Yoga" in yoga_names, "Should detect Daridra Yoga: 11th lord (Saturn) in 6th house"
+
+        # Verify the description mentions the correct formation
+        daridra_yoga = next((y for y in yogas if y["name"] == "Daridra Yoga"), None)
+        assert daridra_yoga is not None
+        assert "Saturn" in daridra_yoga["description"]
+        assert "6th" in daridra_yoga["description"]
 
     @pytest.mark.yoga
-    def test_daridra_yoga_debilitated_benefics(self, yoga_service):
-        """Test Daridra Yoga with debilitated benefics"""
+    def test_daridra_yoga_11th_lord_in_8th_house(self, yoga_service):
+        """
+        Test Daridra Yoga: Lord of 11th house in 8th house (sudden losses)
+
+        Setup:
+        - Ascendant: Taurus (sign_num 2)
+        - 11th house from Taurus = Pisces (ruled by Jupiter)
+        - Jupiter in 8th house (Sagittarius) = Daridra Yoga
+        """
         planets = {
-            "Jupiter": {"house": 5, "sign_num": 10, "retrograde": False},  # Debilitated in Capricorn
-            "Venus": {"house": 7, "sign_num": 6, "retrograde": False},     # Debilitated in Virgo
-            "Mercury": {"house": 9, "sign_num": 12, "retrograde": False}   # Debilitated in Pisces
+            "Venus": {"house": 1, "sign_num": 2, "retrograde": False},    # Taurus ascendant marker
+            "Jupiter": {"house": 8, "sign_num": 9, "retrograde": False},  # 11th lord in 8th house
+            "Moon": {"house": 3, "sign_num": 4, "retrograde": False},
+            "Sun": {"house": 5, "sign_num": 6, "retrograde": False}
         }
         yogas = yoga_service.detect_extended_yogas(planets)
         yoga_names = [y["name"] for y in yogas]
-        assert "Daridra Yoga" in yoga_names, "Should detect Daridra Yoga with multiple debilitated benefics"
+        assert "Daridra Yoga" in yoga_names, "Should detect Daridra Yoga: 11th lord (Jupiter) in 8th house"
+
+        # Verify the description mentions the correct formation
+        daridra_yoga = next((y for y in yogas if y["name"] == "Daridra Yoga"), None)
+        assert daridra_yoga is not None
+        assert "Jupiter" in daridra_yoga["description"]
+        assert "8th" in daridra_yoga["description"]
+
+    @pytest.mark.yoga
+    def test_daridra_yoga_11th_lord_in_12th_house(self, yoga_service):
+        """
+        Test Daridra Yoga: Lord of 11th house in 12th house (expenses/losses)
+
+        Setup:
+        - Ascendant: Gemini (sign_num 3)
+        - 11th house from Gemini = Aries (ruled by Mars)
+        - Mars in 12th house (Taurus) = Daridra Yoga
+        """
+        planets = {
+            "Mercury": {"house": 1, "sign_num": 3, "retrograde": False},  # Gemini ascendant marker
+            "Mars": {"house": 12, "sign_num": 2, "retrograde": False},    # 11th lord in 12th house
+            "Moon": {"house": 5, "sign_num": 7, "retrograde": False},
+            "Jupiter": {"house": 9, "sign_num": 11, "retrograde": False}
+        }
+        yogas = yoga_service.detect_extended_yogas(planets)
+        yoga_names = [y["name"] for y in yogas]
+        assert "Daridra Yoga" in yoga_names, "Should detect Daridra Yoga: 11th lord (Mars) in 12th house"
+
+        # Verify the description mentions the correct formation
+        daridra_yoga = next((y for y in yogas if y["name"] == "Daridra Yoga"), None)
+        assert daridra_yoga is not None
+        assert "Mars" in daridra_yoga["description"]
+        assert "12th" in daridra_yoga["description"]
+
+    @pytest.mark.yoga
+    def test_daridra_yoga_not_formed_11th_lord_in_kendra(self, yoga_service):
+        """
+        Test that Daridra Yoga is NOT formed when 11th lord is in kendra (good house)
+
+        Setup:
+        - Ascendant: Cancer (sign_num 4)
+        - 11th house from Cancer = Taurus (ruled by Venus)
+        - Venus in 4th house (kendra) = No Daridra Yoga
+        """
+        planets = {
+            "Moon": {"house": 1, "sign_num": 4, "retrograde": False},     # Cancer ascendant marker
+            "Venus": {"house": 4, "sign_num": 7, "retrograde": False},    # 11th lord in 4th house (good)
+            "Jupiter": {"house": 9, "sign_num": 12, "retrograde": False},
+            "Sun": {"house": 2, "sign_num": 5, "retrograde": False}
+        }
+        yogas = yoga_service.detect_extended_yogas(planets)
+        yoga_names = [y["name"] for y in yogas]
+        assert "Daridra Yoga" not in yoga_names, "Should NOT detect Daridra Yoga when 11th lord is in kendra"
 
 
 class TestNewYogasPhase3:

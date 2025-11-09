@@ -27,17 +27,18 @@ async def analyze_prashna(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Analyze a horary (Prashna) question.
+    Analyze a horary (Prashna) question with AI-powered detailed answer.
 
-    Calculates chart for the moment the question is asked and provides
-    astrological analysis and answer based on:
-    - Ascendant (Lagna)
-    - Moon position
+    Calculates chart for the moment the question is asked and provides:
+    - Ascendant (Lagna) analysis
+    - Moon position (most important in Prashna)
     - Relevant houses for question type
     - Planetary strengths and combinations
+    - AI-powered detailed answer with timing, remedies, and confidence level
     """
     try:
-        analysis = prashna_service.analyze_prashna(
+        # Use AI-enhanced analysis
+        analysis = await prashna_service.analyze_prashna_with_ai(
             question=request.question,
             question_type=request.question_type,
             query_datetime=request.datetime,

@@ -25,6 +25,10 @@ from app.api.v1.endpoints import (
     life_threads,
     remedy_planner,
     hyperlocal_panchang,
+    astrotwin_circles,
+    expert_console,
+    rituals,
+    reality_check,
 )
 
 api_router = APIRouter()
@@ -52,3 +56,7 @@ api_router.include_router(feng_shui.router, prefix="/feng-shui", tags=["feng-shu
 api_router.include_router(life_threads.router, prefix="/life-threads", tags=["life-threads"])
 api_router.include_router(remedy_planner.router, prefix="/remedy-planner", tags=["remedy-planner"])
 api_router.include_router(hyperlocal_panchang.router, prefix="/panchang", tags=["panchang"])
+api_router.include_router(astrotwin_circles.router, prefix="/astrotwin", tags=["astrotwin-circles"])
+api_router.include_router(expert_console.router, prefix="/expert", tags=["expert-console"])
+api_router.include_router(rituals.router, prefix="/rituals", tags=["rituals"])
+api_router.include_router(reality_check.router, prefix="/reality-check", tags=["reality-check"])

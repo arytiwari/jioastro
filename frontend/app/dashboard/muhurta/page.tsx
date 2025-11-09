@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, Calendar, Clock, Star, Sun, Moon } from 'lucide-react'
+import { Loader2, Calendar, Clock, Star, Sun, Moon, Brain, CheckCircle, XCircle, AlertTriangle } from 'lucide-react'
 
 interface PanchangData {
   date: string
@@ -112,10 +112,21 @@ export default function MuhurtaPage() {
   const [muhurtaLon, setMuhurtaLon] = useState('77.2090')
   const [muhurtaResults, setMuhurtaResults] = useState<MuhurtaResult[] | null>(null)
 
+  // Decision Copilot state
+  const [copilotActivityType, setCopilotActivityType] = useState('marriage')
+  const [copilotStartDate, setCopilotStartDate] = useState(new Date().toISOString().split('T')[0])
+  const [copilotEndDate, setCopilotEndDate] = useState(
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+  )
+  const [copilotLat, setCopilotLat] = useState('28.6139')
+  const [copilotLon, setCopilotLon] = useState('77.2090')
+  const [copilotResult, setCopilotResult] = useState<any | null>(null)
+
   // Error states
   const [panchangError, setPanchangError] = useState<string | null>(null)
   const [horaError, setHoraError] = useState<string | null>(null)
   const [muhurtaError, setMuhurtaError] = useState<string | null>(null)
+  const [copilotError, setCopilotError] = useState<string | null>(null)
 
   // Panchang mutation
   const panchangMutation = useMutation({
@@ -201,6 +212,42 @@ export default function MuhurtaPage() {
     },
   })
 
+  // Decision Copilot mutation
+  const copilotMutation = useMutation({
+    mutationFn: async () => {
+      setCopilotError(null)
+      console.log('Decision Copilot: Calling API with', {
+        copilotActivityType, copilotStartDate, copilotEndDate,
+        lat: copilotLat, lon: copilotLon
+      })
+      const response = await apiClient.getDecisionCopilotGuidance({
+        activity_type: copilotActivityType,
+        start_date: copilotStartDate,
+        end_date: copilotEndDate,
+        latitude: parseFloat(copilotLat),
+        longitude: parseFloat(copilotLon),
+        max_results: 5,
+        chart_id: null, // TODO: Add chart selector
+      })
+      console.log('Decision Copilot: API response received', response)
+      return response.data
+    },
+    onSuccess: (data) => {
+      console.log('Decision Copilot: onSuccess called with data:', data)
+      try {
+        setCopilotResult(data)
+        setCopilotError(null)
+        console.log('Decision Copilot: State updated successfully')
+      } catch (err) {
+        console.error('Decision Copilot: Error in onSuccess:', err)
+      }
+    },
+    onError: (error: any) => {
+      console.error('Decision Copilot error:', error)
+      setCopilotError(error?.message || 'Failed to get Decision Copilot guidance. Please try again.')
+    },
+  })
+
   const getQualityColor = (quality: string) => {
     const q = quality.toLowerCase()
     if (q.includes('highly auspicious')) return 'bg-green-100 dark:bg-green-900 border-green-300'
@@ -226,10 +273,11 @@ export default function MuhurtaPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="panchang">Panchang</TabsTrigger>
           <TabsTrigger value="hora">Hora Calculator</TabsTrigger>
           <TabsTrigger value="finder">Muhurta Finder</TabsTrigger>
+          <TabsTrigger value="copilot">🤖 Decision Copilot</TabsTrigger>
         </TabsList>
 
         {/* PANCHANG TAB */}
@@ -714,6 +762,318 @@ export default function MuhurtaPage() {
                       </CardContent>
                     </Card>
                   ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* DECISION COPILOT TAB */}
+        <TabsContent value="copilot" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-purple-600" />
+                AI-Powered Decision Copilot
+              </CardTitle>
+              <CardDescription>
+                Get AI-powered guidance to choose the best auspicious time with detailed comparison,
+                pros/cons analysis, and personalized recommendations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                  <Label htmlFor="copilot-activity">Activity</Label>
+                  <Select value={copilotActivityType} onValueChange={setCopilotActivityType}>
+                    <SelectTrigger id="copilot-activity">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="marriage">Marriage</SelectItem>
+                      <SelectItem value="business">Business Start</SelectItem>
+                      <SelectItem value="travel">Travel</SelectItem>
+                      <SelectItem value="property">Property Purchase</SelectItem>
+                      <SelectItem value="surgery">Surgery/Medical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="copilot-start-date">Start Date</Label>
+                  <Input
+                    id="copilot-start-date"
+                    type="date"
+                    value={copilotStartDate}
+                    onChange={(e) => setCopilotStartDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="copilot-end-date">End Date</Label>
+                  <Input
+                    id="copilot-end-date"
+                    type="date"
+                    value={copilotEndDate}
+                    onChange={(e) => setCopilotEndDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="copilot-lat">Latitude</Label>
+                  <Input
+                    id="copilot-lat"
+                    type="number"
+                    step="0.0001"
+                    value={copilotLat}
+                    onChange={(e) => setCopilotLat(e.target.value)}
+                    placeholder="28.6139"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="copilot-lon">Longitude</Label>
+                  <Input
+                    id="copilot-lon"
+                    type="number"
+                    step="0.0001"
+                    value={copilotLon}
+                    onChange={(e) => setCopilotLon(e.target.value)}
+                    placeholder="77.2090"
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={() => copilotMutation.mutate()}
+                disabled={copilotMutation.isPending}
+                className="w-full"
+              >
+                {copilotMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Get AI Decision Guidance
+              </Button>
+
+              {copilotError && (
+                <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-lg">
+                  {copilotError}
+                </div>
+              )}
+
+              {copilotResult && copilotResult.ai_guidance && (
+                <div className="space-y-6 mt-6">
+                  {/* Best Time Recommendation */}
+                  <Card className="border-2 border-green-500 bg-green-50 dark:bg-green-950">
+                    <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900">
+                      <CardTitle className="flex items-center gap-2 text-green-900 dark:text-green-100">
+                        <Star className="h-5 w-5 fill-current" />
+                        Recommended Best Time
+                      </CardTitle>
+                      <CardDescription className="text-green-800 dark:text-green-200">
+                        {new Date(copilotResult.ai_guidance.best_time.datetime).toLocaleDateString('en-US', {
+                          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                        })}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        {/* Specific Time Period */}
+                        {copilotResult.ai_guidance.best_time.specific_time && (
+                          <div className="bg-amber-50 dark:bg-amber-950 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
+                            <div className="flex items-center gap-2">
+                              <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                              <span className="text-sm font-semibold text-amber-900 dark:text-amber-100">
+                                Best Time Period:
+                              </span>
+                            </div>
+                            <p className="text-sm text-amber-800 dark:text-amber-200 mt-1">
+                              {copilotResult.ai_guidance.best_time.specific_time}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Rating */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">AI Rating:</span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex">
+                              {[...Array(10)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`h-4 w-4 ${
+                                    i < copilotResult.ai_guidance.best_time.rating
+                                      ? 'fill-yellow-400 text-yellow-400'
+                                      : 'fill-gray-300 text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="font-bold text-lg">
+                              {copilotResult.ai_guidance.best_time.rating}/10
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Reasoning */}
+                        <div className="bg-white dark:bg-gray-900 p-4 rounded-lg">
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <Brain className="h-4 w-4" />
+                            Why This Time?
+                          </h4>
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {copilotResult.ai_guidance.best_time.reasoning}
+                          </p>
+                        </div>
+
+                        {/* Actionable Advice */}
+                        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                          <h4 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">
+                            📋 Actionable Guidance
+                          </h4>
+                          <p className="text-sm text-blue-800 dark:text-blue-200">
+                            {copilotResult.ai_guidance.best_time.actionable_advice}
+                          </p>
+                        </div>
+
+                        {/* Panchang Details */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Tithi:</span>{' '}
+                            <span className="font-medium">{copilotResult.ai_guidance.best_time.tithi}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Nakshatra:</span>{' '}
+                            <span className="font-medium">{copilotResult.ai_guidance.best_time.nakshatra}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Vara:</span>{' '}
+                            <span className="font-medium">{copilotResult.ai_guidance.best_time.vara}</span>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Hora:</span>{' '}
+                            <span className="font-medium">{copilotResult.ai_guidance.best_time.hora_ruler}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* All Options Comparison */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>All Options Comparison</CardTitle>
+                      <CardDescription>
+                        Detailed AI analysis of {copilotResult.ai_guidance.total_options} time options
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {copilotResult.ai_guidance.comparison.map((option: any, index: number) => (
+                          <Card
+                            key={index}
+                            className={`${
+                              index === copilotResult.ai_guidance.best_time.option_number - 1
+                                ? 'border-2 border-green-500'
+                                : ''
+                            }`}
+                          >
+                            <CardHeader className="pb-3">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <CardTitle className="text-base flex items-center gap-2">
+                                    Option {index + 1}
+                                    {index === copilotResult.ai_guidance.best_time.option_number - 1 && (
+                                      <Badge variant="default" className="bg-green-600">Best</Badge>
+                                    )}
+                                  </CardTitle>
+                                  <CardDescription>
+                                    {new Date(option.datetime).toLocaleDateString('en-US', {
+                                      weekday: 'short', month: 'short', day: 'numeric'
+                                    })}
+                                  </CardDescription>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <div className="flex">
+                                    {[...Array(10)].map((_, i) => (
+                                      <Star
+                                        key={i}
+                                        className={`h-3 w-3 ${
+                                          i < option.ai_rating
+                                            ? 'fill-yellow-400 text-yellow-400'
+                                            : 'fill-gray-300 text-gray-300'
+                                        }`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <span className="text-sm font-semibold">{option.ai_rating}/10</span>
+                                </div>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3">
+                              {/* Best Time Within Day */}
+                              {option.best_time_within_day && option.best_time_within_day !== 'Full day' && (
+                                <div className="bg-sky-50 dark:bg-sky-950 p-2 rounded text-xs border border-sky-200 dark:border-sky-800">
+                                  <div className="flex items-center gap-1">
+                                    <Clock className="h-3 w-3 text-sky-600 dark:text-sky-400" />
+                                    <span className="font-medium text-sky-900 dark:text-sky-100">
+                                      {option.best_time_within_day}
+                                    </span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Pros */}
+                              {option.pros && option.pros.length > 0 && (
+                                <div>
+                                  <h5 className="text-sm font-semibold mb-1 flex items-center gap-1 text-green-700 dark:text-green-400">
+                                    <CheckCircle className="h-4 w-4" />
+                                    Pros
+                                  </h5>
+                                  <ul className="text-sm space-y-1">
+                                    {option.pros.map((pro: string, i: number) => (
+                                      <li key={i} className="flex items-start gap-2">
+                                        <span className="text-green-600 dark:text-green-500 mt-0.5">✓</span>
+                                        <span className="text-gray-700 dark:text-gray-300">{pro}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {/* Cons */}
+                              {option.cons && option.cons.length > 0 && (
+                                <div>
+                                  <h5 className="text-sm font-semibold mb-1 flex items-center gap-1 text-orange-700 dark:text-orange-400">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    Considerations
+                                  </h5>
+                                  <ul className="text-sm space-y-1">
+                                    {option.cons.map((con: string, i: number) => (
+                                      <li key={i} className="flex items-start gap-2">
+                                        <span className="text-orange-600 dark:text-orange-500 mt-0.5">!</span>
+                                        <span className="text-gray-700 dark:text-gray-300">{con}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              {/* Personalization Note */}
+                              {option.personalization_note && (
+                                <div className="bg-purple-50 dark:bg-purple-950 p-3 rounded text-sm border border-purple-200 dark:border-purple-800">
+                                  <p className="text-purple-900 dark:text-purple-100">
+                                    <span className="font-medium">Personalization: </span>
+                                    {option.personalization_note}
+                                  </p>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {copilotResult && copilotResult.message && !copilotResult.ai_guidance && (
+                <div className="bg-yellow-50 dark:bg-yellow-950 p-4 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <p className="text-yellow-900 dark:text-yellow-100">{copilotResult.message}</p>
                 </div>
               )}
             </CardContent>

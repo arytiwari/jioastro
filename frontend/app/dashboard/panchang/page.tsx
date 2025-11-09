@@ -79,13 +79,14 @@ interface Panchang {
     ruling_planet: string
   }
   sun_moon: SunMoonData
-  rahukaal: {
-    start_time: string
-    end_time: string
-  }
+  rahukaal_start: string
+  rahukaal_end: string
+  abhijit_muhurta_start?: string
+  abhijit_muhurta_end?: string
+  brahma_muhurta_start?: string
+  brahma_muhurta_end?: string
+  dur_muhurtam: InauspiciousTime[]
   hora_sequence: HoraInfo[]
-  inauspicious_times: InauspiciousTime[]
-  auspicious_times: AuspiciousTime[]
   special_days: string[]
   ritu: string
   is_auspicious_day: boolean
@@ -241,15 +242,38 @@ export default function PanchangPage() {
         </CardContent>
       </Card>
 
-      {panchang && !loading && (
+      {panchang && !loading && (() => {
+        // Build auspicious times array from flat fields
+        const auspicious_times: AuspiciousTime[] = []
+        if (panchang.abhijit_muhurta_start && panchang.abhijit_muhurta_end) {
+          auspicious_times.push({
+            name: 'Abhijit Muhurta',
+            start_time: panchang.abhijit_muhurta_start,
+            end_time: panchang.abhijit_muhurta_end,
+            description: 'Most auspicious time for all activities'
+          })
+        }
+        if (panchang.brahma_muhurta_start && panchang.brahma_muhurta_end) {
+          auspicious_times.push({
+            name: 'Brahma Muhurta',
+            start_time: panchang.brahma_muhurta_start,
+            end_time: panchang.brahma_muhurta_end,
+            description: 'Best time for meditation and spiritual practices'
+          })
+        }
+
+        // Use dur_muhurtam for inauspicious times
+        const inauspicious_times = panchang.dur_muhurtam || []
+
+        return (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="today">Today's Panchang</TabsTrigger>
+            <TabsTrigger value="today">Day's Panchang</TabsTrigger>
             <TabsTrigger value="times">Auspicious Times</TabsTrigger>
             <TabsTrigger value="hora">Hora (Planetary Hours)</TabsTrigger>
           </TabsList>
 
-          {/* Today's Panchang Tab */}
+          {/* Day's Panchang Tab */}
           <TabsContent value="today" className="space-y-6">
             {/* Special Days Banner */}
             {panchang.special_days.length > 0 && (
@@ -417,7 +441,7 @@ export default function PanchangPage() {
               </CardHeader>
               <CardContent>
                 <div className="text-lg font-semibold">
-                  {panchang.rahukaal.start_time} - {panchang.rahukaal.end_time}
+                  {panchang.rahukaal_start} - {panchang.rahukaal_end}
                 </div>
                 <div className="text-sm text-muted-foreground mt-2">
                   Avoid starting new ventures during this period
@@ -426,7 +450,7 @@ export default function PanchangPage() {
             </Card>
 
             {/* Auspicious Times */}
-            {panchang.auspicious_times.length > 0 && (
+            {auspicious_times.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -436,7 +460,7 @@ export default function PanchangPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {panchang.auspicious_times.map((time, index) => (
+                    {auspicious_times.map((time, index) => (
                       <div key={index} className="flex items-start justify-between p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                         <div>
                           <div className="font-medium">{time.name}</div>
@@ -453,7 +477,7 @@ export default function PanchangPage() {
             )}
 
             {/* Inauspicious Times */}
-            {panchang.inauspicious_times.length > 0 && (
+            {inauspicious_times.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -463,7 +487,7 @@ export default function PanchangPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {panchang.inauspicious_times.map((time, index) => (
+                    {inauspicious_times.map((time, index) => (
                       <div key={index} className="flex items-start justify-between p-3 bg-orange-500/10 rounded-lg border border-orange-500/20">
                         <div>
                           <div className="font-medium">{time.name}</div>
@@ -521,7 +545,8 @@ export default function PanchangPage() {
             </Card>
           </TabsContent>
         </Tabs>
-      )}
+        )
+      })()}
 
       {loading && (
         <Card>

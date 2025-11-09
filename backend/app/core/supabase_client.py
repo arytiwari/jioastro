@@ -205,6 +205,54 @@ class SupabaseClient:
             logger.error(f"Supabase INSERT error: {e}")
             raise
 
+    async def upsert(
+        self,
+        table: str,
+        data: Dict[str, Any],
+        on_conflict: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        UPSERT (INSERT or UPDATE) using Supabase REST API.
+
+        Args:
+            table: Table name
+            data: Dictionary of column:value pairs to upsert
+            on_conflict: Column name for conflict resolution
+
+        Returns:
+            Upserted record
+        """
+        url = f"{self.base_url}/{table}"
+
+        # Add upsert header - request return=representation to get the data back
+        upsert_headers = self.headers.copy()
+        upsert_headers["Prefer"] = "resolution=merge-duplicates,return=representation"
+
+        # Add URL parameter for on-conflict
+        params = {}
+        if on_conflict:
+            params["on_conflict"] = on_conflict
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(url, headers=upsert_headers, params=params, json=data)
+                response.raise_for_status()
+
+                # Handle empty response
+                if not response.text:
+                    logger.warning("UPSERT returned empty response, returning input data")
+                    return data
+
+                result = response.json()
+                return result[0] if isinstance(result, list) and len(result) > 0 else result
+
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Supabase UPSERT error: {e.response.status_code} - {e.response.text}")
+            raise
+        except Exception as e:
+            logger.error(f"Supabase UPSERT error: {e}")
+            raise
+
     async def update(
         self,
         table: str,

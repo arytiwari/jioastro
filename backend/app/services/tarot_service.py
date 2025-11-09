@@ -26,7 +26,7 @@ class TarotService:
             cards = await self.supabase.select(
                 "tarot_cards",
                 filters={},
-                order_by="card_number"
+                order="card_number"
             )
             return cards
         except Exception as e:
@@ -56,7 +56,7 @@ class TarotService:
             spreads = await self.supabase.select(
                 "tarot_spreads",
                 filters=filters,
-                order_by="num_cards"
+                order="num_cards"
             )
             return spreads
         except Exception as e:
@@ -188,7 +188,7 @@ class TarotService:
                 "reading_type": "daily_card"
             },
             limit=1,
-            order_by="created_at DESC"
+            order="created_at.desc"
         )
 
         if existing_reading and len(existing_reading) > 0:
@@ -497,7 +497,7 @@ class TarotService:
                 "tarot_readings",
                 filters=filters,
                 limit=limit,
-                order_by="created_at DESC"
+                order="created_at.desc"
             )
 
             return {

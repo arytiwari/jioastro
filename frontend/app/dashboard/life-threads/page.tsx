@@ -137,9 +137,7 @@ export default function LifeThreadsPage() {
     try {
       const response = await apiClient.get('/profiles/')
       setProfiles(response.data)
-      if (response.data.length > 0) {
-        setSelectedProfile(response.data[0].id)
-      }
+      // Don't auto-select - let user choose
     } catch (error) {
       console.error('Failed to load profiles:', error)
     }
@@ -236,11 +234,26 @@ export default function LifeThreadsPage() {
               <SelectValue placeholder="Choose a profile" />
             </SelectTrigger>
             <SelectContent>
-              {profiles.map(profile => (
-                <SelectItem key={profile.id} value={profile.id}>
-                  {profile.name} ({format(new Date(profile.date_of_birth), 'MMM d, yyyy')})
-                </SelectItem>
-              ))}
+              {profiles.map(profile => {
+                // Safely format date, handle invalid dates
+                let dateStr = ''
+                try {
+                  if (profile.date_of_birth) {
+                    const date = new Date(profile.date_of_birth)
+                    if (!isNaN(date.getTime())) {
+                      dateStr = format(date, 'MMM d, yyyy')
+                    }
+                  }
+                } catch (e) {
+                  console.error('Invalid date for profile:', profile.id, e)
+                }
+
+                return (
+                  <SelectItem key={profile.id} value={profile.id}>
+                    {profile.name} {dateStr && `(${dateStr})`}
+                  </SelectItem>
+                )
+              })}
             </SelectContent>
           </Select>
         </CardContent>
@@ -250,24 +263,26 @@ export default function LifeThreadsPage() {
         <>
           {/* Current Dasha & Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-sm">Current Mahadasha</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-full ${PLANET_COLORS[timeline.current_mahadasha.planet]} flex items-center justify-center text-white font-bold`}>
-                    {timeline.current_mahadasha.planet[0]}
-                  </div>
-                  <div>
-                    <div className="font-semibold">{timeline.current_mahadasha.planet}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {timeline.current_mahadasha.remaining_years.toFixed(1)} years remaining
+            {timeline.current_mahadasha?.planet && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Current Mahadasha</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-full ${PLANET_COLORS[timeline.current_mahadasha.planet]} flex items-center justify-center text-white font-bold`}>
+                      {timeline.current_mahadasha.planet[0]}
+                    </div>
+                    <div>
+                      <div className="font-semibold">{timeline.current_mahadasha.planet}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {timeline.current_mahadasha.remaining_years?.toFixed(1) || 'N/A'} years remaining
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {statistics && (
               <>
@@ -276,24 +291,26 @@ export default function LifeThreadsPage() {
                     <CardTitle className="text-sm">Life Events</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold">{statistics.total_events}</div>
+                    <div className="text-3xl font-bold">{statistics.total_events || 0}</div>
                     <div className="text-sm text-muted-foreground">
-                      {statistics.milestones_count} milestones
+                      {statistics.milestones_count || 0} milestones
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Most Active Dasha</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="font-semibold">{statistics.most_active_dasha.planet}</div>
-                    <div className="text-sm text-muted-foreground">
-                      {statistics.most_active_dasha.event_count} events
-                    </div>
-                  </CardContent>
-                </Card>
+                {statistics.most_active_dasha?.planet && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm">Most Active Dasha</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="font-semibold">{statistics.most_active_dasha.planet}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {statistics.most_active_dasha.event_count || 0} events
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </>
             )}
           </div>

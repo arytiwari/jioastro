@@ -38,7 +38,7 @@ async def create_life_event(
     - Supports 15 event categories
     """
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     try:
         return await service.create_life_event(user_id, request)
@@ -56,7 +56,7 @@ async def get_life_event(
 ):
     """Get a specific life event by ID"""
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     event = await service.get_life_event(user_id, event_id)
     if not event:
@@ -74,7 +74,7 @@ async def update_life_event(
 ):
     """Update an existing life event"""
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     try:
         return await service.update_life_event(user_id, event_id, request)
@@ -90,7 +90,7 @@ async def delete_life_event(
 ):
     """Delete a life event"""
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     await service.delete_life_event(user_id, event_id)
     return None
@@ -116,7 +116,7 @@ async def list_life_events(
     - Paginated results
     """
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     event_type_values = [et.value for et in event_types] if event_types else None
 
@@ -155,7 +155,7 @@ async def get_dasha_timeline(
     - Includes event statistics
     """
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     try:
         timeline = await service.get_dasha_timeline(user_id, profile_id)
@@ -201,6 +201,6 @@ async def get_event_statistics(
     - Average events per year
     """
     service = LifeThreadsService(supabase)
-    user_id = current_user["sub"]
+    user_id = current_user["user_id"]
 
     return await service.get_event_statistics(user_id, profile_id)

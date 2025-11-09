@@ -305,6 +305,192 @@ class SupabaseService:
             print(f"Error deleting knowledge document: {str(e)}")
             return False
 
+    # =========================================================================
+    # GENERIC CRUD OPERATIONS (for new features like AstroTwin)
+    # =========================================================================
+
+    async def select(
+        self,
+        table: str,
+        filters: Optional[Dict[str, Any]] = None,
+        order: Optional[str] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Generic SELECT operation via Supabase REST API
+
+        Args:
+            table: Table name
+            filters: Dictionary of {column: value} for WHERE clauses
+            order: Column name with optional .asc or .desc suffix (e.g., "created_at.desc")
+            limit: Number of rows to return
+            offset: Number of rows to skip
+
+        Returns:
+            List of matching rows
+        """
+        try:
+            query = self.client.table(table).select("*")
+
+            # Apply filters
+            if filters:
+                for key, value in filters.items():
+                    query = query.eq(key, value)
+
+            # Apply ordering
+            if order:
+                if ".desc" in order:
+                    col = order.replace(".desc", "")
+                    query = query.order(col, desc=True)
+                elif ".asc" in order:
+                    col = order.replace(".asc", "")
+                    query = query.order(col, desc=False)
+                else:
+                    query = query.order(order)
+
+            # Apply pagination
+            if limit:
+                if offset:
+                    query = query.range(offset, offset + limit - 1)
+                else:
+                    query = query.limit(limit)
+
+            response = query.execute()
+            return response.data if response.data else []
+
+        except Exception as e:
+            print(f"Error in select from {table}: {str(e)}")
+            return []
+
+    async def insert(
+        self,
+        table: str,
+        data: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Generic INSERT operation via Supabase REST API
+
+        Args:
+            table: Table name
+            data: Dictionary of column-value pairs to insert
+
+        Returns:
+            List containing the inserted row(s)
+        """
+        try:
+            # Add UUID if not provided
+            if "id" not in data:
+                data["id"] = str(uuid.uuid4())
+
+            # Add timestamp if not provided
+            if "created_at" not in data:
+                data["created_at"] = datetime.utcnow().isoformat()
+
+            response = self.client.table(table).insert(data).execute()
+            return response.data if response.data else []
+
+        except Exception as e:
+            print(f"Error in insert to {table}: {str(e)}")
+            raise
+
+    async def update(
+        self,
+        table: str,
+        data: Dict[str, Any],
+        filters: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """
+        Generic UPDATE operation via Supabase REST API
+
+        Args:
+            table: Table name
+            data: Dictionary of column-value pairs to update
+            filters: Dictionary of {column: value} for WHERE clauses
+
+        Returns:
+            List containing the updated row(s)
+        """
+        try:
+            # Add updated_at timestamp
+            if "updated_at" not in data:
+                data["updated_at"] = datetime.utcnow().isoformat()
+
+            query = self.client.table(table).update(data)
+
+            # Apply filters
+            for key, value in filters.items():
+                query = query.eq(key, value)
+
+            response = query.execute()
+            return response.data if response.data else []
+
+        except Exception as e:
+            print(f"Error in update to {table}: {str(e)}")
+            raise
+
+    async def delete(
+        self,
+        table: str,
+        filters: Dict[str, Any]
+    ) -> bool:
+        """
+        Generic DELETE operation via Supabase REST API
+
+        Args:
+            table: Table name
+            filters: Dictionary of {column: value} for WHERE clauses
+
+        Returns:
+            True if rows were deleted, False otherwise
+        """
+        try:
+            query = self.client.table(table).delete()
+
+            # Apply filters
+            for key, value in filters.items():
+                query = query.eq(key, value)
+
+            response = query.execute()
+            return len(response.data) > 0 if response.data else False
+
+        except Exception as e:
+            print(f"Error in delete from {table}: {str(e)}")
+            return False
+
+    async def count(
+        self,
+        table: str,
+        filters: Optional[Dict[str, Any]] = None
+    ) -> int:
+        """
+        COUNT operation via Supabase REST API
+
+        Args:
+            table: Table name
+            filters: Dictionary of {column: value} for WHERE clauses
+
+        Returns:
+            Number of matching records
+        """
+        try:
+            query = self.client.table(table).select("id", count="exact")
+
+            # Apply filters
+            if filters:
+                for key, value in filters.items():
+                    if value is None:
+                        query = query.is_(key, None)
+                    else:
+                        query = query.eq(key, value)
+
+            response = query.execute()
+            return response.count if hasattr(response, 'count') and response.count is not None else 0
+
+        except Exception as e:
+            print(f"Error in count from {table}: {str(e)}")
+            return 0
+
 
 # Singleton instance
 supabase_service = SupabaseService()

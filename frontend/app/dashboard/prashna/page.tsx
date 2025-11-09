@@ -476,6 +476,146 @@ export default function PrashnaPage() {
               </CardContent>
             </Card>
           )}
+
+          {/* AI-Powered Detailed Answer */}
+          {analysis?.ai_answer && (
+            <Card className="border-2 border-purple-200 dark:border-purple-800">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+                <CardTitle className="flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 text-purple-600" />
+                  AI-Powered Detailed Analysis
+                </CardTitle>
+                <CardDescription>
+                  Comprehensive astrological interpretation with timing, obstacles, and remedies
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6 pt-6">
+                {/* Direct Answer with Confidence */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <h3 className="font-bold text-2xl mb-4 text-blue-900 dark:text-blue-100">
+                    Answer: {analysis.ai_answer.answer}
+                  </h3>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Confidence Level:</span>
+                      <span className="font-bold text-lg text-blue-700 dark:text-blue-300">{analysis.ai_answer.confidence}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${analysis.ai_answer.confidence}%` }}
+                      />
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      {analysis.ai_answer.confidence_explanation}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Detailed Explanation */}
+                <div className="prose dark:prose-invert max-w-none">
+                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    📖 Detailed Astrological Explanation
+                  </h4>
+                  <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                    {analysis.ai_answer.explanation}
+                  </div>
+                </div>
+
+                {/* Timing Prediction */}
+                <div>
+                  <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-amber-600" />
+                    Timing Prediction
+                  </h4>
+                  <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-lg border border-amber-200 dark:border-amber-800 space-y-2">
+                    <div>
+                      <span className="font-medium text-amber-900 dark:text-amber-200">Timeframe:</span>
+                      <p className="text-amber-800 dark:text-amber-300 mt-1">{analysis.ai_answer.timing.timeframe}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-amber-900 dark:text-amber-200">Astrological Basis:</span>
+                      <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">{analysis.ai_answer.timing.basis}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium text-amber-900 dark:text-amber-200">Key Dates to Watch:</span>
+                      <p className="text-sm text-amber-700 dark:text-amber-400 mt-1">{analysis.ai_answer.timing.key_dates}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Obstacles and Opportunities Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Obstacles */}
+                  {analysis.ai_answer.obstacles && analysis.ai_answer.obstacles.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Obstacles to Watch
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.ai_answer.obstacles.map((obstacle: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2 bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-500">
+                            <span className="text-orange-600 mt-0.5">⚠️</span>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{obstacle}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Opportunities */}
+                  {analysis.ai_answer.opportunities && analysis.ai_answer.opportunities.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                        <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Opportunities
+                      </h4>
+                      <ul className="space-y-2">
+                        {analysis.ai_answer.opportunities.map((opp: string, i: number) => (
+                          <li key={i} className="flex items-start gap-2 bg-green-50 dark:bg-green-900/20 p-3 rounded-lg border-l-4 border-green-500">
+                            <span className="text-green-600 mt-0.5">✨</span>
+                            <span className="text-sm text-green-800 dark:text-green-200">{opp}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Remedies */}
+                {analysis.ai_answer.remedies && analysis.ai_answer.remedies.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-lg mb-3 flex items-center gap-2">
+                      <svg className="w-5 h-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                      Recommended Vedic Remedies
+                    </h4>
+                    <div className="grid gap-4">
+                      {analysis.ai_answer.remedies.map((remedy: any, i: number) => (
+                        <div key={i} className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 p-5 rounded-lg border-l-4 border-purple-500">
+                          <h5 className="font-medium text-purple-900 dark:text-purple-200 mb-2 flex items-center gap-2">
+                            <span className="bg-purple-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-sm">
+                              {i + 1}
+                            </span>
+                            {remedy.title}
+                          </h5>
+                          <p className="text-sm text-purple-800 dark:text-purple-300 leading-relaxed">
+                            {remedy.description}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Right Column - Saved Prashnas */}

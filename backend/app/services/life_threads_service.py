@@ -4,7 +4,7 @@ Handles Dasha timeline generation and life event management
 """
 
 from typing import Optional, List, Dict, Any, Tuple
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone, time as datetime_time
 from decimal import Decimal
 import logging
 import hashlib
@@ -22,6 +22,7 @@ from app.schemas.life_threads import (
     EventStatistics,
     DashaAnalysis
 )
+from app.services.vedic_astrology_accurate import AccurateVedicAstrology
 
 logger = logging.getLogger(__name__)
 
@@ -259,49 +260,79 @@ class LifeThreadsService:
         latitude: Optional[float],
         longitude: Optional[float]
     ) -> Dict[str, Any]:
-        """Generate Vimshottari Dasha timeline"""
+        """Generate Vimshottari Dasha timeline using accurate birth chart calculation"""
 
-        # Calculate birth Moon Nakshatra to determine starting Dasha
-        # For simplicity, using a placeholder. In production, use Swiss Ephemeris
-        birth_nakshatra_num = 0  # Would calculate from Moon position
+        # Validate required data
+        if not birth_time or latitude is None or longitude is None:
+            logger.warning(f"Missing birth data for profile {profile_id}, using default timeline")
+            return self._generate_default_timeline(profile_id, birth_date)
 
-        # Get starting Dasha lord
-        starting_dasha_lord = self.NAKSHATRA_DASHA_LORD[birth_nakshatra_num]
+        try:
+            # Create datetime from birth date and time
+            time_parts = birth_time.split(':')
+            birth_datetime = datetime.combine(
+                birth_date,
+                datetime_time(int(time_parts[0]), int(time_parts[1]), 0)
+            )
 
-        # Calculate balance of starting Dasha at birth
-        # Simplified: assuming full period. In reality, calculate exact balance.
-        balance_years = self.VIMSHOTTARI_PERIODS[starting_dasha_lord]
+            # Calculate accurate birth chart using Swiss Ephemeris
+            astro_service = AccurateVedicAstrology()
+            chart_data = astro_service.calculate_chart(
+                birth_datetime=birth_datetime,
+                latitude=latitude,
+                longitude=longitude,
+                timezone_str="UTC"  # Will be converted internally
+            )
 
-        # Generate all Mahadasha periods
+            # Get the Vimshottari Dasha data from chart
+            dasha_data = chart_data.get("vimshottari_dasha", {})
+            mahadashas = dasha_data.get("mahadashas", [])
+
+            if not mahadashas:
+                logger.warning(f"No mahadashas calculated for profile {profile_id}, using default")
+                return self._generate_default_timeline(profile_id, birth_date)
+
+            # Format mahadasha periods for Life Threads
+            mahadasha_periods = []
+            for maha in mahadashas:
+                mahadasha_periods.append({
+                    "planet": maha["planet"],
+                    "start_date": maha["start_date"],
+                    "end_date": maha["end_date"],
+                    "duration_years": maha["years"]
+                })
+
+            return {
+                "profile_id": profile_id,
+                "birth_date": birth_date.isoformat(),
+                "vimshottari_start_date": birth_date.isoformat(),
+                "mahadasha_periods": mahadasha_periods
+            }
+
+        except Exception as e:
+            logger.error(f"Error calculating dasha timeline for profile {profile_id}: {e}")
+            return self._generate_default_timeline(profile_id, birth_date)
+
+    def _generate_default_timeline(self, profile_id: str, birth_date: date) -> Dict[str, Any]:
+        """Generate a default timeline when birth data is incomplete (fallback)"""
+
+        # Use Ketu as default starting dasha (traditional approach)
+        dasha_sequence = ["Ketu", "Venus", "Sun", "Moon", "Mars", "Rahu", "Jupiter", "Saturn", "Mercury"]
         mahadasha_periods = []
         current_date = birth_date
 
-        # Find starting index in Dasha sequence
-        dasha_sequence = self.NAKSHATRA_DASHA_LORD[:9]  # One complete cycle
-        start_idx = dasha_sequence.index(starting_dasha_lord)
+        for planet in dasha_sequence:
+            period_years = self.VIMSHOTTARI_PERIODS[planet]
+            end_date = current_date + timedelta(days=int(period_years * 365.25))
 
-        # Generate 120 years
-        for cycle in range(2):  # Two cycles to cover 120 years
-            for i in range(9):
-                dasha_idx = (start_idx + i) % 9
-                planet = dasha_sequence[dasha_idx]
-                period_years = self.VIMSHOTTARI_PERIODS[planet]
+            mahadasha_periods.append({
+                "planet": planet,
+                "start_date": current_date.isoformat(),
+                "end_date": end_date.isoformat(),
+                "duration_years": period_years
+            })
 
-                end_date = current_date + timedelta(days=int(period_years * 365.25))
-
-                mahadasha_periods.append({
-                    "planet": planet,
-                    "start_date": current_date.isoformat(),
-                    "end_date": end_date.isoformat(),
-                    "duration_years": period_years
-                })
-
-                current_date = end_date
-
-                if len(mahadasha_periods) >= 12:  # ~100+ years covered
-                    break
-            if len(mahadasha_periods) >= 12:
-                break
+            current_date = end_date
 
         return {
             "profile_id": profile_id,
@@ -339,7 +370,13 @@ class LifeThreadsService:
         cache = result[0]
         expires_at = datetime.fromisoformat(cache["expires_at"])
 
-        if expires_at < datetime.now():
+        # Compare timezone-aware datetimes
+        now = datetime.now(timezone.utc)
+        # Ensure expires_at is timezone-aware
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
+
+        if expires_at < now:
             return None
 
         return cache["timeline_data"]

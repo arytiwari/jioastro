@@ -1221,6 +1221,116 @@ class MuhurtaService:
                 "message": "No highly auspicious time found today. Consider checking upcoming days."
             }
 
+    # ============================================================================
+    # AI-POWERED DECISION COPILOT
+    # ============================================================================
+
+    async def find_muhurta_with_ai_guidance(
+        self,
+        activity_type: str,
+        start_date: datetime,
+        end_date: datetime,
+        latitude: float,
+        longitude: float,
+        user_chart_data: Optional[Dict[str, Any]] = None,
+        user_dasha: Optional[Dict[str, Any]] = None,
+        max_results: int = 5
+    ) -> Dict[str, Any]:
+        """
+        Find auspicious times with AI-powered decision guidance (Decision Copilot).
+
+        Combines:
+        1. Traditional Muhurta calculations (Panchang + Hora)
+        2. User's personal chart analysis (optional)
+        3. Current dashas and transits (optional)
+        4. AI-powered comparison and best time recommendation
+
+        Args:
+            activity_type: Type of activity (marriage, business, travel, property, surgery)
+            start_date: Start of search period
+            end_date: End of search period
+            latitude: Location latitude
+            longitude: Location longitude
+            user_chart_data: Optional user's birth chart for personalization
+            user_dasha: Optional current dasha information
+            max_results: Maximum number of options to return (default 5)
+
+        Returns:
+            Dict containing:
+            - activity_type: Type of activity
+            - search_period: Date range searched
+            - location: Latitude/longitude
+            - traditional_results: Top times from traditional Muhurta
+            - ai_guidance: AI-powered comparison and recommendation
+            - has_personalization: Whether birth chart was used
+        """
+        # Get traditional Muhurta results
+        if activity_type == "marriage":
+            muhurta_results = self.find_marriage_muhurta(
+                start_date, end_date, latitude, longitude, max_results
+            )
+        elif activity_type in ["business", "business_start"]:
+            muhurta_results = self.find_business_start_muhurta(
+                start_date, end_date, latitude, longitude, max_results
+            )
+        elif activity_type == "travel":
+            muhurta_results = self.find_travel_muhurta(
+                start_date, end_date, latitude, longitude, max_results
+            )
+        elif activity_type in ["property", "property_purchase"]:
+            muhurta_results = self.find_property_purchase_muhurta(
+                start_date, end_date, latitude, longitude, max_results
+            )
+        elif activity_type == "surgery":
+            muhurta_results = self.find_surgery_muhurta(
+                start_date, end_date, latitude, longitude, max_results
+            )
+        else:
+            return {
+                "error": f"Invalid activity type: {activity_type}",
+                "supported_types": ["marriage", "business", "travel", "property", "surgery"]
+            }
+
+        # If no good times found, return early
+        if not muhurta_results:
+            return {
+                "activity_type": activity_type,
+                "search_period": {
+                    "start": start_date.isoformat(),
+                    "end": end_date.isoformat()
+                },
+                "location": {"latitude": latitude, "longitude": longitude},
+                "traditional_results": [],
+                "ai_guidance": None,
+                "message": "No highly auspicious times found in the selected period. "
+                          "Consider expanding the date range or consulting an astrologer.",
+                "has_personalization": False
+            }
+
+        # Get AI-powered decision guidance
+        from app.services.muhurta_ai_service import muhurta_ai_service
+
+        ai_guidance = await muhurta_ai_service.generate_decision_guidance(
+            activity_type=activity_type,
+            muhurta_options=muhurta_results,
+            user_birth_chart=user_chart_data,
+            user_current_dasha=user_dasha,
+            user_transits=None  # TODO: Add transit calculation if needed
+        )
+
+        return {
+            "activity_type": activity_type,
+            "search_period": {
+                "start": start_date.isoformat(),
+                "end": end_date.isoformat()
+            },
+            "location": {"latitude": latitude, "longitude": longitude},
+            "traditional_results": muhurta_results,
+            "ai_guidance": ai_guidance,
+            "has_personalization": bool(user_chart_data or user_dasha),
+            "total_options": len(muhurta_results)
+        }
+
 
 # Create singleton instance
 muhurta_service = MuhurtaService()
