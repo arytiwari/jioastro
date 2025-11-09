@@ -13,6 +13,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 
 export default function DashboardLayout({
@@ -128,50 +133,64 @@ export default function DashboardLayout({
   }
 
   // Reorganized menu structure for better scalability
-  const astrologyMenu = [
-    { name: 'AI Readings', href: '/dashboard/readings', icon: Sparkles, badge: 'NEW' },
-    { name: 'Birth Charts', href: '/dashboard/chart', icon: BarChart3 },
-    { name: 'Varshaphal (Annual)', href: '/dashboard/varshaphal', icon: Calendar, badge: 'NEW' },
-    { name: 'Jaimini System', href: '/dashboard/jaimini', icon: Award, badge: 'NEW' },
-    { name: 'Lal Kitab', href: '/dashboard/lal-kitab', icon: BookOpen, badge: 'NEW' },
-    { name: 'Ashtakavarga', href: '/dashboard/ashtakavarga', icon: Activity, badge: 'NEW' },
-    { name: 'Yoga Analysis', href: '/dashboard/yogas', icon: Award },
-    { name: 'Strength (Shadbala)', href: '/dashboard/strength', icon: TrendingUp },
-    { name: 'Current Transits', href: '/dashboard/transits', icon: Sun },
-  ]
+  // Reorganized menu structure - 4 top-level menus with sub-categories
+  const readingsMenu = {
+    main: [
+      { name: 'AI Readings', href: '/dashboard/readings', icon: Sparkles, badge: 'NEW' },
+      { name: 'Birth Charts', href: '/dashboard/chart', icon: BarChart3 },
+      { name: 'Ask Question', href: '/dashboard/ask', icon: MessageSquare },
+      { name: 'Current Transits', href: '/dashboard/transits', icon: Sun },
+    ],
+    insights: [
+      { name: 'Instant Onboarding', href: '/dashboard/instant-onboarding', icon: Zap, badge: 'NEW' },
+      { name: 'Life Snapshot', href: '/dashboard/life-snapshot', icon: Eye, badge: 'NEW' },
+      { name: 'Evidence Mode', href: '/dashboard/evidence-mode', icon: Shield, badge: 'NEW' },
+    ]
+  }
 
-  const numerologyMenu = [
-    { name: 'Calculator', href: '/dashboard/numerology', icon: TrendingUp },
-    { name: 'Compare Names', href: '/dashboard/numerology/compare', icon: Activity },
-  ]
+  const systemsMenu = {
+    vedic: [
+      { name: 'Varshaphal (Annual)', href: '/dashboard/varshaphal', icon: Calendar, badge: 'NEW' },
+      { name: 'Jaimini System', href: '/dashboard/jaimini', icon: Award, badge: 'NEW' },
+      { name: 'Lal Kitab', href: '/dashboard/lal-kitab', icon: BookOpen, badge: 'NEW' },
+      { name: 'Ashtakavarga', href: '/dashboard/ashtakavarga', icon: Activity, badge: 'NEW' },
+      { name: 'Yoga Analysis', href: '/dashboard/yogas', icon: Award },
+      { name: 'Strength (Shadbala)', href: '/dashboard/strength', icon: TrendingUp },
+    ],
+    numerology: [
+      { name: 'Calculator', href: '/dashboard/numerology', icon: TrendingUp },
+      { name: 'Compare Names', href: '/dashboard/numerology/compare', icon: Activity },
+    ],
+    divination: [
+      { name: 'Tarot Reading', href: '/dashboard/tarot', icon: Star, badge: 'NEW' },
+      { name: 'Feng Shui', href: '/dashboard/feng-shui', icon: Compass, badge: 'NEW' },
+      { name: 'Palmistry', href: '/dashboard/palmistry', icon: Hand, badge: 'NEW' },
+      { name: 'Prashna (Horary)', href: '/dashboard/prashna', icon: HelpCircle, badge: 'NEW' },
+    ]
+  }
 
-  const toolsMenu = [
-    { name: 'Ask Question', href: '/dashboard/ask', icon: MessageSquare },
-    { name: 'Tarot Reading', href: '/dashboard/tarot', icon: Star, badge: 'NEW' },
-    { name: 'Feng Shui', href: '/dashboard/feng-shui', icon: Compass, badge: 'NEW' },
-    { name: 'Palmistry', href: '/dashboard/palmistry', icon: Hand, badge: 'NEW' },
-    { name: 'Prashna (Horary)', href: '/dashboard/prashna', icon: HelpCircle, badge: 'NEW' },
-    { name: 'Chart Comparison', href: '/dashboard/chart-comparison', icon: Users, badge: 'NEW' },
-    { name: 'Muhurta (Auspicious Times)', href: '/dashboard/muhurta', icon: Clock },
-    { name: 'Compatibility Matching', href: '/dashboard/compatibility', icon: Heart },
-    { name: 'Birth Time Rectification', href: '/dashboard/rectification', icon: Clock },
-    { name: 'Remedies', href: '/dashboard/remedies', icon: Gem },
-  ]
+  const toolsMenu = {
+    planning: [
+      { name: 'Life Threads', href: '/dashboard/life-threads', icon: Timeline, badge: 'NEW' },
+      { name: 'Remedy Planner', href: '/dashboard/remedy-planner', icon: Flame, badge: 'NEW' },
+      { name: 'Daily Panchang', href: '/dashboard/panchang', icon: Calendar, badge: 'NEW' },
+      { name: 'Remedies', href: '/dashboard/remedies', icon: Gem },
+    ],
+    analysis: [
+      { name: 'Chart Comparison', href: '/dashboard/chart-comparison', icon: Users, badge: 'NEW' },
+      { name: 'Muhurta (Times)', href: '/dashboard/muhurta', icon: Clock },
+      { name: 'Compatibility', href: '/dashboard/compatibility', icon: Heart },
+      { name: 'Time Rectification', href: '/dashboard/rectification', icon: Clock },
+    ],
+    resources: [
+      { name: 'Knowledge Base', href: '/dashboard/knowledge', icon: BookOpen },
+      { name: 'Advanced Systems', href: '/dashboard/advanced', icon: Activity },
+    ]
+  }
 
-  const dataMenu = [
+  const accountMenu = [
     { name: 'My Profiles', href: '/dashboard/profiles', icon: User },
     { name: 'Query History', href: '/dashboard/history', icon: History },
-  ]
-
-  const moreMenu = [
-    { name: 'Instant Onboarding', href: '/dashboard/instant-onboarding', icon: Zap, badge: 'NEW' },
-    { name: 'Life Snapshot', href: '/dashboard/life-snapshot', icon: Eye, badge: 'NEW' },
-    { name: 'Evidence Mode', href: '/dashboard/evidence-mode', icon: Shield, badge: 'NEW' },
-    { name: 'Life Threads', href: '/dashboard/life-threads', icon: Timeline, badge: 'NEW' },
-    { name: 'Remedy Planner', href: '/dashboard/remedy-planner', icon: Flame, badge: 'NEW' },
-    { name: 'Daily Panchang', href: '/dashboard/panchang', icon: Calendar, badge: 'NEW' },
-    { name: 'Advanced Systems', href: '/dashboard/advanced', icon: Activity },
-    { name: 'Knowledge Base', href: '/dashboard/knowledge', icon: BookOpen },
   ]
 
   return (
@@ -186,125 +205,177 @@ export default function DashboardLayout({
               <span className="font-bold text-xl hidden sm:inline text-jio-700">JioAstro</span>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Modern 4-Menu Structure */}
             <nav className="hidden lg:flex items-center space-x-1">
-              {/* Dashboard */}
+              {/* Home */}
               <Link href="/dashboard">
-                <Button variant="ghost" className="flex items-center gap-1.5">
+                <Button variant="ghost" className="flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 transition-colors">
                   <Home className="w-4 h-4" />
-                  <span className="text-sm">Home</span>
+                  <span className="text-sm font-medium">Home</span>
                 </Button>
               </Link>
 
-              {/* Astrology Dropdown */}
+              {/* 1. Readings Menu */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1">
-                    <BarChart3 className="w-4 h-4" />
-                    <span className="text-sm">Astrology</span>
-                    <ChevronDown className="w-3 h-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  {astrologyMenu.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                        {item.badge && (
-                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Numerology Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1">
-                    <TrendingUp className="w-4 h-4" />
-                    <span className="text-sm">Numerology</span>
-                    <ChevronDown className="w-3 h-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  {numerologyMenu.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Tools Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1">
-                    <Wrench className="w-4 h-4" />
-                    <span className="text-sm">Tools</span>
-                    <ChevronDown className="w-3 h-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  {toolsMenu.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* My Data Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1">
-                    <Database className="w-4 h-4" />
-                    <span className="text-sm">My Data</span>
-                    <ChevronDown className="w-3 h-3 opacity-50" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  {dataMenu.map((item) => (
-                    <DropdownMenuItem key={item.name} asChild>
-                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.name}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* More Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-1">
+                  <Button variant="ghost" className="flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 transition-colors">
                     <Sparkles className="w-4 h-4" />
-                    <span className="text-sm">More</span>
+                    <span className="text-sm font-medium">Readings</span>
                     <ChevronDown className="w-3 h-3 opacity-50" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-52">
-                  {moreMenu.map((item) => (
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Core Readings</DropdownMenuLabel>
+                  {readingsMenu.main.map((item) => (
                     <DropdownMenuItem key={item.name} asChild>
-                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer">
-                        <item.icon className="w-4 h-4" />
-                        <span>{item.name}</span>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-purple-600" />
+                        <span className="font-medium">{item.name}</span>
                         {item.badge && (
                           <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                             {item.badge}
                           </span>
                         )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Personal Insights</DropdownMenuLabel>
+                  {readingsMenu.insights.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-purple-600" />
+                        <span className="font-medium">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 2. Systems Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 transition-colors">
+                    <BarChart3 className="w-4 h-4" />
+                    <span className="text-sm font-medium">Systems</span>
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Vedic Astrology</DropdownMenuLabel>
+                  {systemsMenu.vedic.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-indigo-600" />
+                        <span className="font-medium">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Numerology</DropdownMenuLabel>
+                  {systemsMenu.numerology.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-indigo-600" />
+                        <span className="font-medium">{item.name}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Divination Arts</DropdownMenuLabel>
+                  {systemsMenu.divination.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-indigo-600" />
+                        <span className="font-medium">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 3. Tools Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 transition-colors">
+                    <Wrench className="w-4 h-4" />
+                    <span className="text-sm font-medium">Tools</span>
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Life Planning</DropdownMenuLabel>
+                  {toolsMenu.planning.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-green-600" />
+                        <span className="font-medium">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Analysis Tools</DropdownMenuLabel>
+                  {toolsMenu.analysis.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-green-600" />
+                        <span className="font-medium">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs font-semibold text-gray-500 uppercase">Resources</DropdownMenuLabel>
+                  {toolsMenu.resources.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-green-600" />
+                        <span className="font-medium">{item.name}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* 4. Account Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-1.5 hover:bg-purple-50 hover:text-purple-700 transition-colors">
+                    <User className="w-4 h-4" />
+                    <span className="text-sm font-medium">Account</span>
+                    <ChevronDown className="w-3 h-3 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  {accountMenu.map((item) => (
+                    <DropdownMenuItem key={item.name} asChild>
+                      <Link href={item.href} className="flex items-center gap-2 cursor-pointer py-2">
+                        <item.icon className="w-4 h-4 text-blue-600" />
+                        <span className="font-medium">{item.name}</span>
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -336,131 +407,166 @@ export default function DashboardLayout({
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Reorganized */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t bg-white">
+          <div className="lg:hidden border-t bg-white shadow-lg">
             <nav className="container mx-auto px-4 py-4 space-y-2 max-h-[calc(100vh-4rem)] overflow-y-auto">
               {/* Home */}
               <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
+                <Button variant="ghost" className="w-full justify-start flex items-center gap-2 hover:bg-purple-50">
                   <Home className="w-4 h-4" />
-                  Home
+                  <span className="font-medium">Home</span>
                 </Button>
               </Link>
 
-              {/* Astrology Section */}
+              {/* 1. Readings Section */}
               <div className="border-t pt-2">
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-gray-700">
+                <div className="flex items-center gap-2 px-2 py-2 text-sm font-bold text-purple-700 bg-purple-50 rounded-md">
+                  <Sparkles className="w-4 h-4" />
+                  Readings
+                </div>
+                <div className="ml-2 mt-1">
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1">CORE READINGS</div>
+                  {readingsMenu.main.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Button>
+                    </Link>
+                  ))}
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1 mt-2">PERSONAL INSIGHTS</div>
+                  {readingsMenu.insights.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* 2. Systems Section */}
+              <div className="border-t pt-2">
+                <div className="flex items-center gap-2 px-2 py-2 text-sm font-bold text-indigo-700 bg-indigo-50 rounded-md">
                   <BarChart3 className="w-4 h-4" />
-                  Astrology
+                  Systems
                 </div>
-                {astrologyMenu.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-sm">{item.name}</span>
-                      {item.badge && (
-                        <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-                ))}
+                <div className="ml-2 mt-1">
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1">VEDIC ASTROLOGY</div>
+                  {systemsMenu.vedic.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-indigo-600" />
+                        <span className="text-sm">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Button>
+                    </Link>
+                  ))}
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1 mt-2">NUMEROLOGY</div>
+                  {systemsMenu.numerology.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-indigo-600" />
+                        <span className="text-sm">{item.name}</span>
+                      </Button>
+                    </Link>
+                  ))}
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1 mt-2">DIVINATION ARTS</div>
+                  {systemsMenu.divination.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-indigo-600" />
+                        <span className="text-sm">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
               </div>
 
-              {/* Numerology Section */}
+              {/* 3. Tools Section */}
               <div className="border-t pt-2">
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-gray-700">
-                  <TrendingUp className="w-4 h-4" />
-                  Numerology
-                </div>
-                {numerologyMenu.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-sm">{item.name}</span>
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-
-              {/* Tools Section */}
-              <div className="border-t pt-2">
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-gray-700">
+                <div className="flex items-center gap-2 px-2 py-2 text-sm font-bold text-green-700 bg-green-50 rounded-md">
                   <Wrench className="w-4 h-4" />
                   Tools
                 </div>
-                {toolsMenu.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-sm">{item.name}</span>
-                      {item.badge && (
-                        <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-                ))}
+                <div className="ml-2 mt-1">
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1">LIFE PLANNING</div>
+                  {toolsMenu.planning.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Button>
+                    </Link>
+                  ))}
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1 mt-2">ANALYSIS TOOLS</div>
+                  {toolsMenu.analysis.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">{item.name}</span>
+                        {item.badge && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            {item.badge}
+                          </span>
+                        )}
+                      </Button>
+                    </Link>
+                  ))}
+                  <div className="text-xs font-semibold text-gray-500 px-2 py-1 mt-2">RESOURCES</div>
+                  {toolsMenu.resources.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">{item.name}</span>
+                      </Button>
+                    </Link>
+                  ))}
+                </div>
               </div>
 
-              {/* My Data Section */}
+              {/* 4. Account Section */}
               <div className="border-t pt-2">
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-gray-700">
-                  <Database className="w-4 h-4" />
-                  My Data
+                <div className="flex items-center gap-2 px-2 py-2 text-sm font-bold text-blue-700 bg-blue-50 rounded-md">
+                  <User className="w-4 h-4" />
+                  Account
                 </div>
-                {dataMenu.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-sm">{item.name}</span>
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-
-              {/* More Section */}
-              <div className="border-t pt-2">
-                <div className="flex items-center gap-2 px-2 py-1.5 text-sm font-semibold text-gray-700">
-                  <Sparkles className="w-4 h-4" />
-                  More Features
+                <div className="ml-2 mt-1">
+                  {accountMenu.map((item) => (
+                    <Link key={item.name} href={item.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-4 py-2">
+                        <item.icon className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm">{item.name}</span>
+                      </Button>
+                    </Link>
+                  ))}
                 </div>
-                {moreMenu.map((item) => (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Button variant="ghost" className="w-full justify-start flex items-center gap-2 pl-6">
-                      <item.icon className="w-4 h-4" />
-                      <span className="text-sm">{item.name}</span>
-                      {item.badge && (
-                        <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                          {item.badge}
-                        </span>
-                      )}
-                    </Button>
-                  </Link>
-                ))}
               </div>
 
               {/* Sign Out */}
