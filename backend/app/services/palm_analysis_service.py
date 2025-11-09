@@ -915,7 +915,7 @@ comparing both hands provides insight into inherited traits vs. developed charac
             Dictionary with profile, chart, and numerology data, or None if not found
         """
         try:
-            from app.services.supabase_client import SupabaseClient
+            from app.core.supabase_client import SupabaseClient
 
             supabase = SupabaseClient()
 

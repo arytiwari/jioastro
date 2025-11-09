@@ -106,7 +106,7 @@ export default function DashboardLayout({
     }
 
     checkAuth()
-  }, [pathname, router, isAuthenticated])
+  }, [pathname, router]) // Removed isAuthenticated to prevent infinite loop
 
   const handleSignOut = async () => {
     await signOut()

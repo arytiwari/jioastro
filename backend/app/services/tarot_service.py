@@ -9,7 +9,7 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime, timedelta
 import logging
 
-from app.services.supabase_client import SupabaseClient
+from app.core.supabase_client import SupabaseClient
 
 logger = logging.getLogger(__name__)
 

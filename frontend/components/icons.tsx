@@ -83,5 +83,7 @@ export {
   Check,
   Image,
   Compass,
-  Wind
+  Wind,
+  Flame,
+  GitBranch as Timeline
 } from 'lucide-react'
