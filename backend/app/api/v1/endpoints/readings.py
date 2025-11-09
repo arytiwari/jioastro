@@ -384,6 +384,34 @@ async def generate_ai_reading(
         except Exception as e:
             print(f"⚠️  Could not fetch numerology data: {str(e)}")
 
+        # Detect yogas for comprehensive analysis
+        yoga_data = None
+        try:
+            print(f"🧘 Detecting classical Vedic yogas for enhanced reading...")
+            from app.services.extended_yoga_service import extended_yoga_service
+
+            chart_data_dict = chart.get("chart_data", {})
+            planets = chart_data_dict.get('planets', {})
+            houses = chart_data_dict.get('houses', {})
+
+            if planets:
+                yogas = extended_yoga_service.detect_extended_yogas(planets, houses)
+
+                # Filter to significant yogas (Strong and Very Strong)
+                significant_yogas = [y for y in yogas if y.get('strength') in ['Very Strong', 'Strong']]
+
+                yoga_data = {
+                    "total_yogas": len(yogas),
+                    "significant_yogas": len(significant_yogas),
+                    "yogas": significant_yogas,  # Only pass significant ones to reduce token usage
+                    "strongest_yogas": [y['name'] for y in yogas if y.get('strength') == 'Very Strong']
+                }
+                print(f"✅ Yoga detection complete: {len(yogas)} total, {len(significant_yogas)} significant")
+            else:
+                print(f"ℹ️  No planet data found for yoga detection")
+        except Exception as e:
+            print(f"⚠️  Could not detect yogas: {str(e)}")
+
         # Generate comprehensive reading using orchestrator
         print(f"🎭 Generating comprehensive reading with orchestrator...")
         result = await ai_orchestrator.generate_comprehensive_reading(
@@ -393,7 +421,8 @@ async def generate_ai_reading(
             include_predictions=request.include_predictions,
             include_transits=request.include_transits,
             prediction_window_months=request.prediction_window_months,
-            numerology_data=numerology_data
+            numerology_data=numerology_data,
+            yoga_data=yoga_data
         )
 
         # Store reading session

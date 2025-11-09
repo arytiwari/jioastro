@@ -76,5 +76,12 @@ export {
   Zap,
   Shield,
   Globe,
-  Target
+  Target,
+  Hand,
+  Camera,
+  RotateCcw,
+  Check,
+  Image,
+  Compass,
+  Wind
 } from 'lucide-react'

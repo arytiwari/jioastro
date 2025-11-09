@@ -68,8 +68,17 @@ async def generate_varshaphal(
         from datetime import datetime, date, time
 
         # Parse date and time from REST API response
-        birth_date = profile["birth_date"] if isinstance(profile["birth_date"], date) else datetime.fromisoformat(profile["birth_date"]).date()
-        birth_time = profile["birth_time"] if isinstance(profile["birth_time"], time) else datetime.fromisoformat(profile["birth_time"]).time()
+        if isinstance(profile["birth_date"], date):
+            birth_date = profile["birth_date"]
+        else:
+            birth_date = datetime.fromisoformat(profile["birth_date"]).date()
+
+        if isinstance(profile["birth_time"], time):
+            birth_time = profile["birth_time"]
+        else:
+            # Parse time string (e.g., "03:45:00")
+            birth_time = datetime.strptime(profile["birth_time"], "%H:%M:%S").time()
+
         birth_datetime = datetime.combine(birth_date, birth_time)
 
         solar_return_chart = varshaphal_service.calculate_solar_return_chart(
@@ -439,12 +448,17 @@ async def _format_varshaphal_response(varshaphal: Dict[str, Any], is_cached: boo
     patyayini_dasha = []
     for period in varshaphal["patyayini_dasha"]:
         period_copy = period.copy()
-        period_copy['start_date'] = datetime.fromisoformat(period['start_date'])
-        period_copy['end_date'] = datetime.fromisoformat(period['end_date'])
+        # Handle datetime strings with or without 'Z' suffix
+        start_date_str = period['start_date'].replace('Z', '+00:00') if isinstance(period['start_date'], str) else period['start_date'].isoformat()
+        end_date_str = period['end_date'].replace('Z', '+00:00') if isinstance(period['end_date'], str) else period['end_date'].isoformat()
+        period_copy['start_date'] = datetime.fromisoformat(start_date_str)
+        period_copy['end_date'] = datetime.fromisoformat(end_date_str)
         patyayini_dasha.append(period_copy)
 
     solar_return_chart = varshaphal["solar_return_chart"].copy()
-    solar_return_chart['solar_return_time'] = datetime.fromisoformat(solar_return_chart['solar_return_time'])
+    # Handle datetime string with or without 'Z' suffix
+    solar_time_str = solar_return_chart['solar_return_time'].replace('Z', '+00:00') if isinstance(solar_return_chart['solar_return_time'], str) else solar_return_chart['solar_return_time'].isoformat()
+    solar_return_chart['solar_return_time'] = datetime.fromisoformat(solar_time_str)
 
     response = schemas.VarshapalResponse(
         varshaphal_id=varshaphal["id"],

@@ -6,6 +6,7 @@ from app.schemas.chart import ChartCalculateRequest, ChartResponse
 from app.core.security import get_current_user
 from app.services.astrology import astrology_service
 from app.services.supabase_service import supabase_service
+from app.services.divisional_charts_service import divisional_charts_service
 
 router = APIRouter()
 
@@ -303,4 +304,314 @@ async def delete_chart(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to delete chart: {str(e)}"
+        )
+
+
+@router.get("/{profile_id}/divisional/all", response_model=dict)
+async def get_all_divisional_charts(
+    profile_id: str,
+    priority: str = "all",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get all divisional charts for a profile
+
+    Priority levels:
+    - high: D2, D4, D7, D10, D24 (6 charts - excluding D9)
+    - medium: high + D3, D12, D16, D20 (10 charts)
+    - all: All 15 divisional charts (D2-D60, excluding D9)
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Get D1 chart (divisional charts are embedded in it)
+        d1_chart = await supabase_service.get_chart(
+            profile_id=profile_id,
+            chart_type="D1"
+        )
+
+        if not d1_chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="D1 chart not found. Please calculate it first."
+            )
+
+        chart_data = d1_chart.get('chart_data', {})
+        divisional_charts = chart_data.get('divisional_charts', {})
+
+        if not divisional_charts:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No divisional charts found. Chart may be old - please regenerate."
+            )
+
+        # Filter by priority if needed
+        if priority == "high":
+            priority_charts = ["D2", "D4", "D7", "D10", "D24"]
+            divisional_charts = {
+                k: v for k, v in divisional_charts.items()
+                if k in priority_charts
+            }
+        elif priority == "medium":
+            priority_charts = ["D2", "D3", "D4", "D7", "D10", "D12", "D16", "D20", "D24"]
+            divisional_charts = {
+                k: v for k, v in divisional_charts.items()
+                if k in priority_charts
+            }
+
+        return {
+            "profile_id": profile_id,
+            "priority": priority,
+            "total_charts": len(divisional_charts),
+            "divisional_charts": divisional_charts
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting divisional charts: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get divisional charts: {str(e)}"
+        )
+
+
+@router.get("/{profile_id}/divisional/{division}", response_model=dict)
+async def get_specific_divisional_chart(
+    profile_id: str,
+    division: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get a specific divisional chart (D2, D3, D4, D7, D10, D12, D16, D20, D24, D27, D30, D40, D45, D60)
+    Note: D9 (Navamsa) is available via the standard /charts/{profile_id}/D9 endpoint
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Validate division
+        valid_divisions = ["D2", "D3", "D4", "D7", "D10", "D12", "D16", "D20", "D24", "D27", "D30", "D40", "D45", "D60"]
+        if division not in valid_divisions:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid division. Must be one of: {', '.join(valid_divisions)}"
+            )
+
+        # Get D1 chart (divisional charts are embedded in it)
+        d1_chart = await supabase_service.get_chart(
+            profile_id=profile_id,
+            chart_type="D1"
+        )
+
+        if not d1_chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="D1 chart not found. Please calculate it first."
+            )
+
+        chart_data = d1_chart.get('chart_data', {})
+        divisional_charts = chart_data.get('divisional_charts', {})
+
+        if division not in divisional_charts:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{division} chart not found. Chart may be old - please regenerate D1 chart."
+            )
+
+        return {
+            "profile_id": profile_id,
+            "division": division,
+            "chart_data": divisional_charts[division]
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting divisional chart {division}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get divisional chart: {str(e)}"
+        )
+
+
+@router.get("/{profile_id}/vimshopaka-bala", response_model=dict)
+async def get_vimshopaka_bala(
+    profile_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get Vimshopaka Bala (composite planetary strength) for a profile
+
+    Vimshopaka Bala is the weighted strength of planets across all 16 divisional charts.
+    This classical Vedic technique provides deep insights into planetary power and effects.
+
+    Returns:
+    - Strength scores for all planets (out of 20 Shashtiamsa units)
+    - Quality classifications (Parijatamsa, Uttamamsa, Gopuramsa, etc.)
+    - Detailed varga-wise breakdown showing dignity in each divisional chart
+    - Summary statistics (strongest/weakest planets, average strength)
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Get D1 chart (Vimshopaka Bala is embedded in it)
+        d1_chart = await supabase_service.get_chart(
+            profile_id=profile_id,
+            chart_type="D1"
+        )
+
+        if not d1_chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="D1 chart not found. Please calculate it first."
+            )
+
+        chart_data = d1_chart.get('chart_data', {})
+        vimshopaka_bala = chart_data.get('vimshopaka_bala')
+
+        if not vimshopaka_bala:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Vimshopaka Bala not found. Chart may be old - please regenerate D1 chart."
+            )
+
+        return {
+            "profile_id": profile_id,
+            "vimshopaka_bala": vimshopaka_bala,
+            "description": "Vimshopaka Bala shows composite planetary strength across all 16 divisional charts using classical Parashara system"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error getting Vimshopaka Bala: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get Vimshopaka Bala: {str(e)}"
+        )
+
+
+@router.get("/{profile_id}/divisional/{division}/yogas", response_model=dict)
+async def get_divisional_chart_yogas(
+    profile_id: str,
+    division: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Detect yogas in a specific divisional chart
+
+    Different divisional charts emphasize different yogas:
+    - D2 (Hora): Wealth yogas (Dhana Yoga)
+    - D4 (Chaturthamsa): Property yogas
+    - D7 (Saptamsa): Children yogas (Jupiter-Venus combinations)
+    - D9 (Navamsa): Marriage and spiritual yogas (Raj Yoga)
+    - D10 (Dashamsa): Career yogas (Raj Yoga, Dhana Yoga)
+    - D12 (Dwadashamsa): Parents and ancestry yogas
+
+    Returns:
+    - List of yogas found in the divisional chart
+    - Yoga strength, category, and effects
+    - Planets and houses involved
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Verify profile belongs to user
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Validate division
+        valid_divisions = ["D2", "D3", "D4", "D7", "D9", "D10", "D12", "D16", "D20", "D24", "D27", "D30", "D40", "D45", "D60"]
+        if division not in valid_divisions:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid division. Must be one of: {', '.join(valid_divisions)}"
+            )
+
+        # Get D1 chart
+        d1_chart = await supabase_service.get_chart(
+            profile_id=profile_id,
+            chart_type="D1"
+        )
+
+        if not d1_chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="D1 chart not found. Please calculate it first."
+            )
+
+        chart_data = d1_chart.get('chart_data', {})
+        divisional_charts = chart_data.get('divisional_charts', {})
+
+        if division not in divisional_charts:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"{division} chart not found. Chart may be old - please regenerate D1 chart."
+            )
+
+        # Detect yogas in the divisional chart
+        yogas = divisional_charts_service.detect_divisional_yogas(
+            division,
+            divisional_charts[division]
+        )
+
+        return {
+            "profile_id": profile_id,
+            "division": division,
+            "total_yogas": len(yogas),
+            "yogas": yogas,
+            "note": f"Yogas detected in {division} chart. Different charts emphasize different life areas."
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error detecting yogas in {division}: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to detect yogas in divisional chart: {str(e)}"
         )

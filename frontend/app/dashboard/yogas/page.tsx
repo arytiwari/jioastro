@@ -9,8 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Sparkles, Award, TrendingUp, BookOpen, Heart, Sun, Star,
-  ChevronDown, ChevronUp, Filter, BarChart
+  ChevronDown, ChevronUp, Filter, BarChart, Info
 } from '@/components/icons'
+import { YogaDetailsModal } from '@/components/yoga/YogaDetailsModal'
+import { YogaActivationTimeline } from '@/components/yoga/YogaActivationTimeline'
 
 interface Profile {
   id: string
@@ -74,6 +76,8 @@ export default function YogasPage() {
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterStrength, setFilterStrength] = useState('all')
   const [expandedYogas, setExpandedYogas] = useState<Set<number>>(new Set())
+  const [selectedYoga, setSelectedYoga] = useState<Yoga | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     const loadProfiles = async () => {
@@ -132,6 +136,11 @@ export default function YogasPage() {
       newExpanded.add(index)
     }
     setExpandedYogas(newExpanded)
+  }
+
+  const handleYogaDetails = (yoga: Yoga) => {
+    setSelectedYoga(yoga)
+    setModalOpen(true)
   }
 
   const getFilteredYogas = () => {
@@ -399,13 +408,36 @@ export default function YogasPage() {
                   </CardHeader>
                   {isExpanded && (
                     <CardContent>
-                      <p className="text-gray-700 leading-relaxed">{yoga.description}</p>
+                      <p className="text-gray-700 leading-relaxed mb-4">{yoga.description}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleYogaDetails(yoga)
+                        }}
+                        className="flex items-center gap-2"
+                      >
+                        <Info className="w-4 h-4" />
+                        View Full Details
+                      </Button>
                     </CardContent>
                   )}
                 </Card>
               )
             })}
           </div>
+
+          {/* Yoga Details Modal */}
+          <YogaDetailsModal
+            yoga={selectedYoga}
+            open={modalOpen}
+            onOpenChange={setModalOpen}
+            profileId={selectedProfile}
+          />
+
+          {/* Yoga Activation Timeline */}
+          <YogaActivationTimeline yogas={yogas} profileId={selectedProfile} />
         </>
       )}
 

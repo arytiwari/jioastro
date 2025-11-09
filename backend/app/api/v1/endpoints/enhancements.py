@@ -704,6 +704,79 @@ async def analyze_yogas(
         )
 
 
+@router.get("/yoga-timing/{profile_id}")
+async def get_yoga_timing(
+    profile_id: str,
+    yoga_name: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Calculate timing information for a specific yoga
+
+    Returns:
+    - Dasha activation periods
+    - General activation age
+    - Current activation status
+    - Recommendations
+    """
+    try:
+        user_id = current_user["user_id"]
+
+        # Get profile
+        profile = await supabase_service.get_profile(
+            profile_id=profile_id,
+            user_id=user_id
+        )
+
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Profile not found"
+            )
+
+        # Get chart
+        chart = await supabase_service.get_chart(
+            profile_id=profile_id,
+            chart_type="D1"
+        )
+
+        if not chart or 'chart_data' not in chart:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Chart not found. Please calculate chart first."
+            )
+
+        chart_data = chart['chart_data']
+        planets = chart_data.get('planets', {})
+
+        # Detect yogas to find the requested yoga
+        yogas = extended_yoga_service.detect_extended_yogas(planets)
+        yoga = next((y for y in yogas if y['name'] == yoga_name), None)
+
+        if not yoga:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Yoga '{yoga_name}' not found in chart"
+            )
+
+        # Calculate timing
+        timing = extended_yoga_service.calculate_yoga_timing(
+            yoga=yoga,
+            chart_data=chart_data
+        )
+
+        return timing
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error calculating yoga timing: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to calculate yoga timing: {str(e)}"
+        )
+
+
 # ============================================================================
 # COMBINED ENDPOINT (All Enhancements)
 # ============================================================================
@@ -783,6 +856,46 @@ from app.services.lal_kitab_service import lal_kitab_service
 from app.services.ashtakavarga_service import ashtakavarga_service
 
 
+# Helper function to safely extract chart data
+def extract_chart_data(chart_obj: Any) -> Dict[str, Any]:
+    """
+    Safely extract chart_data from various response formats.
+
+    Handles:
+    - Direct dict: {"planets": {...}, "houses": {...}}
+    - Nested: {"chart_data": {"planets": {...}}}
+    - Double nested: {"chart_data": {"chart_data": {"planets": {...}}}}
+    """
+    if chart_obj is None:
+        return {}
+
+    # If it's already a list, it's malformed - raise error
+    if isinstance(chart_obj, list):
+        raise ValueError("Chart object is a list, expected dict")
+
+    # If it's not a dict, convert to string and raise error
+    if not isinstance(chart_obj, dict):
+        raise ValueError(f"Chart object has unexpected type: {type(chart_obj)}")
+
+    # If it has "planets" key at top level, it's already the chart data
+    if "planets" in chart_obj:
+        return chart_obj
+
+    # Try to get chart_data once
+    if "chart_data" in chart_obj and isinstance(chart_obj["chart_data"], dict):
+        inner = chart_obj["chart_data"]
+
+        # Check if it's double-nested
+        if "chart_data" in inner and isinstance(inner["chart_data"], dict):
+            return inner["chart_data"]
+
+        # Otherwise return the first level chart_data
+        return inner
+
+    # If no chart_data key and no planets key, return as-is (might be the chart data itself)
+    return chart_obj
+
+
 # Helper function to get chart data
 async def get_chart_data_helper(profile_id: str, user_id: str) -> Dict[str, Any]:
     """Fetch chart data for a profile (D1 and D9)."""
@@ -836,7 +949,7 @@ async def get_chara_karakas(
     """Calculate Chara Karakas (7 significators based on degrees)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"]).get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         planets = d1_chart.get("planets", {})
         karakas = jaimini_service.calculate_chara_karakas(planets)
@@ -861,11 +974,12 @@ async def get_karakamsha(
     """Calculate Karakamsha (Navamsa position of Atmakaraka)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
-        d9_chart = chart_data["d9_chart"]
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
-        if not d9_chart:
+        if not chart_data["d9_chart"]:
             raise HTTPException(status_code=404, detail="D9 chart required")
+
+        d9_chart = extract_chart_data(chart_data["d9_chart"])
 
         planets = d1_chart.get("planets", {})
         karakas = jaimini_service.calculate_chara_karakas(planets)
@@ -893,7 +1007,7 @@ async def get_arudha_padas(
     """Calculate all Arudha Padas (AL, UL, A1-A12)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         arudha_padas = jaimini_service.calculate_all_arudha_padas(d1_chart)
 
@@ -918,8 +1032,8 @@ async def analyze_jaimini(
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
 
         # Extract chart_data from database rows
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"]).get("chart_data", chart_data["d1_chart"])
-        d9_chart = chart_data["d9_chart"].get("chart_data") if chart_data["d9_chart"] else None
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
+        d9_chart = extract_chart_data(chart_data["d9_chart"]) if chart_data["d9_chart"] else None
         profile = chart_data["profile"]
 
         # Parse birth date
@@ -972,7 +1086,7 @@ async def get_planetary_debts(
     """Detect all planetary debts (Rins)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         debts = lal_kitab_service.detect_planetary_debts(d1_chart)
 
@@ -995,7 +1109,7 @@ async def get_blind_planets(
     """Identify blind planets (Andhe Graha)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         blind_planets = lal_kitab_service.detect_blind_planets(d1_chart)
 
@@ -1018,7 +1132,7 @@ async def analyze_lal_kitab(
     """Comprehensive Lal Kitab analysis."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
         profile = chart_data["profile"]
 
         analysis = lal_kitab_service.analyze_lal_kitab_chart(d1_chart)
@@ -1046,7 +1160,7 @@ async def get_bhinna_ashtakavarga(
     """Get Bhinna Ashtakavarga (individual planet chart)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         if planet:
             bhinna = ashtakavarga_service.calculate_bhinna_ashtakavarga(planet, d1_chart)
@@ -1073,7 +1187,7 @@ async def get_sarva_ashtakavarga(
     """Get Sarva Ashtakavarga (collective chart)."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         sarva = ashtakavarga_service.calculate_sarva_ashtakavarga(d1_chart)
 
@@ -1101,7 +1215,7 @@ async def analyze_transit_strength(
             raise HTTPException(status_code=400, detail="House must be 1-12")
 
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
 
         transit_analysis = ashtakavarga_service.analyze_transit(planet, house, d1_chart)
 
@@ -1124,7 +1238,7 @@ async def analyze_ashtakavarga(
     """Comprehensive Ashtakavarga analysis."""
     try:
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
-        d1_chart = chart_data["d1_chart"].get("chart_data", chart_data["d1_chart"])
+        d1_chart = extract_chart_data(chart_data["d1_chart"])
         profile = chart_data["profile"]
 
         analysis = ashtakavarga_service.analyze_ashtakavarga(d1_chart)

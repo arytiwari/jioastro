@@ -151,7 +151,13 @@ class VarshapalService:
         Uses binary search to find the precise moment within a few seconds.
         """
         # Start search around birthday in target year
-        approximate_date = birth_date.replace(year=target_year)
+        # Handle leap day births (Feb 29) in non-leap years
+        try:
+            approximate_date = birth_date.replace(year=target_year)
+        except ValueError:
+            # If born on Feb 29 and target year is not a leap year,
+            # use Feb 28 as the approximate date
+            approximate_date = birth_date.replace(year=target_year, day=28)
 
         # Search window: 2 days before to 2 days after birthday
         start_jd = self._datetime_to_julian(approximate_date - timedelta(days=2))

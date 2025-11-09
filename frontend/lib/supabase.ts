@@ -322,12 +322,34 @@ export function isSessionExpired(bufferSeconds: number = 300): boolean {
 export async function getValidSession(): Promise<SupabaseSession | null> {
   const session = getSession()
 
-  if (!session) return null
+  if (!session) {
+    console.warn('⚠️ getValidSession: No session found in storage')
+    return null
+  }
 
   // If token is expired or about to expire (within 5 minutes), refresh it
   if (isSessionExpired(300)) {
-    console.log('🔄 Session expired or about to expire, refreshing...')
+    console.log('🔄 getValidSession: Session expired or about to expire, refreshing...')
     const result = await refreshSession()
+
+    // If refresh fails, but we still have the original session, return it
+    // This prevents logout on transient refresh failures
+    if (!result.data.session && session) {
+      console.warn('⚠️ getValidSession: Refresh failed, but returning existing session (may be expired)')
+      // Check if session is completely expired (not just about to expire)
+      const now = Math.floor(Date.now() / 1000)
+      const isCompletelyExpired = session.expires_at && now >= session.expires_at
+
+      if (isCompletelyExpired) {
+        console.error('🚫 getValidSession: Session is completely expired, cannot use')
+        return null
+      }
+
+      // Session is about to expire but not yet expired, allow it
+      console.log('✅ getValidSession: Using existing session (expires soon but still valid)')
+      return session
+    }
+
     return result.data.session
   }
 

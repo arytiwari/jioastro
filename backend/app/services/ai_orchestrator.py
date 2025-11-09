@@ -79,7 +79,10 @@ class AIOrchestrator:
         include_predictions: bool = True,
         include_transits: bool = False,
         prediction_window_months: int = 12,
-        numerology_data: Optional[Dict[str, Any]] = None
+        numerology_data: Optional[Dict[str, Any]] = None,
+        yoga_data: Optional[Dict[str, Any]] = None,
+        divisional_charts_data: Optional[Dict[str, Any]] = None,
+        vimshopaka_bala_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Generate comprehensive reading using multi-role orchestration
@@ -92,6 +95,9 @@ class AIOrchestrator:
             include_transits: Whether to include current transit analysis
             prediction_window_months: How many months ahead to predict
             numerology_data: Optional numerology profile data (Western & Vedic)
+            yoga_data: Optional yoga detection data (40+ classical Vedic yogas)
+            divisional_charts_data: Optional divisional charts (Shodashvarga) data
+            vimshopaka_bala_data: Optional Vimshopaka Bala (planetary strength) data
 
         Returns:
             Dictionary with comprehensive reading, predictions, citations, and metadata
@@ -101,6 +107,17 @@ class AIOrchestrator:
 
         if numerology_data:
             print(f"🔢 Numerology data available for holistic analysis")
+
+        if yoga_data:
+            print(f"🧘 Yoga data available: {yoga_data.get('total_yogas', 0)} total, {yoga_data.get('significant_yogas', 0)} significant")
+
+        if divisional_charts_data:
+            num_charts = len(divisional_charts_data)
+            print(f"📊 Divisional charts data available: {num_charts} charts (Shodashvarga system)")
+
+        if vimshopaka_bala_data:
+            strongest = vimshopaka_bala_data.get('summary', {}).get('strongest_planet', {})
+            print(f"💪 Vimshopaka Bala available - Strongest: {strongest.get('name', 'N/A')} ({strongest.get('quality', 'N/A')})")
 
         # Step 1: Coordinator - Analyze query and route
         coordination_result = await self._coordinator_role(
@@ -138,7 +155,10 @@ class AIOrchestrator:
             coordination=coordination_result,
             retrieval=retrieval_results,
             predictions=prediction_results,
-            numerology_data=numerology_data
+            numerology_data=numerology_data,
+            yoga_data=yoga_data,
+            divisional_charts_data=divisional_charts_data,
+            vimshopaka_bala_data=vimshopaka_bala_data
         )
 
         print(f"✍️  Synthesizer: Generated {len(synthesis_result['interpretation'])} character interpretation")
@@ -496,7 +516,10 @@ Return JSON:
         coordination: Dict[str, Any],
         retrieval: Dict[str, Any],
         predictions: Optional[Dict[str, Any]],
-        numerology_data: Optional[Dict[str, Any]] = None
+        numerology_data: Optional[Dict[str, Any]] = None,
+        yoga_data: Optional[Dict[str, Any]] = None,
+        divisional_charts_data: Optional[Dict[str, Any]] = None,
+        vimshopaka_bala_data: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Synthesizer role: Combine all information into comprehensive interpretation
@@ -516,6 +539,22 @@ Return JSON:
             print(f"📊 Numerology context prepared for synthesis: {len(numerology_context)} characters")
         else:
             print(f"ℹ️  No numerology data for synthesis")
+
+        # Prepare yoga context if available
+        yoga_context = ""
+        if yoga_data:
+            yoga_context = self._prepare_yoga_context(yoga_data)
+            print(f"🧘 Yoga context prepared for synthesis: {yoga_data.get('significant_yogas', 0)} significant yogas")
+        else:
+            print(f"ℹ️  No yoga data for synthesis")
+
+        # Prepare divisional charts context if available
+        divisional_charts_context = ""
+        if divisional_charts_data:
+            divisional_charts_context = self._prepare_divisional_charts_context(divisional_charts_data, vimshopaka_bala_data)
+            print(f"📊 Divisional charts context prepared: {len(divisional_charts_data)} charts")
+        else:
+            print(f"ℹ️  No divisional charts data for synthesis")
 
         # Prepare rules context
         rules_context = self._format_rules_for_synthesis(retrieval['by_domain'])
@@ -772,6 +811,12 @@ IMPORTANT: This should be a COMPREHENSIVE, DETAILED report of 2500-4000 words. D
         if numerology_context:
             context_sections.append(f"\n--- NUMEROLOGY PROFILE ---\n{numerology_context}\n--- END OF NUMEROLOGY ---")
 
+        if yoga_context:
+            context_sections.append(f"\n--- CLASSICAL VEDIC YOGAS ---\n{yoga_context}\n--- END OF YOGAS ---")
+
+        if divisional_charts_context:
+            context_sections.append(f"\n--- DIVISIONAL CHARTS (SHODASHVARGA) ---\n{divisional_charts_context}\n--- END OF DIVISIONAL CHARTS ---")
+
         full_context = "\n".join(context_sections)
 
         user_prompt = f"""
@@ -987,6 +1032,139 @@ This is a FULL COMPREHENSIVE REPORT. Aim for 2500-4000 words. Do NOT summarize o
                     meaning_text = dn["meaning"] if isinstance(dn["meaning"], str) else dn["meaning"].get("description", "")
                     if meaning_text:
                         context_parts.append(f"  {meaning_text}")
+
+        return "\n".join(context_parts)
+
+    def _prepare_yoga_context(self, yoga_data: Dict[str, Any]) -> str:
+        """Prepare yoga (classical combinations) context for synthesis"""
+
+        context_parts = []
+
+        if not yoga_data or not yoga_data.get('yogas'):
+            return ""
+
+        context_parts.append("\n=== CLASSICAL VEDIC YOGAS ===")
+        context_parts.append(f"\nTotal Yogas Detected: {yoga_data.get('total_yogas', 0)}")
+        context_parts.append(f"Significant Yogas (Strong/Very Strong): {yoga_data.get('significant_yogas', 0)}")
+
+        # Strongest yogas summary
+        if yoga_data.get('strongest_yogas'):
+            strongest = yoga_data['strongest_yogas']
+            context_parts.append(f"\nStrongest Yogas: {', '.join(strongest)}")
+
+        # List all significant yogas with details
+        context_parts.append("\n\nDetailed Yoga Analysis:")
+
+        yogas_by_category = {}
+        for yoga in yoga_data.get('yogas', []):
+            category = yoga.get('category', 'Other')
+            if category not in yogas_by_category:
+                yogas_by_category[category] = []
+            yogas_by_category[category].append(yoga)
+
+        for category, yogas in yogas_by_category.items():
+            context_parts.append(f"\n{category}:")
+            for yoga in yogas:
+                strength = yoga.get('strength', 'Unknown')
+                name = yoga.get('name', 'Unknown')
+                description = yoga.get('description', '')
+                context_parts.append(f"  • {name} ({strength}): {description}")
+
+        context_parts.append("\n\nIMPORTANT: Integrate these yogas throughout your analysis.")
+        context_parts.append("- Mention them in relevant sections (career, wealth, relationships, etc.)")
+        context_parts.append("- Explain how they manifest in different life areas")
+        context_parts.append("- Consider their combined effects and interactions")
+        context_parts.append("- Use them to strengthen predictions and recommendations")
+
+        return "\n".join(context_parts)
+
+    def _prepare_divisional_charts_context(
+        self,
+        divisional_charts_data: Dict[str, Any],
+        vimshopaka_bala_data: Optional[Dict[str, Any]] = None
+    ) -> str:
+        """Prepare divisional charts (Shodashvarga) context for synthesis"""
+
+        context_parts = []
+
+        if not divisional_charts_data:
+            return ""
+
+        context_parts.append("\n=== DIVISIONAL CHARTS (SHODASHVARGA) ===")
+        context_parts.append(f"\nTotal Divisional Charts Available: {len(divisional_charts_data)}")
+
+        # Vimshopaka Bala (Planetary Strength) Summary
+        if vimshopaka_bala_data:
+            context_parts.append("\n\n=== VIMSHOPAKA BALA (Composite Planetary Strength) ===")
+
+            summary = vimshopaka_bala_data.get('summary', {})
+            strongest = summary.get('strongest_planet', {})
+            weakest = summary.get('weakest_planet', {})
+
+            context_parts.append(f"Average Planetary Strength: {summary.get('average_strength', 0):.2f}/20")
+            context_parts.append(f"Strongest Planet: {strongest.get('name', 'N/A')} ({strongest.get('score', 0):.2f}/20 - {strongest.get('quality', 'N/A')})")
+            context_parts.append(f"Weakest Planet: {weakest.get('name', 'N/A')} ({weakest.get('score', 0):.2f}/20 - {weakest.get('quality', 'N/A')})")
+
+            # List all planets with their strengths
+            context_parts.append("\nPlanetary Strengths:")
+            planets_data = vimshopaka_bala_data.get('planets', {})
+            for planet, data in planets_data.items():
+                score = data.get('total_score', 0)
+                percentage = data.get('percentage', 0)
+                quality = data.get('quality', 'Unknown')
+                classification = data.get('classification', 'Unknown')
+                context_parts.append(f"  • {planet}: {score:.2f}/20 ({percentage:.1f}%) - {quality} ({classification})")
+
+        # Key Divisional Charts Analysis
+        context_parts.append("\n\n=== KEY DIVISIONAL CHARTS ANALYSIS ===")
+
+        # Priority order for analysis
+        priority_charts = {
+            "D2": "Wealth & Prosperity",
+            "D9": "Marriage & Dharma",
+            "D10": "Career & Profession",
+            "D7": "Children & Progeny",
+            "D4": "Property & Assets",
+            "D12": "Parents & Ancestry",
+            "D24": "Education & Learning",
+            "D16": "Vehicles & Comforts",
+            "D20": "Spiritual Pursuits"
+        }
+
+        for chart_name, purpose in priority_charts.items():
+            if chart_name in divisional_charts_data:
+                chart = divisional_charts_data[chart_name]
+                ascendant = chart.get('ascendant', {})
+                planets = chart.get('planets', {})
+
+                context_parts.append(f"\n{chart_name} ({purpose}):")
+                context_parts.append(f"  Ascendant: {ascendant.get('sign', 'N/A')} {ascendant.get('degree', 0):.2f}°")
+
+                # Highlight planets in key positions (exalted, own sign, kendra/trikona houses)
+                important_positions = []
+                for planet_name, planet_data in planets.items():
+                    house = planet_data.get('house', 0)
+                    sign = planet_data.get('sign', 'N/A')
+                    degree = planet_data.get('degree', 0)
+
+                    # Check if in kendra (1,4,7,10) or trikona (1,5,9)
+                    if house in [1, 4, 5, 7, 9, 10]:
+                        important_positions.append(f"{planet_name} in {sign} (House {house}, {degree:.1f}°)")
+
+                if important_positions:
+                    context_parts.append("  Key Planetary Positions:")
+                    for pos in important_positions[:5]:  # Limit to top 5
+                        context_parts.append(f"    - {pos}")
+
+        # Usage instructions
+        context_parts.append("\n\nIMPORTANT: How to use Divisional Charts in your analysis:")
+        context_parts.append("- D2 insights should inform WEALTH & FINANCIAL sections")
+        context_parts.append("- D9 insights are CRITICAL for MARRIAGE & RELATIONSHIPS analysis")
+        context_parts.append("- D10 insights are ESSENTIAL for CAREER & PROFESSIONAL analysis")
+        context_parts.append("- D7 insights inform CHILDREN analysis")
+        context_parts.append("- D4 insights inform PROPERTY & ASSETS discussion")
+        context_parts.append("- Use Vimshopaka Bala to identify strongest/weakest planets across all life areas")
+        context_parts.append("- Integrate divisional chart insights with D1 analysis for comprehensive interpretation")
 
         return "\n".join(context_parts)
 

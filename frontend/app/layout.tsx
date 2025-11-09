@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 import { Toaster } from '@/components/ui/toaster'
+import { Toaster as Sonner } from 'sonner'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,6 +25,9 @@ export const metadata: Metadata = {
     icon: '/icon-192x192.png',
     apple: '/icon-192x192.png',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',  // Modern replacement for apple-mobile-web-app-capable
+  },
 }
 
 export const viewport: Viewport = {
@@ -44,6 +48,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>{children}</Providers>
         <Toaster />
+        <Sonner />
       </body>
     </html>
   )

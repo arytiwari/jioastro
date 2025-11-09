@@ -332,6 +332,30 @@ class JaiminiService:
     # ARUDHA PADAS CALCULATION
     # =========================================================================
 
+    def _get_house_sign(self, houses_data: Any, house_num: int) -> int:
+        """
+        Safely get sign number for a house, handling both list and dict formats.
+
+        Args:
+            houses_data: Either a dict {"1": {"sign_num": 5}} or list [{"house": 1, "sign_num": 5}]
+            house_num: House number (1-12)
+
+        Returns:
+            Sign number (1-12)
+        """
+        if isinstance(houses_data, dict):
+            # Dict format: {"1": {"sign_num": 5}}
+            return houses_data.get(str(house_num), {}).get("sign_num", house_num)
+        elif isinstance(houses_data, list):
+            # List format: [{"house": 1, "sign_num": 5}, ...]
+            for house_obj in houses_data:
+                if isinstance(house_obj, dict) and house_obj.get("house") == house_num:
+                    return house_obj.get("sign_num", house_num)
+            return house_num
+        else:
+            # Fallback
+            return house_num
+
     def calculate_arudha_pada(self, house: int, chart: Dict[str, Any]) -> Dict[str, Any]:
         """
         Calculate Arudha Pada for a given house.
@@ -349,9 +373,9 @@ class JaiminiService:
         Returns:
             Arudha Pada sign and interpretation
         """
-        # Get house sign
+        # Get house sign (handle both list and dict formats)
         houses = chart.get("houses", {})
-        house_sign = houses.get(str(house), {}).get("sign_num", house)
+        house_sign = self._get_house_sign(houses, house)
 
         # Get lord of house
         lord = self.SIGN_LORDS.get(house_sign, "Sun")
@@ -375,7 +399,7 @@ class JaiminiService:
         if diff == 0 or diff == 6:
             pada_house = (house + 10 - 1) % 12 + 1
 
-        pada_sign = houses.get(str(pada_house), {}).get("sign_num", pada_house)
+        pada_sign = self._get_house_sign(houses, pada_house)
 
         return {
             "house": pada_house,

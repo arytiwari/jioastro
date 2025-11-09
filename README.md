@@ -7,12 +7,29 @@ AI-powered Vedic astrology service with accurate birth chart generation and pers
 ### Core Functionality (MVP)
 - ✅ User registration and authentication (Supabase Auth)
 - ✅ Birth chart generation (Rashi D-1 and Navamsa D-9)
+- ✅ **Complete Divisional Charts System (Shodashvarga)** - All 16 classical divisions
+  - D2-D60 automatic calculation with D1 chart
+  - Vimshopaka Bala (composite planetary strength across all vargas)
+  - 7-tier strength classification (Parijatamsa to Brahmalokamsa)
+  - Divisional yoga detection (Raj, Dhana, Jupiter-Venus)
+  - AI-integrated interpretations for each chart
+  - 4 dedicated API endpoints for full access
 - ✅ AI-powered personalized interpretations (OpenAI GPT-4)
 - ✅ Natural language query interface
 - ✅ Mobile-responsive, clean UI
 - ✅ Feedback system for continuous improvement
-- ✅ Vimshottari Dasha calculation
-- ✅ Yoga (planetary combination) detection
+- ✅ Vimshottari Dasha calculation (120-year planetary periods)
+- ✅ Extended Yoga Detection (40+ classical planetary combinations)
+  - Strength calculation & cancellation detection
+  - Timing prediction based on dasha periods
+  - Historical examples & remedies
+  - Interactive timeline visualization
+- ✅ **Enhanced Dosha Detection** - Classical afflictions with intensity analysis
+  - **Manglik Dosha**: 5-level intensity (Mars from Lagna/Moon/Venus), age-based manifestation, 90% cancellation analysis
+  - **Kaal Sarpa Yoga**: 12 variations (Full/Partial classification), type-specific effects & positive outcomes
+  - **Pitra Dosha**: 11 indicators (paternal/maternal/progeny/karmic lineage analysis)
+  - **Grahan Dosha**: Degree-based intensity (4 eclipse types), benefic protection, mental health support
+  - Categorized remedies by severity (base → low/medium → high/very_high)
 
 ### Technical Features
 - ⚡ FastAPI backend with async/await
@@ -103,8 +120,10 @@ jioastro/
 │   │   ├── models/         # SQLAlchemy models
 │   │   ├── schemas/        # Pydantic schemas
 │   │   └── services/       # Business logic
-│   │       ├── astrology.py   # Chart calculations
-│   │       └── ai_service.py  # AI interpretations
+│   │       ├── ai_orchestrator.py  # Multi-role AI orchestration
+│   │       ├── ai_service.py       # AI interpretations
+│   │       ├── astrology.py        # Chart calculations
+│   │       └── extended_yoga_service.py  # 40+ yoga detection
 │   ├── main.py             # App entry point
 │   ├── requirements.txt    # Python dependencies
 │   └── Dockerfile          # Docker config
@@ -113,7 +132,8 @@ jioastro/
 │   ├── app/               # App router pages
 │   ├── components/        # React components
 │   │   ├── ui/           # shadcn/ui components
-│   │   └── chart/        # Chart visualizations
+│   │   ├── chart/        # Chart visualizations
+│   │   └── yoga/         # Yoga components (modal, timeline)
 │   ├── lib/              # Utilities
 │   │   ├── api.ts       # API client
 │   │   └── supabase.ts  # Auth client
@@ -122,7 +142,9 @@ jioastro/
 │
 └── docs/                  # Documentation
     ├── database-schema.sql
-    └── DEPLOYMENT.md
+    ├── DEPLOYMENT.md
+    ├── YOGA_ENHANCEMENT.md  # Comprehensive yoga system guide
+    └── YOGA_API.md          # Yoga API reference
 ```
 
 ## 🔧 Configuration
@@ -160,8 +182,12 @@ Uses Supabase Auth (handled by frontend)
 - `DELETE /api/v1/profiles/{id}` - Delete profile
 
 ### Charts
-- `POST /api/v1/charts/calculate` - Calculate chart
+- `POST /api/v1/charts/calculate` - Calculate chart (D1, D9, Moon)
 - `GET /api/v1/charts/{profile_id}/{chart_type}` - Get chart
+- `GET /api/v1/charts/{profile_id}/divisional/all` - Get all divisional charts (D2-D60)
+- `GET /api/v1/charts/{profile_id}/divisional/{division}` - Get specific divisional chart
+- `GET /api/v1/charts/{profile_id}/vimshopaka-bala` - Get planetary strength across all vargas
+- `GET /api/v1/charts/{profile_id}/divisional/{division}/yogas` - Get yogas in divisional chart
 
 ### Queries
 - `POST /api/v1/queries` - Submit question (get AI interpretation)
@@ -177,9 +203,22 @@ Uses Supabase Auth (handled by frontend)
 - **Zodiac System**: Sidereal (Vedic)
 - **Ayanamsa**: Lahiri (most common in Vedic astrology)
 - **Ephemeris**: Swiss Ephemeris (via pyswisseph)
-- **Chart Types**: D1 (Rashi/Birth chart), D9 (Navamsa)
+- **Chart Types**: D1 (Rashi/Birth chart), D9 (Navamsa), Moon Chart
+- **Divisional Charts**: Complete Shodashvarga system (16 classical divisions)
+  - D2 (Hora): Wealth & prosperity
+  - D3 (Drekkana): Siblings, courage
+  - D4 (Chaturthamsa): Property, assets
+  - D7 (Saptamsa): Children, progeny
+  - D10 (Dashamsa): Career, profession
+  - D12 (Dwadashamsa): Parents, ancestry
+  - D16, D20, D24, D27, D30, D40, D45, D60: Specialized analyses
 - **Dasha System**: Vimshottari (120-year cycle)
-- **Yogas**: Raj Yoga, Dhana Yoga, Gaja Kesari, Budhaditya, and more
+- **Yogas**: 40+ classical yogas detected with strength calculation and timing prediction
+  - Pancha Mahapurusha (Hamsa, Malavya, Sasha, Ruchaka, Bhadra)
+  - Raj Yoga, Dhana Yoga, Neecha Bhanga Raj Yoga
+  - Kala Sarpa Yoga (12 types)
+  - Nabhasa Yogas (Rajju, Musala, Nala, Maala, and more)
+  - Gaja Kesari, Budhaditya, and rare yogas
 
 ## 🎨 Tech Stack
 
@@ -232,6 +271,48 @@ Tables:
 See [database-schema.sql](docs/database-schema.sql) for complete schema.
 
 ## 🧪 Testing
+
+### Automated Test Suite
+
+JioAstro includes a comprehensive test suite covering all major features:
+
+**Test Coverage:**
+- **Dosha Detection Tests** (26 tests): Manglik, Kaal Sarpa, Pitra, Grahan doshas with intensity, cancellations, and remedies
+- **Yoga Detection Tests** (60+ tests): All 40+ classical yogas including Pancha Mahapurusha, Kala Sarpa variations, Nabhasa yogas, and rare yogas
+- **Divisional Charts Tests** (50+ tests): D2-D60 calculations, Vimshopaka Bala, planetary dignities, and performance
+
+**Running Tests:**
+```bash
+cd backend
+source venv/bin/activate
+
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run specific test suite
+pytest tests/test_dosha_detection.py
+pytest tests/test_extended_yoga.py
+pytest tests/test_divisional_charts.py
+
+# Run tests by category
+pytest -m dosha        # Dosha detection tests
+pytest -m yoga         # Yoga detection tests
+pytest -m divisional   # Divisional charts tests
+pytest -m unit         # Unit tests only
+pytest -m integration  # Integration tests only
+
+# Run with coverage report
+pytest --cov=app --cov-report=html
+```
+
+**Test Configuration:**
+- Located in `backend/pytest.ini`
+- Custom markers for categorization
+- Performance tests ensure targets (<100ms for dosha detection, <500ms for all yogas)
+- Fixtures provide sample charts for testing
 
 ### Manual Testing Checklist
 - [ ] User registration/login

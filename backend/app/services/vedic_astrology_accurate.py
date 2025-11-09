@@ -167,6 +167,13 @@ class AccurateVedicAstrology:
             priority="all"  # Calculate all 16 divisional charts (complete Shodashvarga)
         )
 
+        # Calculate Vimshopaka Bala (composite planetary strength)
+        print("💪 Calculating Vimshopaka Bala (planetary strengths)...")
+        vimshopaka_bala = divisional_charts_service.calculate_vimshopaka_bala(
+            planets,
+            divisional_charts
+        )
+
         # Detect doshas
         print("⚠️  Detecting doshas...")
         doshas = dosha_detection_service.detect_all_doshas(
@@ -208,7 +215,7 @@ class AccurateVedicAstrology:
             },
             "ascendant": {
                 "sign": self.SIGNS[asc_sign],
-                "sign_num": asc_sign,
+                "sign_num": asc_sign + 1,  # Convert 0-indexed (0-11) to 1-indexed (1-12)
                 "degree": round(asc_degree, 6),
                 "longitude": round(asc_sidereal, 6),
                 "house": 1
@@ -218,6 +225,7 @@ class AccurateVedicAstrology:
             "dasha": dasha,
             "yogas": yogas,
             "divisional_charts": divisional_charts,
+            "vimshopaka_bala": vimshopaka_bala,
             "doshas": doshas,
             "transits": current_transits,
             "sade_sati": sade_sati,
@@ -251,7 +259,7 @@ class AccurateVedicAstrology:
 
             planets_data[planet_name] = {
                 "sign": self.SIGNS[sign],
-                "sign_num": sign,
+                "sign_num": sign + 1,  # Convert 0-indexed (0-11) to 1-indexed (1-12)
                 "degree": round(degree, 6),
                 "longitude": round(sidereal_long, 6),
                 "speed": round(speed, 6),
@@ -268,7 +276,7 @@ class AccurateVedicAstrology:
 
             planets_data["Ketu"] = {
                 "sign": self.SIGNS[ketu_sign],
-                "sign_num": ketu_sign,
+                "sign_num": ketu_sign + 1,  # Convert 0-indexed (0-11) to 1-indexed (1-12)
                 "degree": round(ketu_degree, 6),
                 "longitude": round(ketu_long, 6),
                 "speed": -planets_data["Rahu"]["speed"],  # Opposite speed
@@ -290,7 +298,7 @@ class AccurateVedicAstrology:
             houses.append({
                 "house_num": i + 1,
                 "sign": self.SIGNS[house_sign],
-                "sign_num": house_sign,
+                "sign_num": house_sign + 1,  # Convert 0-indexed (0-11) to 1-indexed (1-12)
                 "start_degree": 0.0,
                 "end_degree": 30.0
             })
@@ -298,12 +306,23 @@ class AccurateVedicAstrology:
         return houses
 
     def _assign_houses_to_planets(self, planets: Dict, asc_sign: int) -> Dict:
-        """Assign house positions to planets using Whole Sign system"""
+        """
+        Assign house positions to planets using Whole Sign system
+
+        Args:
+            planets: Dictionary with planet data (sign_num is 1-indexed after recent fix)
+            asc_sign: Ascendant sign (0-indexed internal variable)
+        """
 
         for planet_name, planet_data in planets.items():
-            planet_sign = planet_data["sign_num"]
+            planet_sign = planet_data["sign_num"]  # Now 1-indexed (1-12)
+
+            # Convert asc_sign from 0-indexed to 1-indexed for consistent calculation
+            asc_sign_1indexed = asc_sign + 1
+
             # In Whole Sign: house = how many signs from ascendant
-            house_num = ((planet_sign - asc_sign) % 12) + 1
+            # Both values are now 1-indexed (1-12)
+            house_num = ((planet_sign - asc_sign_1indexed) % 12) + 1
             planet_data["house"] = house_num
 
         return planets
@@ -504,7 +523,9 @@ class AccurateVedicAstrology:
             }
 
         # Generate Navamsa houses
-        navamsa_houses = self._calculate_whole_sign_houses(navamsa_asc_sign)
+        # Note: _calculate_whole_sign_houses expects 0-indexed asc_sign
+        navamsa_asc_sign_0indexed = navamsa_asc_sign - 1
+        navamsa_houses = self._calculate_whole_sign_houses(navamsa_asc_sign_0indexed)
 
         return {
             "basic_info": d1_chart["basic_info"],
@@ -544,7 +565,7 @@ class AccurateVedicAstrology:
 
         return {
             "sign": self.SIGNS[navamsa_sign],
-            "sign_num": navamsa_sign,
+            "sign_num": navamsa_sign + 1,  # Convert 0-indexed (0-11) to 1-indexed (1-12)
             "degree": round(navamsa_degree, 6),
             "longitude": round(navamsa_longitude, 6),
             "navamsa_number": navamsa_in_sign + 1
@@ -670,10 +691,12 @@ class AccurateVedicAstrology:
             }
 
         # Generate Moon chart houses (starting from Moon's sign)
-        moon_chart_houses = self._calculate_whole_sign_houses(moon_sign)
+        # Note: _calculate_whole_sign_houses expects 0-indexed asc_sign
+        moon_sign_0indexed = moon_sign - 1
+        moon_chart_houses = self._calculate_whole_sign_houses(moon_sign_0indexed)
 
         # Detect yogas from Moon's perspective
-        moon_chart_yogas = self._detect_vedic_yogas(moon_chart_planets, moon_sign)
+        moon_chart_yogas = self._detect_vedic_yogas(moon_chart_planets, moon_sign_0indexed)
 
         return {
             "basic_info": d1_chart["basic_info"],

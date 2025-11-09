@@ -15,6 +15,7 @@ export function Logo({ size = 40, className = '' }: LogoProps) {
       width={size}
       height={size}
       className={className}
+      style={{ height: 'auto' }}  // Maintain aspect ratio if width is modified by CSS
       priority
     />
   )

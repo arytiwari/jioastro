@@ -37,6 +37,80 @@ class SupabaseClient:
             "Prefer": "return=representation"  # Return created/updated records
         }
 
+    def set_user_context(self, user_id: str):
+        """
+        Set user context for RLS (Row Level Security).
+
+        Args:
+            user_id: User UUID to set in context
+        """
+        # Update headers with user context claim
+        self.headers["Authorization"] = f"Bearer {self.api_key}"
+        # Note: When using service_role key, RLS is bypassed anyway
+        # This is mainly for documentation and future use with anon key
+
+    async def count(
+        self,
+        table: str,
+        filters: Optional[Dict[str, Any]] = None
+    ) -> int:
+        """
+        COUNT query using Supabase REST API.
+
+        Args:
+            table: Table name
+            filters: Dictionary of column:value pairs for filtering
+
+        Returns:
+            Number of matching records
+        """
+        url = f"{self.base_url}/{table}"
+        # Select just one column (id or any column) with count header
+        # This is more efficient than selecting all columns
+        params = {"select": "id", "limit": "0"}
+
+        # Add filters
+        if filters:
+            for key, value in filters.items():
+                if value is None:
+                    params[f"{key}"] = f"is.null"
+                else:
+                    params[f"{key}"] = f"eq.{value}"
+
+        # Add count header - this makes Supabase return the total count in Content-Range
+        count_headers = self.headers.copy()
+        count_headers["Prefer"] = "count=exact"
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:  # 30 second timeout
+                # Use GET instead of HEAD to ensure compatibility
+                response = await client.get(url, headers=count_headers, params=params)
+                response.raise_for_status()
+
+                # Get count from Content-Range header
+                # Format: "0-0/42" or "*/42" where 42 is total count
+                content_range = response.headers.get("Content-Range", "")
+                if content_range:
+                    # Split by "/" and get the last part (total count)
+                    parts = content_range.split("/")
+                    if len(parts) >= 2:
+                        total_str = parts[-1]
+                        try:
+                            return int(total_str) if total_str != "*" else 0
+                        except ValueError:
+                            logger.warning(f"Could not parse count from Content-Range: {content_range}")
+                            return 0
+
+                logger.warning(f"No Content-Range header in count response")
+                return 0
+
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Supabase COUNT error: {e.response.status_code} - {e.response.text}")
+            raise
+        except Exception as e:
+            logger.error(f"Supabase COUNT error: {e}")
+            raise
+
     async def select(
         self,
         table: str,
@@ -84,7 +158,7 @@ class SupabaseClient:
             params["offset"] = str(offset)
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:  # 30 second timeout
                 response = await client.get(url, headers=self.headers, params=params)
                 response.raise_for_status()
                 data = response.json()
@@ -118,7 +192,7 @@ class SupabaseClient:
         url = f"{self.base_url}/{table}"
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:  # 30 second timeout
                 response = await client.post(url, headers=self.headers, json=data)
                 response.raise_for_status()
                 result = response.json()
@@ -156,7 +230,7 @@ class SupabaseClient:
             params[f"{key}"] = f"eq.{value}"
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:  # 30 second timeout
                 response = await client.patch(url, headers=self.headers, params=params, json=data)
                 response.raise_for_status()
                 return response.json()
@@ -191,7 +265,7 @@ class SupabaseClient:
             params[f"{key}"] = f"eq.{value}"
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:  # 30 second timeout
                 response = await client.delete(url, headers=self.headers, params=params)
                 response.raise_for_status()
                 return response.json()
@@ -221,7 +295,7 @@ class SupabaseClient:
         url = f"{settings.SUPABASE_URL}/rest/v1/rpc/{function_name}"
 
         try:
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=30.0) as client:  # 30 second timeout
                 response = await client.post(
                     url,
                     headers=self.headers,

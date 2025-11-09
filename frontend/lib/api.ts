@@ -43,10 +43,18 @@ class APIClient {
       ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+$/, '') || 'http://localhost:8000'}${path}`
       : `${API_URL}${path}`
 
-    const response = await fetch(url, {
-      ...init,
-      headers: this.buildHeaders(init.headers),
-    })
+    let response: Response
+    try {
+      response = await fetch(url, {
+        ...init,
+        headers: this.buildHeaders(init.headers),
+      })
+    } catch (networkError) {
+      // Handle network errors (e.g., server down, no internet)
+      const error = new Error('Unable to connect to server. Please check your connection and try again.') as Error & { status: number }
+      error.status = 0
+      throw error
+    }
 
     if (response.status === 401) {
       // Only try to refresh if we had a token (meaning user was logged in)
@@ -654,6 +662,564 @@ class APIClient {
     return this.request(`/compatibility/quick-match?profile_id=${profileId}`, {
       method: 'POST',
     })
+  }
+
+  // Varshaphal (Annual Predictions) endpoints
+  async generateVarshaphal(data: {
+    profile_id: string
+    target_year: number
+    force_refresh?: boolean
+  }) {
+    return this.request('/varshaphal/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getVarshaphal(varshaphalId: string) {
+    return this.request(`/varshaphal/${varshaphalId}`)
+  }
+
+  async listVarshaphals(data: {
+    profile_id?: string
+    limit?: number
+    offset?: number
+  }) {
+    return this.request('/varshaphal/list', {
+      method: 'POST',
+      body: JSON.stringify({
+        profile_id: data.profile_id,
+        limit: data.limit || 10,
+        offset: data.offset || 0,
+      }),
+    })
+  }
+
+  async deleteVarshaphal(varshaphalId: string) {
+    return this.request(`/varshaphal/${varshaphalId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // Muhurta (Electional Astrology) endpoints
+  async getPanchang(data: {
+    datetime: string
+    latitude: number
+    longitude: number
+  }) {
+    return this.request('/muhurta/panchang', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getHora(data: {
+    datetime: string
+    latitude: number
+    longitude: number
+  }) {
+    return this.request('/muhurta/hora', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getDailyHoraTable(data: {
+    date: string
+    latitude: number
+    longitude: number
+  }) {
+    return this.request('/muhurta/hora/daily-table', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async findMuhurta(data: {
+    activity_type: string
+    start_date: string
+    end_date: string
+    latitude: number
+    longitude: number
+    max_results?: number
+  }) {
+    return this.request('/muhurta/find-muhurta', {
+      method: 'POST',
+      body: JSON.stringify({
+        ...data,
+        max_results: data.max_results || 10,
+      }),
+    })
+  }
+
+  async getBestTimeToday(data: {
+    activity_type: string
+    latitude: number
+    longitude: number
+  }) {
+    return this.request('/muhurta/best-time-today', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // =============================================================================
+  // PRASHNA (Horary Astrology) ENDPOINTS
+  // =============================================================================
+
+  async analyzePrashna(data: {
+    question: string
+    question_type: string
+    datetime: string
+    latitude: number
+    longitude: number
+    timezone: string
+  }) {
+    return this.request('/prashna/analyze', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async savePrashna(data: {
+    question: string
+    question_type: string
+    query_datetime: string
+    latitude: number
+    longitude: number
+    timezone: string
+    prashna_chart: any
+    analysis: any
+    notes?: string
+  }) {
+    return this.request('/prashna/save', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getPrashnas(limit = 10, offset = 0, question_type?: string) {
+    const params = new URLSearchParams({
+      limit: String(limit),
+      offset: String(offset),
+    })
+    if (question_type) {
+      params.append('question_type', question_type)
+    }
+    return this.request(`/prashna/list?${params}`)
+  }
+
+  async getPrashna(prashnaId: string) {
+    return this.request(`/prashna/${prashnaId}`)
+  }
+
+  async deletePrashna(prashnaId: string) {
+    return this.request(`/prashna/${prashnaId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // =============================================================================
+  // CHART COMPARISON ENDPOINTS
+  // =============================================================================
+
+  async compareCharts(data: {
+    profile_id_1: string
+    profile_id_2: string
+    comparison_type?: string
+  }) {
+    return this.request('/chart-comparison/compare', {
+      method: 'POST',
+      body: JSON.stringify({
+        profile_id_1: data.profile_id_1,
+        profile_id_2: data.profile_id_2,
+        comparison_type: data.comparison_type || 'general',
+      }),
+    })
+  }
+
+  async analyzeSynastry(data: {
+    profile_id_1: string
+    profile_id_2: string
+    focus?: string
+  }) {
+    return this.request('/chart-comparison/synastry', {
+      method: 'POST',
+      body: JSON.stringify({
+        profile_id_1: data.profile_id_1,
+        profile_id_2: data.profile_id_2,
+        focus: data.focus || 'romantic',
+      }),
+    })
+  }
+
+  async generateCompositeChart(data: {
+    profile_id_1: string
+    profile_id_2: string
+  }) {
+    return this.request('/chart-comparison/composite', {
+      method: 'POST',
+      body: JSON.stringify({
+        profile_id_1: data.profile_id_1,
+        profile_id_2: data.profile_id_2,
+      }),
+    })
+  }
+
+  async calculateProgressedChart(data: {
+    profile_id: string
+    current_age: number
+  }) {
+    return this.request('/chart-comparison/progressed', {
+      method: 'POST',
+      body: JSON.stringify({
+        profile_id: data.profile_id,
+        current_age: data.current_age,
+      }),
+    })
+  }
+
+  async saveComparison(data: {
+    profile_id_1: string
+    profile_id_2: string
+    comparison_type: string
+    comparison_data: any
+  }) {
+    return this.request('/chart-comparison/save', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async listComparisons(params?: {
+    limit?: number
+    offset?: number
+    comparison_type?: string
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.limit) queryParams.append('limit', params.limit.toString())
+    if (params?.offset) queryParams.append('offset', params.offset.toString())
+    if (params?.comparison_type) queryParams.append('comparison_type', params.comparison_type)
+
+    const query = queryParams.toString()
+    return this.request(`/chart-comparison/list${query ? `?${query}` : ''}`, {
+      method: 'GET',
+    })
+  }
+
+  async deleteComparison(comparisonId: string) {
+    return this.request(`/chart-comparison/${comparisonId}`, {
+      method: 'DELETE',
+    })
+  }
+
+  // =============================================================================
+  // JAIMINI SYSTEM ENDPOINTS
+  // =============================================================================
+
+  async getCharaKarakas(profileId: string) {
+    return this.request(`/enhancements/jaimini/chara-karakas/${profileId}`)
+  }
+
+  async getKarakamsha(profileId: string) {
+    return this.request(`/enhancements/jaimini/karakamsha/${profileId}`)
+  }
+
+  async getArudhaPadas(profileId: string) {
+    return this.request(`/enhancements/jaimini/arudha-padas/${profileId}`)
+  }
+
+  async analyzeJaimini(profileId: string) {
+    return this.request(`/enhancements/jaimini/analyze/${profileId}`)
+  }
+
+  // =============================================================================
+  // LAL KITAB SYSTEM ENDPOINTS
+  // =============================================================================
+
+  async getPlanetaryDebts(profileId: string) {
+    return this.request(`/enhancements/lal-kitab/debts/${profileId}`)
+  }
+
+  async getBlindPlanets(profileId: string) {
+    return this.request(`/enhancements/lal-kitab/blind-planets/${profileId}`)
+  }
+
+  async analyzeLalKitab(profileId: string) {
+    return this.request(`/enhancements/lal-kitab/analyze/${profileId}`)
+  }
+
+  // =============================================================================
+  // ASHTAKAVARGA SYSTEM ENDPOINTS
+  // =============================================================================
+
+  async getBhinnaAshtakavarga(profileId: string) {
+    return this.request(`/enhancements/ashtakavarga/bhinna/${profileId}`)
+  }
+
+  async getSarvaAshtakavarga(profileId: string) {
+    return this.request(`/enhancements/ashtakavarga/sarva/${profileId}`)
+  }
+
+  async analyzeTransitStrength(profileId: string, transitDate?: string) {
+    const params = transitDate ? `?transit_date=${transitDate}` : ''
+    return this.request(`/enhancements/ashtakavarga/transit/${profileId}${params}`)
+  }
+
+  async analyzeAshtakavarga(profileId: string) {
+    return this.request(`/enhancements/ashtakavarga/analyze/${profileId}`)
+  }
+
+  // =============================================================================
+  // PALMISTRY ENDPOINTS
+  // =============================================================================
+
+  async uploadPalmImage(data: {
+    hand_type: 'left' | 'right'
+    view_type: 'front' | 'back' | 'zoomed' | 'thumb_edge' | 'side'
+    image: string
+    capture_method: 'camera' | 'upload'
+    profile_id?: string  // Optional birth profile ID for holistic analysis
+    device_info?: {
+      device_type?: 'mobile' | 'tablet' | 'desktop'
+      screen_width?: number
+      screen_height?: number
+      user_agent?: string
+    }
+  }) {
+    return this.request('/palmistry/upload', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async analyzePalm(data: {
+    photo_ids: string[]
+    reanalysis?: boolean
+    priority?: 'high' | 'normal' | 'low'
+  }) {
+    return this.request('/palmistry/analyze', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getPalmReadings(params?: {
+    limit?: number
+    offset?: number
+    hand_type?: 'left' | 'right'
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.limit) queryParams.append('limit', params.limit.toString())
+    if (params?.offset) queryParams.append('offset', params.offset.toString())
+    if (params?.hand_type) queryParams.append('hand_type', params.hand_type)
+
+    const query = queryParams.toString()
+    return this.request(`/palmistry/readings${query ? `?${query}` : ''}`)
+  }
+
+  async getPalmReading(readingId: string) {
+    return this.request(`/palmistry/readings/${readingId}`)
+  }
+
+  async deletePalmReading(readingId: string) {
+    return this.request(`/palmistry/readings/${readingId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async comparePalmHands(params?: {
+    left_reading_id?: string
+    right_reading_id?: string
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.left_reading_id) queryParams.append('left_reading_id', params.left_reading_id)
+    if (params?.right_reading_id) queryParams.append('right_reading_id', params.right_reading_id)
+
+    const query = queryParams.toString()
+    return this.request(`/palmistry/compare${query ? `?${query}` : ''}`)
+  }
+
+  async submitPalmFeedback(data: {
+    interpretation_id: string
+    rating: number
+    feedback_type: 'accuracy' | 'completeness' | 'clarity' | 'relevance'
+    comments?: string
+  }) {
+    return this.request('/palmistry/feedback', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getPalmistryHealth() {
+    return this.request('/palmistry/health')
+  }
+
+  // =============================================================================
+  // TAROT READING METHODS
+  // =============================================================================
+
+  async getTarotCards(params?: {
+    suit?: string
+    arcana_type?: string
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.suit) queryParams.append('suit', params.suit)
+    if (params?.arcana_type) queryParams.append('arcana_type', params.arcana_type)
+
+    const query = queryParams.toString()
+    return this.request(`/tarot/cards${query ? `?${query}` : ''}`)
+  }
+
+  async getTarotCard(cardId: string) {
+    return this.request(`/tarot/cards/${cardId}`)
+  }
+
+  async getTarotSpreads(category?: string) {
+    const query = category ? `?category=${category}` : ''
+    return this.request(`/tarot/spreads${query}`)
+  }
+
+  async getTarotSpread(spreadId: string) {
+    return this.request(`/tarot/spreads/${spreadId}`)
+  }
+
+  async drawDailyCard() {
+    return this.request('/tarot/daily-card', {
+      method: 'POST',
+    })
+  }
+
+  async createTarotReading(data: {
+    spread_id?: string
+    spread_name: string
+    reading_type: string
+    question?: string
+    profile_id?: string
+    num_cards?: number
+  }) {
+    return this.request('/tarot/readings', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getTarotReadings(params?: {
+    reading_type?: string
+    limit?: number
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.reading_type) queryParams.append('reading_type', params.reading_type)
+    if (params?.limit) queryParams.append('limit', params.limit.toString())
+
+    const query = queryParams.toString()
+    return this.request(`/tarot/readings${query ? `?${query}` : ''}`)
+  }
+
+  async getTarotReading(readingId: string) {
+    return this.request(`/tarot/readings/${readingId}`)
+  }
+
+  async updateTarotReading(readingId: string, data: {
+    is_favorite?: boolean
+    notes?: string
+  }) {
+    return this.request(`/tarot/readings/${readingId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteTarotReading(readingId: string) {
+    return this.request(`/tarot/readings/${readingId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async getTarotStats() {
+    return this.request('/tarot/stats')
+  }
+
+  // =============================================================================
+  // FENG SHUI METHODS
+  // =============================================================================
+
+  async createFengShuiAnalysis(data: {
+    profile_id: string
+    space_type?: string
+    space_orientation?: string
+    space_layout?: any
+  }) {
+    return this.request('/feng-shui/analyze', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getFengShuiAnalyses(limit?: number) {
+    const query = limit ? `?limit=${limit}` : ''
+    return this.request(`/feng-shui/analyses${query}`)
+  }
+
+  async getFengShuiAnalysis(analysisId: string) {
+    return this.request(`/feng-shui/analyses/${analysisId}`)
+  }
+
+  async updateFengShuiAnalysis(analysisId: string, data: {
+    space_type?: string
+    space_orientation?: string
+    space_layout?: any
+  }) {
+    return this.request(`/feng-shui/analyses/${analysisId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getFengShuiRecommendations(analysisId: string, params?: {
+    category?: string
+    priority?: string
+  }) {
+    const queryParams = new URLSearchParams()
+    if (params?.category) queryParams.append('category', params.category)
+    if (params?.priority) queryParams.append('priority', params.priority)
+
+    const query = queryParams.toString()
+    return this.request(`/feng-shui/analyses/${analysisId}/recommendations${query ? `?${query}` : ''}`)
+  }
+
+  async updateFengShuiRecommendation(recommendationId: string, data: {
+    is_implemented?: boolean
+    user_notes?: string
+    effectiveness_rating?: number
+  }) {
+    return this.request(`/feng-shui/recommendations/${recommendationId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async calculateKua(profileId: string) {
+    return this.request(`/feng-shui/calculate-kua?profile_id=${profileId}`, {
+      method: 'POST',
+    })
+  }
+
+  async getDirectionGuidance(kuaNumber: number) {
+    return this.request(`/feng-shui/direction-guidance/${kuaNumber}`)
+  }
+
+  async getColorTherapy(kuaNumber: number) {
+    return this.request(`/feng-shui/color-therapy/${kuaNumber}`)
+  }
+
+  async getElementBalance(kuaNumber: number) {
+    return this.request(`/feng-shui/element-balance/${kuaNumber}`)
+  }
+
+  async getFengShuiStats() {
+    return this.request('/feng-shui/stats')
   }
 }
 

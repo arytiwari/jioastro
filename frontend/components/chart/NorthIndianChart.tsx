@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import { transformChartData, validateChartData } from '@/lib/chartDataTransformer'
 
 interface Planet {
   sign: string
@@ -33,6 +34,8 @@ interface NorthIndianChartProps {
   chartData: ChartData
   width?: number
   height?: number
+  language?: 'english' | 'hindi' | 'sanskrit'
+  showDegrees?: boolean
 }
 
 const PLANET_SYMBOLS: Record<string, string> = {
@@ -157,7 +160,89 @@ const HOUSE_POSITIONS: Record<number, {
   }
 }
 
-export function NorthIndianChart({ chartData, width = 600, height = 600 }: NorthIndianChartProps) {
+export function NorthIndianChart({
+  chartData,
+  width = 600,
+  height = 600,
+  language = 'english',
+  showDegrees = false
+}: NorthIndianChartProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [chartInstance, setChartInstance] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Validate chart data
+    if (!validateChartData(chartData)) {
+      setError('Invalid chart data format')
+      return
+    }
+
+    // Dynamically import the master chart generator
+    const loadChart = async () => {
+      try {
+        // Import the master version
+        const NorthIndianChartMaster = (await import('@/lib/NorthIndianChartMaster')).default
+
+        // Transform backend data to master format
+        const masterData = transformChartData(chartData)
+
+        // Create chart instance with configuration
+        const instance = new NorthIndianChartMaster({
+          width,
+          height,
+          language,
+          showDegrees,
+          showPlanetNames: false,  // Show planet IDs (Su, Mo, etc.) not full names
+          showHouseNumbers: true,
+          showSigns: true,
+          showAscendantMarker: true,
+          responsive: true,
+          colors: {
+            background: '#fefcf8',
+            gradient1: '#ffffff',
+            gradient2: '#f0f3bf',
+            lines: '#b1792d',
+            houseNumbers: '#008080',
+            signs: '#444444',  // Darker for better readability
+            ascendant: '#7c3aed',
+            planets: {
+              Su: '#FF8C00', // Dark orange (Sun)
+              Mo: '#4169E1', // Royal blue (Moon)
+              Ma: '#DC143C', // Crimson (Mars)
+              Me: '#228B22', // Forest green (Mercury)
+              Ju: '#FFD700', // Gold (Jupiter)
+              Ve: '#FF1493', // Deep pink (Venus)
+              Sa: '#191970', // Midnight blue (Saturn)
+              Ra: '#8B4513', // Saddle brown (Rahu)
+              Ke: '#A0522D', // Sienna (Ketu)
+            }
+          },
+          fonts: {
+            houseNumber: '14px Arial',
+            sign: '11px Arial',  // Slightly larger for sign names
+            planet: '12px Arial',  // Larger for planets
+            ascendant: 'bold 12px Arial'
+          }
+        })
+
+        setChartInstance(instance)
+
+        // Render chart to container
+        if (containerRef.current) {
+          instance.render(containerRef.current, masterData)
+        }
+
+        setError(null)
+      } catch (err) {
+        console.error('Error loading North Indian Chart:', err)
+        setError('Failed to load chart generator')
+      }
+    }
+
+    loadChart()
+  }, [chartData, width, height, language, showDegrees])
+
   if (!chartData || !chartData.houses || !chartData.planets || !chartData.ascendant) {
     return (
       <div className="flex items-center justify-center p-8 text-gray-500">
@@ -166,223 +251,18 @@ export function NorthIndianChart({ chartData, width = 600, height = 600 }: North
     )
   }
 
-  const chartSize = Math.min(width, height) * 0.85
-  const offsetX = (width - chartSize) / 2
-  const offsetY = (height - chartSize) / 2
-
-  // Calculate corner and midpoint positions
-  const corners = {
-    topLeft: { x: offsetX, y: offsetY },
-    topRight: { x: offsetX + chartSize, y: offsetY },
-    bottomLeft: { x: offsetX, y: offsetY + chartSize },
-    bottomRight: { x: offsetX + chartSize, y: offsetY + chartSize }
-  }
-
-  const midpoints = {
-    top: { x: offsetX + chartSize / 2, y: offsetY },
-    right: { x: offsetX + chartSize, y: offsetY + chartSize / 2 },
-    bottom: { x: offsetX + chartSize / 2, y: offsetY + chartSize },
-    left: { x: offsetX, y: offsetY + chartSize / 2 }
-  }
-
-  // Group planets by house
-  const planetsByHouse: Record<number, Array<{ name: string; symbol: string; retrograde: boolean }>> = {}
-  Object.entries(chartData.planets).forEach(([name, data]) => {
-    if (!planetsByHouse[data.house]) {
-      planetsByHouse[data.house] = []
-    }
-    planetsByHouse[data.house].push({
-      name,
-      symbol: PLANET_SYMBOLS[name] || name[0],
-      retrograde: data.retrograde || false
-    })
-  })
-
-  // Get sign for each house based on ascendant
-  const getSignForHouse = (houseNum: number): string => {
-    const lagnaSignNum = chartData.ascendant.sign_num
-    const signNum = (lagnaSignNum + houseNum - 1) % 12
-    return ZODIAC_SIGNS[signNum].abbr
+  if (error) {
+    return (
+      <div className="flex items-center justify-center p-8 text-red-600">
+        <p>{error}</p>
+      </div>
+    )
   }
 
   return (
     <div className="flex flex-col items-center p-4">
-      <svg width={width} height={height + 80} viewBox={`0 0 ${width} ${height + 80}`}>
-        {/* Outer square border */}
-        <rect
-          x={offsetX}
-          y={offsetY}
-          width={chartSize}
-          height={chartSize}
-          fill="#fefcf8"
-          stroke="#b1792d"
-          strokeWidth="3"
-          rx="4"
-        />
-
-        {/* Diagonal lines (X pattern) */}
-        <line
-          x1={corners.topLeft.x}
-          y1={corners.topLeft.y}
-          x2={corners.bottomRight.x}
-          y2={corners.bottomRight.y}
-          stroke="#b1792d"
-          strokeWidth="2"
-        />
-        <line
-          x1={corners.topRight.x}
-          y1={corners.topRight.y}
-          x2={corners.bottomLeft.x}
-          y2={corners.bottomLeft.y}
-          stroke="#b1792d"
-          strokeWidth="2"
-        />
-
-        {/* Inner diamond (connecting midpoints) */}
-        <line
-          x1={midpoints.top.x}
-          y1={midpoints.top.y}
-          x2={midpoints.right.x}
-          y2={midpoints.right.y}
-          stroke="#b1792d"
-          strokeWidth="2"
-        />
-        <line
-          x1={midpoints.right.x}
-          y1={midpoints.right.y}
-          x2={midpoints.bottom.x}
-          y2={midpoints.bottom.y}
-          stroke="#b1792d"
-          strokeWidth="2"
-        />
-        <line
-          x1={midpoints.bottom.x}
-          y1={midpoints.bottom.y}
-          x2={midpoints.left.x}
-          y2={midpoints.left.y}
-          stroke="#b1792d"
-          strokeWidth="2"
-        />
-        <line
-          x1={midpoints.left.x}
-          y1={midpoints.left.y}
-          x2={midpoints.top.x}
-          y2={midpoints.top.y}
-          stroke="#b1792d"
-          strokeWidth="2"
-        />
-
-        {/* Render houses with signs and planets */}
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((houseNum) => {
-          const pos = HOUSE_POSITIONS[houseNum]
-          const houseNumX = offsetX + chartSize * pos.houseNum.x
-          const houseNumY = offsetY + chartSize * pos.houseNum.y
-          const signX = offsetX + chartSize * pos.sign.x
-          const signY = offsetY + chartSize * pos.sign.y
-          const planetsX = offsetX + chartSize * pos.planetsStart.x
-          const planetsY = offsetY + chartSize * pos.planetsStart.y
-          const sign = getSignForHouse(houseNum)
-          const planets = planetsByHouse[houseNum] || []
-          const isAscendant = houseNum === 1
-
-          return (
-            <g key={houseNum}>
-              {/* Special label for H1 (center) */}
-              {isAscendant && (
-                <>
-                  <text
-                    x={offsetX + chartSize * 0.50}
-                    y={offsetY + chartSize * 0.24}
-                    textAnchor="middle"
-                    fontSize={chartSize * 0.030}
-                    fontWeight="600"
-                    fill="#666"
-                    style={{ fontFamily: 'system-ui, sans-serif' }}
-                  >
-                    Rising/Lagna
-                  </text>
-                  <text
-                    x={offsetX + chartSize * 0.50}
-                    y={offsetY + chartSize * 0.27}
-                    textAnchor="middle"
-                    fontSize={chartSize * 0.028}
-                    fontWeight="600"
-                    fill="#666"
-                    style={{ fontFamily: 'system-ui, sans-serif' }}
-                  >
-                    Ascendant
-                  </text>
-                </>
-              )}
-
-              {/* House number */}
-              <text
-                x={houseNumX}
-                y={houseNumY}
-                textAnchor={pos.textAnchor}
-                fontSize={chartSize * 0.05}
-                fontWeight="700"
-                fill={isAscendant ? '#7c3aed' : '#654321'}
-                style={{ fontFamily: 'system-ui, sans-serif' }}
-              >
-                H{houseNum}
-              </text>
-
-              {/* Zodiac sign */}
-              <text
-                x={signX}
-                y={signY}
-                textAnchor={pos.textAnchor}
-                fontSize={chartSize * 0.038}
-                fontWeight="600"
-                fill="#8a5f2a"
-                style={{ fontFamily: 'system-ui, sans-serif' }}
-              >
-                {sign}
-              </text>
-
-              {/* Planets in this house */}
-              {planets.map((planet, idx) => (
-                <text
-                  key={`${houseNum}-${planet.name}`}
-                  x={planetsX}
-                  y={planetsY + idx * chartSize * 0.055}
-                  textAnchor={pos.textAnchor}
-                  fontSize={chartSize * 0.036}
-                  fontWeight="600"
-                  fill={planet.retrograde ? '#dc2626' : '#be123c'}
-                  style={{ fontFamily: 'system-ui, sans-serif' }}
-                >
-                  {planet.symbol}{planet.retrograde ? 'ʀ' : ''}
-                </text>
-              ))}
-            </g>
-          )
-        })}
-
-        {/* Ascendant label at bottom */}
-        <rect
-          x={width / 2 - 70}
-          y={offsetY + chartSize + 20}
-          width={140}
-          height={32}
-          fill="#7c3aed"
-          stroke="#5b21b6"
-          strokeWidth="2"
-          rx="8"
-        />
-        <text
-          x={width / 2}
-          y={offsetY + chartSize + 40}
-          textAnchor="middle"
-          fontSize="15"
-          fontWeight="bold"
-          fill="#ffffff"
-          style={{ fontFamily: 'system-ui, sans-serif' }}
-        >
-          ASC: {chartData.ascendant.sign.toUpperCase()}
-        </text>
-      </svg>
+      {/* Chart container for master version */}
+      <div ref={containerRef} className="w-full max-w-2xl" />
 
       {/* Legend */}
       <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200 w-full max-w-md">
@@ -391,7 +271,7 @@ export function NorthIndianChart({ chartData, width = 600, height = 600 }: North
           <p><span className="font-semibold text-purple-700">H1</span> - House 1 (Ascendant/Lagna) - CENTER diamond</p>
           <p><span className="font-semibold">H2-H12</span> - Other houses in triangular sections around H1</p>
           <p><span className="font-semibold">Diamond layout</span> - Traditional North Indian style</p>
-          <p className="mt-2"><span className="font-semibold text-red-600">ʀ</span> = Retrograde planet</p>
+          <p className="mt-2"><span className="font-semibold text-red-600">R</span> = Retrograde planet</p>
           <p className="text-xs text-gray-500 mt-3 italic">
             H1 (Ascendant) is always in the center. Signs rotate based on Ascendant sign.
           </p>

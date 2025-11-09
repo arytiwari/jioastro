@@ -2,7 +2,30 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import profiles, charts, queries, feedback, admin, readings, knowledge, enhancements, setup, cities, numerology, compatibility, varshaphal
+from app.api.v1.endpoints import (
+    profiles,
+    charts,
+    queries,
+    feedback,
+    admin,
+    readings,
+    knowledge,
+    enhancements,
+    setup,
+    cities,
+    numerology,
+    compatibility,
+    varshaphal,
+    muhurta,
+    prashna,
+    chart_comparison,
+    palmistry,
+    tarot,
+    feng_shui,
+    life_threads,
+    remedy_planner,
+    hyperlocal_panchang,
+)
 
 api_router = APIRouter()
 
@@ -20,3 +43,12 @@ api_router.include_router(cities.router, prefix="/cities", tags=["cities"])
 api_router.include_router(numerology.router, prefix="/numerology", tags=["numerology"])
 api_router.include_router(compatibility.router, prefix="/compatibility", tags=["compatibility"])
 api_router.include_router(varshaphal.router, prefix="/varshaphal", tags=["varshaphal"])
+api_router.include_router(muhurta.router, prefix="/muhurta", tags=["muhurta"])
+api_router.include_router(prashna.router, prefix="/prashna", tags=["prashna"])
+api_router.include_router(chart_comparison.router, prefix="/chart-comparison", tags=["chart-comparison"])
+api_router.include_router(palmistry.router, prefix="/palmistry", tags=["palmistry"])
+api_router.include_router(tarot.router, prefix="/tarot", tags=["tarot"])
+api_router.include_router(feng_shui.router, prefix="/feng-shui", tags=["feng-shui"])
+api_router.include_router(life_threads.router, prefix="/life-threads", tags=["life-threads"])
+api_router.include_router(remedy_planner.router, prefix="/remedy-planner", tags=["remedy-planner"])
+api_router.include_router(hyperlocal_panchang.router, prefix="/panchang", tags=["panchang"])
