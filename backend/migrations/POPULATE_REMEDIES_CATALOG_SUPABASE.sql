@@ -331,7 +331,7 @@ ARRAY['Plan temple visit in advance', 'Hire authentic priest', 'Follow all ritua
 'Skanda Purana')
 ON CONFLICT (remedy_name) DO NOTHING;
 
-INSERT INTO remedies_catalog (remedy_name, remedy_type, description, detailed_instructions, dosha, frequency, best_time, duration_days, difficulty_level, benefits, precautions, cost_estimate, materials_needed)
+INSERT INTO remedies_catalog (remedy_name, remedy_type, description, detailed_instructions, dosha, frequency, best_time, duration_days, difficulty_level, benefits, precautions, cost_estimate, materials_needed, scripture_reference)
 VALUES
 ('Pitra Dosha Remedy - Pind Daan', 'ritual', 'Ancestral peace ritual at sacred places',
 'Perform Pind Daan at Gaya, Haridwar, or Trimbakeshwar for ancestor peace. Or perform annually on Mahalaya Amavasya.',
