@@ -7,6 +7,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 from datetime import date
 from decimal import Decimal
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.core.security import get_current_user
 from app.core.supabase_client import SupabaseClient
@@ -46,6 +49,8 @@ async def calculate_panchang(
     try:
         return await service.get_panchang(request)
     except Exception as e:
+        import traceback
+        logger.error(f"Panchang calculation error: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Panchang calculation failed: {str(e)}")
 
 

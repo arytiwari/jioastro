@@ -369,16 +369,19 @@ class HyperlocalPanchangService:
         # Use Swiss Ephemeris for rise/set
         jd = swe.julday(panchang_date.year, panchang_date.month, panchang_date.day, 0.0)
 
+        # Geographic position tuple: (longitude, latitude, altitude)
+        geopos = (longitude, latitude, 0.0)
+
         # Sunrise
         sunrise_result = swe.rise_trans(
-            jd, swe.SUN, longitude, latitude, 0.0,
+            jd, swe.SUN, geopos,
             swe.CALC_RISE | swe.BIT_DISC_CENTER
         )
         sunrise_jd = sunrise_result[1][0] if sunrise_result[0] == swe.OK else jd
 
         # Sunset
         sunset_result = swe.rise_trans(
-            jd, swe.SUN, longitude, latitude, 0.0,
+            jd, swe.SUN, geopos,
             swe.CALC_SET | swe.BIT_DISC_CENTER
         )
         sunset_jd = sunset_result[1][0] if sunset_result[0] == swe.OK else jd + 0.5
