@@ -350,7 +350,7 @@ INSERT INTO remedies_catalog (remedy_name, remedy_type, description, detailed_in
 VALUES
 ('Gayatri Mantra Japa', 'mantra', 'Universal mantra for all-round growth',
 'Chant Gayatri Mantra 108 times at sunrise facing east. "Om Bhur Bhuvah Svah, Tat Savitur Varenyam, Bhargo Devasya Dhimahi, Dhiyo Yo Nah Prachodayat"',
-NULL, 'daily', 'sunrise', 40, 'easy',
+'daily', 'sunrise', 40, 'easy',
 ARRAY['Universal remedy', 'Spiritual growth', 'Mental clarity', 'Divine blessings', 'Removes all doshas'],
 ARRAY['Learn correct pronunciation', 'Maintain purity'],
 'free', ARRAY['Rudraksha mala'],
@@ -361,7 +361,7 @@ INSERT INTO remedies_catalog (remedy_name, remedy_type, description, detailed_in
 VALUES
 ('Mahamrityunjaya Mantra', 'mantra', 'Powerful healing and protection mantra',
 'Chant "Om Tryambakam Yajamahe Sugandhim Pushtivardhanam, Urvarukamiva Bandhanan Mrityor Mukshiya Maamritat" 108 times.',
-NULL, 'daily', 'sunrise', 40, 'medium',
+'daily', 'sunrise', 40, 'medium',
 ARRAY['Health improvement', 'Protection from accidents', 'Long life', 'Removes fear of death'],
 ARRAY['Best learned from guru', 'Chant with devotion'],
 'free', ARRAY['Rudraksha mala'],
@@ -372,7 +372,7 @@ INSERT INTO remedies_catalog (remedy_name, remedy_type, description, detailed_in
 VALUES
 ('Daily Meditation', 'meditation', 'Universal remedy for mental peace',
 'Sit in quiet place for 20-30 minutes daily. Focus on breath or use any meditation technique.',
-NULL, 'daily', 'sunrise', NULL, 'easy',
+'daily', 'sunrise', NULL, 'easy',
 ARRAY['Mental peace', 'Stress relief', 'Clarity', 'Emotional balance', 'Spiritual growth'],
 ARRAY['Start with 5-10 minutes if beginner', 'Be consistent'],
 'free', ARRAY['Quiet space', 'Comfortable seating'])
@@ -382,7 +382,7 @@ INSERT INTO remedies_catalog (remedy_name, remedy_type, description, detailed_in
 VALUES
 ('Practice Gratitude Daily', 'spiritual_practice', 'Cultivate gratitude to attract positive energies',
 'Write or mentally note 5 things you are grateful for every morning or evening.',
-NULL, 'daily', 'sunrise', NULL, 'easy',
+'daily', 'sunrise', NULL, 'easy',
 ARRAY['Positive mindset', 'Attracts good karma', 'Mental peace', 'Better relationships'],
 ARRAY['Be genuine in gratitude'],
 'free', ARRAY['Journal (optional)'])
