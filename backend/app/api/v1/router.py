@@ -16,6 +16,7 @@ from app.api.v1.endpoints import (
     numerology,
     compatibility,
     varshaphal,
+    calendar_year,
     muhurta,
     prashna,
     chart_comparison,
@@ -29,6 +30,7 @@ from app.api.v1.endpoints import (
     expert_console,
     rituals,
     reality_check,
+    expert_knowledge,
 )
 
 api_router = APIRouter()
@@ -47,6 +49,7 @@ api_router.include_router(cities.router, prefix="/cities", tags=["cities"])
 api_router.include_router(numerology.router, prefix="/numerology", tags=["numerology"])
 api_router.include_router(compatibility.router, prefix="/compatibility", tags=["compatibility"])
 api_router.include_router(varshaphal.router, prefix="/varshaphal", tags=["varshaphal"])
+api_router.include_router(calendar_year.router, prefix="/calendar-year", tags=["calendar-year"])
 api_router.include_router(muhurta.router, prefix="/muhurta", tags=["muhurta"])
 api_router.include_router(prashna.router, prefix="/prashna", tags=["prashna"])
 api_router.include_router(chart_comparison.router, prefix="/chart-comparison", tags=["chart-comparison"])
@@ -60,3 +63,4 @@ api_router.include_router(astrotwin_circles.router, prefix="/astrotwin", tags=["
 api_router.include_router(expert_console.router, prefix="/expert", tags=["expert-console"])
 api_router.include_router(rituals.router, prefix="/rituals", tags=["rituals"])
 api_router.include_router(reality_check.router, prefix="/reality-check", tags=["reality-check"])
+api_router.include_router(expert_knowledge.router, prefix="/admin/expert-knowledge", tags=["expert-knowledge"])
