@@ -14,8 +14,13 @@ import {
   Star,
   Trash2,
   Clock,
+  // Time-based greeting icons
   Sunrise,
+  Sun,
+  Sunset,
   Moon,
+  // Location and UI icons
+  MapPin,
   Sparkles,
   Calendar,
   TrendingUp,
@@ -44,11 +49,31 @@ export default function DashboardPage() {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          })
+        async (position) => {
+          const latitude = position.coords.latitude
+          const longitude = position.coords.longitude
+
+          // Fetch city name using reverse geocoding
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+            )
+            const data = await response.json()
+            const city = data.address?.city || data.address?.town || data.address?.village || data.address?.state || 'Current Location'
+
+            setCurrentLocation({
+              latitude,
+              longitude,
+              city: city,
+            })
+          } catch (error) {
+            console.error('Error fetching city name:', error)
+            setCurrentLocation({
+              latitude,
+              longitude,
+              city: 'Current Location',
+            })
+          }
           setLocationError(null)
         },
         (error) => {
@@ -146,8 +171,8 @@ export default function DashboardPage() {
   }
 
   const getMoonPhase = () => {
-    if (!panchangData?.panchang_data) return '🌑 New Moon'
-    const tithi = panchangData.panchang_data.tithi?.name || ''
+    if (!panchangData) return '🌑 New Moon'
+    const tithi = panchangData?.tithi?.tithi_name || ''
     if (tithi.includes('Purnima') || tithi.includes('15')) return '🌕 Full Moon'
     if (tithi.includes('Amavasya') || tithi.includes('30')) return '🌑 New Moon'
     if (parseInt(tithi) <= 7) return '🌒 Waxing Crescent'
@@ -226,7 +251,7 @@ export default function DashboardPage() {
                   {greeting.emoji} {greeting.text}!
                 </h1>
                 <p className="text-white/80 text-sm mt-1">
-                  {getMoonPhase()} • {panchangData?.panchang_data?.nakshatra?.name || 'Loading...'} Nakshatra
+                  {getMoonPhase()} • {panchangData?.nakshatra?.nakshatra_name || 'Loading...'} Nakshatra
                 </p>
               </div>
             </div>
@@ -259,7 +284,7 @@ export default function DashboardPage() {
                   <MapPin className="w-4 h-4" />
                   {currentLocation ? (
                     <span className="flex items-center gap-1">
-                      Your Current Location <Badge variant="secondary" className="ml-2">Live</Badge>
+                      {currentLocation.city} <Badge variant="secondary" className="ml-2">Live</Badge>
                     </span>
                   ) : (
                     <span>{primaryProfile.city?.display_name || primaryProfile.birth_city}</span>
@@ -283,10 +308,10 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-gray-600">Tithi</p>
                 </div>
                 <p className="text-lg font-bold text-gray-900">
-                  {panchangData.panchang_data?.tithi?.name || 'N/A'}
+                  {panchangData?.tithi?.tithi_name || 'N/A'}
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  {panchangData.panchang_data?.tithi?.paksha || 'Lunar Day'}
+                  {panchangData?.tithi?.paksha || 'Lunar Day'}
                 </p>
               </div>
 
@@ -296,10 +321,10 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-gray-600">Nakshatra</p>
                 </div>
                 <p className="text-lg font-bold text-gray-900">
-                  {panchangData.panchang_data?.nakshatra?.name || 'N/A'}
+                  {panchangData?.nakshatra?.nakshatra_name || 'N/A'}
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  {panchangData.panchang_data?.nakshatra?.lord || 'Star Constellation'}
+                  {panchangData?.nakshatra?.nakshatra_lord || 'Star Constellation'}
                 </p>
               </div>
 
@@ -309,10 +334,10 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-gray-600">Yoga</p>
                 </div>
                 <p className="text-lg font-bold text-gray-900">
-                  {panchangData.panchang_data?.yoga?.name || 'N/A'}
+                  {panchangData?.yoga?.yoga_name || 'N/A'}
                 </p>
                 <p className="text-xs text-gray-600 mt-1">
-                  {panchangData.panchang_data?.yoga?.quality || 'Union'}
+                  {panchangData?.yoga?.yoga_quality || 'Union'}
                 </p>
               </div>
 
@@ -322,33 +347,33 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold text-gray-600">Karana</p>
                 </div>
                 <p className="text-lg font-bold text-gray-900">
-                  {panchangData.panchang_data?.karana?.name || 'N/A'}
+                  {panchangData?.karana?.karana_name || 'N/A'}
                 </p>
                 <p className="text-xs text-gray-600 mt-1">Half Tithi</p>
               </div>
             </div>
 
             {/* Auspicious Times */}
-            {panchangData.auspicious_times && (
+            {panchangData && (panchangData.abhijit_muhurta_start || panchangData.rahukaal_start) && (
               <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-300">
                 <h3 className="font-semibold text-green-900 mb-3 flex items-center gap-2">
                   <Clock className="w-5 h-5" />
                   Auspicious & Inauspicious Times
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  {panchangData.auspicious_times.abhijit_muhurta && (
+                  {panchangData.abhijit_muhurta_start && (
                     <div>
                       <p className="font-medium text-green-800">✅ Abhijit Muhurta (Most Auspicious)</p>
                       <p className="text-green-700">
-                        {panchangData.auspicious_times.abhijit_muhurta.start} - {panchangData.auspicious_times.abhijit_muhurta.end}
+                        {panchangData.abhijit_muhurta_start} - {panchangData.abhijit_muhurta_end}
                       </p>
                     </div>
                   )}
-                  {panchangData.inauspicious_times?.rahu_kaal && (
+                  {panchangData.rahukaal_start && (
                     <div>
                       <p className="font-medium text-red-800">⚠️ Rahu Kaal (Avoid Important Work)</p>
                       <p className="text-red-700">
-                        {panchangData.inauspicious_times.rahu_kaal.start} - {panchangData.inauspicious_times.rahu_kaal.end}
+                        {panchangData.rahukaal_start} - {panchangData.rahukaal_end}
                       </p>
                     </div>
                   )}
@@ -634,14 +659,14 @@ export default function DashboardPage() {
               </div>
 
               {/* Nakshatra-based guidance */}
-              {panchangData.panchang_data?.nakshatra && (
+              {panchangData?.nakshatra && (
                 <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
                   <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
                     <Star className="w-4 h-4" />
-                    Today's {panchangData.panchang_data.nakshatra.name} Nakshatra Energy
+                    Today's {panchangData.nakshatra.nakshatra_name} Nakshatra Energy
                   </h4>
                   <ul className="space-y-2 text-sm text-green-800">
-                    {getNakshatraGuidance(panchangData.panchang_data.nakshatra.name).map((item: string, i: number) => (
+                    {getNakshatraGuidance(panchangData.nakshatra.nakshatra_name).map((item: string, i: number) => (
                       <li key={i} className="flex items-start gap-2">
                         <span className="text-green-600 font-bold">→</span>
                         <span>{item}</span>
@@ -661,7 +686,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-medium text-blue-800 mb-1">✅ Favorable For:</p>
                     <ul className="text-blue-700 space-y-1">
-                      {getFavorableActivities(panchangData.panchang_data).map((activity: string, i: number) => (
+                      {getFavorableActivities(panchangData).map((activity: string, i: number) => (
                         <li key={i}>• {activity}</li>
                       ))}
                     </ul>
@@ -669,7 +694,7 @@ export default function DashboardPage() {
                   <div>
                     <p className="font-medium text-red-800 mb-1">⚠️ Avoid Today:</p>
                     <ul className="text-red-700 space-y-1">
-                      {getUnfavorableActivities(panchangData.panchang_data).map((activity: string, i: number) => (
+                      {getUnfavorableActivities(panchangData).map((activity: string, i: number) => (
                         <li key={i}>• {activity}</li>
                       ))}
                     </ul>
@@ -694,7 +719,7 @@ export default function DashboardPage() {
           <CardContent>
             <div className="space-y-4">
               {/* Auspicious times */}
-              {panchangData.auspicious_times?.abhijit_muhurta && (
+              {panchangData?.abhijit_muhurta_start && (
                 <div className="p-4 bg-white rounded-lg border-2 border-green-300">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-green-100 rounded-lg">
@@ -703,7 +728,7 @@ export default function DashboardPage() {
                     <div className="flex-1">
                       <h4 className="font-bold text-green-900 mb-1">Abhijit Muhurta - Peak Auspicious Time</h4>
                       <p className="text-lg font-mono text-green-700 mb-2">
-                        {panchangData.auspicious_times.abhijit_muhurta.start} - {panchangData.auspicious_times.abhijit_muhurta.end}
+                        {panchangData.abhijit_muhurta_start} - {panchangData.abhijit_muhurta_end}
                       </p>
                       <p className="text-sm text-green-800 mb-2">
                         The most auspicious time of the day. Best for starting new ventures, making important decisions, and spiritual practices.
@@ -719,7 +744,7 @@ export default function DashboardPage() {
               )}
 
               {/* Rahu Kaal warning */}
-              {panchangData.inauspicious_times?.rahu_kaal && (
+              {panchangData?.rahukaal_start && (
                 <div className="p-4 bg-white rounded-lg border-2 border-red-300">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-red-100 rounded-lg">
@@ -728,7 +753,7 @@ export default function DashboardPage() {
                     <div className="flex-1">
                       <h4 className="font-bold text-red-900 mb-1">Rahu Kaal - Inauspicious Period</h4>
                       <p className="text-lg font-mono text-red-700 mb-2">
-                        {panchangData.inauspicious_times.rahu_kaal.start} - {panchangData.inauspicious_times.rahu_kaal.end}
+                        {panchangData.rahukaal_start} - {panchangData.rahukaal_end}
                       </p>
                       <p className="text-sm text-red-800 mb-2">
                         Avoid starting new work, important meetings, or travel during this time. Good for routine tasks and spiritual practices.
@@ -819,7 +844,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Today's nakshatra energy */}
-              {panchangData?.panchang_data?.nakshatra && (
+              {panchangData?.nakshatra && (
                 <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-l-4 border-green-500 hover:shadow-md transition-all">
                   <div className="flex items-start gap-3">
                     <div className="p-2 bg-green-100 rounded-full">
@@ -828,9 +853,9 @@ export default function DashboardPage() {
                     <div>
                       <h4 className="font-semibold text-green-900 mb-1">Today's Stellar Energy</h4>
                       <p className="text-sm text-green-800">
-                        {panchangData.panchang_data.nakshatra.name} Nakshatra brings {' '}
-                        {panchangData.panchang_data.nakshatra.quality || 'transformative energy'}.
-                        Ruled by {panchangData.panchang_data.nakshatra.lord || 'cosmic forces'},
+                        {panchangData.nakshatra.nakshatra_name} Nakshatra brings {' '}
+                        {panchangData.nakshatra.nakshatra_quality || 'transformative energy'}.
+                        Ruled by {panchangData.nakshatra.nakshatra_lord || 'cosmic forces'},
                         this energy supports spiritual growth and mindful actions.
                       </p>
                     </div>
@@ -1340,13 +1365,4 @@ function getPlanetaryThemes(planet: string): string {
     Ketu: 'Moksha, research, intuition',
   }
   return themes[planet] || 'Growth and transformation'
-}
-
-// Add missing icon component
-function Sun(props: any) {
-  return <Sunrise {...props} />
-}
-
-function Sunset(props: any) {
-  return <Sunrise {...props} />
 }
