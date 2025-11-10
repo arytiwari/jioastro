@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field, validator
 from datetime import date, time, datetime
-from typing import Optional, Literal
+from typing import Optional, Literal, Dict, Any
 from uuid import UUID
 
 
@@ -15,6 +15,7 @@ class ProfileBase(BaseModel):
     birth_lat: float = Field(..., ge=-90, le=90)
     birth_lon: float = Field(..., ge=-180, le=180)
     birth_city: Optional[str] = Field(None, max_length=100)
+    city_id: Optional[int] = Field(None, description="Foreign key to cities table")
     birth_timezone: Optional[str] = Field(None, max_length=50)
     gender: Optional[Literal["male", "female", "other"]] = Field(
         None,
@@ -42,6 +43,8 @@ class ProfileUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     gender: Optional[Literal["male", "female", "other"]] = None
     is_primary: Optional[bool] = None
+    birth_city: Optional[str] = Field(None, max_length=100)
+    city_id: Optional[int] = Field(None, description="Foreign key to cities table")
 
 
 class ProfileResponse(ProfileBase):
@@ -50,6 +53,7 @@ class ProfileResponse(ProfileBase):
     id: UUID
     user_id: UUID
     created_at: datetime
+    city: Optional[Dict[str, Any]] = Field(None, description="City information from cities table")
 
     class Config:
         from_attributes = True

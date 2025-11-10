@@ -52,11 +52,34 @@ export default function NewProfilePage() {
 
   const createProfileMutation = useMutation({
     mutationFn: async (payload: typeof formData) => {
+      // Parse city and state from birth_city (format: "City, State" or just "City")
+      const birthCityParts = payload.birth_city.split(',').map(s => s.trim())
+      const cityName = birthCityParts[0] || payload.birth_city
+      const stateName = birthCityParts[1] || 'Unknown'
+
+      // Find or create city in database for persistence
+      let cityId: number | undefined
+      try {
+        const cityResponse = await apiClient.findOrCreateCity({
+          name: cityName,
+          state: stateName,
+          latitude: parseFloat(payload.birth_lat),
+          longitude: parseFloat(payload.birth_lon),
+          display_name: payload.birth_city
+        })
+        cityId = cityResponse.data.id
+        console.log('✅ City saved/found:', cityResponse.data.display_name)
+      } catch (cityError) {
+        console.warn('Failed to save city, proceeding without city_id:', cityError)
+        // Continue with profile creation even if city save fails
+      }
+
       const data = {
         ...payload,
         birth_lat: parseFloat(payload.birth_lat),
         birth_lon: parseFloat(payload.birth_lon),
         gender: payload.gender || undefined, // Send undefined if empty to omit from request
+        city_id: cityId, // NEW: Link to cities table
       }
       const response = await apiClient.createProfile(data)
       return response.data

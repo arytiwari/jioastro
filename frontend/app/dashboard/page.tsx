@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useQuery } from '@/lib/query'
+import { useQuery, useQueryClient } from '@/lib/query'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, User, MessageSquare, Star } from '@/components/icons'
+import { Plus, User, MessageSquare, Star, Trash2 } from '@/components/icons'
 
 export default function DashboardPage() {
+  const [deletingProfile, setDeletingProfile] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+
   const { data: profiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['profiles'],
     queryFn: async () => {
@@ -32,6 +35,30 @@ export default function DashboardPage() {
       return response.data
     },
   })
+
+  const handleDeleteProfile = async (profileId: string, profileName: string) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${profileName}"?\n\nThis will permanently delete:\n• Birth profile\n• All associated charts (D1, D9, Moon)\n• All chart calculations\n\nThis action cannot be undone.`
+    )
+
+    if (!confirmed) return
+
+    try {
+      setDeletingProfile(profileId)
+      await apiClient.deleteProfile(profileId)
+
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries(['profiles'])
+
+      // Show success message
+      alert('Profile deleted successfully!')
+    } catch (error) {
+      console.error('Failed to delete profile:', error)
+      alert('Failed to delete profile. Please try again.')
+    } finally {
+      setDeletingProfile(null)
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -102,11 +129,11 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 {profiles.slice(0, 3).map((profile: any) => (
                   <div key={profile.id} className="p-3 border rounded-lg hover:border-jio-300 transition-colors">
-                    <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center justify-between mb-2">
                       <div>
                         <p className="font-semibold">{profile.name}</p>
                         <p className="text-xs text-gray-600">
-                          {new Date(profile.birth_date).toLocaleDateString()}
+                          {new Date(profile.birth_date).toLocaleDateString()} at {profile.birth_time?.slice(0, 5) || 'N/A'}
                         </p>
                       </div>
                       {profile.is_primary && (
@@ -115,11 +142,38 @@ export default function DashboardPage() {
                         </span>
                       )}
                     </div>
-                    <Link href={`/dashboard/chart/${profile.id}`} className="w-full">
-                      <Button variant="default" size="sm" className="w-full">
-                        View Chart
+                    <div className="text-xs text-gray-600 mb-3 space-y-1">
+                      <p>{profile.city?.display_name || profile.birth_city || 'Unknown'}</p>
+                      <p className="text-gray-500">
+                        {profile.birth_lat?.toFixed(2)}°, {profile.birth_lon?.toFixed(2)}°
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Link href={`/dashboard/chart/${profile.id}`} className="w-full">
+                        <Button variant="default" size="sm" className="w-full">
+                          View Chart
+                        </Button>
+                      </Link>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleDeleteProfile(profile.id, profile.name)}
+                        disabled={deletingProfile === profile.id}
+                      >
+                        {deletingProfile === profile.id ? (
+                          <span className="flex items-center gap-1">
+                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            Deleting...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1">
+                            <Trash2 className="w-3 h-3" />
+                            Delete
+                          </span>
+                        )}
                       </Button>
-                    </Link>
+                    </div>
                   </div>
                 ))}
                 {profiles.length > 3 && (

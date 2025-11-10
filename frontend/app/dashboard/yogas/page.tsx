@@ -9,10 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Sparkles, Award, TrendingUp, BookOpen, Heart, Sun, Star,
-  ChevronDown, ChevronUp, Filter, BarChart, Info
+  ChevronDown, ChevronUp, Filter, BarChart3 as BarChart, Info
 } from '@/components/icons'
 import { YogaDetailsModal } from '@/components/yoga/YogaDetailsModal'
 import { YogaActivationTimeline } from '@/components/yoga/YogaActivationTimeline'
+import MajorYogaCard from '@/components/yoga/MajorYogaCard'
+import ChallengeYogaCard from '@/components/yoga/ChallengeYogaCard'
+import YogaSection from '@/components/yoga/YogaSection'
+import MinorYogasAccordion from '@/components/yoga/MinorYogasAccordion'
 
 interface Profile {
   id: string
@@ -25,6 +29,12 @@ interface Yoga {
   description: string
   strength: string
   category: string
+  impact?: string
+  importance?: string
+  life_area?: string
+  planets_involved?: string[]
+  houses_involved?: number[]
+  benefic_nature?: string
 }
 
 // Yoga category icons and colors
@@ -157,7 +167,40 @@ export default function YogasPage() {
     return filtered
   }
 
+  const getCategorizedYogas = () => {
+    const majorPositive: Yoga[] = []
+    const majorChallenge: Yoga[] = []
+    const moderate: Yoga[] = []
+    const minorPositive: Yoga[] = []
+    const minorChallenge: Yoga[] = []
+
+    yogas.forEach(yoga => {
+      const importance = yoga.importance || 'minor'
+      const impact = yoga.impact || 'positive'
+
+      if (importance === 'major') {
+        if (impact === 'positive') {
+          majorPositive.push(yoga)
+        } else {
+          majorChallenge.push(yoga)
+        }
+      } else if (importance === 'moderate') {
+        moderate.push(yoga)
+      } else {
+        // minor
+        if (impact === 'negative' || impact === 'mixed') {
+          minorChallenge.push(yoga)
+        } else {
+          minorPositive.push(yoga)
+        }
+      }
+    })
+
+    return { majorPositive, majorChallenge, moderate, minorPositive, minorChallenge }
+  }
+
   const filteredYogas = getFilteredYogas()
+  const categorizedYogas = getCategorizedYogas()
 
   if (loading) {
     return (
@@ -361,71 +404,101 @@ export default function YogasPage() {
             </CardContent>
           </Card>
 
-          {/* Yoga List */}
-          <div className="space-y-3">
-            {filteredYogas.map((yoga, index) => {
-              const categoryConfig = CATEGORY_CONFIG[yoga.category] || {
-                icon: Star,
-                color: 'text-gray-700',
-                bg: 'bg-gray-50',
-                border: 'border-gray-300'
-              }
-              const Icon = categoryConfig.icon
-              const strengthConfig = STRENGTH_CONFIG[yoga.strength] || STRENGTH_CONFIG['Weak']
-              const isExpanded = expandedYogas.has(index)
+          {/* Categorized Yoga Display */}
+          <div className="space-y-12">
+            {/* Major Positive Yogas */}
+            {categorizedYogas.majorPositive.length > 0 && (
+              <YogaSection
+                title="🌟 Major Positive Yogas"
+                description="Life-changing yogas with significant positive impact on your destiny"
+                icon={<Star className="w-10 h-10 text-yellow-500 fill-yellow-500" />}
+              >
+                {categorizedYogas.majorPositive.map((yoga, index) => (
+                  <MajorYogaCard
+                    key={index}
+                    yoga={yoga}
+                    onClick={() => handleYogaDetails(yoga)}
+                  />
+                ))}
+              </YogaSection>
+            )}
 
-              return (
-                <Card key={index} className={`${strengthConfig.color} hover:shadow-md transition-shadow`}>
-                  <CardHeader className="cursor-pointer" onClick={() => toggleYoga(index)}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-3 flex-1">
-                        <div className={`w-10 h-10 rounded-full ${categoryConfig.bg} flex items-center justify-center flex-shrink-0 border-2 ${categoryConfig.border}`}>
-                          <Icon className={`w-5 h-5 ${categoryConfig.color}`} />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <CardTitle className="text-lg">{yoga.name}</CardTitle>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${strengthConfig.badge}`}>
-                              {yoga.strength}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${categoryConfig.bg} ${categoryConfig.color} border ${categoryConfig.border}`}>
-                              {yoga.category}
-                            </span>
+            {/* Major Challenge Yogas */}
+            {categorizedYogas.majorChallenge.length > 0 && (
+              <YogaSection
+                title="⚠️ Major Challenges & Transformations"
+                description="Important yogas requiring attention and offering transformation opportunities"
+                icon={<Sun className="w-10 h-10 text-orange-500" />}
+              >
+                {categorizedYogas.majorChallenge.map((yoga, index) => (
+                  <ChallengeYogaCard
+                    key={index}
+                    yoga={yoga}
+                    onClick={() => handleYogaDetails(yoga)}
+                  />
+                ))}
+              </YogaSection>
+            )}
+
+            {/* Moderate Yogas */}
+            {categorizedYogas.moderate.length > 0 && (
+              <YogaSection
+                title="📊 Standard Yogas"
+                description="Important yogas with notable effects on various life areas"
+                icon={<BarChart className="w-10 h-10 text-blue-500" />}
+              >
+                {categorizedYogas.moderate.map((yoga, index) => {
+                  const categoryConfig = CATEGORY_CONFIG[yoga.category] || {
+                    icon: Star,
+                    color: 'text-gray-700',
+                    bg: 'bg-gray-50',
+                    border: 'border-gray-300'
+                  }
+                  const Icon = categoryConfig.icon
+                  const strengthConfig = STRENGTH_CONFIG[yoga.strength] || STRENGTH_CONFIG['Weak']
+
+                  return (
+                    <Card
+                      key={index}
+                      className={`${strengthConfig.color} hover:shadow-md transition-shadow cursor-pointer`}
+                      onClick={() => handleYogaDetails(yoga)}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-full ${categoryConfig.bg} flex items-center justify-center flex-shrink-0 border-2 ${categoryConfig.border}`}>
+                            <Icon className={`w-5 h-5 ${categoryConfig.color}`} />
                           </div>
-                          {!isExpanded && (
-                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">{yoga.description}</p>
-                          )}
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap mb-2">
+                              <CardTitle className="text-lg">{yoga.name}</CardTitle>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${strengthConfig.badge}`}>
+                                {yoga.strength}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 line-clamp-2">{yoga.description}</p>
+                          </div>
                         </div>
-                      </div>
-                      <button className="p-1 hover:bg-gray-100 rounded">
-                        {isExpanded ? (
-                          <ChevronUp className="w-5 h-5 text-gray-600" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-600" />
-                        )}
-                      </button>
-                    </div>
-                  </CardHeader>
-                  {isExpanded && (
-                    <CardContent>
-                      <p className="text-gray-700 leading-relaxed mb-4">{yoga.description}</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleYogaDetails(yoga)
-                        }}
-                        className="flex items-center gap-2"
-                      >
-                        <Info className="w-4 h-4" />
-                        View Full Details
-                      </Button>
-                    </CardContent>
-                  )}
-                </Card>
-              )
-            })}
+                      </CardHeader>
+                    </Card>
+                  )
+                })}
+              </YogaSection>
+            )}
+
+            {/* Minor Yogas */}
+            {(categorizedYogas.minorPositive.length > 0 || categorizedYogas.minorChallenge.length > 0) && (
+              <div className="space-y-4">
+                <h2 className="text-3xl font-bold text-gray-900">Minor Yogas & Subtle Influences</h2>
+                <p className="text-gray-600 text-lg">
+                  Supporting yogas with mild effects - expand to explore
+                </p>
+                <MinorYogasAccordion
+                  positiveYogas={categorizedYogas.minorPositive}
+                  challengeYogas={categorizedYogas.minorChallenge}
+                  onYogaClick={handleYogaDetails}
+                />
+              </div>
+            )}
           </div>
 
           {/* Yoga Details Modal */}

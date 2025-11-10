@@ -665,14 +665,14 @@ class AccurateVedicAstrology:
             navamsa_house = ((navamsa_pos["sign_num"] - navamsa_asc_sign) % 12) + 1
 
             # Get D1 special states
-            is_retrograde = planet_data["retrograde"]
+            is_retrograde = planet_data.get("retrograde", False)
 
             navamsa_planets[planet_name] = {
                 **navamsa_pos,
                 "house": navamsa_house,
                 "retrograde": is_retrograde,
                 "d1_sign": planet_data["sign"],
-                "nakshatra": planet_data["nakshatra"],
+                "nakshatra": planet_data.get("nakshatra", ""),
                 # Add special states for D9 chart
                 "exalted": self._is_exalted(planet_name, navamsa_pos["sign_num"]),
                 "debilitated": self._is_debilitated(planet_name, navamsa_pos["sign_num"]),
@@ -797,7 +797,18 @@ class AccurateVedicAstrology:
                 seen.add(yoga["name"])
                 unique_yogas.append(yoga)
 
-        return unique_yogas
+        # Enrich basic yogas (extended yogas are already enriched by detect_extended_yogas)
+        # Only enrich yogas that don't have importance field (i.e., basic yogas)
+        enriched_yogas = []
+        for yoga in unique_yogas:
+            if "importance" not in yoga:
+                # This is a basic yoga, enrich it
+                enriched_yogas.append(extended_yoga_service._enrich_yoga_with_metadata(yoga))
+            else:
+                # This is already enriched (from extended yogas)
+                enriched_yogas.append(yoga)
+
+        return enriched_yogas
 
     def calculate_moon_chart(
         self,
@@ -844,9 +855,9 @@ class AccurateVedicAstrology:
                 "degree": planet_data["degree"],
                 "longitude": planet_data["longitude"],
                 "speed": planet_data.get("speed", 0),
-                "retrograde": planet_data["retrograde"],
+                "retrograde": planet_data.get("retrograde", False),
                 "house": house_from_moon,
-                "nakshatra": planet_data["nakshatra"],
+                "nakshatra": planet_data.get("nakshatra", ""),
                 "d1_house": planet_data["house"],  # Original house from birth chart
                 # Copy all special states from D1
                 "exalted": planet_data.get("exalted", False),

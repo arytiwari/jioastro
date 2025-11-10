@@ -6,7 +6,7 @@ import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Plus, Calendar, MapPin, Star } from '@/components/icons'
+import { Plus, Calendar, MapPin, Star, Edit } from '@/components/icons'
 import { formatDate, formatTime } from '@/lib/utils'
 
 export default function ProfilesPage() {
@@ -85,42 +85,46 @@ export default function ProfilesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {profiles.map((profile: any) => (
-            <Link key={profile.id} href={`/dashboard/chart/${profile.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-xl">{profile.name}</CardTitle>
-                    {profile.is_primary && (
-                      <span className="text-xs bg-jio-100 text-jio-700 px-2 py-1 rounded font-semibold">
-                        Primary
-                      </span>
-                    )}
+            <Card key={profile.id} className="h-full">
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-xl">{profile.name}</CardTitle>
+                  {profile.is_primary && (
+                    <span className="text-xs bg-jio-100 text-jio-700 px-2 py-1 rounded font-semibold">
+                      Primary
+                    </span>
+                  )}
+                </div>
+                <CardDescription className="flex items-center gap-1 mt-2">
+                  <Calendar className="w-3 h-3" />
+                  {formatDate(profile.birth_date)} at {formatTime(profile.birth_time)}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    <span>{profile.city?.display_name || profile.birth_city || 'Unknown'}</span>
                   </div>
-                  <CardDescription className="flex items-center gap-1 mt-2">
-                    <Calendar className="w-3 h-3" />
-                    {formatDate(profile.birth_date)} at {formatTime(profile.birth_time)}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm text-gray-600">
-                    {profile.birth_city && (
-                      <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4" />
-                        <span>{profile.birth_city}</span>
-                      </div>
-                    )}
-                    <div className="text-xs text-gray-500">
-                      {profile.birth_lat.toFixed(2)}°, {profile.birth_lon.toFixed(2)}°
-                    </div>
+                  <div className="text-xs text-gray-500">
+                    {profile.birth_lat.toFixed(2)}°, {profile.birth_lon.toFixed(2)}°
                   </div>
-                  <div className="mt-4">
-                    <Button variant="default" className="w-full">
+                </div>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <Link href={`/dashboard/chart/${profile.id}`} className="w-full">
+                    <Button variant="default" size="sm" className="w-full">
                       View Chart
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+                  </Link>
+                  <Link href={`/dashboard/profiles/${profile.id}/edit`} className="w-full">
+                    <Button variant="outline" size="sm" className="w-full">
+                      <Edit className="w-3 h-3 mr-1" />
+                      Edit
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

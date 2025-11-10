@@ -16,7 +16,7 @@ import { DivisionalChartsDisplay } from '@/components/chart/DivisionalChartsDisp
 import { DoshaDisplay } from '@/components/chart/DoshaDisplay'
 import { TransitsDisplay } from '@/components/chart/TransitsDisplay'
 import { AstroTerm } from '@/components/AstroTerm'
-import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw } from '@/components/icons'
+import { ArrowLeft, Calendar, MapPin, Sparkles, Download, RefreshCw, Edit } from '@/components/icons'
 import Link from 'next/link'
 import { formatDate, formatTime } from '@/lib/utils'
 
@@ -181,17 +181,21 @@ export default function EnhancedChartPage() {
                 <Calendar className="w-4 h-4" />
                 {formatDate(profile.birth_date)} at {formatTime(profile.birth_time)}
               </span>
-              {profile.birth_city && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4" />
-                  {profile.birth_city}
-                </span>
-              )}
+              <span className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                {profile.city?.display_name || profile.birth_city || 'Unknown'}
+              </span>
             </div>
           </div>
         </div>
 
         <div className="flex gap-2">
+          <Link href={`/dashboard/profiles/${profileId}/edit`}>
+            <Button variant="outline">
+              <Edit className="w-4 h-4 mr-2" />
+              Edit Profile
+            </Button>
+          </Link>
           <Link href="/dashboard/ask">
             <Button>
               <Sparkles className="w-4 h-4 mr-2" />

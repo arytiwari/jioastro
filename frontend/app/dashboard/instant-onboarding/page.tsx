@@ -189,6 +189,28 @@ export default function InstantOnboardingPage() {
     try {
       await apiClient.loadToken()
 
+      // Parse city and state from birth_place (format: "City, State")
+      const birthPlaceParts = formData.birth_place.split(',').map(s => s.trim())
+      const cityName = birthPlaceParts[0] || formData.birth_place
+      const stateName = birthPlaceParts[1] || 'Unknown'
+
+      // Find or create city in database for persistence
+      let cityId: number | undefined
+      try {
+        const cityResponse = await apiClient.findOrCreateCity({
+          name: cityName,
+          state: stateName,
+          latitude: parseFloat(formData.latitude),
+          longitude: parseFloat(formData.longitude),
+          display_name: formData.birth_place
+        })
+        cityId = cityResponse.data.id
+        console.log('✅ City saved/found:', cityResponse.data.display_name)
+      } catch (cityError) {
+        console.warn('Failed to save city, proceeding without city_id:', cityError)
+        // Continue with profile creation even if city save fails
+      }
+
       const profileData = {
         name: formData.name,
         gender: formData.gender || undefined, // Send undefined if empty to omit from request
@@ -197,6 +219,7 @@ export default function InstantOnboardingPage() {
         birth_lat: parseFloat(formData.latitude),
         birth_lon: parseFloat(formData.longitude),
         birth_city: formData.birth_place,
+        city_id: cityId, // Link to cities table
         birth_timezone: 'Asia/Kolkata',
         is_primary: false
       }

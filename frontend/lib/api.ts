@@ -218,6 +218,13 @@ class APIClient {
     })
   }
 
+  async updateProfile(id: string, data: any) {
+    return this.request(`/profiles/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+  }
+
   // City endpoints
   async getCities(search?: string, state?: string, limit = 100) {
     const params = new URLSearchParams()
@@ -233,6 +240,52 @@ class APIClient {
 
   async getCity(id: number) {
     return this.request(`/cities/${id}`)
+  }
+
+  async findOrCreateCity(cityData: {
+    name: string
+    state: string
+    latitude: number
+    longitude: number
+    display_name?: string
+  }) {
+    return this.request('/cities/find-or-create', {
+      method: 'POST',
+      body: JSON.stringify(cityData),
+    })
+  }
+
+  // Admin city endpoints
+  async createCity(cityData: {
+    name: string
+    state: string
+    latitude: number
+    longitude: number
+    display_name?: string
+  }) {
+    return this.request('/cities', {
+      method: 'POST',
+      body: JSON.stringify(cityData),
+    })
+  }
+
+  async updateCity(id: number, cityData: {
+    name?: string
+    state?: string
+    latitude?: number
+    longitude?: number
+    display_name?: string
+  }) {
+    return this.request(`/cities/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(cityData),
+    })
+  }
+
+  async deleteCity(id: number) {
+    return this.request(`/cities/${id}`, {
+      method: 'DELETE',
+    })
   }
 
   // Chart endpoints

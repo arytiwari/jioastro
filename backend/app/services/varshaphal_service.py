@@ -818,7 +818,7 @@ class VarshapalService:
             end = dasha_period['end_date']
 
             monthly.append({
-                'period': f"{start.strftime('%B')} - {end.strftime('%B %Y')}",
+                'period': f"{start.strftime('%B %Y')} - {end.strftime('%B %Y')}",
                 'ruling_planet': planet,
                 'theme': self._get_monthly_theme(planet),
                 'focus_areas': self._get_focus_areas(planet),
@@ -881,7 +881,7 @@ class VarshapalService:
         for dasha in patyayini_dasha:
             if dasha['planet'] in ['Jupiter', 'Venus', 'Mercury']:
                 best.append({
-                    'period': f"{dasha['start_date'].strftime('%B')} - {dasha['end_date'].strftime('%B')}",
+                    'period': f"{dasha['start_date'].strftime('%B %Y')} - {dasha['end_date'].strftime('%B %Y')}",
                     'reason': f"{dasha['planet']} period brings positive results",
                     'utilize_for': self._get_utilization_advice(dasha['planet']),
                 })
@@ -900,7 +900,7 @@ class VarshapalService:
         for dasha in patyayini_dasha:
             if dasha['planet'] in ['Saturn', 'Mars', 'Rahu']:
                 worst.append({
-                    'period': f"{dasha['start_date'].strftime('%B')} - {dasha['end_date'].strftime('%B')}",
+                    'period': f"{dasha['start_date'].strftime('%B %Y')} - {dasha['end_date'].strftime('%B %Y')}",
                     'reason': f"{dasha['planet']} period requires caution",
                     'precautions': self._get_precautions(dasha['planet']),
                 })

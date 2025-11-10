@@ -47,13 +47,18 @@ class SupabaseService:
         return response.data[0] if response.data else None
 
     async def get_profiles(self, user_id: str) -> List[Dict[str, Any]]:
-        """Get all profiles for a user"""
-        response = self.client.table("profiles").select("*").eq("user_id", user_id).order("is_primary", desc=True).order("created_at", desc=True).execute()
+        """Get all profiles for a user - optimized to select only essential fields"""
+        # Select all required fields for ProfileResponse schema validation
+        # Join with cities table to get city information
+        response = self.client.table("profiles").select(
+            "id, user_id, name, birth_date, birth_time, birth_lat, birth_lon, birth_city, city_id, birth_timezone, gender, is_primary, created_at, city:city_id(id, name, state, latitude, longitude, display_name)"
+        ).eq("user_id", user_id).order("is_primary", desc=True).order("created_at", desc=True).execute()
         return response.data if response.data else []
 
     async def get_profile(self, profile_id: str, user_id: str = None) -> Optional[Dict[str, Any]]:
         """Get a specific profile - user_id is optional for admin access"""
-        query = self.client.table("profiles").select("*").eq("id", profile_id)
+        # Join with cities table to get city information
+        query = self.client.table("profiles").select("*, city:city_id(id, name, state, latitude, longitude, display_name)").eq("id", profile_id)
         if user_id:
             query = query.eq("user_id", user_id)
         response = query.execute()
@@ -65,8 +70,14 @@ class SupabaseService:
         if update_data.get("is_primary"):
             self.client.table("profiles").update({"is_primary": False}).eq("user_id", user_id).execute()
 
+        # Update the profile
         response = self.client.table("profiles").update(update_data).eq("id", profile_id).eq("user_id", user_id).execute()
-        return response.data[0] if response.data else None
+
+        if not response.data:
+            return None
+
+        # Re-fetch the profile with city JOIN to get complete data
+        return await self.get_profile(profile_id, user_id)
 
     async def delete_profile(self, profile_id: str, user_id: str = None) -> bool:
         """Delete a profile - user_id is optional for admin deletion"""
@@ -108,9 +119,12 @@ class SupabaseService:
         response = self.client.table("queries").insert(data).execute()
         return response.data[0] if response.data else None
 
-    async def get_queries(self, user_id: str, limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
-        """Get queries for a user"""
-        response = self.client.table("queries").select("*, responses(*)").eq("user_id", user_id).order("created_at", desc=True).range(offset, offset + limit - 1).execute()
+    async def get_queries(self, user_id: str, limit: int = 20, offset: int = 0, include_responses: bool = False) -> List[Dict[str, Any]]:
+        """Get queries for a user - optimized to optionally exclude responses for better performance"""
+        # For dashboard/list view, we don't need full responses - only select responses if explicitly requested
+        select_fields = "*, responses(*)" if include_responses else "id, question, profile_id, created_at"
+
+        response = self.client.table("queries").select(select_fields).eq("user_id", user_id).order("created_at", desc=True).range(offset, offset + limit - 1).execute()
         print(f"📊 Supabase get_queries raw response: {response.data[:2] if response.data else []}")
         return response.data if response.data else []
 

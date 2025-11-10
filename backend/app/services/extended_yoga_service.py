@@ -374,7 +374,8 @@ class ExtendedYogaService:
         # 95-238: Bhava Yogas (144 complete house lord placements: all 12 lords × 12 positions)
         yogas.extend(self._detect_bhava_yogas(planets))
 
-        return yogas
+        # Enrich all yogas with classification metadata (importance, impact, life_area)
+        return self.enrich_yogas(yogas)
 
     def _detect_pancha_mahapurusha(self, planets: Dict) -> List[Dict]:
         """
@@ -3841,6 +3842,141 @@ class ExtendedYogaService:
             return bhava_effects[lord_house][placement]
 
         return None
+
+    def _classify_yoga_impact(self, name: str, category: str) -> str:
+        """Classify yoga impact: positive, negative, mixed, neutral"""
+        name_lower = name.lower()
+        category_lower = category.lower()
+
+        # Mixed indicators (both challenges and opportunities)
+        mixed_keywords = ["kala sarpa", "viparita", "sanyas", "randhra"]
+        for keyword in mixed_keywords:
+            if keyword in name_lower or keyword in category_lower:
+                return "mixed"
+
+        # Negative indicators
+        negative_keywords = ["dosha", "kemadruma", "daridra", "shakata", "balarishta", "grahan", "pitra", "manglik", "kroora"]
+        for keyword in negative_keywords:
+            if keyword in name_lower or keyword in category_lower:
+                return "negative"
+
+        # Positive indicators
+        positive_keywords = ["raj yoga", "dhana", "mahapurusha", "adhi yoga", "labha", "putra", "gajakesari", "kubera", "lakshmi", "sukha"]
+        for keyword in positive_keywords:
+            if keyword in name_lower or keyword in category_lower:
+                return "positive"
+
+        # Category-based
+        if any(c in category_lower for c in ["challenge", "obstacle"]):
+            return "negative"
+        if any(c in category_lower for c in ["wealth", "power", "fame", "learning"]):
+            return "positive"
+
+        return "positive"  # Default
+
+    def _classify_yoga_importance(self, name: str, strength: str, category: str) -> str:
+        """Classify yoga importance: major, moderate, minor"""
+        name_lower = name.lower()
+        category_lower = category.lower()
+
+        # Major yogas - life-changing combinations
+        major_keywords = [
+            # Pancha Mahapurusha Yogas (5 great person yogas)
+            "hamsa", "malavya", "sasa", "ruchaka", "bhadra",
+            # Major Raj Yogas
+            "raj yoga", "neecha bhanga",
+            # Major Dhana Yogas
+            "kubera", "lakshmi", "dhana yoga",
+            # Major benefic yogas
+            "gajakesari", "gaja kesari", "adhi yoga", "vasumathi",
+            # Major challenging yogas
+            "kala sarpa", "kemadruma", "daridra", "shakata",
+            # Doshas (major afflictions)
+            "manglik", "grahan", "pitra", "kaal sarp"
+        ]
+
+        for keyword in major_keywords:
+            if keyword in name_lower:
+                return "major"
+
+        # Category-based major classification
+        if "mahapurusha" in category_lower:
+            return "major"
+
+        if "pancha mahapurusha" in category_lower:
+            return "major"
+
+        # Raj Yoga category is always major
+        if "raj yoga" in category_lower or "raja yoga" in category_lower:
+            return "major"
+
+        # Major Dhana Yogas
+        if "dhana yoga" in category_lower and strength in ["Very Strong", "Strong"]:
+            return "major"
+
+        # Very strong yogas in important categories are major
+        if strength == "Very Strong" and any(c in category_lower for c in ["wealth", "power", "fame", "learning", "challenge"]):
+            return "major"
+
+        # Moderate yogas - significant but not life-defining
+        moderate_keywords = [
+            "nabhasa", "sanyas", "yoga", "bhanga", "nitya",
+            "veshi", "vasi", "obhayachari", "budhaditya", "chandra mangal",
+            "guru mangal", "parivartana", "viparita"
+        ]
+
+        # Nabhasa yogas are moderate
+        if "nabhasa" in category_lower:
+            return "moderate"
+
+        # Sanyas yogas are moderate
+        if "sanyas" in category_lower or "sanyasa" in category_lower:
+            return "moderate"
+
+        # Strong yogas not already classified as major
+        if strength in ["Very Strong", "Strong"]:
+            return "moderate"
+
+        # Check if any moderate keyword is present
+        for keyword in moderate_keywords:
+            if keyword in name_lower and strength in ["Strong", "Medium"]:
+                return "moderate"
+
+        # Default to minor
+        return "minor"
+
+    def _categorize_life_area(self, category: str, name: str = "") -> str:
+        """Categorize yoga by primary life area"""
+        combined = f"{category.lower()} {name.lower() if name else ''}"
+
+        if any(k in combined for k in ["wealth", "dhana", "kubera", "lakshmi", "labha"]):
+            return "Wealth"
+        if any(k in combined for k in ["power", "status", "fame", "authority", "karma"]):
+            return "Career & Status"
+        if any(k in combined for k in ["kalatra", "marriage", "partnership"]):
+            return "Relationships"
+        if any(k in combined for k in ["learning", "wisdom", "intelligence", "spirituality", "sanyas", "moksha", "dharma"]):
+            return "Spirituality & Wisdom"
+        if any(k in combined for k in ["putra", "children"]):
+            return "Children & Family"
+        if any(k in combined for k in ["challenge", "obstacle", "dosha", "ripu"]):
+            return "Challenges"
+        if any(k in combined for k in ["health", "longevity"]):
+            return "Health"
+
+        return "General"
+
+    def _enrich_yoga_with_metadata(self, yoga: Dict) -> Dict:
+        """Enrich a yoga with classification metadata"""
+        enriched = yoga.copy()
+        enriched["impact"] = self._classify_yoga_impact(yoga["name"], yoga["category"])
+        enriched["importance"] = self._classify_yoga_importance(yoga["name"], yoga.get("strength", "Medium"), yoga["category"])
+        enriched["life_area"] = self._categorize_life_area(yoga["category"], yoga["name"])
+        return enriched
+
+    def enrich_yogas(self, yogas: List[Dict]) -> List[Dict]:
+        """Enrich all yogas with classification metadata"""
+        return [self._enrich_yoga_with_metadata(yoga) for yoga in yogas]
 
 
 # Global instance

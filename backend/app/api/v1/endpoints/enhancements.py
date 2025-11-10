@@ -653,6 +653,9 @@ async def analyze_yogas(
         # Detect yogas
         yogas = extended_yoga_service.detect_extended_yogas(planets)
 
+        # Enrich with classification metadata
+        yogas = extended_yoga_service.enrich_yogas(yogas)
+
         # Filter if needed
         if not request.include_all:
             yogas = [y for y in yogas if y.get('strength') in ['Very Strong', 'Strong']]
