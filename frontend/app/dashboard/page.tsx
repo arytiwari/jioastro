@@ -90,6 +90,25 @@ export default function DashboardPage() {
     enabled: !!primaryProfile,
   })
 
+  // Fetch chart data for yogas and cosmic alerts
+  const { data: chartData } = useQuery({
+    queryKey: ['chart-d1', primaryProfile?.id],
+    queryFn: async () => {
+      if (!primaryProfile) return null
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/charts/${primaryProfile.id}/D1`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('supabase_token')}`,
+          },
+        }
+      )
+      if (!response.ok) return null
+      return response.json()
+    },
+    enabled: !!primaryProfile,
+  })
+
   // Helper functions
   const getGreeting = () => {
     const hour = currentTime.getHours()
@@ -475,6 +494,262 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {/* PHASE 2: COSMIC ALERTS - Active Yogas & Influences */}
+      {chartData?.chart_data?.yogas && primaryProfile && (
+        <Card className="border-2 border-amber-200 shadow-lg bg-gradient-to-br from-amber-50 to-orange-50">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <Zap className="w-6 h-6 text-amber-600" />
+                  Active Cosmic Influences
+                </CardTitle>
+                <CardDescription>Powerful yogas and planetary alignments in your chart</CardDescription>
+              </div>
+              <Badge className="bg-amber-600 text-white">
+                {chartData.chart_data.yogas.length} Active
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {chartData.chart_data.yogas.slice(0, 4).map((yoga: any, index: number) => (
+                <div
+                  key={index}
+                  className="p-4 bg-white rounded-lg border-2 border-amber-200 hover:border-amber-400 transition-all"
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">
+                        {yoga.category === 'Raj Yoga' ? '👑' :
+                         yoga.category === 'Dhana Yoga' ? '💰' :
+                         yoga.category === 'Spiritual' ? '🕉️' : '⭐'}
+                      </span>
+                      <h4 className="font-bold text-lg text-amber-900">{yoga.name}</h4>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={`${
+                        yoga.strength === 'Strong' ? 'border-green-500 text-green-700' :
+                        yoga.strength === 'Medium' ? 'border-yellow-500 text-yellow-700' :
+                        'border-gray-500 text-gray-700'
+                      }`}
+                    >
+                      {yoga.strength || 'Active'}
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2">{yoga.description}</p>
+                  {yoga.planets && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {yoga.planets.map((planet: string, i: number) => (
+                        <Badge key={i} variant="secondary" className="text-xs">
+                          {planet}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {chartData.chart_data.yogas.length > 4 && (
+              <div className="mt-4 text-center">
+                <Link href={`/dashboard/chart/${primaryProfile.id}`}>
+                  <Button variant="outline" className="gap-2">
+                    <Eye className="w-4 h-4" />
+                    View All {chartData.chart_data.yogas.length} Yogas
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* PHASE 2: TODAY'S GUIDANCE - Actionable Recommendations */}
+      {panchangData && currentDasha && primaryProfile && (
+        <Card className="border-2 border-blue-200 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-blue-600" />
+              Today's Cosmic Guidance
+            </CardTitle>
+            <CardDescription>Personalized recommendations for {formatDate(currentTime)}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Dasha-based guidance */}
+              <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Based on Your Current {currentDasha.mahadasha?.planet} Period
+                </h4>
+                <ul className="space-y-2 text-sm text-purple-800">
+                  {getDashaGuidance(currentDasha.mahadasha?.planet || '').map((item: string, i: number) => (
+                    <li key={i} className="flex items-start gap-2">
+                      <span className="text-purple-600 font-bold">→</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Nakshatra-based guidance */}
+              {panchangData.panchang_data?.nakshatra && (
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                    <Star className="w-4 h-4" />
+                    Today's {panchangData.panchang_data.nakshatra.name} Nakshatra Energy
+                  </h4>
+                  <ul className="space-y-2 text-sm text-green-800">
+                    {getNakshatraGuidance(panchangData.panchang_data.nakshatra.name).map((item: string, i: number) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <span className="text-green-600 font-bold">→</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Day quality assessment */}
+              <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border border-blue-200">
+                <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                  <Activity className="w-4 h-4" />
+                  Day Quality & Activities
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="font-medium text-blue-800 mb-1">✅ Favorable For:</p>
+                    <ul className="text-blue-700 space-y-1">
+                      {getFavorableActivities(panchangData.panchang_data).map((activity: string, i: number) => (
+                        <li key={i}>• {activity}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-medium text-red-800 mb-1">⚠️ Avoid Today:</p>
+                    <ul className="text-red-700 space-y-1">
+                      {getUnfavorableActivities(panchangData.panchang_data).map((activity: string, i: number) => (
+                        <li key={i}>• {activity}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* PHASE 2: POWER HOURS - Best Times for Activities */}
+      {panchangData && primaryProfile && (
+        <Card className="border-2 border-green-200 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Clock className="w-6 h-6 text-green-600" />
+              Power Hours Today
+            </CardTitle>
+            <CardDescription>Optimal times for specific activities</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Auspicious times */}
+              {panchangData.auspicious_times?.abhijit_muhurta && (
+                <div className="p-4 bg-white rounded-lg border-2 border-green-300">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-green-100 rounded-lg">
+                      <Sparkles className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-green-900 mb-1">Abhijit Muhurta - Peak Auspicious Time</h4>
+                      <p className="text-lg font-mono text-green-700 mb-2">
+                        {panchangData.auspicious_times.abhijit_muhurta.start} - {panchangData.auspicious_times.abhijit_muhurta.end}
+                      </p>
+                      <p className="text-sm text-green-800 mb-2">
+                        The most auspicious time of the day. Best for starting new ventures, making important decisions, and spiritual practices.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge className="bg-green-600">New Beginnings</Badge>
+                        <Badge className="bg-green-600">Important Decisions</Badge>
+                        <Badge className="bg-green-600">Spiritual Work</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Rahu Kaal warning */}
+              {panchangData.inauspicious_times?.rahu_kaal && (
+                <div className="p-4 bg-white rounded-lg border-2 border-red-300">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-red-100 rounded-lg">
+                      <Zap className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-red-900 mb-1">Rahu Kaal - Inauspicious Period</h4>
+                      <p className="text-lg font-mono text-red-700 mb-2">
+                        {panchangData.inauspicious_times.rahu_kaal.start} - {panchangData.inauspicious_times.rahu_kaal.end}
+                      </p>
+                      <p className="text-sm text-red-800 mb-2">
+                        Avoid starting new work, important meetings, or travel during this time. Good for routine tasks and spiritual practices.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Badge variant="outline" className="border-red-500 text-red-700">Avoid New Starts</Badge>
+                        <Badge variant="outline" className="border-red-500 text-red-700">No Important Meetings</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Activity-specific power hours */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 bg-white rounded-lg border border-blue-200">
+                  <h5 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                    <Briefcase className="w-4 h-4" />
+                    Business & Work
+                  </h5>
+                  <p className="text-sm text-blue-800">
+                    Best: Morning hours (6 AM - 12 PM)
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-lg border border-purple-200">
+                  <h5 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Spiritual Practice
+                  </h5>
+                  <p className="text-sm text-purple-800">
+                    Best: Sunrise & Sunset hours
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-lg border border-pink-200">
+                  <h5 className="font-semibold text-pink-900 mb-2 flex items-center gap-2">
+                    <Heart className="w-4 h-4" />
+                    Relationships
+                  </h5>
+                  <p className="text-sm text-pink-800">
+                    Best: Evening hours (5 PM - 9 PM)
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-lg border border-orange-200">
+                  <h5 className="font-semibold text-orange-900 mb-2 flex items-center gap-2">
+                    <DollarSign className="w-4 h-4" />
+                    Financial Decisions
+                  </h5>
+                  <p className="text-sm text-orange-800">
+                    Best: During Abhijit Muhurta
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
@@ -693,6 +968,123 @@ export default function DashboardPage() {
       )}
     </div>
   )
+}
+
+// Helper functions for guidance sections
+function getDashaGuidance(planet: string): string[] {
+  const guidance: Record<string, string[]> = {
+    Sun: [
+      'Focus on leadership roles and taking initiative in your career',
+      'Good time for seeking recognition and building your public image',
+      'Work on self-confidence and personal authority',
+    ],
+    Moon: [
+      'Prioritize emotional well-being and family relationships',
+      'Trust your intuition in decision-making',
+      'Good time for nurturing projects and creative endeavors',
+    ],
+    Mars: [
+      'Take bold actions on pending projects and overcome obstacles',
+      'Channel energy into physical activities and competitive pursuits',
+      'Good time for property matters and asserting your position',
+    ],
+    Mercury: [
+      'Focus on communication, writing, and intellectual development',
+      'Good time for business dealings and negotiations',
+      'Enhance your skills through courses and learning',
+    ],
+    Jupiter: [
+      'Seek wisdom through education, mentorship, or spiritual practices',
+      'Good time for expansion in business and financial growth',
+      'Focus on teaching, guiding others, and higher knowledge',
+    ],
+    Venus: [
+      'Nurture relationships and focus on love and partnerships',
+      'Good time for creative projects and artistic pursuits',
+      'Focus on luxury, comfort, and material acquisitions',
+    ],
+    Saturn: [
+      'Build strong foundations through discipline and hard work',
+      'Focus on long-term planning and sustainable growth',
+      'Good time for restructuring and eliminating what no longer serves',
+    ],
+    Rahu: [
+      'Embrace unconventional paths and innovative approaches',
+      'Good time for technology, foreign connections, and ambitions',
+      'Be mindful of overambition and maintain ethical standards',
+    ],
+    Ketu: [
+      'Focus on spiritual growth and inner development',
+      'Good time for research, introspection, and letting go',
+      'Seek moksha through meditation and detachment from material',
+    ],
+  }
+  return guidance[planet] || [
+    'Focus on personal growth and self-awareness',
+    'Good time for reflection and planning',
+    'Stay balanced and mindful in all endeavors',
+  ]
+}
+
+function getNakshatraGuidance(nakshatra: string): string[] {
+  // General nakshatra guidance - can be expanded with specific nakshatra data
+  const nakshatraQualities: Record<string, string[]> = {
+    Ashwini: ['Take quick initiatives', 'Good for healing and new beginnings', 'Trust your instincts'],
+    Bharani: ['Focus on transformation', 'Good for completing pending tasks', 'Manage responsibilities well'],
+    Krittika: ['Shine with confidence', 'Good for cutting through obstacles', 'Display leadership'],
+    Rohini: ['Nurture creativity', 'Good for material growth', 'Focus on beauty and aesthetics'],
+    Mrigashira: ['Seek knowledge', 'Good for exploration', 'Follow your curiosity'],
+    Ardra: ['Embrace change', 'Good for transformation', 'Process emotions mindfully'],
+    Punarvasu: ['Return to basics', 'Good for renewal', 'Restore and rebuild'],
+    Pushya: ['Nourish and support', 'Good for spiritual growth', 'Help others generously'],
+    Ashlesha: ['Use wisdom carefully', 'Good for deep insights', 'Navigate complexity with care'],
+  }
+
+  return nakshatraQualities[nakshatra] || [
+    'Today's energy supports balanced actions',
+    'Good for routine work and steady progress',
+    'Stay mindful and present',
+  ]
+}
+
+function getFavorableActivities(panchangData: any): string[] {
+  const activities = []
+
+  // Based on Tithi quality
+  const tithi = panchangData?.tithi?.name || ''
+  if (tithi.includes('Purnima') || tithi.includes('15')) {
+    activities.push('Spiritual practices', 'Meditation', 'Charity')
+  } else if (tithi.includes('Amavasya') || tithi.includes('30')) {
+    activities.push('Ancestor rituals', 'Inner work', 'Completion of tasks')
+  } else {
+    activities.push('Routine work', 'Planning', 'Communication')
+  }
+
+  // Based on Yoga quality
+  const yoga = panchangData?.yoga?.quality || ''
+  if (yoga.toLowerCase().includes('auspicious') || yoga.toLowerCase().includes('good')) {
+    activities.push('Starting new projects', 'Important meetings')
+  }
+
+  return activities.length > 0 ? activities : ['Routine activities', 'Planning', 'Study']
+}
+
+function getUnfavorableActivities(panchangData: any): string[] {
+  const activities = []
+
+  // Based on Karana
+  const karana = panchangData?.karana?.name || ''
+  if (karana.includes('Vishti') || karana.includes('Bhadra')) {
+    activities.push('Starting new ventures', 'Major investments')
+  }
+
+  // Based on Yoga quality
+  const yoga = panchangData?.yoga?.quality || ''
+  if (yoga.toLowerCase().includes('inauspicious') || yoga.toLowerCase().includes('avoid')) {
+    activities.push('Important decisions', 'Long-distance travel')
+  }
+
+  return activities.length > 0 ? activities : ['Hasty decisions', 'Conflicts', 'Impulsive actions']
 }
 
 // Helper functions for planetary insights
