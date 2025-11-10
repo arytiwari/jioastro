@@ -750,6 +750,176 @@ export default function DashboardPage() {
         </Card>
       )}
 
+      {/* PHASE 3: COSMIC INSIGHTS FEED */}
+      {primaryProfile && (
+        <Card className="border-2 border-indigo-200 shadow-lg">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Sparkles className="w-6 h-6 text-indigo-600 animate-pulse" />
+              Your Cosmic Insights
+            </CardTitle>
+            <CardDescription>Personalized guidance and upcoming energies</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {/* Current energy insight */}
+              <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border-l-4 border-indigo-500 hover:shadow-md transition-all">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 bg-indigo-100 rounded-full">
+                    <TrendingUp className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-indigo-900 mb-1">Current Life Phase</h4>
+                    <p className="text-sm text-indigo-800">
+                      You're in {currentDasha?.mahadasha?.planet || 'a transformative'} period.
+                      This is an excellent time for {getPlanetaryFocus(currentDasha?.mahadasha?.planet || '')}.
+                      Focus on building momentum in areas ruled by this energy.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Today's nakshatra energy */}
+              {panchangData?.panchang_data?.nakshatra && (
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-l-4 border-green-500 hover:shadow-md transition-all">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-green-100 rounded-full">
+                      <Star className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-green-900 mb-1">Today's Stellar Energy</h4>
+                      <p className="text-sm text-green-800">
+                        {panchangData.panchang_data.nakshatra.name} Nakshatra brings {' '}
+                        {panchangData.panchang_data.nakshatra.quality || 'transformative energy'}.
+                        Ruled by {panchangData.panchang_data.nakshatra.lord || 'cosmic forces'},
+                        this energy supports spiritual growth and mindful actions.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Yoga power insight */}
+              {chartData?.chart_data?.yogas && chartData.chart_data.yogas.length > 0 && (
+                <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border-l-4 border-amber-500 hover:shadow-md transition-all">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-amber-100 rounded-full">
+                      <Zap className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-amber-900 mb-1">Your Cosmic Strengths</h4>
+                      <p className="text-sm text-amber-800">
+                        You have {chartData.chart_data.yogas.length} active yogas in your chart,
+                        including {chartData.chart_data.yogas[0]?.name}.
+                        These cosmic alignments bring special opportunities and strengths to your life path.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upcoming energy shift */}
+              {currentDasha?.antardasha && (
+                <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg border-l-4 border-blue-500 hover:shadow-md transition-all">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-blue-100 rounded-full">
+                      <Clock className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-blue-900 mb-1">Current Sub-Period Focus</h4>
+                      <p className="text-sm text-blue-800">
+                        Currently experiencing {currentDasha.antardasha.planet} sub-period until {' '}
+                        {currentDasha.antardasha.end_date}. This micro-phase adds a specific flavor
+                        to your main {currentDasha.mahadasha?.planet || 'planetary'} period,
+                        influencing day-to-day experiences.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* PHASE 3: VISUAL CHART PREVIEW */}
+      {chartData?.chart_data?.planets && primaryProfile && (
+        <Card className="border-2 border-purple-200 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <Activity className="w-6 h-6 text-purple-600" />
+              Your Planetary Positions
+            </CardTitle>
+            <CardDescription>Snapshot of your birth chart energies</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              {Object.entries(chartData.chart_data.planets)
+                .filter(([planet]) => !['Rahu', 'Ketu'].includes(planet)) // Main planets first
+                .map(([planet, data]: [string, any]) => (
+                  <div
+                    key={planet}
+                    className="p-3 bg-white rounded-lg border-2 border-purple-200 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer"
+                  >
+                    <div className="text-center">
+                      <div className="text-2xl mb-1">
+                        {planet === 'Sun' ? '☀️' :
+                         planet === 'Moon' ? '🌙' :
+                         planet === 'Mars' ? '♂️' :
+                         planet === 'Mercury' ? '☿️' :
+                         planet === 'Jupiter' ? '♃' :
+                         planet === 'Venus' ? '♀️' :
+                         planet === 'Saturn' ? '♄' : '⭐'}
+                      </div>
+                      <p className="font-bold text-sm text-purple-900">{planet}</p>
+                      <p className="text-xs text-purple-700 mt-1">
+                        {data.sign || 'N/A'}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        House {data.house || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+            {/* Rahu-Ketu axis */}
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {['Rahu', 'Ketu'].map((node) => {
+                const nodeData = chartData.chart_data.planets[node]
+                return nodeData ? (
+                  <div
+                    key={node}
+                    className="p-3 bg-white rounded-lg border-2 border-orange-200 hover:border-orange-400 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="text-2xl">
+                        {node === 'Rahu' ? '☊' : '☋'}
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm text-orange-900">{node}</p>
+                        <p className="text-xs text-orange-700">
+                          {nodeData.sign || 'N/A'} • House {nodeData.house || 'N/A'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null
+              })}
+            </div>
+
+            <div className="mt-4 text-center">
+              <Link href={`/dashboard/chart/${primaryProfile.id}`}>
+                <Button className="gap-2">
+                  <Eye className="w-4 h-4" />
+                  View Full Birth Chart
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card>
