@@ -4,6 +4,7 @@ Detects 25+ classical Vedic yogas beyond the basic set
 """
 
 from typing import Dict, List, Any, Optional
+from app.services.jaimini_service import JaiminiService
 
 
 class ExtendedYogaService:
@@ -55,6 +56,10 @@ class ExtendedYogaService:
         "Venus": {"friends": ["Mercury", "Saturn"], "neutrals": ["Mars", "Jupiter"], "enemies": ["Sun", "Moon"]},
         "Saturn": {"friends": ["Mercury", "Venus"], "neutrals": ["Jupiter"], "enemies": ["Sun", "Moon", "Mars"]},
     }
+
+    def __init__(self):
+        """Initialize Extended Yoga Service with Jaimini integration"""
+        self.jaimini = JaiminiService()
 
     def _calculate_planet_dignity(self, planet_name: str, planets: Dict) -> int:
         """
@@ -221,14 +226,19 @@ class ExtendedYogaService:
         """
         Detect 100+ comprehensive classical Vedic yogas (BPHS-compliant):
 
+        **TIER 1 - MAJOR LIFE-DEFINING YOGAS:**
         **Pancha Mahapurusha Yogas (5)**: Ruchaka, Bhadra, Hamsa, Malavya, Sasa
-        **Wealth & Prosperity (9)**: Adhi, Lakshmi, Saraswati, Amala, Parvata, Kahala, Dhana, Kubera, Daridra
+        **Sun-Based Yogas (3)** ⭐ MAJOR: Vesi, Vosi, Ubhayachari (planets around Sun - soul & authority)
+        **Moon-Based Yogas (4)** ⭐ MAJOR: Sunapha, Anapha, Durudhura, Kemadruma (planets around Moon - mind & prosperity)
+        **Learning & Wisdom (2)** ⭐ MAJOR: Saraswati (one of the most auspicious!), Budhaditya
+        **Jupiter-Moon (1)** ⭐ MAJOR: Gaja Kesari
+
+        **TIER 2 - IMPORTANT YOGAS:**
+        **Wealth & Prosperity (8)**: Adhi, Lakshmi, Amala, Parvata, Kahala, Dhana, Kubera, Daridra
         **Conjunction Yogas (3)**: Chandra-Mangala, Guru-Mangala, Budhaditya
-        **Sun-Based (3)**: Vesi, Vosi, Ubhayachari
-        **Moon-Based (4)**: Sunapha, Anapha, Durudhura, Kemadruma
         **Raja Yogas (3)**: Viparita Raj, Raj Yoga (Kendra-Trikona), Dharma-Karmadhipati
         **Neecha Bhanga (4)**: Debilitation cancellation variations
-        **Kala Sarpa (12)**: All types based on Rahu position
+        **Kala Sarpa (12)**: All types based on Rahu position (transformational)
 
         **Nabhasa Yogas (32 - COMPLETE)**:
         - Ashraya (4): Rajju, Musala, Nala, Maala
@@ -280,6 +290,9 @@ class ExtendedYogaService:
 
         # 15: Viparita Raj Yoga
         yogas.extend(self._detect_viparita_raj_yoga(planets))
+
+        # 15a: Additional House Lord Yogas (Vaapi Dharma Lords, Lakshmi Classical, Parijata)
+        yogas.extend(self._detect_additional_house_lord_yogas(planets))
 
         # 16: Neecha Bhanga Raj Yoga
         yogas.extend(self._detect_neecha_bhanga(planets))
@@ -336,6 +349,26 @@ class ExtendedYogaService:
         # 43: Raj Yoga (Kendra-Trikona - simplified)
         yogas.extend(self._detect_raj_yoga_kendra_trikona(planets))
 
+        # 43a: Systematic Raj Yogas (BPHS-compliant house lord combinations)
+        yogas.extend(self._detect_systematic_raj_yogas(planets))
+
+        # 43b: Benefic Support Yogas (Phase 1.3)
+        yogas.extend(self._detect_benefic_support_yogas(planets))
+
+        # 43c: Valor Yogas (Phase 1.4)
+        yogas.extend(self._detect_valor_yogas(planets))
+
+        # 43d: Exalted Benefic in 2nd (Phase 1.5)
+        yogas.extend(self._detect_exalted_benefic_2nd_yogas(planets))
+
+        # 43e: Viparita-like Support (Phase 1.6)
+        yogas.extend(self._detect_viparita_like_support_yogas(planets))
+
+        # 43f: Miscellaneous Raj Supports (Phase 1.7)
+        yogas.extend(self._detect_karma_raj_yoga(planets))
+        yogas.extend(self._detect_all_benefic_kendras_yoga(planets))
+        yogas.extend(self._detect_moon_venus_mutual_yoga(planets))
+
         # 44: Grahan Yoga
         yogas.extend(self._detect_grahan_yoga(planets))
 
@@ -346,6 +379,12 @@ class ExtendedYogaService:
         # 46: Dhana Yoga (simplified)
         yogas.extend(self._detect_dhana_yoga(planets))
 
+        # 46a: Lakshmi Wealth Yogas (5L-9L relationships)
+        yogas.extend(self._detect_lakshmi_wealth_yogas(planets))
+
+        # 46b: Ascendant-Specific Wealth Yogas
+        yogas.extend(self._detect_ascendant_wealth_yogas(planets))
+
         # 47: Chandal Yoga
         yogas.extend(self._detect_chandal_yoga(planets))
 
@@ -354,6 +393,12 @@ class ExtendedYogaService:
 
         # 49: Daridra Yoga
         yogas.extend(self._detect_daridra_yoga(planets))
+
+        # 49a: Comprehensive Penury Yogas (BPHS Ch.42)
+        yogas.extend(self._detect_penury_yogas(planets))
+
+        # 49b: Royal Association Yogas (Jaimini - BPHS Ch.40)
+        yogas.extend(self._detect_royal_association_yogas(planets))
 
         # NEW YOGAS - Phase 3: Medium Priority
         # 50: Balarishta Yoga
@@ -495,10 +540,11 @@ class ExtendedYogaService:
                     "category": "Wealth"
                 })
 
-        # Saraswati Yoga (Classical Definition)
-        # Conditions:
-        # 1. Mercury, Jupiter, and Venus should have mutual relationship (conjunction or aspect)
-        # 2. They should be in kendra (1,4,7,10), trikona (1,5,9), or 2nd house from each other
+        # Saraswati Yoga (BPHS Classical Definition)
+        # Conditions per Brihat Parashara Hora Shastra:
+        # 1. Jupiter, Venus, and Mercury ALL in Kendra (1,4,7,10) OR Trikona (1,5,9) OR 2nd house FROM LAGNA
+        # 2. Jupiter must be in strong position (own sign, exaltation, or friendly sign)
+        # 3. Mercury should not be combust (optional stricter interpretation)
 
         mercury = planets.get("Mercury", {})
         jupiter = planets.get("Jupiter", {})
@@ -508,72 +554,76 @@ class ExtendedYogaService:
         jup_house = jupiter.get("house", 0)
         ven_house = venus_data.get("house", 0)
 
+        # Kendra houses from Lagna: 1, 4, 7, 10
+        # Trikona houses from Lagna: 1, 5, 9
+        # Combined with 2nd house: 1, 2, 4, 5, 7, 9, 10
+        saraswati_houses = [1, 2, 4, 5, 7, 9, 10]
+
         if merc_house and jup_house and ven_house:
-            # Check if all three are in the same house (conjunction)
-            in_conjunction = (merc_house == jup_house == ven_house)
+            # Check if ALL three planets are in these houses FROM LAGNA
+            if (merc_house in saraswati_houses and
+                jup_house in saraswati_houses and
+                ven_house in saraswati_houses):
 
-            # Check mutual aspects and positions
-            # Calculate house distances
-            merc_jup_dist = (jup_house - merc_house) % 12
-            merc_ven_dist = (ven_house - merc_house) % 12
-            jup_ven_dist = (ven_house - jup_house) % 12
+                # Check Jupiter strength
+                jup_sign = jupiter.get("sign_num", 0)
+                jup_exalted = jupiter.get("exalted", False)
+                jup_own_sign = jup_sign in self.OWN_SIGNS.get("Jupiter", [])  # 9, 12 (Sagittarius, Pisces)
 
-            # Kendra positions: 0 (same), 3, 6, 9 (1st, 4th, 7th, 10th from each other)
-            # Trikona positions: 0 (same), 4, 8 (1st, 5th, 9th from each other)
-            # 2nd house: 1 (2nd from each other)
-            favorable_positions = [0, 1, 3, 4, 6, 8, 9]  # Kendra, Trikona, 2nd
+                # Friendly signs for Jupiter: Sun (Leo=5), Moon (Cancer=4), Mars (Aries=1, Scorpio=8)
+                jup_friendly_signs = [1, 4, 5, 8]
+                jup_in_friendly = jup_sign in jup_friendly_signs
 
-            # Check if all three pairs are in favorable positions
-            merc_jup_favorable = merc_jup_dist in favorable_positions
-            merc_ven_favorable = merc_ven_dist in favorable_positions
-            jup_ven_favorable = jup_ven_dist in favorable_positions
+                jup_strong = jup_exalted or jup_own_sign or jup_in_friendly
 
-            # Additional check: At least two should be mutually aspecting
-            # Planets aspect 7th house (6 houses away, 0-indexed)
-            merc_aspects_jup = merc_jup_dist == 6  # Mercury aspects Jupiter
-            jup_aspects_merc = (merc_house - jup_house) % 12 == 6
-            merc_aspects_ven = merc_ven_dist == 6
-            ven_aspects_merc = (merc_house - ven_house) % 12 == 6
-            jup_aspects_ven = jup_ven_dist == 6
-            ven_aspects_jup = (jup_house - ven_house) % 12 == 6
+                if jup_strong:
+                    # Optional: Check Mercury not combust (for stricter interpretation)
+                    merc_combust = mercury.get("combust", False)
 
-            mutual_aspects = (
-                (merc_aspects_jup or jup_aspects_merc) or
-                (merc_aspects_ven or ven_aspects_merc) or
-                (jup_aspects_ven or ven_aspects_jup)
-            )
+                    # Build formation description
+                    house_positions = []
+                    if merc_house in [1, 4, 7, 10]:
+                        house_positions.append(f"Mercury in {merc_house}th (kendra)")
+                    elif merc_house in [5, 9]:
+                        house_positions.append(f"Mercury in {merc_house}th (trikona)")
+                    else:
+                        house_positions.append(f"Mercury in 2nd")
 
-            # Saraswati Yoga is formed if:
-            # 1. All three in conjunction (same house), OR
-            # 2. All three pairs in favorable positions AND at least some mutual aspects
-            if in_conjunction or (merc_jup_favorable and merc_ven_favorable and jup_ven_favorable and mutual_aspects):
-                formation_details = []
-                if in_conjunction:
-                    formation_details.append(f"conjunction in {merc_house}th house")
-                else:
-                    if merc_jup_dist in [3, 6, 9]:
-                        formation_details.append(f"Mercury-Jupiter kendra")
-                    if merc_ven_dist in [3, 6, 9]:
-                        formation_details.append(f"Mercury-Venus kendra")
-                    if jup_ven_dist in [3, 6, 9]:
-                        formation_details.append(f"Jupiter-Venus kendra")
-                    if merc_jup_dist in [4, 8]:
-                        formation_details.append(f"Mercury-Jupiter trikona")
-                    if merc_ven_dist in [4, 8]:
-                        formation_details.append(f"Mercury-Venus trikona")
-                    if jup_ven_dist in [4, 8]:
-                        formation_details.append(f"Jupiter-Venus trikona")
+                    if jup_house in [1, 4, 7, 10]:
+                        house_positions.append(f"Jupiter in {jup_house}th (kendra)")
+                    elif jup_house in [5, 9]:
+                        house_positions.append(f"Jupiter in {jup_house}th (trikona)")
+                    else:
+                        house_positions.append(f"Jupiter in 2nd")
 
-                formation = " and ".join(formation_details) if formation_details else "mutual relationship"
+                    if ven_house in [1, 4, 7, 10]:
+                        house_positions.append(f"Venus in {ven_house}th (kendra)")
+                    elif ven_house in [5, 9]:
+                        house_positions.append(f"Venus in {ven_house}th (trikona)")
+                    else:
+                        house_positions.append(f"Venus in 2nd")
 
-                yogas.append({
-                    "name": "Saraswati Yoga",
-                    "description": f"Mercury, Jupiter, and Venus in {formation} - exceptional learning, wisdom, eloquence, artistic talents, blessed by Goddess Saraswati",
-                    "strength": "Strong",
-                    "category": "Learning & Wisdom",
-                    "yoga_forming_planets": ["Mercury", "Jupiter", "Venus"],
-                    "formation": formation
-                })
+                    strength_note = ""
+                    if jup_exalted:
+                        strength_note = " (Jupiter exalted)"
+                    elif jup_own_sign:
+                        strength_note = " (Jupiter in own sign)"
+                    else:
+                        strength_note = " (Jupiter in friendly sign)"
+
+                    formation = ", ".join(house_positions)
+
+                    yogas.append({
+                        "name": "Saraswati Yoga",
+                        "description": f"Mercury, Jupiter, Venus in favorable houses from Lagna{strength_note} - exceptional learning, wisdom, eloquence, artistic talents, mastery of arts and sciences, blessed by Goddess Saraswati",
+                        "strength": "Very Strong" if jup_exalted else "Strong",
+                        "category": "Learning & Wisdom",
+                        "importance": "major",
+                        "impact": "positive",
+                        "yoga_forming_planets": ["Mercury", "Jupiter", "Venus"],
+                        "formation": formation,
+                        "jupiter_strength": "Exalted" if jup_exalted else ("Own Sign" if jup_own_sign else "Friendly Sign")
+                    })
 
         return yogas
 
@@ -690,23 +740,258 @@ class ExtendedYogaService:
 
     def _detect_viparita_raj_yoga(self, planets: Dict) -> List[Dict]:
         """
-        Viparita Raj Yoga: Lords of 6th, 8th, 12th in mutual houses
-        Simplified: Malefics (Mars, Saturn) in 6th, 8th, or 12th
-        Success through overcoming adversity
+        Viparita Raj Yoga: Three classical types (BPHS-compliant)
+
+        1. Harsha Yoga: 6th lord in 6th, 8th, or 12th house
+           - Victory over enemies, good health, courage, happiness
+
+        2. Sarala Yoga: 8th lord in 6th, 8th, or 12th house
+           - Long life, overcoming dangers, occult knowledge, fearless nature
+
+        3. Vimal Yoga: 12th lord in 6th, 8th, or 12th house
+           - Success despite difficulties, spiritual wisdom, independence, charity
+
+        These yogas indicate success through overcoming adversity.
+        Principle: When dusthana lords (6,8,12) occupy other dusthanas,
+        they neutralize negative effects and create Raja Yoga.
         """
         yogas = []
         dusthana_houses = [6, 8, 12]
 
-        malefics_in_dusthana = [p for p in ["Mars", "Saturn"]
-                               if planets.get(p, {}).get("house") in dusthana_houses]
+        # Get ascendant sign (0-indexed: 0=Aries, 11=Pisces)
+        asc_data = planets.get("Ascendant", {})
+        asc_sign_num = asc_data.get("sign_num", 0)
 
-        if len(malefics_in_dusthana) >= 2:
+        if not asc_sign_num:
+            # Fallback to simplified detection if no ascendant data
+            malefics_in_dusthana = [p for p in ["Mars", "Saturn"]
+                                   if planets.get(p, {}).get("house") in dusthana_houses]
+            if len(malefics_in_dusthana) >= 2:
+                yogas.append({
+                    "name": "Viparita Raj Yoga",
+                    "description": "Malefics in dusthanas - success through overcoming adversity, turning difficulties into opportunities",
+                    "strength": "Medium",
+                    "category": "Overcoming Obstacles",
+                    "importance": "moderate",
+                    "impact": "positive"
+                })
+            return yogas
+
+        # Convert to 0-indexed for _get_house_lord
+        asc_sign = asc_sign_num - 1
+
+        # 1. HARSHA YOGA: 6th lord in 6th, 8th, or 12th
+        lord_6th = self._get_house_lord(6, asc_sign)
+        lord_6th_house = planets.get(lord_6th, {}).get("house", 0)
+
+        if lord_6th_house in dusthana_houses:
             yogas.append({
-                "name": "Viparita Raj Yoga",
-                "description": "Malefics in dusthanas - success through overcoming adversity, turning difficulties into opportunities",
-                "strength": "Medium",
-                "category": "Overcoming Obstacles"
+                "name": "Harsha Viparita Raj Yoga",
+                "description": f"6th lord ({lord_6th}) in {lord_6th_house}th house - Victory over enemies, good health, courage and fighting spirit, happiness, success in competitive fields",
+                "strength": "Strong",
+                "category": "Viparita Raj Yoga",
+                "importance": "major",
+                "impact": "positive",
+                "formation": f"6th house lord {lord_6th} placed in dusthana ({lord_6th_house}th house)"
             })
+
+        # 2. SARALA YOGA: 8th lord in 6th, 8th, or 12th
+        lord_8th = self._get_house_lord(8, asc_sign)
+        lord_8th_house = planets.get(lord_8th, {}).get("house", 0)
+
+        if lord_8th_house in dusthana_houses:
+            yogas.append({
+                "name": "Sarala Viparita Raj Yoga",
+                "description": f"8th lord ({lord_8th}) in {lord_8th_house}th house - Long life despite obstacles, overcoming dangers and accidents, success in occult sciences, fearless nature, inheritance gains",
+                "strength": "Strong",
+                "category": "Viparita Raj Yoga",
+                "importance": "major",
+                "impact": "positive",
+                "formation": f"8th house lord {lord_8th} placed in dusthana ({lord_8th_house}th house)"
+            })
+
+        # 3. VIMAL YOGA: 12th lord in 6th, 8th, or 12th
+        lord_12th = self._get_house_lord(12, asc_sign)
+        lord_12th_house = planets.get(lord_12th, {}).get("house", 0)
+
+        if lord_12th_house in dusthana_houses:
+            yogas.append({
+                "name": "Vimal Viparita Raj Yoga",
+                "description": f"12th lord ({lord_12th}) in {lord_12th_house}th house - Success despite financial difficulties, spiritual wisdom and inclinations, charity and helping others, independent nature, gains from foreign lands or spirituality",
+                "strength": "Strong",
+                "category": "Viparita Raj Yoga",
+                "importance": "major",
+                "impact": "positive",
+                "formation": f"12th house lord {lord_12th} placed in dusthana ({lord_12th_house}th house)"
+            })
+
+        return yogas
+
+    def _detect_additional_house_lord_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Additional house-lord based classical yogas:
+        1. Vaapi Yoga (Dharma Lords Type): 5th and 9th lords in mutual relationship
+        2. Lakshmi Yoga (Classical): Lagna lord in Kendra/Trikona + strong benefic in 9th/5th
+        3. Parijata Yoga: Lagna lord strong in Kendra/Trikona
+        """
+        yogas = []
+
+        # Get ascendant sign for house lord calculations
+        asc_data = planets.get("Ascendant", {})
+        asc_sign_num = asc_data.get("sign_num", 0)
+
+        if not asc_sign_num:
+            return yogas
+
+        asc_sign = asc_sign_num - 1  # Convert to 0-indexed
+
+        # Get house lords
+        lagna_lord = self._get_house_lord(1, asc_sign)
+        lord_5th = self._get_house_lord(5, asc_sign)
+        lord_9th = self._get_house_lord(9, asc_sign)
+
+        # Get their positions
+        lagna_lord_data = planets.get(lagna_lord, {})
+        lord_5th_data = planets.get(lord_5th, {})
+        lord_9th_data = planets.get(lord_9th, {})
+
+        lagna_lord_house = lagna_lord_data.get("house", 0)
+        lord_5th_house = lord_5th_data.get("house", 0)
+        lord_9th_house = lord_9th_data.get("house", 0)
+
+        kendra_houses = [1, 4, 7, 10]
+        trikona_houses = [1, 5, 9]
+        kendra_trikona = list(set(kendra_houses + trikona_houses))
+
+        # Helper: Check if planet is strong
+        def is_planet_strong(planet_name: str) -> bool:
+            planet_data = planets.get(planet_name, {})
+            sign_num = planet_data.get("sign_num", 0)
+
+            # Check exaltation
+            if planet_data.get("exalted", False):
+                return True
+
+            # Check own sign
+            own_signs = self.OWN_SIGNS.get(planet_name, [])
+            if sign_num in own_signs:
+                return True
+
+            # Check friendly sign (simplified)
+            # Jupiter, Venus, Mercury are natural benefics - generally strong
+            if planet_name in ["Jupiter", "Venus", "Mercury"]:
+                return True
+
+            return False
+
+        # Helper: Check mutual aspect/conjunction
+        def are_in_relationship(house1: int, house2: int) -> tuple[bool, str]:
+            """Check if two houses have Kendra/Trikona relationship or aspect"""
+            if house1 == 0 or house2 == 0:
+                return False, ""
+
+            # Same house (conjunction)
+            if house1 == house2:
+                return True, "conjunction"
+
+            # Kendra relationship (1-4-7-10 cycle)
+            diff = abs(house1 - house2)
+            if diff in [3, 6, 9]:
+                return True, "kendra"
+
+            # Trikona relationship (1-5-9 cycle)
+            if diff in [4, 8]:
+                return True, "trikona"
+
+            # 7th aspect (opposition)
+            if diff == 6:
+                return True, "7th aspect"
+
+            # Mars 4th & 8th aspects
+            if diff in [3, 7]:
+                return True, "Mars aspect"
+
+            # Jupiter 5th & 9th aspects
+            if diff in [4, 8]:
+                return True, "Jupiter aspect"
+
+            # Saturn 3rd & 10th aspects
+            if diff in [2, 9]:
+                return True, "Saturn aspect"
+
+            return False, ""
+
+        # 1. VAAPI YOGA (Dharma Lords Type)
+        # 5th and 9th lords in mutual Kendra/Trikona or aspect/conjunction and strong
+        if lord_5th_house and lord_9th_house:
+            in_relationship, rel_type = are_in_relationship(lord_5th_house, lord_9th_house)
+            lord_5th_strong = is_planet_strong(lord_5th)
+            lord_9th_strong = is_planet_strong(lord_9th)
+
+            if in_relationship:
+                # Determine strength
+                if lord_5th_strong and lord_9th_strong:
+                    strength = "Strong"
+                    strength_desc = "both lords strong"
+                elif lord_5th_strong or lord_9th_strong:
+                    strength = "Medium"
+                    strength_desc = "one lord strong"
+                else:
+                    strength = "Weak"
+                    strength_desc = "lords not strong"
+
+                yogas.append({
+                    "name": "Vaapi Yoga (Dharma Lords)",
+                    "description": f"5th lord ({lord_5th}) and 9th lord ({lord_9th}) in {rel_type}, {strength_desc} - Fortune through education, righteous actions, spiritual merit, ethical wealth, grace of dharma",
+                    "strength": strength,
+                    "category": "Dharma & Fortune",
+                    "importance": "major" if strength in ["Strong", "Medium"] else "moderate",
+                    "impact": "positive",
+                    "formation": f"5th house lord {lord_5th} in {lord_5th_house}th, 9th house lord {lord_9th} in {lord_9th_house}th ({rel_type})"
+                })
+
+        # 2. LAKSHMI YOGA (Classical BPHS)
+        # Lagna lord in Kendra/Trikona AND strong benefic in 9th/5th house
+        if lagna_lord_house in kendra_trikona:
+            # Check for strong benefics in 5th or 9th house
+            benefics = ["Jupiter", "Venus", "Mercury"]
+            strong_benefics_in_dharma = []
+
+            for benefic in benefics:
+                benefic_data = planets.get(benefic, {})
+                benefic_house = benefic_data.get("house", 0)
+
+                if benefic_house in [5, 9] and is_planet_strong(benefic):
+                    strong_benefics_in_dharma.append((benefic, benefic_house))
+
+            if strong_benefics_in_dharma:
+                benefic_names = ", ".join([f"{b[0]} in {b[1]}th" for b in strong_benefics_in_dharma])
+
+                yogas.append({
+                    "name": "Lakshmi Yoga",
+                    "description": f"Lagna lord ({lagna_lord}) in {lagna_lord_house}th (Kendra/Trikona) with strong benefic(s) {benefic_names} - Goddess Lakshmi's blessings, wealth, prosperity, luxury, beauty, royal comforts, fortunate life",
+                    "strength": "Strong",
+                    "category": "Wealth & Prosperity",
+                    "importance": "major",
+                    "impact": "positive",
+                    "formation": f"Lagna lord {lagna_lord} in {lagna_lord_house}th house with strong benefic(s) in dharma houses"
+                })
+
+        # 3. PARIJATA YOGA
+        # Lagna lord strong in Kendra/Trikona
+        if lagna_lord_house in kendra_trikona:
+            lagna_lord_strong = is_planet_strong(lagna_lord)
+
+            if lagna_lord_strong:
+                yogas.append({
+                    "name": "Parijata Yoga",
+                    "description": f"Strong Lagna lord ({lagna_lord}) in {lagna_lord_house}th house (Kendra/Trikona) - Fame, honor, happiness, righteous conduct, enjoyment of pleasures, celestial tree of desires fulfilled",
+                    "strength": "Strong",
+                    "category": "Fame & Honor",
+                    "importance": "major",
+                    "impact": "positive",
+                    "formation": f"Lagna lord {lagna_lord} strong in {lagna_lord_house}th house (Kendra/Trikona)"
+                })
 
         return yogas
 
@@ -746,9 +1031,11 @@ class ExtendedYogaService:
             if (planet_house - sun_house) % 12 == 1:  # 2nd house (1 ahead)
                 yogas.append({
                     "name": "Vesi Yoga",
-                    "description": f"{planet} in 2nd from Sun - wealth, good speech, balanced personality",
-                    "strength": "Weak",
-                    "category": "Wealth & Character"
+                    "description": f"{planet} in 2nd from Sun - wealth, fame, good character, ethical nature, respect",
+                    "strength": "Medium",
+                    "category": "Sun-Based Yogas",
+                    "importance": "major",
+                    "impact": "positive"
                 })
                 break
 
@@ -769,9 +1056,11 @@ class ExtendedYogaService:
             if (planet_house - sun_house) % 12 == 11:  # 12th house (11 ahead in 0-indexed)
                 yogas.append({
                     "name": "Vosi Yoga",
-                    "description": f"{planet} in 12th from Sun - technical skills, authority, independent nature",
-                    "strength": "Weak",
-                    "category": "Skills & Authority"
+                    "description": f"{planet} in 12th from Sun - skills, authority, independence, self-confidence, leadership",
+                    "strength": "Medium",
+                    "category": "Sun-Based Yogas",
+                    "importance": "major",
+                    "impact": "positive"
                 })
                 break
 
@@ -800,9 +1089,11 @@ class ExtendedYogaService:
         if has_planet_before and has_planet_after:
             yogas.append({
                 "name": "Ubhayachari Yoga",
-                "description": "Planets on both sides of Sun - wealth, fame, eloquence, balanced nature",
-                "strength": "Medium",
-                "category": "Fame & Wealth"
+                "description": "Planets on both sides of Sun - wealth, fame, eloquence, balanced nature, royal honors (combines Vesi and Vosi benefits)",
+                "strength": "Strong",
+                "category": "Sun-Based Yogas",
+                "importance": "major",
+                "impact": "positive"
             })
 
         return yogas
@@ -822,9 +1113,11 @@ class ExtendedYogaService:
             if (planet_house - moon_house) % 12 == 1:
                 yogas.append({
                     "name": "Sunapha Yoga",
-                    "description": f"{planet} in 2nd from Moon - wealth, fame, intelligence, self-made success",
-                    "strength": "Weak",
-                    "category": "Wealth & Intelligence"
+                    "description": f"{planet} in 2nd from Moon - self-made wealth, intelligence, prosperity, comfort, policy-making abilities",
+                    "strength": "Medium",
+                    "category": "Moon-Based Yogas",
+                    "importance": "major",
+                    "impact": "positive"
                 })
                 break
 
@@ -845,9 +1138,11 @@ class ExtendedYogaService:
             if (planet_house - moon_house) % 12 == 11:
                 yogas.append({
                     "name": "Anapha Yoga",
-                    "description": f"{planet} in 12th from Moon - happiness, fame, well-formed body, good health",
-                    "strength": "Weak",
-                    "category": "Health & Fame"
+                    "description": f"{planet} in 12th from Moon - fame, good health, ornaments, comfort, renown, well-formed body",
+                    "strength": "Medium",
+                    "category": "Moon-Based Yogas",
+                    "importance": "major",
+                    "impact": "positive"
                 })
                 break
 
@@ -876,9 +1171,11 @@ class ExtendedYogaService:
         if has_planet_before and has_planet_after:
             yogas.append({
                 "name": "Durudhura Yoga",
-                "description": "Planets on both sides of Moon - wealth, vehicles, comforts, balanced mind",
-                "strength": "Medium",
-                "category": "Wealth & Comfort"
+                "description": "Planets on both sides of Moon - royal status, wealth, vehicles, attendants, comforts, balanced mind (combines Sunapha and Anapha benefits)",
+                "strength": "Strong",
+                "category": "Moon-Based Yogas",
+                "importance": "major",
+                "impact": "positive"
             })
 
         return yogas
@@ -1179,6 +1476,7 @@ class ExtendedYogaService:
 
         # 4. Halaka/Hal Yoga - No planets in kendras (1,4,7,10)
         kendra_houses = [1, 4, 7, 10]
+        trikona_houses = [1, 5, 9]  # Trinal houses for Chaapa Yoga
         if not any(h in kendra_houses for h in occupied_houses):
             yogas.append({
                 "name": "Hal Yoga",
@@ -1214,17 +1512,25 @@ class ExtendedYogaService:
                 "category": "Nabhasa - Akriti"
             })
 
-        # 8. Vaapi Yoga - All in trikonas (1,5,9) OR upachayas (3,6,10,11)
-        trikona_houses = [1, 5, 9]
-        upachaya_houses = [3, 6, 10, 11]
-        if (len(occupied_houses) >= 2 and all(h in trikona_houses for h in occupied_houses)) or \
-           (len(occupied_houses) >= 2 and all(h in upachaya_houses for h in occupied_houses)):
-            yogas.append({
-                "name": "Vaapi Yoga",
-                "description": "All in trikonas or upachayas - Accumulation of wealth, reservoir of resources, philanthropic works",
-                "strength": "Strong",
-                "category": "Nabhasa - Akriti"
-            })
+        # 8. Vaapi Yoga - All in Panaphar (2,5,8,11) OR Apoklima (3,6,9,12), NO Kendras
+        # Classical BPHS: Well of wealth yoga
+        panaphar_houses = [2, 5, 8, 11]  # Succedent houses
+        apoklima_houses = [3, 6, 9, 12]  # Cadent houses
+        # Check that NO planets are in Kendras (1,4,7,10)
+        no_kendras = not any(h in kendra_houses for h in occupied_houses)
+
+        if no_kendras and len(occupied_houses) >= 2:
+            # All in Panaphar OR all in Apoklima
+            if all(h in panaphar_houses for h in occupied_houses) or \
+               all(h in apoklima_houses for h in occupied_houses):
+                yogas.append({
+                    "name": "Vaapi Yoga",
+                    "description": "All planets in Panaphar (2,5,8,11) or Apoklima (3,6,9,12), no Kendras - Well of wealth, accumulation, secretive nature, supportive relationships, high position through hard work",
+                    "strength": "Strong",
+                    "category": "Nabhasa - Akriti",
+                    "importance": "major",  # Wealth-giving yoga
+                    "impact": "positive"
+                })
 
         # 9. Yupa Yoga - All from lagna to 4th house
         if len(occupied_houses) >= 2 and occupied_houses[0] == 1 and occupied_houses[-1] <= 4:
@@ -1350,6 +1656,208 @@ class ExtendedYogaService:
                     "strength": "Medium",
                     "category": "Nabhasa - Akriti"
                 })
+
+        # NEW NABHASA AKRITI YOGAS - BPHS IDs 6-31
+
+        # ID 6: Gada Yoga - All planets in two successive kendras
+        successive_kendra_pairs = [(1,4), (4,7), (7,10), (10,1)]
+        for k1, k2 in successive_kendra_pairs:
+            if len(occupied_houses) >= 2 and set(occupied_houses).issubset({k1, k2}):
+                yogas.append({
+                    "name": "Gada Yoga",
+                    "description": f"All planets in two successive kendras ({k1}th & {k2}th) - Club-like strength, success through partnerships, gains through joint efforts",
+                    "strength": "Strong",
+                    "category": "Nabhasa - Akriti"
+                })
+                break
+
+        # ID 7: Sakata Yoga (Nabhasa) - All planets only in 1st and 7th
+        # Note: Different from rare Shakata yoga (Moon-Jupiter)
+        if len(occupied_houses) >= 2 and set(occupied_houses) == {1, 7}:
+            # Check if not already added as Vajra
+            if not any(y["name"] == "Vajra Yoga (Nabhasa)" for y in yogas):
+                yogas.append({
+                    "name": "Sakata Yoga (Nabhasa)",
+                    "description": "All planets only in 1st and 7th houses - Cart-wheel pattern, ups and downs in life, gains through persistence",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+
+        # ID 8: Vihaga Yoga - All planets only in 4th and 10th
+        if len(occupied_houses) >= 2 and set(occupied_houses) == {4, 10}:
+            yogas.append({
+                "name": "Vihaga Yoga",
+                "description": "All planets only in 4th and 10th houses - Bird-like movement, travel, messenger, diplomatic success",
+                "strength": "Strong",
+                "category": "Nabhasa - Akriti"
+            })
+
+        # ID 9: Śṛṅgāṭaka Yoga - All planets only in trikonas (1, 5, 9)
+        if len(occupied_houses) >= 2 and set(occupied_houses).issubset(trikona_houses):
+            # Check if not already covered by Chaapa
+            if not any(y["name"] == "Chaapa Yoga" for y in yogas):
+                yogas.append({
+                    "name": "Śṛṅgāṭaka Yoga",
+                    "description": "All planets only in trikonas (1,5,9) - Crossroads of fortune, righteous living, religious authority, spiritual leadership",
+                    "strength": "Very Strong",
+                    "category": "Nabhasa - Akriti"
+                })
+
+        # ID 10: Hala Yoga (Corrected BPHS version) - All in Trishadaya sets
+        # Trishadaya: (2,6,10) or (3,7,11) or (4,8,12)
+        trishadaya_sets = [
+            ([2, 6, 10], "2nd-6th-10th"),
+            ([3, 7, 11], "3rd-7th-11th"),
+            ([4, 8, 12], "4th-8th-12th")
+        ]
+
+        for tri_set, tri_desc in trishadaya_sets:
+            if len(occupied_houses) >= 2 and set(occupied_houses).issubset(tri_set):
+                yogas.append({
+                    "name": "Hala Yoga (Corrected)",
+                    "description": f"All planets in {tri_desc} (Trishadaya) - Plough pattern, agricultural success, land-related wealth, hardworking nature",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+                break
+
+        # IDs 11-12: Corrected Benefic/Malefic Kendra patterns
+        # ID 11: Vajra (Corrected) - All benefics in 1&7 OR all malefics in 4&10
+        benefic_in_17 = all(h in [1, 7] for h in benefic_houses) and len(benefic_houses) >= 3
+        malefic_in_410 = all(h in [4, 10] for h in malefic_houses) and len(malefic_houses) >= 2
+
+        if benefic_in_17 or malefic_in_410:
+            pattern = "benefics in 1&7" if benefic_in_17 else "malefics in 4&10"
+            yogas.append({
+                "name": "Vajra Yoga (BPHS Corrected)",
+                "description": f"All {pattern} - Diamond strength, invincible in conflicts, lasting success",
+                "strength": "Very Strong",
+                "category": "Nabhasa - Akriti"
+            })
+
+        # ID 12: Yava (Corrected) - All benefics in 4&10 OR all malefics in 1&7
+        benefic_in_410 = all(h in [4, 10] for h in benefic_houses) and len(benefic_houses) >= 3
+        malefic_in_17 = all(h in [1, 7] for h in malefic_houses) and len(malefic_houses) >= 2
+
+        if benefic_in_410 or malefic_in_17:
+            pattern = "benefics in 4&10" if benefic_in_410 else "malefics in 1&7"
+            yogas.append({
+                "name": "Yava Yoga (BPHS Corrected)",
+                "description": f"All {pattern} - Barley grain pattern, prosperity in middle life, charitable deeds",
+                "strength": "Strong",
+                "category": "Nabhasa - Akriti"
+            })
+
+        # IDs 15-18: Spread Patterns (BPHS Corrected) - 7 planets spread over quadrants
+        if len([p for p in main_planets if planets.get(p, {}).get("house", 0) > 0]) == 7:
+
+            # ID 15: Yupa (Corrected) - 7 planets spread over houses 1-4
+            if all(1 <= h <= 4 for h in occupied_houses):
+                yogas.append({
+                    "name": "Yupa Yoga (BPHS)",
+                    "description": "7 planets spread over 1st-4th houses - Sacrificial post, religious authority, ritualistic success",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+
+            # ID 16: Śara - 7 planets spread over houses 4-7
+            elif all(4 <= h <= 7 for h in occupied_houses):
+                yogas.append({
+                    "name": "Śara Yoga",
+                    "description": "7 planets spread over 4th-7th houses - Arrow pattern, goal-oriented, success through partnerships",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+
+            # ID 17: Śakti (Corrected) - 7 planets spread over houses 7-10
+            elif all(7 <= h <= 10 for h in occupied_houses):
+                yogas.append({
+                    "name": "Śakti Yoga (BPHS)",
+                    "description": "7 planets spread over 7th-10th houses - Spear pattern, powerful authority, career success, combative strength",
+                    "strength": "Strong",
+                    "category": "Nabhasa - Akriti"
+                })
+
+            # ID 18: Daṇḍa (Corrected) - 7 planets spread over houses 10-1 (wrapping)
+            elif all(h in [10, 11, 12, 1] for h in occupied_houses):
+                yogas.append({
+                    "name": "Daṇḍa Yoga (BPHS)",
+                    "description": "7 planets spread over 10th-1st houses (wrapping) - Staff pattern, authority through discipline, administrative success",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+
+        # IDs 19-22: Consecutive House Patterns (BPHS Corrected)
+        if len([p for p in main_planets if planets.get(p, {}).get("house", 0) > 0]) == 7:
+
+            # ID 19: Nauka (Corrected) - 7 consecutive from house 1
+            consecutive_from_1 = list(range(1, 8))
+            if all(h in consecutive_from_1 for h in occupied_houses):
+                yogas.append({
+                    "name": "Nauka Yoga (BPHS)",
+                    "description": "7 consecutive houses starting from 1st - Boat pattern, water-related success, trade voyages",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+
+            # ID 20: Kūṭa (Corrected) - 7 consecutive from house 4
+            consecutive_from_4 = list(range(4, 11))
+            if all(h in consecutive_from_4 for h in occupied_houses):
+                yogas.append({
+                    "name": "Kūṭa Yoga (BPHS)",
+                    "description": "7 consecutive houses starting from 4th - Heap/pile pattern, accumulation of wealth, property success",
+                    "strength": "Medium",
+                    "category": "Nabhasa - Akriti"
+                })
+
+            # ID 21: Chatra (Corrected) - 7 consecutive from house 7
+            consecutive_from_7 = list(range(7, 14))  # Will be modulo 12
+            occupied_adjusted = [(h - 7) for h in occupied_houses]
+            if all(0 <= adj <= 6 for adj in occupied_adjusted):
+                yogas.append({
+                    "name": "Chatra Yoga (BPHS)",
+                    "description": "7 consecutive houses starting from 7th - Umbrella/canopy pattern, royal protection, success in partnerships",
+                    "strength": "Strong",
+                    "category": "Nabhasa - Akriti"
+                })
+
+            # ID 22: Dhanus/Chāpa (Corrected) - 7 consecutive from house 10
+            consecutive_from_10 = [10, 11, 12, 1, 2, 3, 4]
+            if all(h in consecutive_from_10 for h in occupied_houses):
+                yogas.append({
+                    "name": "Dhanus Yoga (BPHS)",
+                    "description": "7 consecutive houses starting from 10th - Bow pattern, career authority, leadership, focused ambition",
+                    "strength": "Strong",
+                    "category": "Nabhasa - Akriti"
+                })
+
+        # IDs 23-24: Alternate Sign Patterns (BPHS Corrected)
+
+        # ID 23: Chakra (Corrected) - 6 alternate signs from Lagna
+        # Alternate means: Lagna, Lagna+2, Lagna+4, Lagna+6, Lagna+8, Lagna+10
+        # In houses: odd houses (1,3,5,7,9,11) OR even houses (2,4,6,8,10,12)
+        all_odd = all(h % 2 == 1 for h in occupied_houses)
+        all_even = all(h % 2 == 0 for h in occupied_houses)
+
+        if (all_odd or all_even) and len(occupied_houses) >= 6:
+            pattern = "odd houses (1,3,5,7,9,11)" if all_odd else "even houses (2,4,6,8,10,12)"
+            yogas.append({
+                "name": "Chakra Yoga (BPHS)",
+                "description": f"6+ planets in alternate signs ({pattern}) - Wheel of fortune, sovereign power, universal authority",
+                "strength": "Very Strong",
+                "category": "Nabhasa - Akriti"
+            })
+
+        # ID 24: Samudra (Corrected) - 6 alternate signs from 2nd house
+        # Starting from 2nd: 2,4,6,8,10,12 (even) or shifted pattern
+        # Simplified: Check if 6+ planets in specific alternate pattern
+        if all_even and len(occupied_houses) >= 6:
+            yogas.append({
+                "name": "Samudra Yoga (BPHS)",
+                "description": "6+ planets in alternate even houses - Ocean pattern, vast wealth, treasure accumulation, generous nature",
+                "strength": "Strong",
+                "category": "Nabhasa - Akriti"
+            })
 
         return yogas
 
@@ -1698,6 +2206,920 @@ class ExtendedYogaService:
 
         return yogas
 
+    def _detect_lakshmi_wealth_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Lakshmi-Type Wealth Yogas (BPHS IDs 239-253) - 15 variations
+
+        5th and 9th lords (Dharma/Fortune lords) in various strong relationships
+
+        Relationships:
+        1. Conjunction
+        2. Mutual Aspect
+        3. Mutual Kendra
+        4. Mutual Trikona
+        5. Parivartana (sign exchange)
+
+        Strength conditions:
+        - Both strong (own/exalted)
+        - One strong, one neutral
+        - Both neutral
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get 5th and 9th house lords
+        lord_5 = self._get_house_lord(5, asc_sign)
+        lord_9 = self._get_house_lord(9, asc_sign)
+
+        # Skip if same planet rules both
+        if lord_5 == lord_9:
+            return yogas
+
+        # Skip if planets don't exist
+        if lord_5 not in planets or lord_9 not in planets:
+            return yogas
+
+        # Get positions
+        lord_5_house = planets[lord_5].get("house", 0)
+        lord_9_house = planets[lord_9].get("house", 0)
+
+        if lord_5_house == 0 or lord_9_house == 0:
+            return yogas
+
+        # Check strength levels
+        lord_5_very_strong = self._check_lord_strength(lord_5, planets, "very_strong")
+        lord_5_strong = self._check_lord_strength(lord_5, planets, "strong")
+        lord_9_very_strong = self._check_lord_strength(lord_9, planets, "very_strong")
+        lord_9_strong = self._check_lord_strength(lord_9, planets, "strong")
+
+        # Determine overall strength category
+        if lord_5_very_strong and lord_9_very_strong:
+            strength_category = "both exalted"
+            base_strength = "Very Strong"
+        elif (lord_5_strong or lord_5_very_strong) and (lord_9_strong or lord_9_very_strong):
+            strength_category = "both strong"
+            base_strength = "Strong"
+        elif (lord_5_strong or lord_5_very_strong) or (lord_9_strong or lord_9_very_strong):
+            strength_category = "one strong"
+            base_strength = "Medium"
+        else:
+            strength_category = "both neutral"
+            base_strength = "Medium"
+
+        # Check each relationship type
+
+        # 1. CONJUNCTION
+        if lord_5_house == lord_9_house:
+            yogas.append({
+                "name": f"Lakshmi Wealth Yoga: 5L-9L Conjunction ({strength_category})",
+                "description": f"5th lord ({lord_5}) and 9th lord ({lord_9}) conjoined in {lord_5_house}th house - exceptional fortune and prosperity through combined dharmic energies, multiple wealth streams",
+                "strength": base_strength,
+                "category": "Wealth Yoga",
+                "yoga_forming_planets": [lord_5, lord_9],
+                "formation": f"{lord_5} and {lord_9} in {lord_5_house}th house"
+            })
+
+        # 2. MUTUAL ASPECT
+        if self._check_mutual_aspect(lord_5_house, lord_9_house, planets, lord_5, lord_9):
+            yogas.append({
+                "name": f"Lakshmi Wealth Yoga: 5L-9L Mutual Aspect ({strength_category})",
+                "description": f"5th lord ({lord_5}) in {lord_5_house}th and 9th lord ({lord_9}) in {lord_9_house}th in mutual aspect - wealth through knowledge and fortune, prosperity from righteous actions",
+                "strength": base_strength,
+                "category": "Wealth Yoga",
+                "yoga_forming_planets": [lord_5, lord_9],
+                "formation": f"{lord_5} in {lord_5_house}th aspecting {lord_9} in {lord_9_house}th"
+            })
+
+        # 3. MUTUAL KENDRA
+        house_distance = abs(lord_5_house - lord_9_house)
+        if house_distance in [3, 6, 9]:  # 4th, 7th, 10th from each other
+            yogas.append({
+                "name": f"Lakshmi Wealth Yoga: 5L-9L Mutual Kendra ({strength_category})",
+                "description": f"5th lord ({lord_5}) and 9th lord ({lord_9}) in mutual kendra - stable wealth accumulation, fortunate career, prosperity through structured approach",
+                "strength": base_strength,
+                "category": "Wealth Yoga",
+                "yoga_forming_planets": [lord_5, lord_9],
+                "formation": f"{lord_5} in {lord_5_house}th, {lord_9} in {lord_9_house}th (mutual kendra)"
+            })
+
+        # 4. MUTUAL TRIKONA
+        if house_distance in [4, 8]:  # 5th, 9th from each other
+            yogas.append({
+                "name": f"Lakshmi Wealth Yoga: 5L-9L Mutual Trikona ({strength_category})",
+                "description": f"5th lord ({lord_5}) and 9th lord ({lord_9}) in mutual trikona - fortunate wealth, blessings from ancestors, prosperity through dharma",
+                "strength": base_strength,
+                "category": "Wealth Yoga",
+                "yoga_forming_planets": [lord_5, lord_9],
+                "formation": f"{lord_5} in {lord_5_house}th, {lord_9} in {lord_9_house}th (mutual trikona)"
+            })
+
+        # 5. PARIVARTANA
+        if self._check_parivartana(lord_5, lord_9, planets):
+            strength_modifier = "Very Strong" if base_strength == "Strong" else "Strong"
+            yogas.append({
+                "name": f"Lakshmi Wealth Yoga: 5L-9L Parivartana ({strength_category})",
+                "description": f"5th lord ({lord_5}) and 9th lord ({lord_9}) in sign exchange - exceptional wealth through fortune, dharmic prosperity, blessings manifest powerfully",
+                "strength": strength_modifier,
+                "category": "Wealth Yoga",
+                "yoga_forming_planets": [lord_5, lord_9],
+                "formation": f"{lord_5} and {lord_9} in mutual sign exchange"
+            })
+
+        return yogas
+
+    def _detect_ascendant_wealth_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Ascendant-Specific Wealth Yogas (BPHS IDs 224-237) - 14 variations
+
+        Specific planetary combinations that create wealth for each ascendant
+
+        Simplified implementation focusing on major patterns
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Ascendant-specific wealth patterns
+        # These are highly specific to each ascendant
+
+        # Aries Ascendant (asc_sign = 0)
+        if asc_sign == 0:
+            # Mars (Lagna lord) with Sun & Jupiter
+            mars_house = planets.get("Mars", {}).get("house", 0)
+            sun_house = planets.get("Sun", {}).get("house", 0)
+            jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+
+            if mars_house and (mars_house == sun_house or mars_house == jupiter_house):
+                yogas.append({
+                    "name": "Aries Wealth Yoga",
+                    "description": "Mars (Lagna lord) with Sun/Jupiter - wealth through courage, leadership, military/sports, Mars-ruled professions",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Taurus Ascendant (asc_sign = 1)
+        elif asc_sign == 1:
+            # Venus strong, with Mercury & Saturn
+            venus_house = planets.get("Venus", {}).get("house", 0)
+            if venus_house and self._check_lord_strength("Venus", planets, "strong"):
+                yogas.append({
+                    "name": "Taurus Wealth Yoga",
+                    "description": "Strong Venus (Lagna lord) - wealth through arts, beauty, luxury goods, Venusian professions, material comforts",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Gemini Ascendant (asc_sign = 2)
+        elif asc_sign == 2:
+            # Mercury with Venus
+            mercury_house = planets.get("Mercury", {}).get("house", 0)
+            venus_house = planets.get("Venus", {}).get("house", 0)
+
+            if mercury_house and venus_house and mercury_house == venus_house:
+                yogas.append({
+                    "name": "Gemini Wealth Yoga",
+                    "description": "Mercury (Lagna lord) with Venus - wealth through communication, business, trade, intellectual pursuits",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Cancer Ascendant (asc_sign = 3)
+        elif asc_sign == 3:
+            # Moon with Jupiter & Mercury
+            moon_house = planets.get("Moon", {}).get("house", 0)
+            jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+
+            if moon_house and jupiter_house and abs(moon_house - jupiter_house) <= 1:
+                yogas.append({
+                    "name": "Cancer Wealth Yoga",
+                    "description": "Moon (Lagna lord) with Jupiter - wealth through nurturing, care professions, real estate, emotional intelligence",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Leo Ascendant (asc_sign = 4)
+        elif asc_sign == 4:
+            # Sun with Mars & Jupiter
+            sun_house = planets.get("Sun", {}).get("house", 0)
+            mars_house = planets.get("Mars", {}).get("house", 0)
+            jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+
+            if sun_house and (sun_house == mars_house or sun_house == jupiter_house):
+                yogas.append({
+                    "name": "Leo Wealth Yoga",
+                    "description": "Sun (Lagna lord) with Mars/Jupiter - wealth through authority, government, leadership, royal professions",
+                    "strength": "Very Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Virgo Ascendant (asc_sign = 5)
+        elif asc_sign == 5:
+            # Mercury strong in own sign
+            mercury_sign = planets.get("Mercury", {}).get("sign_num", 0)
+            if mercury_sign == 6:  # Virgo
+                yogas.append({
+                    "name": "Virgo Wealth Yoga",
+                    "description": "Mercury (Lagna lord) in Virgo - wealth through analysis, service, health professions, detailed work",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Libra Ascendant (asc_sign = 6)
+        elif asc_sign == 6:
+            # Venus with Saturn & Mercury
+            venus_house = planets.get("Venus", {}).get("house", 0)
+            saturn_house = planets.get("Saturn", {}).get("house", 0)
+
+            if venus_house and saturn_house and abs(venus_house - saturn_house) <= 1:
+                yogas.append({
+                    "name": "Libra Wealth Yoga",
+                    "description": "Venus (Lagna lord) with Saturn - wealth through law, justice, balanced partnerships, diplomatic work",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Scorpio Ascendant (asc_sign = 7)
+        elif asc_sign == 7:
+            # Mars with Moon
+            mars_house = planets.get("Mars", {}).get("house", 0)
+            moon_house = planets.get("Moon", {}).get("house", 0)
+
+            if mars_house and moon_house and mars_house == moon_house:
+                yogas.append({
+                    "name": "Scorpio Wealth Yoga",
+                    "description": "Mars (Lagna lord) with Moon - wealth through transformation, research, occult sciences, investigation",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Sagittarius Ascendant (asc_sign = 8)
+        elif asc_sign == 8:
+            # Jupiter in own sign or exalted
+            jupiter_sign = planets.get("Jupiter", {}).get("sign_num", 0)
+            if jupiter_sign in [4, 9, 12]:  # Cancer (exalted), Sagittarius, Pisces
+                yogas.append({
+                    "name": "Sagittarius Wealth Yoga",
+                    "description": "Jupiter (Lagna lord) in own/exalted sign - wealth through wisdom, teaching, philosophy, higher education",
+                    "strength": "Very Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Capricorn Ascendant (asc_sign = 9)
+        elif asc_sign == 9:
+            # Saturn with Venus & Mercury
+            saturn_house = planets.get("Saturn", {}).get("house", 0)
+            venus_house = planets.get("Venus", {}).get("house", 0)
+
+            if saturn_house and venus_house and abs(saturn_house - venus_house) <= 1:
+                yogas.append({
+                    "name": "Capricorn Wealth Yoga",
+                    "description": "Saturn (Lagna lord) with Venus - wealth through discipline, long-term investments, structured business, persistence",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Aquarius Ascendant (asc_sign = 10)
+        elif asc_sign == 10:
+            # Saturn with Mercury
+            saturn_house = planets.get("Saturn", {}).get("house", 0)
+            mercury_house = planets.get("Mercury", {}).get("house", 0)
+
+            if saturn_house and mercury_house and saturn_house == mercury_house:
+                yogas.append({
+                    "name": "Aquarius Wealth Yoga",
+                    "description": "Saturn (Lagna lord) with Mercury - wealth through innovation, technology, networking, humanitarian work",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        # Pisces Ascendant (asc_sign = 11)
+        elif asc_sign == 11:
+            # Jupiter with Venus & Moon
+            jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+            moon_house = planets.get("Moon", {}).get("house", 0)
+
+            if jupiter_house and moon_house and abs(jupiter_house - moon_house) <= 1:
+                yogas.append({
+                    "name": "Pisces Wealth Yoga",
+                    "description": "Jupiter (Lagna lord) with Moon - wealth through spirituality, healing, creative arts, compassionate work",
+                    "strength": "Strong",
+                    "category": "Wealth Yoga - Ascendant Specific"
+                })
+
+        return yogas
+
+    def _detect_penury_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Penury/Poverty Yogas (BPHS Ch.42 - IDs 262-277) - 16 variations
+
+        Yogas indicating financial difficulties, poverty, or obstacles
+        These balance the chart analysis by showing challenges alongside opportunities
+
+        Categories:
+        1. Dusthana-based poverty (parivartana, placements, afflictions)
+        2. 2nd house afflictions (wealth house damaged)
+        3. Dharma lords afflicted
+        4. Malefic distributions
+
+        Note: Some advanced indicators requiring Navamsa/Dasha are deferred
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get house lords
+        lord_1 = self._get_house_lord(1, asc_sign)
+        lord_2 = self._get_house_lord(2, asc_sign)
+        lord_6 = self._get_house_lord(6, asc_sign)
+        lord_8 = self._get_house_lord(8, asc_sign)
+        lord_12 = self._get_house_lord(12, asc_sign)
+        lord_5 = self._get_house_lord(5, asc_sign)
+        lord_9 = self._get_house_lord(9, asc_sign)
+        lord_7 = self._get_house_lord(7, asc_sign)
+
+        # Maraka lords (2nd and 7th lords - death inflictors, also wealth destroyers)
+        maraka_lords = [lord_2, lord_7]
+
+        # Dusthana lords (6, 8, 12 - houses of obstacles, losses, expenses)
+        dusthana_lords = [lord_6, lord_8, lord_12]
+
+        # Malefic planets
+        malefics = ["Mars", "Saturn", "Rahu", "Ketu"]
+
+        # Benefic planets
+        benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+
+        # Get planetary data
+        lord_1_house = planets.get(lord_1, {}).get("house", 0)
+        lord_1_sign = planets.get(lord_1, {}).get("sign_num", 0)
+        lord_2_sign = planets.get(lord_2, {}).get("sign_num", 0)
+        lord_6_sign = planets.get(lord_6, {}).get("sign_num", 0)
+        lord_12_sign = planets.get(lord_12, {}).get("sign_num", 0)
+        lord_5_house = planets.get(lord_5, {}).get("house", 0)
+        lord_9_house = planets.get(lord_9, {}).get("house", 0)
+
+        # ====== PATTERN 1: Parivartana with Maraka (IDs 262-263) ======
+
+        # ID 262: 1L-12L parivartana with maraka influence
+        if lord_1 != lord_12:
+            lord_1_in_12th_sign = (lord_1_sign == (asc_sign + 11) % 12)
+            lord_12_in_1st_sign = (lord_12_sign == asc_sign)
+
+            if lord_1_in_12th_sign and lord_12_in_1st_sign:
+                # Check if either is maraka lord or aspected by maraka
+                is_maraka_involved = (lord_1 in maraka_lords or lord_12 in maraka_lords)
+
+                yogas.append({
+                    "name": "Daridra Yoga - Lagna-Vyaya Parivartana",
+                    "description": f"{lord_1} and {lord_12} exchange signs (1st-12th parivartana) - loss of vitality, expenses exceed income, wealth dissipation" +
+                                   (" with maraka influence (severe)" if is_maraka_involved else ""),
+                    "strength": "Strong" if is_maraka_involved else "Medium",
+                    "category": "Penury Yoga - Parivartana"
+                })
+
+        # ID 263: 1L-6L parivartana with maraka influence
+        if lord_1 != lord_6:
+            lord_1_in_6th_sign = (lord_1_sign == (asc_sign + 5) % 12)
+            lord_6_in_1st_sign = (lord_6_sign == asc_sign)
+
+            if lord_1_in_6th_sign and lord_6_in_1st_sign:
+                is_maraka_involved = (lord_1 in maraka_lords or lord_6 in maraka_lords)
+
+                yogas.append({
+                    "name": "Daridra Yoga - Lagna-Ripu Parivartana",
+                    "description": f"{lord_1} and {lord_6} exchange signs (1st-6th parivartana) - chronic debts, enemies, litigation, health expenses" +
+                                   (" with maraka influence (severe)" if is_maraka_involved else ""),
+                    "strength": "Strong" if is_maraka_involved else "Medium",
+                    "category": "Penury Yoga - Parivartana"
+                })
+
+        # ====== PATTERN 2: Dusthana Placements of Lagna Lord (IDs 264-266) ======
+
+        # ID 264: 1L with Ketu or in 8th house
+        ketu_house = planets.get("Ketu", {}).get("house", 0)
+
+        if lord_1_house == ketu_house and ketu_house > 0:
+            yogas.append({
+                "name": "Daridra Yoga - Lagna Lord with Ketu",
+                "description": f"{lord_1} conjunct Ketu - loss of direction, spiritual detachment from wealth, sudden unexpected losses",
+                "strength": "Medium",
+                "category": "Penury Yoga - Affliction"
+            })
+
+        if lord_1_house == 8:
+            yogas.append({
+                "name": "Daridra Yoga - Lagna Lord in 8th",
+                "description": f"{lord_1} in 8th house - chronic obstacles, sudden transformations, inheritance issues, hidden financial drains",
+                "strength": "Medium",
+                "category": "Penury Yoga - Affliction"
+            })
+
+        # ID 265: 1L with malefic in dusthana (6/8/12) AND 2L debilitated
+        if lord_1_house in [6, 8, 12]:
+            # Check if 1L is with any malefic
+            malefic_in_same_house = False
+            for malefic in malefics:
+                if malefic != lord_1:  # Don't count if 1L itself is malefic
+                    malefic_house = planets.get(malefic, {}).get("house", 0)
+                    if malefic_house == lord_1_house:
+                        malefic_in_same_house = True
+                        break
+
+            # Check if 2L is debilitated
+            lord_2_debilitated = planets.get(lord_2, {}).get("debilitated", False)
+
+            if malefic_in_same_house and lord_2_debilitated:
+                yogas.append({
+                    "name": "Daridra Yoga - Lagna Lord Afflicted, Dhana Lord Fallen",
+                    "description": f"{lord_1} with malefic in dusthana ({lord_1_house}th) AND {lord_2} debilitated - severe financial struggles, difficulty earning and retaining wealth",
+                    "strength": "Very Strong",
+                    "category": "Penury Yoga - Affliction"
+                })
+
+        # ID 266: 1L with 6/8/12 lords without benefic aspect
+        if lord_1_house > 0:
+            # Check if 1L is with dusthana lords
+            with_dusthana_lord = False
+            for dusthana_lord in dusthana_lords:
+                if dusthana_lord != lord_1:
+                    dusthana_lord_house = planets.get(dusthana_lord, {}).get("house", 0)
+                    if dusthana_lord_house == lord_1_house:
+                        with_dusthana_lord = True
+                        break
+
+            if with_dusthana_lord:
+                # Check for benefic aspect (simplified - check if any benefic in kendra from 1L)
+                has_benefic_aspect = False
+                for benefic in benefics:
+                    benefic_house = planets.get(benefic, {}).get("house", 0)
+                    if benefic_house > 0:
+                        house_diff = abs(benefic_house - lord_1_house)
+                        # Kendra aspect (1st, 4th, 7th, 10th from 1L's position)
+                        if house_diff in [0, 3, 6, 9]:
+                            has_benefic_aspect = True
+                            break
+
+                if not has_benefic_aspect:
+                    yogas.append({
+                        "name": "Daridra Yoga - Lagna Lord with Dusthana Lords",
+                        "description": f"{lord_1} with dusthana lords without benefic protection - obstacles from enemies, debts, hidden matters without relief",
+                        "strength": "Strong",
+                        "category": "Penury Yoga - Affliction"
+                    })
+
+        # ====== PATTERN 3: Dharma Lords Afflicted (ID 267) ======
+
+        # ID 267: 5L in 6th AND 9L in 12th with maraka aspects
+        if lord_5_house == 6 and lord_9_house == 12:
+            # Check maraka aspects (simplified - check if maraka lords in same house as 5L or 9L)
+            maraka_aspect_5L = any(planets.get(maraka, {}).get("house", 0) == 6 for maraka in maraka_lords if maraka != lord_5)
+            maraka_aspect_9L = any(planets.get(maraka, {}).get("house", 0) == 12 for maraka in maraka_lords if maraka != lord_9)
+
+            if maraka_aspect_5L or maraka_aspect_9L:
+                yogas.append({
+                    "name": "Daridra Yoga - Dharma Lords Afflicted",
+                    "description": f"{lord_5} in 6th and {lord_9} in 12th with maraka influence - loss of past merit, spiritual obstacles, difficulties with children and fortune",
+                    "strength": "Very Strong",
+                    "category": "Penury Yoga - Dharma Affliction"
+                })
+
+        # ====== PATTERN 4: Malefics in Lagna (ID 268) ======
+
+        # ID 268: Malefics (except 9L/10L) in Lagna with maraka
+        lord_9 = self._get_house_lord(9, asc_sign)
+        lord_10 = self._get_house_lord(10, asc_sign)
+        beneficial_lords = [lord_9, lord_10]
+
+        malefics_in_lagna = []
+        for malefic in malefics:
+            malefic_house = planets.get(malefic, {}).get("house", 0)
+            if malefic_house == 1 and malefic not in beneficial_lords:
+                malefics_in_lagna.append(malefic)
+
+        if len(malefics_in_lagna) > 0:
+            # Check if maraka lords also in Lagna
+            maraka_in_lagna = any(planets.get(maraka, {}).get("house", 0) == 1 for maraka in maraka_lords)
+
+            if maraka_in_lagna:
+                yogas.append({
+                    "name": "Daridra Yoga - Malefics in Lagna with Maraka",
+                    "description": f"Malefics ({', '.join(malefics_in_lagna)}) in Lagna with maraka lord - damaged personality, obstacles to self-expression, chronic health/wealth issues",
+                    "strength": "Strong",
+                    "category": "Penury Yoga - Lagna Affliction"
+                })
+
+        # ====== PATTERN 5: Dispositor Chains (ID 269) ======
+
+        # ID 269: Dispositors of 6/8/12 lords also in 6/8/12
+        dusthana_in_dusthana_count = 0
+
+        for dusthana_lord in dusthana_lords:
+            dusthana_lord_sign = planets.get(dusthana_lord, {}).get("sign_num", 0)
+            if dusthana_lord_sign > 0:
+                # Get dispositor (lord of the sign the dusthana lord is in)
+                dispositor = self._get_sign_lord(dusthana_lord_sign)
+                dispositor_house = planets.get(dispositor, {}).get("house", 0)
+
+                if dispositor_house in [6, 8, 12]:
+                    dusthana_in_dusthana_count += 1
+
+        if dusthana_in_dusthana_count >= 2:
+            yogas.append({
+                "name": "Daridra Yoga - Dusthana Chain",
+                "description": f"Dispositors of dusthana lords also in dusthana - deep karmic debt patterns, recurring obstacles, difficulty breaking negative cycles",
+                "strength": "Strong",
+                "category": "Penury Yoga - Dispositor"
+            })
+
+        # ====== PATTERN 6: House Distribution (ID 272) ======
+
+        # ID 272: Benefics in bad houses (6/8/12), malefics in good houses (1/5/9)
+        benefics_in_bad = []
+        malefics_in_good = []
+
+        for benefic in benefics:
+            benefic_house = planets.get(benefic, {}).get("house", 0)
+            if benefic_house in [6, 8, 12]:
+                benefics_in_bad.append(benefic)
+
+        for malefic in malefics:
+            malefic_house = planets.get(malefic, {}).get("house", 0)
+            if malefic_house in [1, 5, 9]:
+                malefics_in_good.append(malefic)
+
+        if len(benefics_in_bad) >= 2 and len(malefics_in_good) >= 2:
+            yogas.append({
+                "name": "Daridra Yoga - Inverted House Distribution",
+                "description": f"Benefics ({', '.join(benefics_in_bad)}) in dusthana, malefics ({', '.join(malefics_in_good)}) in trikonas - reversed fortune, good intentions bring problems, obstacles appear as opportunities",
+                "strength": "Strong",
+                "category": "Penury Yoga - Distribution"
+            })
+
+        # ====== PATTERN 7: 2nd House Afflictions (IDs 276-277) ======
+
+        # ID 276: Mars + Saturn in 2nd house
+        mars_house = planets.get("Mars", {}).get("house", 0)
+        saturn_house = planets.get("Saturn", {}).get("house", 0)
+
+        if mars_house == 2 and saturn_house == 2:
+            yogas.append({
+                "name": "Daridra Yoga - Mars-Saturn in 2nd",
+                "description": "Mars and Saturn both in 2nd house - harsh speech, family conflicts, difficulty accumulating wealth, blocked income sources",
+                "strength": "Strong",
+                "category": "Penury Yoga - 2nd House"
+            })
+
+        # ID 277: Sun-Saturn mutual aspects
+        sun_house = planets.get("Sun", {}).get("house", 0)
+        saturn_house = planets.get("Saturn", {}).get("house", 0)
+
+        if sun_house > 0 and saturn_house > 0:
+            house_diff = abs(sun_house - saturn_house)
+            # Mutual aspect: 7th house aspect (opposition)
+            if house_diff == 6:  # 7th house apart
+                yogas.append({
+                    "name": "Daridra Yoga - Sun-Saturn Opposition",
+                    "description": "Sun and Saturn in mutual 7th house aspect - conflict between authority and limitation, father issues, career obstacles, delayed recognition",
+                    "strength": "Medium",
+                    "category": "Penury Yoga - Aspect"
+                })
+
+        # ====== PATTERN 8: Moon Afflictions (IDs 270-271 - D1 Proxy) ======
+        # NOTE: Full BPHS implementation requires Navamsa (D9) chart data
+        # These are simplified D1-based proxies until D9 integration is added
+
+        # ID 270: Moon afflicted by maraka lords (D1 proxy for Navamsa indicator)
+        moon_house = planets.get("Moon", {}).get("house", 0)
+        moon_sign = planets.get("Moon", {}).get("sign_num", 0)
+
+        if moon_house > 0 and moon_sign > 0:
+            # Check if Moon is with maraka lords or in maraka houses (2nd/7th)
+            moon_with_maraka = False
+            for maraka in maraka_lords:
+                maraka_house = planets.get(maraka, {}).get("house", 0)
+                if maraka_house == moon_house:
+                    moon_with_maraka = True
+                    break
+
+            moon_in_maraka_house = moon_house in [2, 7]
+
+            if moon_with_maraka or moon_in_maraka_house:
+                yogas.append({
+                    "name": "Daridra Yoga - Moon Afflicted by Maraka",
+                    "description": f"Moon {'with maraka lord' if moon_with_maraka else 'in maraka house'} in D1 - mental anxiety about finances, emotional attachment to wealth causing loss (full analysis requires Navamsa)",
+                    "strength": "Medium",
+                    "category": "Penury Yoga - Moon Affliction"
+                })
+
+        # ID 271: Both Lagna lords afflicted (D1 proxy)
+        if lord_1_house > 0:
+            # Check if Lagna lord is with or aspected by maraka
+            lord_1_with_maraka = any(planets.get(maraka, {}).get("house", 0) == lord_1_house
+                                      for maraka in maraka_lords if maraka != lord_1)
+
+            # Check if Lagna lord is in maraka house
+            lord_1_in_maraka = lord_1_house in [2, 7]
+
+            if lord_1_with_maraka or lord_1_in_maraka:
+                yogas.append({
+                    "name": "Daridra Yoga - Lagna Lord under Maraka Influence",
+                    "description": f"{lord_1} {'with maraka lord' if lord_1_with_maraka else 'in maraka house'} - vitality and prosperity threatened by death-inflicting influences (full analysis requires both D1 and D9)",
+                    "strength": "Strong",
+                    "category": "Penury Yoga - Lagna Affliction"
+                })
+
+        # ====== PATTERN 9: Dasha-Period Indicators (IDs 273-275 - General Proxies) ======
+        # NOTE: Full BPHS implementation requires Vimshottari Dasha calculations
+        # These check for general afflictions that create problems during planet dashas
+
+        # ID 273-274: Dusthana lord dashas causing financial harm
+        # Proxy: Identify planets that will cause financial problems in their dashas
+        problematic_dasha_lords = []
+
+        for dusthana_lord in dusthana_lords:
+            dusthana_lord_house = planets.get(dusthana_lord, {}).get("house", 0)
+            dusthana_lord_debilitated = planets.get(dusthana_lord, {}).get("debilitated", False)
+
+            # Dusthana lord in dusthana + debilitated = very problematic dasha
+            if dusthana_lord_house in [6, 8, 12] and dusthana_lord_debilitated:
+                problematic_dasha_lords.append(dusthana_lord)
+
+        if len(problematic_dasha_lords) >= 1:
+            yogas.append({
+                "name": "Daridra Yoga - Afflicted Dusthana Lord Dashas",
+                "description": f"Dusthana lords ({', '.join(problematic_dasha_lords)}) debilitated in dusthana - their Mahadasha/Antardasha periods will bring financial difficulties, health issues, legal problems (timing requires Vimshottari Dasha calculation)",
+                "strength": "Strong",
+                "category": "Penury Yoga - Dasha Indicator"
+            })
+
+        # ID 275: Maraka lord dashas with weak wealth houses
+        # Proxy: Check if maraka lords are strong while wealth lords (2,5,9,11) are weak
+        weak_wealth_houses = []
+
+        for wealth_house in [2, 5, 9, 11]:
+            wealth_lord = self._get_house_lord(wealth_house, asc_sign)
+            wealth_lord_debilitated = planets.get(wealth_lord, {}).get("debilitated", False)
+            wealth_lord_house = planets.get(wealth_lord, {}).get("house", 0)
+
+            if wealth_lord_debilitated or wealth_lord_house in [6, 8, 12]:
+                weak_wealth_houses.append(wealth_house)
+
+        maraka_strong = False
+        for maraka in maraka_lords:
+            maraka_exalted = planets.get(maraka, {}).get("exalted", False)
+            maraka_house = planets.get(maraka, {}).get("house", 0)
+            if maraka_exalted or maraka_house in [1, 4, 7, 10]:  # kendra
+                maraka_strong = True
+                break
+
+        if len(weak_wealth_houses) >= 2 and maraka_strong:
+            yogas.append({
+                "name": "Daridra Yoga - Weak Wealth Lords, Strong Maraka",
+                "description": f"Wealth houses ({', '.join(map(str, weak_wealth_houses))}) have weak lords while maraka lords are strong - their dasha periods will drain accumulated wealth, medical expenses, family obligations (timing analysis requires Vimshottari Dasha)",
+                "strength": "Medium",
+                "category": "Penury Yoga - Dasha Indicator"
+                })
+
+        return yogas
+
+    def _detect_royal_association_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Royal Association Yogas (BPHS Ch.40 - IDs 208-223) - 16 variations
+
+        Jaimini-based yogas using Atmakaraka (AK) and Amatyakaraka (AmK)
+        These yogas indicate royal favor, high status, and political success
+
+        AK = Atmakaraka (Self-significator)
+        AmK = Amatyakaraka (Career/Minister-significator)
+
+        Requires Jaimini karaka calculations
+        """
+        yogas = []
+
+        # Calculate Charakarakas using Jaimini service
+        try:
+            karakas = self.jaimini.calculate_charakarakas(planets)
+        except Exception as e:
+            # If karaka calculation fails, skip these yogas
+            return yogas
+
+        if not karakas or "AK" not in karakas or "AmK" not in karakas:
+            return yogas
+
+        ak_planet = karakas.get("AK")
+        amk_planet = karakas.get("AmK")
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get 10th and 11th house lords
+        lord_10 = self._get_house_lord(10, asc_sign)
+        lord_11 = self._get_house_lord(11, asc_sign)
+
+        # Get planet data
+        ak_house = planets.get(ak_planet, {}).get("house", 0)
+        ak_sign = planets.get(ak_planet, {}).get("sign_num", 0)
+        ak_exalted = planets.get(ak_planet, {}).get("exalted", False)
+        ak_own = ak_sign in self.OWN_SIGNS.get(ak_planet, []) if ak_sign > 0 else False
+
+        amk_house = planets.get(amk_planet, {}).get("house", 0)
+        amk_sign = planets.get(amk_planet, {}).get("sign_num", 0)
+        amk_exalted = planets.get(amk_planet, {}).get("exalted", False)
+        amk_own = amk_sign in self.OWN_SIGNS.get(amk_planet, []) if amk_sign > 0 else False
+
+        lord_10_house = planets.get(lord_10, {}).get("house", 0)
+        lord_11_house = planets.get(lord_11, {}).get("house", 0)
+
+        # ID 208: 10L with AmK - Career lord with Minister karaka
+        if lord_10_house == amk_house and lord_10_house > 0:
+            yogas.append({
+                "name": "Raja Yoga - Career Lord with Amatyakaraka",
+                "description": f"10th lord ({lord_10}) conjunct Amatyakaraka ({amk_planet}) - professional success through ministerial/executive abilities, career advancement, administrative positions",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 209: Clean 10th & 11th houses (no malefics)
+        malefics = ["Mars", "Saturn", "Rahu", "Ketu"]
+        malefics_in_10 = [p for p in malefics if planets.get(p, {}).get("house", 0) == 10]
+        malefics_in_11 = [p for p in malefics if planets.get(p, {}).get("house", 0) == 11]
+
+        if len(malefics_in_10) == 0 and len(malefics_in_11) == 0:
+            yogas.append({
+                "name": "Raja Yoga - Clean Career & Gains Houses",
+                "description": "10th and 11th houses free from malefics - unobstructed career growth, smooth income flow, respected professional reputation",
+                "strength": "Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 210: AmK with AK's dispositor
+        if ak_sign > 0:
+            ak_dispositor = self._get_sign_lord(ak_sign - 1)  # Convert to 0-indexed
+            ak_dispositor_house = planets.get(ak_dispositor, {}).get("house", 0)
+
+            if amk_house == ak_dispositor_house and amk_house > 0:
+                yogas.append({
+                    "name": "Raja Yoga - AmK with AK Dispositor",
+                    "description": f"Amatyakaraka ({amk_planet}) with {ak_planet}'s dispositor ({ak_dispositor}) - career aligned with soul purpose, work supports self-development",
+                    "strength": "Strong",
+                    "category": "Royal Association - Jaimini"
+                })
+
+        # ID 211: AK with benefic planets
+        benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+        benefics_with_ak = []
+
+        if ak_house > 0:
+            for benefic in benefics:
+                if benefic != ak_planet:
+                    benefic_house = planets.get(benefic, {}).get("house", 0)
+                    if benefic_house == ak_house:
+                        benefics_with_ak.append(benefic)
+
+        if len(benefics_with_ak) >= 1:
+            yogas.append({
+                "name": "Raja Yoga - Atmakaraka with Benefics",
+                "description": f"Atmakaraka ({ak_planet}) with benefics ({', '.join(benefics_with_ak)}) - blessed soul, spiritual support, divine grace in self-development",
+                "strength": "Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 212: AmK in own/exaltation
+        if amk_exalted or amk_own:
+            state = "exalted" if amk_exalted else "own sign"
+            yogas.append({
+                "name": "Raja Yoga - Strong Amatyakaraka",
+                "description": f"Amatyakaraka ({amk_planet}) in {state} - powerful career karaka, executive excellence, ministerial abilities, professional mastery",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 213: AK in trines (1, 5, 9)
+        if ak_house in [1, 5, 9]:
+            house_names = {1: "Lagna", 5: "5th (children/purva punya)", 9: "9th (dharma/fortune)"}
+            yogas.append({
+                "name": "Raja Yoga - Atmakaraka in Trikona",
+                "description": f"Atmakaraka ({ak_planet}) in {house_names[ak_house]} - soul in dharma houses, righteous path, spiritual growth leads to material success",
+                "strength": "Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 214: AK in kendras (1, 4, 7, 10)
+        if ak_house in [1, 4, 7, 10]:
+            house_names = {1: "Lagna", 4: "4th (home)", 7: "7th (partnerships)", 10: "10th (career)"}
+            yogas.append({
+                "name": "Raja Yoga - Atmakaraka in Kendra",
+                "description": f"Atmakaraka ({ak_planet}) in {house_names[ak_house]} - strong self-expression, angular power, ability to manifest soul's purpose in world",
+                "strength": "Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 215: AmK in kendras
+        if amk_house in [1, 4, 7, 10]:
+            house_names = {1: "Lagna", 4: "4th (home)", 7: "7th (partnerships)", 10: "10th (career)"}
+            yogas.append({
+                "name": "Raja Yoga - Amatyakaraka in Kendra",
+                "description": f"Amatyakaraka ({amk_planet}) in {house_names[amk_house]} - career success through angular strength, professional prominence, leadership positions",
+                "strength": "Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 216: AK and AmK in mutual kendras
+        if ak_house > 0 and amk_house > 0:
+            house_diff = abs(ak_house - amk_house)
+            if house_diff in [3, 6, 9]:  # Kendra relationship (1, 4, 7, 10 apart)
+                yogas.append({
+                    "name": "Raja Yoga - AK-AmK Mutual Kendra",
+                    "description": f"Atmakaraka ({ak_planet}) and Amatyakaraka ({amk_planet}) in mutual kendras - soul and career in perfect alignment, self-realization through profession",
+                    "strength": "Very Strong",
+                    "category": "Royal Association - Jaimini"
+                })
+
+        # ID 217: AK exalted
+        if ak_exalted:
+            yogas.append({
+                "name": "Raja Yoga - Exalted Atmakaraka",
+                "description": f"Atmakaraka ({ak_planet}) exalted - supreme self-expression, soul at its highest potential, destined for greatness",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 218: AK in own sign
+        if ak_own:
+            yogas.append({
+                "name": "Raja Yoga - Atmakaraka in Own Sign",
+                "description": f"Atmakaraka ({ak_planet}) in own sign - self-mastery, comfortable with soul's purpose, natural authority in chosen field",
+                "strength": "Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 219: Both AK and AmK strong (exalted or own)
+        if (ak_exalted or ak_own) and (amk_exalted or amk_own):
+            yogas.append({
+                "name": "Raja Yoga - Both Karakas Strong",
+                "description": f"Both Atmakaraka ({ak_planet}) and Amatyakaraka ({amk_planet}) in exaltation/own signs - complete success, self and career both empowered, leadership excellence",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 220: AmK aspecting 10th house (Jaimini aspects)
+        if amk_sign > 0:
+            # Convert to 0-indexed for Jaimini aspect calculation
+            amk_sign_0indexed = (amk_sign - 1) % 12
+            aspected_signs = self.jaimini.calculate_jaimini_aspects(amk_sign_0indexed)
+
+            # Get 10th house sign
+            house_10_sign = (asc_sign + 9) % 12  # 10th house from ascendant
+
+            if house_10_sign in aspected_signs:
+                yogas.append({
+                    "name": "Raja Yoga - AmK Aspects 10th House",
+                    "description": f"Amatyakaraka ({amk_planet}) aspects 10th house with Jaimini aspect - career karaka directly influences profession, ministerial success, administrative power",
+                    "strength": "Strong",
+                    "category": "Royal Association - Jaimini"
+                })
+
+        # ID 221: AK and AmK conjunct
+        if ak_house == amk_house and ak_house > 0:
+            yogas.append({
+                "name": "Raja Yoga - AK-AmK Conjunction",
+                "description": f"Atmakaraka ({ak_planet}) conjunct Amatyakaraka ({amk_planet}) - soul and career unified, work IS life purpose, complete dedication brings supreme success",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 222: AmK in 10th house
+        if amk_house == 10:
+            yogas.append({
+                "name": "Raja Yoga - AmK in 10th House",
+                "description": f"Amatyakaraka ({amk_planet}) in 10th house - career karaka in career house, ministerial positions, executive authority, professional eminence",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        # ID 223: AK in 10th house
+        if ak_house == 10:
+            yogas.append({
+                "name": "Raja Yoga - AK in 10th House",
+                "description": f"Atmakaraka ({ak_planet}) in 10th house - soul's purpose IS career, destined for public recognition, self-realization through profession",
+                "strength": "Very Strong",
+                "category": "Royal Association - Jaimini"
+            })
+
+        return yogas
+
     def _get_house_lord(self, house_num: int, asc_sign: int) -> str:
         """
         Get the planetary lord of a house based on ascendant sign
@@ -1731,6 +3153,881 @@ class ExtendedYogaService:
 
         return sign_lords.get(house_sign, "Unknown")
 
+    def _get_sign_lord(self, sign_num: int) -> str:
+        """
+        Get the planetary lord of a zodiac sign
+
+        Args:
+            sign_num: Sign number (0-indexed: 0=Aries, 11=Pisces)
+
+        Returns:
+            Planet name that rules the sign
+        """
+        sign_lords = {
+            0: "Mars",      # Aries
+            1: "Venus",     # Taurus
+            2: "Mercury",   # Gemini
+            3: "Moon",      # Cancer
+            4: "Sun",       # Leo
+            5: "Mercury",   # Virgo
+            6: "Venus",     # Libra
+            7: "Mars",      # Scorpio
+            8: "Jupiter",   # Sagittarius
+            9: "Saturn",    # Capricorn
+            10: "Saturn",   # Aquarius
+            11: "Jupiter"   # Pisces
+        }
+
+        return sign_lords.get(sign_num, "Unknown")
+
+    def _calculate_ascendant_sign(self, planets: Dict) -> Optional[int]:
+        """
+        Calculate ascendant sign from planet data using multiple fallback strategies
+
+        Args:
+            planets: Dictionary of planet positions
+
+        Returns:
+            Ascendant sign number (0-indexed: 0=Aries, 11=Pisces) or None if cannot determine
+        """
+        # Strategy 1: Try to find ascendant directly in planet data
+        # Some chart calculations include "Ascendant" as a key
+        if "Ascendant" in planets:
+            asc_data = planets["Ascendant"]
+            if "sign_num" in asc_data:
+                # sign_num is typically 1-indexed, convert to 0-indexed
+                return (asc_data["sign_num"] - 1) % 12
+
+        # Strategy 2: Try to infer ascendant from house 1 placement
+        # In Whole Sign system, if planet is in house 1, its sign is the ascendant
+        for planet_name, planet_data in planets.items():
+            if planet_data.get("house") == 1:
+                sign_num = planet_data.get("sign_num", 0)
+                if sign_num > 0:
+                    return (sign_num - 1) % 12  # Convert to 0-indexed
+
+        # Strategy 3: Calculate from any planet's house-sign relationship
+        # If a planet is in house H and sign S, then ascendant sign = (S - H + 1) mod 12
+        for planet_name, planet_data in planets.items():
+            house = planet_data.get("house", 0)
+            sign_num = planet_data.get("sign_num", 0)
+            if house > 0 and sign_num > 0:
+                # Convert sign_num to 0-indexed for calculation
+                asc_sign = (sign_num - house) % 12
+                return asc_sign
+
+        # Cannot determine ascendant
+        return None
+
+    def _check_parivartana(self, lord1: str, lord2: str, planets: Dict) -> bool:
+        """
+        Check if two planets are in mutual sign exchange (Parivartana Yoga)
+
+        Parivartana occurs when:
+        - Planet A is in the sign ruled by Planet B
+        - Planet B is in the sign ruled by Planet A
+
+        Args:
+            lord1: First planet name
+            lord2: Second planet name
+            planets: Dictionary of planet positions
+
+        Returns:
+            True if planets are in parivartana, False otherwise
+        """
+        if lord1 not in planets or lord2 not in planets:
+            return False
+
+        # Get the signs both planets are in
+        lord1_sign = planets[lord1].get("sign_num", 0)
+        lord2_sign = planets[lord2].get("sign_num", 0)
+
+        if lord1_sign == 0 or lord2_sign == 0:
+            return False
+
+        # Get the signs each planet rules
+        lord1_own_signs = self.OWN_SIGNS.get(lord1, [])
+        lord2_own_signs = self.OWN_SIGNS.get(lord2, [])
+
+        # Check if lord1 is in lord2's sign AND lord2 is in lord1's sign
+        lord1_in_lord2_sign = lord1_sign in lord2_own_signs
+        lord2_in_lord1_sign = lord2_sign in lord1_own_signs
+
+        return lord1_in_lord2_sign and lord2_in_lord1_sign
+
+    def _check_mutual_aspect(self, house1: int, house2: int, planets: Dict,
+                            lord1: str, lord2: str) -> bool:
+        """
+        Check if two house lords mutually aspect each other
+
+        Aspects in Vedic astrology:
+        - All planets: 7th house aspect (opposition)
+        - Mars: 4th, 7th, 8th aspects
+        - Jupiter: 5th, 7th, 9th aspects
+        - Saturn: 3rd, 7th, 10th aspects
+
+        Args:
+            house1: First house number
+            house2: Second house number
+            planets: Dictionary of planet positions
+            lord1: Lord of first house
+            lord2: Lord of second house
+
+        Returns:
+            True if lords mutually aspect, False otherwise
+        """
+        if lord1 not in planets or lord2 not in planets:
+            return False
+
+        # Get actual house positions of both lords
+        lord1_house = planets[lord1].get("house", 0)
+        lord2_house = planets[lord2].get("house", 0)
+
+        if lord1_house == 0 or lord2_house == 0:
+            return False
+
+        # Helper function to check if planet aspects a house
+        def planet_aspects_house(planet: str, from_house: int, to_house: int) -> bool:
+            # Calculate house distance
+            distance = (to_house - from_house) % 12
+            if distance == 0:
+                return False  # Same house, not an aspect
+
+            # All planets aspect 7th house
+            if distance == 6:  # 7th house is 6 positions away (1-indexed to 0-indexed)
+                return True
+
+            # Mars special aspects: 4th (3 positions), 8th (7 positions)
+            if planet == "Mars" and distance in [3, 7]:
+                return True
+
+            # Jupiter special aspects: 5th (4 positions), 9th (8 positions)
+            if planet == "Jupiter" and distance in [4, 8]:
+                return True
+
+            # Saturn special aspects: 3rd (2 positions), 10th (9 positions)
+            if planet == "Saturn" and distance in [2, 9]:
+                return True
+
+            return False
+
+        # Check if lord1 aspects lord2's house AND lord2 aspects lord1's house
+        lord1_aspects_lord2 = planet_aspects_house(lord1, lord1_house, lord2_house)
+        lord2_aspects_lord1 = planet_aspects_house(lord2, lord2_house, lord1_house)
+
+        return lord1_aspects_lord2 and lord2_aspects_lord1
+
+    def _check_lord_strength(self, lord: str, planets: Dict,
+                            strength_type: str = "neutral") -> bool:
+        """
+        Enhanced strength validation for house lords
+
+        Three strength levels:
+        - "neutral": Not debilitated (minimum requirement)
+        - "strong": In own sign or exalted
+        - "very_strong": Exalted or vargottama
+
+        Args:
+            lord: Planet name
+            planets: Dictionary of planet positions
+            strength_type: "neutral", "strong", or "very_strong"
+
+        Returns:
+            True if lord meets the strength requirement, False otherwise
+        """
+        if lord not in planets:
+            return False
+
+        planet_data = planets[lord]
+
+        # Check debilitation (never passes any strength test)
+        if planet_data.get("debilitated", False):
+            return False
+
+        # Get planet's sign
+        sign_num = planet_data.get("sign_num", 0)
+        if sign_num == 0:
+            return False
+
+        # Check exaltation
+        is_exalted = planet_data.get("exalted", False)
+
+        # Check own sign
+        is_own_sign = planet_data.get("own_sign", False)
+
+        # Check vargottama (same sign in D1 and D9)
+        # This would require D9 data which might not be available
+        # For now, we'll use exalted as proxy for very strong
+
+        if strength_type == "neutral":
+            # Just needs to not be debilitated
+            return True
+
+        elif strength_type == "strong":
+            # Needs to be in own sign or exalted
+            return is_exalted or is_own_sign
+
+        elif strength_type == "very_strong":
+            # Needs to be exalted (or vargottama, but we'll use exalted)
+            return is_exalted
+
+        return False
+
+    def _detect_systematic_raj_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Detect all 67 systematic Raj Yogas based on BPHS house lord combinations
+
+        BPHS Section F: Raj Yoga (Combination for Authority/Power/Status)
+
+        Classical Definition:
+        Raj Yogas form when Kendra lords (1, 4, 7, 10) connect with Trikona lords (1, 5, 9)
+
+        9 Base House Lord Pairs:
+        - 1L with 5L, 9L (Lagna lord with trikona lords)
+        - 4L with 5L, 9L (4th lord with trikona lords)
+        - 7L with 5L, 9L (7th lord with trikona lords)
+        - 10L with 5L, 9L (10th lord with trikona lords)
+        - 5L with 9L (two trikona lords together)
+
+        5 Relationship Types for each pair:
+        1. Conjunction (same house)
+        2. Mutual Aspect (planets aspect each other)
+        3. Mutual Kendra (occupy kendra houses from each other)
+        4. Mutual Trikona (occupy trikona houses from each other)
+        5. Parivartana (mutual sign exchange)
+
+        Total: 9 pairs × 5 types = 45 core Raj Yoga combinations
+
+        Effects:
+        - Authority, power, status in society
+        - Leadership qualities and recognition
+        - Success in career and public life
+        - Wealth and prosperity
+        - Fulfillment of ambitions
+
+        Strength depends on:
+        - Dignity of participating planets (exalted > own sign > neutral)
+        - Houses they occupy (kendra > trikona > others)
+        - Relationship type (conjunction strongest, then parivartana, then aspects)
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Define the 9 house-lord pairs for Raj Yoga
+        # Format: (house1, house2, description)
+        house_pairs = [
+            # Lagna lord combinations
+            (1, 5, "Lagna Lord with 5th Lord"),
+            (1, 9, "Lagna Lord with 9th Lord"),
+
+            # Kendra lords with Trikona lords
+            (4, 5, "4th Lord with 5th Lord"),
+            (4, 9, "4th Lord with 9th Lord"),
+            (7, 5, "7th Lord with 5th Lord"),
+            (7, 9, "7th Lord with 9th Lord"),
+            (10, 5, "10th Lord with 5th Lord"),
+            (10, 9, "10th Lord with 9th Lord"),
+
+            # Two Trikona lords
+            (5, 9, "5th Lord with 9th Lord"),
+        ]
+
+        # Check each house-lord pair
+        for house1, house2, pair_desc in house_pairs:
+            # Get the planetary lords of these houses
+            lord1 = self._get_house_lord(house1, asc_sign)
+            lord2 = self._get_house_lord(house2, asc_sign)
+
+            # Skip if same planet rules both houses (no yoga)
+            if lord1 == lord2:
+                continue
+
+            # Skip if planets don't exist in data
+            if lord1 not in planets or lord2 not in planets:
+                continue
+
+            # Get planet positions
+            lord1_house = planets[lord1].get("house", 0)
+            lord2_house = planets[lord2].get("house", 0)
+
+            if lord1_house == 0 or lord2_house == 0:
+                continue
+
+            # Check each relationship type
+
+            # 1. CONJUNCTION (same house) - Strongest
+            if lord1_house == lord2_house:
+                # Check if at least one lord is strong
+                if (self._check_lord_strength(lord1, planets, "neutral") and
+                    self._check_lord_strength(lord2, planets, "neutral")):
+
+                    # Calculate strength based on house and dignity
+                    strength_score = 0
+                    if lord1_house in [1, 4, 7, 10]:  # Kendra
+                        strength_score += 30
+                    elif lord1_house in [5, 9]:  # Trikona
+                        strength_score += 25
+
+                    # Add planet strength
+                    if self._check_lord_strength(lord1, planets, "strong"):
+                        strength_score += 20
+                    if self._check_lord_strength(lord2, planets, "strong"):
+                        strength_score += 20
+
+                    strength = "Strong" if strength_score >= 50 else "Medium"
+
+                    yogas.append({
+                        "name": f"Raj Yoga: {house1}L-{house2}L Conjunction",
+                        "description": f"{pair_desc} conjoined in {lord1_house}th house - exceptional authority, power, and success through combined energies of {lord1} and {lord2}",
+                        "strength": strength,
+                        "category": "Raj Yoga",
+                        "yoga_forming_planets": [lord1, lord2],
+                        "formation": f"{lord1} and {lord2} in {lord1_house}th house"
+                    })
+
+            # 2. MUTUAL ASPECT - Strong
+            if self._check_mutual_aspect(lord1_house, lord2_house, planets, lord1, lord2):
+                if (self._check_lord_strength(lord1, planets, "neutral") and
+                    self._check_lord_strength(lord2, planets, "neutral")):
+
+                    yogas.append({
+                        "name": f"Raj Yoga: {house1}L-{house2}L Mutual Aspect",
+                        "description": f"{pair_desc} in mutual aspect - authority and recognition through planetary influences of {lord1} (in {lord1_house}th) and {lord2} (in {lord2_house}th)",
+                        "strength": "Medium",
+                        "category": "Raj Yoga",
+                        "yoga_forming_planets": [lord1, lord2],
+                        "formation": f"{lord1} in {lord1_house}th aspecting {lord2} in {lord2_house}th"
+                    })
+
+            # 3. MUTUAL KENDRA - Medium
+            # Check if the two lords occupy kendra positions from each other
+            house_distance = abs(lord1_house - lord2_house)
+            if house_distance in [3, 6, 9]:  # 4th, 7th, 10th from each other (kendra relationship)
+                if (self._check_lord_strength(lord1, planets, "neutral") and
+                    self._check_lord_strength(lord2, planets, "neutral")):
+
+                    yogas.append({
+                        "name": f"Raj Yoga: {house1}L-{house2}L Mutual Kendra",
+                        "description": f"{pair_desc} in mutual kendra positions - power and stability through angular relationship between {lord1} (in {lord1_house}th) and {lord2} (in {lord2_house}th)",
+                        "strength": "Medium",
+                        "category": "Raj Yoga",
+                        "yoga_forming_planets": [lord1, lord2],
+                        "formation": f"{lord1} in {lord1_house}th, {lord2} in {lord2_house}th (mutual kendra)"
+                    })
+
+            # 4. MUTUAL TRIKONA - Medium
+            # Check if the two lords occupy trikona positions from each other
+            if house_distance in [4, 8]:  # 5th, 9th from each other (trikona relationship)
+                if (self._check_lord_strength(lord1, planets, "neutral") and
+                    self._check_lord_strength(lord2, planets, "neutral")):
+
+                    yogas.append({
+                        "name": f"Raj Yoga: {house1}L-{house2}L Mutual Trikona",
+                        "description": f"{pair_desc} in mutual trikona positions - fortune and dharmic success through trinal harmony between {lord1} (in {lord1_house}th) and {lord2} (in {lord2_house}th)",
+                        "strength": "Medium",
+                        "category": "Raj Yoga",
+                        "yoga_forming_planets": [lord1, lord2],
+                        "formation": f"{lord1} in {lord1_house}th, {lord2} in {lord2_house}th (mutual trikona)"
+                    })
+
+            # 5. PARIVARTANA (Sign Exchange) - Very Strong
+            if self._check_parivartana(lord1, lord2, planets):
+                # Parivartana is considered very powerful
+                strength = "Strong"
+
+                # Check if it's Maha Parivartana (both in kendra/trikona)
+                if ((lord1_house in [1, 4, 7, 10, 5, 9]) and
+                    (lord2_house in [1, 4, 7, 10, 5, 9])):
+                    strength = "Very Strong"
+                    prefix = "Maha "
+                else:
+                    prefix = ""
+
+                yogas.append({
+                    "name": f"Raj Yoga: {house1}L-{house2}L {prefix}Parivartana",
+                    "description": f"{pair_desc} in mutual sign exchange ({prefix}Parivartana) - exceptional power through complete energy exchange between {lord1} (in {lord2}'s sign) and {lord2} (in {lord1}'s sign)",
+                    "strength": strength,
+                    "category": "Raj Yoga",
+                    "yoga_forming_planets": [lord1, lord2],
+                    "formation": f"{lord1} and {lord2} in sign exchange"
+                })
+
+        return yogas
+
+    def _detect_benefic_support_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.3: Benefic Support Yogas (24 variations)
+
+        BPHS IDs 112-135: Benefics positioned favorably from anchor points
+
+        Benefic planets (Jupiter, Venus, Mercury, waxing Moon) in 2nd, 4th, or 5th
+        from Lagna lord's sign provide support for success and prosperity.
+
+        Anchors:
+        - Lagna lord's sign (primary anchor)
+
+        Positions: 2nd, 4th, 5th house from anchor sign
+        Benefics: Jupiter, Venus, Mercury, Moon (when waxing)
+
+        Formula: 4 benefics × 3 positions × 2 anchors = 24 combinations
+        (For now implementing with Lagna lord's sign as primary anchor)
+
+        Effects:
+        - Financial support and stability
+        - Educational achievements
+        - Family harmony and support
+        - Favorable opportunities
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get Lagna lord
+        lagna_lord = self._get_house_lord(1, asc_sign)
+        if lagna_lord not in planets:
+            return yogas
+
+        # Get the sign Lagna lord is positioned in
+        lagna_lord_sign = planets[lagna_lord].get("sign_num", 0)
+        if lagna_lord_sign == 0:
+            return yogas
+
+        # Convert to 0-indexed
+        lagna_lord_sign_idx = lagna_lord_sign - 1
+
+        # Define benefics
+        benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+
+        # Define support positions from Lagna lord's sign (2nd, 4th, 5th)
+        support_positions = {
+            2: "2nd from Lagna lord's sign",
+            4: "4th from Lagna lord's sign",
+            5: "5th from Lagna lord's sign"
+        }
+
+        # Check each benefic
+        for benefic in benefics:
+            if benefic not in planets:
+                continue
+
+            benefic_sign = planets[benefic].get("sign_num", 0)
+            if benefic_sign == 0:
+                continue
+
+            # Convert to 0-indexed
+            benefic_sign_idx = benefic_sign - 1
+
+            # Calculate distance from Lagna lord's sign
+            sign_distance = (benefic_sign_idx - lagna_lord_sign_idx) % 12
+
+            # Check if in support position (2nd, 4th, 5th from Lagna lord's sign)
+            if sign_distance in [1, 3, 4]:  # 0-indexed: 1=2nd, 3=4th, 4=5th
+                position_num = sign_distance + 1
+                position_desc = support_positions.get(position_num, f"{position_num}th")
+
+                # Additional check for Moon - prefer waxing
+                if benefic == "Moon":
+                    # Check if Moon is waxing (optional - include all Moon for now)
+                    benefic_label = "Moon"
+                else:
+                    benefic_label = benefic
+
+                # Check if benefic is strong
+                is_strong = self._check_lord_strength(benefic, planets, "strong")
+                strength = "Medium" if is_strong else "Weak"
+
+                yogas.append({
+                    "name": f"Benefic Support Yoga: {benefic_label} in {position_num}th from Lagna Lord",
+                    "description": f"{benefic_label} positioned in {position_desc} ({self.SIGNS[benefic_sign_idx]}) - provides support through {self._get_benefic_quality(benefic)}, enhances success and prosperity",
+                    "strength": strength,
+                    "category": "Raj Yoga Support",
+                    "yoga_forming_planets": [benefic, lagna_lord],
+                    "formation": f"{benefic} in {self.SIGNS[benefic_sign_idx]}, {position_num}th from {lagna_lord}'s position in {self.SIGNS[lagna_lord_sign_idx]}"
+                })
+
+        return yogas
+
+    def _get_benefic_quality(self, planet: str) -> str:
+        """Get the quality/domain each benefic supports"""
+        qualities = {
+            "Jupiter": "wisdom, expansion, and fortune",
+            "Venus": "comfort, arts, and relationships",
+            "Mercury": "intelligence, communication, and skills",
+            "Moon": "emotional support and public favor"
+        }
+        return qualities.get(planet, "positive influences")
+
+    def _detect_valor_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.4: Valor/Overcoming Yogas (12 variations)
+
+        BPHS IDs 136-147: Malefics in upachaya (growth) positions from anchor
+
+        Sun, Mars, or Saturn in 3rd or 6th from Lagna lord's sign provide:
+        - Courage and valor
+        - Ability to overcome enemies and obstacles
+        - Competitive strength
+        - Success through effort
+
+        Formula: 3 malefics × 2 positions × 2 anchors = 12 combinations
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get Lagna lord
+        lagna_lord = self._get_house_lord(1, asc_sign)
+        if lagna_lord not in planets:
+            return yogas
+
+        # Get the sign Lagna lord is positioned in
+        lagna_lord_sign = planets[lagna_lord].get("sign_num", 0)
+        if lagna_lord_sign == 0:
+            return yogas
+
+        # Convert to 0-indexed
+        lagna_lord_sign_idx = lagna_lord_sign - 1
+
+        # Define malefics
+        malefics = ["Sun", "Mars", "Saturn"]
+
+        # Define upachaya positions (3rd, 6th from Lagna lord's sign)
+        upachaya_positions = {
+            3: "3rd from Lagna lord's sign (courage)",
+            6: "6th from Lagna lord's sign (victory over enemies)"
+        }
+
+        # Check each malefic
+        for malefic in malefics:
+            if malefic not in planets:
+                continue
+
+            malefic_sign = planets[malefic].get("sign_num", 0)
+            if malefic_sign == 0:
+                continue
+
+            # Convert to 0-indexed
+            malefic_sign_idx = malefic_sign - 1
+
+            # Calculate distance from Lagna lord's sign
+            sign_distance = (malefic_sign_idx - lagna_lord_sign_idx) % 12
+
+            # Check if in upachaya position (3rd, 6th from Lagna lord's sign)
+            if sign_distance in [2, 5]:  # 0-indexed: 2=3rd, 5=6th
+                position_num = sign_distance + 1
+                position_desc = upachaya_positions.get(position_num, f"{position_num}th")
+
+                # Check if malefic is strong
+                is_strong = self._check_lord_strength(malefic, planets, "strong")
+                strength = "Medium" if is_strong else "Weak"
+
+                quality = self._get_malefic_quality(malefic)
+
+                yogas.append({
+                    "name": f"Valor Yoga: {malefic} in {position_num}th from Lagna Lord",
+                    "description": f"{malefic} positioned {position_desc} ({self.SIGNS[malefic_sign_idx]}) - provides {quality}, ability to overcome obstacles and enemies",
+                    "strength": strength,
+                    "category": "Raj Yoga Support",
+                    "yoga_forming_planets": [malefic, lagna_lord],
+                    "formation": f"{malefic} in {self.SIGNS[malefic_sign_idx]}, {position_num}th from {lagna_lord}'s position in {self.SIGNS[lagna_lord_sign_idx]}"
+                })
+
+        return yogas
+
+    def _get_malefic_quality(self, planet: str) -> str:
+        """Get the quality/domain each malefic provides"""
+        qualities = {
+            "Sun": "authority and leadership",
+            "Mars": "courage and competitive strength",
+            "Saturn": "discipline and perseverance"
+        }
+        return qualities.get(planet, "strength through challenges")
+
+    def _detect_exalted_benefic_2nd_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.5: Exalted Benefic in 2nd House (4 variations)
+
+        BPHS IDs 148-151: Jupiter/Venus/Mercury/Moon exalted in 2nd house
+
+        Exalted benefic in 2nd house indicates:
+        - Exceptional wealth accumulation
+        - Eloquent speech and communication
+        - Strong family support
+        - Financial wisdom
+
+        Exaltation signs:
+        - Jupiter in Cancer (4)
+        - Venus in Pisces (12)
+        - Mercury in Virgo (6)
+        - Moon in Taurus (2)
+        """
+        yogas = []
+
+        benefics = {
+            "Jupiter": (4, "Cancer", "wisdom in wealth, expansive financial growth"),
+            "Venus": (12, "Pisces", "luxurious lifestyle, artistic income"),
+            "Mercury": (6, "Virgo", "intellectual earnings, business acumen"),
+            "Moon": (2, "Taurus", "emotional security through wealth, stable finances")
+        }
+
+        for benefic, (exalt_sign, exalt_sign_name, quality) in benefics.items():
+            if benefic not in planets:
+                continue
+
+            planet_data = planets[benefic]
+            planet_house = planet_data.get("house", 0)
+            planet_sign = planet_data.get("sign_num", 0)
+            is_exalted = planet_data.get("exalted", False)
+
+            # Check if in 2nd house AND exalted
+            if planet_house == 2 and is_exalted and planet_sign == exalt_sign:
+                yogas.append({
+                    "name": f"Exalted {benefic} in 2nd House Yoga",
+                    "description": f"{benefic} exalted in {exalt_sign_name} in 2nd house - exceptional {quality}, powerful wealth-generating combination",
+                    "strength": "Strong",
+                    "category": "Raj Yoga Support",
+                    "yoga_forming_planets": [benefic],
+                    "formation": f"{benefic} exalted in 2nd house ({exalt_sign_name})"
+                })
+
+        return yogas
+
+    def _detect_viparita_like_support_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.6: Viparita-like Raj Support (28 variations)
+
+        BPHS IDs 152-179: Debilitated planets in dusthana (3/6/8/12) with strong Lagna lord
+
+        Classical principle: Debilitation in upachaya/dusthana houses can give positive results
+        when the Lagna lord is strong, converting weakness into strength.
+
+        Formula: 7 planets × 4 houses (3rd, 6th, 8th, 12th) = 28 combinations
+
+        Effects:
+        - Overcoming adversity through struggle
+        - Success after initial obstacles
+        - Transformation of weakness into strength
+        - Victory through perseverance
+
+        Condition: Lagna lord must be strong (own/exalted) for the yoga to manifest
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get Lagna lord and check strength
+        lagna_lord = self._get_house_lord(1, asc_sign)
+        if lagna_lord not in planets:
+            return yogas
+
+        # Lagna lord must be strong for this yoga to work
+        if not self._check_lord_strength(lagna_lord, planets, "strong"):
+            return yogas  # Skip if Lagna lord is weak
+
+        # Define all 7 classical planets (excluding Rahu/Ketu)
+        classical_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
+
+        # Dusthana/Upachaya houses where debilitation can be beneficial
+        beneficial_dusthana = {
+            3: "3rd house (courage through struggle)",
+            6: "6th house (victory over enemies)",
+            8: "8th house (transformation through crisis)",
+            12: "12th house (spiritual liberation)"
+        }
+
+        # Check each planet
+        for planet in classical_planets:
+            if planet not in planets:
+                continue
+
+            planet_data = planets[planet]
+            planet_house = planet_data.get("house", 0)
+            is_debilitated = planet_data.get("debilitated", False)
+
+            # Check if planet is debilitated AND in beneficial dusthana
+            if is_debilitated and planet_house in beneficial_dusthana:
+                house_desc = beneficial_dusthana[planet_house]
+
+                yogas.append({
+                    "name": f"Viparita-like Support: Debilitated {planet} in {planet_house}th",
+                    "description": f"{planet} debilitated in {house_desc} with strong Lagna lord ({lagna_lord}) - weakness transforms to strength, success through overcoming obstacles",
+                    "strength": "Medium",
+                    "category": "Raj Yoga Support",
+                    "yoga_forming_planets": [planet, lagna_lord],
+                    "formation": f"Debilitated {planet} in {planet_house}th, supported by strong {lagna_lord}"
+                })
+
+        return yogas
+
+    def _detect_karma_raj_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.7.1: Karma Raj Yoga (ID 180)
+
+        10th lord in own sign or exalted in 10th house, aspecting Lagna
+
+        This is a powerful career and authority yoga indicating:
+        - Exceptional professional success
+        - Leadership in chosen field
+        - Recognition and authority
+        - Strong career foundation
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get 10th lord
+        lord_10 = self._get_house_lord(10, asc_sign)
+        if lord_10 not in planets:
+            return yogas
+
+        planet_data = planets[lord_10]
+        planet_house = planet_data.get("house", 0)
+
+        # Check if 10th lord is in 10th house
+        if planet_house == 10:
+            # Check if strong (own/exalted)
+            if self._check_lord_strength(lord_10, planets, "strong"):
+                yogas.append({
+                    "name": "Karma Raj Yoga",
+                    "description": f"10th lord {lord_10} strong in 10th house - exceptional professional success, career authority, recognition in chosen field",
+                    "strength": "Strong",
+                    "category": "Raj Yoga Support",
+                    "yoga_forming_planets": [lord_10],
+                    "formation": f"{lord_10} in own/exalted sign in 10th house"
+                })
+
+        return yogas
+
+    def _detect_all_benefic_kendras_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.7.2: All-Benefic Kendras (ID 181)
+
+        All occupied kendra houses (1,4,7,10) contain only benefic planets
+
+        This creates:
+        - Harmony in all four pillars of life
+        - Balanced success in self, home, relationships, career
+        - Protection from adversity
+        - Overall auspiciousness
+        """
+        yogas = []
+
+        # Define benefics
+        benefics = {"Jupiter", "Venus", "Mercury", "Moon"}
+
+        # Get planets in kendras
+        kendras = [1, 4, 7, 10]
+        kendra_planets = {}
+
+        for house in kendras:
+            kendra_planets[house] = []
+
+        # Collect planets in kendras
+        for planet_name, planet_data in planets.items():
+            if planet_name in ["Rahu", "Ketu", "Ascendant"]:
+                continue
+            house = planet_data.get("house", 0)
+            if house in kendras:
+                kendra_planets[house].append(planet_name)
+
+        # Check if any kendra is occupied
+        occupied_kendras = [h for h in kendras if kendra_planets[h]]
+        if not occupied_kendras:
+            return yogas
+
+        # Check if ALL occupied kendras contain ONLY benefics
+        all_benefic = True
+        for house in occupied_kendras:
+            for planet in kendra_planets[house]:
+                if planet not in benefics:
+                    all_benefic = False
+                    break
+            if not all_benefic:
+                break
+
+        if all_benefic:
+            benefic_list = []
+            for house in occupied_kendras:
+                benefic_list.extend(kendra_planets[house])
+
+            yogas.append({
+                "name": "All-Benefic Kendras Yoga",
+                "description": f"All occupied kendras contain only benefics ({', '.join(set(benefic_list))}) - harmonious life, balanced success in all four pillars (self, home, relationships, career)",
+                "strength": "Medium",
+                "category": "Raj Yoga Support",
+                "yoga_forming_planets": list(set(benefic_list)),
+                "formation": f"Benefics in kendras: {', '.join([f'{h}th' for h in occupied_kendras])}"
+            })
+
+        return yogas
+
+    def _detect_moon_venus_mutual_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Phase 1.7.3: Moon-Venus Mutual 3rd/11th (IDs 182-183)
+
+        Moon and Venus in mutual 3rd and 11th positions
+
+        This creates:
+        - Emotional and material prosperity
+        - Artistic success and gains
+        - Harmony between heart and desires
+        - Financial gains through creativity
+        """
+        yogas = []
+
+        if "Moon" not in planets or "Venus" not in planets:
+            return yogas
+
+        moon_house = planets["Moon"].get("house", 0)
+        venus_house = planets["Venus"].get("house", 0)
+
+        if moon_house == 0 or venus_house == 0:
+            return yogas
+
+        # Check if Moon is in 3rd from Venus AND Venus is in 11th from Moon (or vice versa)
+        moon_from_venus = (moon_house - venus_house) % 12
+        venus_from_moon = (venus_house - moon_house) % 12
+
+        # Case 1: Moon in 3rd from Venus, Venus in 11th from Moon
+        if moon_from_venus == 2 and venus_from_moon == 10:  # 0-indexed: 2=3rd, 10=11th
+            yogas.append({
+                "name": "Moon-Venus Mutual 3rd/11th Yoga",
+                "description": f"Moon in 3rd from Venus, Venus in 11th from Moon - emotional prosperity, artistic gains, harmony between heart and desires",
+                "strength": "Medium",
+                "category": "Raj Yoga Support",
+                "yoga_forming_planets": ["Moon", "Venus"],
+                "formation": f"Moon in {moon_house}th, Venus in {venus_house}th (mutual 3-11)"
+            })
+
+        # Case 2: Venus in 3rd from Moon, Moon in 11th from Venus
+        elif venus_from_moon == 2 and moon_from_venus == 10:
+            yogas.append({
+                "name": "Moon-Venus Mutual 3rd/11th Yoga",
+                "description": f"Venus in 3rd from Moon, Moon in 11th from Venus - material prosperity, creative success, gains through emotional intelligence",
+                "strength": "Medium",
+                "category": "Raj Yoga Support",
+                "yoga_forming_planets": ["Moon", "Venus"],
+                "formation": f"Venus in {venus_house}th, Moon in {moon_house}th (mutual 3-11)"
+            })
+
+        return yogas
+
     def _detect_daridra_yoga(self, planets: Dict) -> List[Dict]:
         """
         Daridra Yoga (Poverty Yoga): According to BPHS
@@ -1747,37 +4044,9 @@ class ExtendedYogaService:
         """
         yogas = []
 
-        # Need ascendant sign to determine house lords
-        # Get from first planet's house calculation context
-        # Since we don't have direct access to asc_sign in this method,
-        # we'll use an alternative approach: detect from planet positions
-
-        # Try to infer ascendant from house 1 placement
-        # This is a workaround - ideally we should pass asc_sign as parameter
-        asc_sign = None
-        for planet_name, planet_data in planets.items():
-            if planet_data.get("house") == 1:
-                # Get the sign this planet is in
-                sign_num = planet_data.get("sign_num", 0)
-                # In Whole Sign system, if planet is in house 1, its sign is the ascendant
-                asc_sign = sign_num - 1  # Convert to 0-indexed
-                break
-
-        # If we couldn't determine ascendant, try another approach
-        # Use the sign of any planet in house 1, or calculate from house differences
+        # Get ascendant sign using helper method
+        asc_sign = self._calculate_ascendant_sign(planets)
         if asc_sign is None:
-            # Fallback: use any planet to calculate
-            # If a planet is in house H and sign S, then ascendant sign = (S - H + 1) mod 12
-            for planet_name, planet_data in planets.items():
-                house = planet_data.get("house", 0)
-                sign_num = planet_data.get("sign_num", 0)
-                if house > 0 and sign_num > 0:
-                    # Convert sign_num to 0-indexed for calculation
-                    asc_sign = (sign_num - house) % 12
-                    break
-
-        if asc_sign is None:
-            # Cannot determine ascendant, skip this yoga
             return yogas
 
         # Find lord of 11th house
@@ -1932,6 +4201,25 @@ class ExtendedYogaService:
                 "name": "Paasha Yoga",
                 "description": "All malefics in upachayas (3,6,10,11) - Noose/bondage pattern, imprisonment risk, restricted freedom",
                 "strength": "Weak",
+                "category": "Nabhasa - Sankhya"
+            })
+
+        # 4. Vīṇā Yoga (ID 31) - All 7 planets spread over exactly 7 signs
+        # Count unique signs occupied by the 7 classical planets
+        occupied_signs = set()
+        for planet in main_planets:
+            sign_num = planets.get(planet, {}).get("sign_num", 0)
+            if sign_num > 0:
+                occupied_signs.add(sign_num)
+
+        # Check if we have all 7 planets and they occupy exactly 7 signs
+        planets_with_position = sum(1 for p in main_planets if planets.get(p, {}).get("sign_num", 0) > 0)
+
+        if planets_with_position == 7 and len(occupied_signs) == 7:
+            yogas.append({
+                "name": "Vīṇā Yoga",
+                "description": "All 7 planets spread over exactly 7 signs - Musical instrument pattern, artistic talents, cultured nature, harmonious life, success in fine arts",
+                "strength": "Strong",
                 "category": "Nabhasa - Sankhya"
             })
 
@@ -3879,14 +6167,33 @@ class ExtendedYogaService:
         name_lower = name.lower()
         category_lower = category.lower()
 
+        # House lord placement yogas (Bhava Yogas) are NOT major by default
+        # They should be classified by their strength, not by name keywords
+        if "bhava yoga" in category_lower or "house lord placement" in category_lower:
+            # House lord yogas: classify by strength only
+            if strength == "Very Strong":
+                return "moderate"
+            elif strength == "Strong":
+                return "moderate"
+            else:  # Medium or Weak
+                return "minor"
+
         # Major yogas - life-changing combinations
         major_keywords = [
             # Pancha Mahapurusha Yogas (5 great person yogas)
             "hamsa", "malavya", "sasa", "ruchaka", "bhadra",
+            # Sun-Based Yogas (BPHS Tier 1)
+            "vesi", "vosi", "ubhayachari",
+            # Moon-Based Yogas (BPHS Tier 1)
+            "sunapha", "anapha", "durudhura",
+            # Learning & Wisdom Yogas (BPHS Tier 1)
+            "saraswati",
             # Major Raj Yogas
             "raj yoga", "neecha bhanga",
-            # Major Dhana Yogas
-            "kubera", "lakshmi", "dhana yoga",
+            # Major Dhana Yogas (classical wealth yogas)
+            # Note: "dhana yoga" is safe here because house lord yogas are filtered out
+            # by the category check above (lines 3906-3913) before reaching this point
+            "kubera", "lakshmi", "maha dhana", "dhana yoga",
             # Major benefic yogas
             "gajakesari", "gaja kesari", "adhi yoga", "vasumathi",
             # Major challenging yogas
@@ -3921,8 +6228,7 @@ class ExtendedYogaService:
         # Moderate yogas - significant but not life-defining
         moderate_keywords = [
             "nabhasa", "sanyas", "yoga", "bhanga", "nitya",
-            "veshi", "vasi", "obhayachari", "budhaditya", "chandra mangal",
-            "guru mangal", "parivartana", "viparita"
+            "budhaditya", "chandra mangal", "guru mangal", "parivartana", "viparita"
         ]
 
         # Nabhasa yogas are moderate
@@ -3974,9 +6280,77 @@ class ExtendedYogaService:
         enriched["life_area"] = self._categorize_life_area(yoga["category"], yoga["name"])
         return enriched
 
+    def _deduplicate_yogas(self, yogas: List[Dict]) -> List[Dict]:
+        """
+        Deduplicate yogas that have the same name (with spelling variations).
+
+        For example, "Gaja Kesari Yoga" and "Gajakesari Yoga" are the same yoga.
+        When duplicates are found, keep the one with more detailed information.
+        """
+        from collections import defaultdict
+
+        def normalize_name(name: str) -> str:
+            """Normalize yoga name for comparison (remove spaces, lowercase)"""
+            return name.lower().replace(" ", "").replace("-", "")
+
+        # Group yogas by normalized name
+        grouped = defaultdict(list)
+        for yoga in yogas:
+            norm_name = normalize_name(yoga.get("name", ""))
+            grouped[norm_name].append(yoga)
+
+        deduplicated = []
+        for norm_name, yoga_list in grouped.items():
+            if len(yoga_list) == 1:
+                # No duplicates, add as is
+                deduplicated.append(yoga_list[0])
+            else:
+                # Multiple yogas with same normalized name - merge them
+                # Prefer the one with more details, cancellation notes, or higher strength
+
+                # Sort by priority:
+                # 1. Has cancellation/weakening notes (more detailed)
+                # 2. Longer description
+                # 3. Strength order: Very Strong > Strong > Medium > Weak
+
+                strength_order = {"Very Strong": 4, "Strong": 3, "Medium": 2, "Weak": 1}
+
+                def yoga_priority(y):
+                    desc = y.get("description", "")
+                    has_notes = "[CANCELLED" in desc or "[WEAKENED" in desc
+                    strength_val = strength_order.get(y.get("strength", "Medium"), 2)
+                    desc_len = len(desc)
+                    return (has_notes, strength_val, desc_len)
+
+                # Sort and take the best one
+                yoga_list.sort(key=yoga_priority, reverse=True)
+                best_yoga = yoga_list[0]
+
+                # Optionally merge formation details from other versions
+                # (if they provide additional info)
+                formations = []
+                for yoga in yoga_list:
+                    formation = yoga.get("formation", "")
+                    if formation and formation not in formations:
+                        formations.append(formation)
+
+                if len(formations) > 1:
+                    best_yoga["formation"] = "; ".join(formations)
+
+                deduplicated.append(best_yoga)
+
+        return deduplicated
+
     def enrich_yogas(self, yogas: List[Dict]) -> List[Dict]:
-        """Enrich all yogas with classification metadata"""
-        return [self._enrich_yoga_with_metadata(yoga) for yoga in yogas]
+        """Deduplicate and enrich all yogas with classification metadata"""
+        # NEW: Use comprehensive normalization system for proper deduplication and categorization
+        from app.services.yoga_normalization import deduplicate_yogas
+
+        # First deduplicate using comprehensive normalization (handles spelling variations)
+        deduplicated = deduplicate_yogas(yogas)
+
+        # Then enrich with metadata
+        return [self._enrich_yoga_with_metadata(yoga) for yoga in deduplicated]
 
 
 # Global instance
