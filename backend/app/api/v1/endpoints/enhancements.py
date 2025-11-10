@@ -1154,6 +1154,37 @@ async def analyze_lal_kitab(
 
 # ==================== Ashtakavarga Endpoints ====================
 
+def _convert_houses_to_signs(house_data: dict, asc_sign_num: int) -> dict:
+    """Convert house numbers (1-12) to sign names based on Ascendant."""
+    sign_names = [
+        "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+        "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+    ]
+
+    sign_data = {}
+    for house_str, value in house_data.items():
+        house_num = int(house_str)
+        # Calculate which sign is in this house
+        sign_index = (asc_sign_num - 1 + house_num - 1) % 12
+        sign_name = sign_names[sign_index]
+        sign_data[sign_name] = value
+
+    return sign_data
+
+def _convert_house_list_to_signs(house_list: list, asc_sign_num: int) -> list:
+    """Convert list of house numbers to sign names."""
+    sign_names = [
+        "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
+        "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
+    ]
+
+    sign_list = []
+    for house_num in house_list:
+        sign_index = (asc_sign_num - 1 + house_num - 1) % 12
+        sign_list.append(sign_names[sign_index])
+
+    return sign_list
+
 @router.get("/ashtakavarga/bhinna/{profile_id}")
 async def get_bhinna_ashtakavarga(
     profile_id: str,
@@ -1165,15 +1196,34 @@ async def get_bhinna_ashtakavarga(
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
         d1_chart = extract_chart_data(chart_data["d1_chart"])
 
+        # Get Ascendant sign for house-to-sign conversion
+        asc_sign_num = d1_chart.get("planets", {}).get("Ascendant", {}).get("sign_num", 1)
+
         if planet:
             bhinna = ashtakavarga_service.calculate_bhinna_ashtakavarga(planet, d1_chart)
+            # Transform to frontend format
+            transformed_bhinna = {
+                "planet": bhinna.get("planet"),
+                "total_points": bhinna.get("total_bindus", 0),
+                "sign_points": _convert_houses_to_signs(bhinna.get("bindus_by_house", {}), asc_sign_num),
+                "strength_analysis": f"Total {bhinna.get('total_bindus', 0)} bindus"
+            }
         else:
             bhinna = ashtakavarga_service.calculate_all_bhinna_ashtakavarga(d1_chart)
+            # Transform all planets
+            transformed_bhinna = []
+            for planet_name, planet_data in bhinna.items():
+                transformed_bhinna.append({
+                    "planet": planet_data.get("planet"),
+                    "total_points": planet_data.get("total_bindus", 0),
+                    "sign_points": _convert_houses_to_signs(planet_data.get("bindus_by_house", {}), asc_sign_num),
+                    "strength_analysis": f"Total {planet_data.get('total_bindus', 0)} bindus"
+                })
 
         return {
             "profile_id": profile_id,
             "planet": planet,
-            "bhinna_ashtakavarga": bhinna
+            "bhinna_ashtakavarga": transformed_bhinna
         }
     except HTTPException:
         raise
@@ -1192,11 +1242,23 @@ async def get_sarva_ashtakavarga(
         chart_data = await get_chart_data_helper(profile_id, user["user_id"])
         d1_chart = extract_chart_data(chart_data["d1_chart"])
 
+        # Get Ascendant sign for house-to-sign conversion
+        asc_sign_num = d1_chart.get("planets", {}).get("Ascendant", {}).get("sign_num", 1)
+
         sarva = ashtakavarga_service.calculate_sarva_ashtakavarga(d1_chart)
+
+        # Transform to frontend format
+        transformed_sarva = {
+            "sign_points": _convert_houses_to_signs(sarva.get("bindus_by_house", {}), asc_sign_num),
+            "total_points": sarva.get("total_bindus", 0),
+            "strongest_signs": _convert_house_list_to_signs(sarva.get("strongest_houses", []), asc_sign_num),
+            "weakest_signs": _convert_house_list_to_signs(sarva.get("weakest_houses", []), asc_sign_num),
+            "interpretation": f"Total {sarva.get('total_bindus', 0)} bindus across all planets"
+        }
 
         return {
             "profile_id": profile_id,
-            "sarva_ashtakavarga": sarva
+            "sarva_ashtakavarga": transformed_sarva
         }
     except HTTPException:
         raise
