@@ -30,12 +30,35 @@ import {
 export default function DashboardPage() {
   const [deletingProfile, setDeletingProfile] = useState<string | null>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number; city?: string } | null>(null)
+  const [locationError, setLocationError] = useState<string | null>(null)
   const queryClient = useQueryClient()
 
   // Update time every second for real-time clock
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000)
     return () => clearInterval(timer)
+  }, [])
+
+  // Get user's current location for panchang
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          })
+          setLocationError(null)
+        },
+        (error) => {
+          console.error('Error getting location:', error)
+          setLocationError('Unable to get current location. Using birth location.')
+        }
+      )
+    } else {
+      setLocationError('Geolocation not supported. Using birth location.')
+    }
   }, [])
 
   const { data: profiles, isLoading: profilesLoading } = useQuery({
@@ -62,19 +85,23 @@ export default function DashboardPage() {
     },
   })
 
-  // Fetch panchang data for primary profile
+  // Fetch panchang data for current location (or birth location as fallback)
   const primaryProfile = profiles?.find((p: any) => p.is_primary) || profiles?.[0]
 
+  // Use current location if available, otherwise fall back to birth location
+  const panchangLatitude = currentLocation?.latitude || primaryProfile?.birth_lat
+  const panchangLongitude = currentLocation?.longitude || primaryProfile?.birth_lon
+
   const { data: panchangData } = useQuery({
-    queryKey: ['panchang-today', primaryProfile?.id],
+    queryKey: ['panchang-today', panchangLatitude, panchangLongitude],
     queryFn: async () => {
-      if (!primaryProfile) return null
+      if (!panchangLatitude || !panchangLongitude) return null
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/panchang/today?latitude=${primaryProfile.birth_lat}&longitude=${primaryProfile.birth_lon}&timezone=${primaryProfile.timezone || 'Asia/Kolkata'}`
+        `${process.env.NEXT_PUBLIC_API_URL}/panchang/today?latitude=${panchangLatitude}&longitude=${panchangLongitude}&timezone=${primaryProfile?.timezone || 'Asia/Kolkata'}`
       )
       return response.json()
     },
-    enabled: !!primaryProfile,
+    enabled: !!(panchangLatitude && panchangLongitude),
   })
 
   // Fetch life threads (dasha) data
@@ -228,7 +255,19 @@ export default function DashboardPage() {
                   <Calendar className="w-6 h-6 text-jio-600" />
                   Today's Cosmic Energy
                 </CardTitle>
-                <CardDescription>Daily Panchang for {primaryProfile.city?.display_name || primaryProfile.birth_city}</CardDescription>
+                <CardDescription className="flex items-center gap-2 mt-1">
+                  <MapPin className="w-4 h-4" />
+                  {currentLocation ? (
+                    <span className="flex items-center gap-1">
+                      Your Current Location <Badge variant="secondary" className="ml-2">Live</Badge>
+                    </span>
+                  ) : (
+                    <span>{primaryProfile.city?.display_name || primaryProfile.birth_city}</span>
+                  )}
+                  {locationError && (
+                    <span className="text-xs text-amber-600 ml-2">(Using birth location)</span>
+                  )}
+                </CardDescription>
               </div>
               <Badge variant="outline" className="text-lg">
                 <Sparkles className="w-4 h-4 mr-1" />
