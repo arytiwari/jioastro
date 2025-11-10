@@ -17,18 +17,15 @@ interface Profile {
 
 interface PlanetStrength {
   planet: string
-  total_shadbala: number
-  required_shadbala: number
-  percentage: number
-  strength_rating: string
-  components: {
-    sthana_bala: number
-    dig_bala: number
-    kala_bala: number
-    chesta_bala: number
-    naisargika_bala: number
-    drik_bala: number
-  }
+  total_strength: number
+  required_minimum: number
+  percentage_of_required: number
+  rating: string
+  components?: Array<{
+    name: string
+    value: number
+    description: string
+  }>
 }
 
 const STRENGTH_COLORS: Record<string, string> = {
@@ -204,23 +201,23 @@ export default function PlanetaryStrengthPage() {
 
           {/* Strength Cards */}
           {planetStrengths.map((strength, index) => (
-            <Card key={index} className="border-l-4" style={{ borderLeftColor: STRENGTH_COLORS[strength.strength_rating]?.replace('bg-', '') }}>
+            <Card key={index} className="border-l-4" style={{ borderLeftColor: STRENGTH_COLORS[strength.rating]?.replace('bg-', '') }}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="text-xl">{strength.planet}</CardTitle>
                     <div className="flex items-center gap-3 mt-2">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${STRENGTH_COLORS[strength.strength_rating]} text-white`}>
-                        {strength.strength_rating}
+                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${STRENGTH_COLORS[strength.rating]} text-white`}>
+                        {strength.rating}
                       </span>
                       <span className="text-sm text-gray-600">
-                        {strength.percentage.toFixed(0)}% of required strength
+                        {(strength.percentage_of_required ?? 0).toFixed(0)}% of required strength
                       </span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">{strength.total_shadbala.toFixed(0)}</p>
-                    <p className="text-xs text-gray-600">Required: {strength.required_shadbala}</p>
+                    <p className="text-2xl font-bold text-gray-900">{(strength.total_strength ?? 0).toFixed(0)}</p>
+                    <p className="text-xs text-gray-600">Required: {strength.required_minimum ?? 0}</p>
                   </div>
                 </div>
               </CardHeader>
@@ -229,32 +226,27 @@ export default function PlanetaryStrengthPage() {
                 <div className="mb-4">
                   <div className="w-full bg-gray-200 rounded-full h-2.5">
                     <div
-                      className={`h-2.5 rounded-full ${STRENGTH_COLORS[strength.strength_rating]}`}
-                      style={{ width: `${Math.min(strength.percentage, 100)}%` }}
+                      className={`h-2.5 rounded-full ${STRENGTH_COLORS[strength.rating]}`}
+                      style={{ width: `${Math.min(strength.percentage_of_required ?? 0, 100)}%` }}
                     ></div>
                   </div>
                 </div>
 
                 {/* Component Breakdown */}
-                <div className="space-y-2">
-                  <p className="text-sm font-semibold text-gray-700 mb-3">Six-Fold Strength Components:</p>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {[
-                      { name: 'Sthana Bala', value: strength.components.sthana_bala, description: 'Positional' },
-                      { name: 'Dig Bala', value: strength.components.dig_bala, description: 'Directional' },
-                      { name: 'Kala Bala', value: strength.components.kala_bala, description: 'Temporal' },
-                      { name: 'Chesta Bala', value: strength.components.chesta_bala, description: 'Motional' },
-                      { name: 'Naisargika', value: strength.components.naisargika_bala, description: 'Natural' },
-                      { name: 'Drik Bala', value: strength.components.drik_bala, description: 'Aspectual' },
-                    ].map((component, idx) => (
-                      <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200">
-                        <p className="text-xs font-semibold text-gray-700">{component.name}</p>
-                        <p className="text-lg font-bold text-gray-900">{component.value.toFixed(0)}</p>
-                        <p className="text-xs text-gray-500">{component.description}</p>
-                      </div>
-                    ))}
+                {strength.components && strength.components.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-semibold text-gray-700 mb-3">Six-Fold Strength Components:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {strength.components.map((component, idx) => (
+                        <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200">
+                          <p className="text-xs font-semibold text-gray-700">{component.name}</p>
+                          <p className="text-lg font-bold text-gray-900">{(component.value ?? 0).toFixed(0)}</p>
+                          <p className="text-xs text-gray-500">{component.description}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -273,27 +265,27 @@ export default function PlanetaryStrengthPage() {
                   <TrendingUp className="w-8 h-8 text-green-600 mx-auto mb-2" />
                   <p className="text-sm text-gray-600">Strongest Planet</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {[...planetStrengths].sort((a, b) => b.percentage - a.percentage)[0]?.planet}
+                    {[...planetStrengths].sort((a, b) => (b.percentage_of_required ?? 0) - (a.percentage_of_required ?? 0))[0]?.planet}
                   </p>
                   <p className="text-xs text-gray-600">
-                    {[...planetStrengths].sort((a, b) => b.percentage - a.percentage)[0]?.percentage.toFixed(0)}% strength
+                    {([...planetStrengths].sort((a, b) => (b.percentage_of_required ?? 0) - (a.percentage_of_required ?? 0))[0]?.percentage_of_required ?? 0).toFixed(0)}% strength
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg">
                   <TrendingDown className="w-8 h-8 text-red-600 mx-auto mb-2" />
                   <p className="text-sm text-gray-600">Weakest Planet</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {[...planetStrengths].sort((a, b) => a.percentage - b.percentage)[0]?.planet}
+                    {[...planetStrengths].sort((a, b) => (a.percentage_of_required ?? 0) - (b.percentage_of_required ?? 0))[0]?.planet}
                   </p>
                   <p className="text-xs text-gray-600">
-                    {[...planetStrengths].sort((a, b) => a.percentage - b.percentage)[0]?.percentage.toFixed(0)}% strength
+                    {([...planetStrengths].sort((a, b) => (a.percentage_of_required ?? 0) - (b.percentage_of_required ?? 0))[0]?.percentage_of_required ?? 0).toFixed(0)}% strength
                   </p>
                 </div>
                 <div className="text-center p-4 bg-white rounded-lg">
                   <Award className="w-8 h-8 text-blue-600 mx-auto mb-2" />
                   <p className="text-sm text-gray-600">Average Strength</p>
                   <p className="text-lg font-bold text-gray-900">
-                    {(planetStrengths.reduce((sum, p) => sum + p.percentage, 0) / planetStrengths.length).toFixed(0)}%
+                    {(planetStrengths.reduce((sum, p) => sum + (p.percentage_of_required ?? 0), 0) / planetStrengths.length).toFixed(0)}%
                   </p>
                   <p className="text-xs text-gray-600">
                     across {planetStrengths.length} planets

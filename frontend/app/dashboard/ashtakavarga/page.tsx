@@ -256,7 +256,7 @@ export default function AshtakavargaPage() {
                     {/* Points Grid */}
                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-4">
                       {signs.map((sign) => {
-                        const points = planetData.sign_points[sign] || 0
+                        const points = planetData.sign_points?.[sign] || 0
                         return (
                           <div
                             key={sign}
@@ -305,7 +305,7 @@ export default function AshtakavargaPage() {
                     <CardTitle>Sarva Ashtakavarga (Collective Chart)</CardTitle>
                   </div>
                   <CardDescription>
-                    Combined benefic points from all planets (Total: {sarvaData.total_points}/337)
+                    Combined benefic points from all planets (Total: {sarvaData.total_points || 0}/337)
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -317,7 +317,7 @@ export default function AshtakavargaPage() {
                         <p className="text-sm text-muted-foreground">Across all 12 signs</p>
                       </div>
                       <div className="text-4xl font-bold text-primary">
-                        {sarvaData.total_points}
+                        {sarvaData.total_points || 0}
                       </div>
                     </div>
                   </div>
@@ -327,9 +327,9 @@ export default function AshtakavargaPage() {
                     <h4 className="font-semibold mb-3">Points per Sign:</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                       {signs.map((sign) => {
-                        const points = sarvaData.sign_points[sign] || 0
-                        const isStrongest = sarvaData.strongest_signs.includes(sign)
-                        const isWeakest = sarvaData.weakest_signs.includes(sign)
+                        const points = sarvaData.sign_points?.[sign] || 0
+                        const isStrongest = sarvaData.strongest_signs?.includes(sign) || false
+                        const isWeakest = sarvaData.weakest_signs?.includes(sign) || false
                         return (
                           <div
                             key={sign}
@@ -363,9 +363,9 @@ export default function AshtakavargaPage() {
                         Strongest Signs
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {sarvaData.strongest_signs.map((sign, idx) => (
+                        {sarvaData.strongest_signs?.map((sign, idx) => (
                           <Badge key={idx} className="bg-green-500 text-white">
-                            {sign} ({sarvaData.sign_points[sign]} pts)
+                            {sign} ({sarvaData.sign_points?.[sign] || 0} pts)
                           </Badge>
                         ))}
                       </div>
@@ -380,9 +380,9 @@ export default function AshtakavargaPage() {
                         Weakest Signs
                       </h4>
                       <div className="flex flex-wrap gap-2">
-                        {sarvaData.weakest_signs.map((sign, idx) => (
+                        {sarvaData.weakest_signs?.map((sign, idx) => (
                           <Badge key={idx} variant="destructive">
-                            {sign} ({sarvaData.sign_points[sign]} pts)
+                            {sign} ({sarvaData.sign_points?.[sign] || 0} pts)
                           </Badge>
                         ))}
                       </div>
