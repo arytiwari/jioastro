@@ -8,6 +8,13 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import {
   Plus,
   User,
   MessageSquare,
@@ -30,13 +37,18 @@ import {
   Briefcase,
   Activity,
   Eye,
+  Edit,
 } from '@/components/icons'
+
+type LocationPreference = 'current' | 'birth' | 'custom'
 
 export default function DashboardPage() {
   const [deletingProfile, setDeletingProfile] = useState<string | null>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number; city?: string } | null>(null)
+  const [currentLocation, setCurrentLocation] = useState<{ latitude: number; longitude: number; city?: string; type?: LocationPreference } | null>(null)
   const [locationError, setLocationError] = useState<string | null>(null)
+  const [isLocationDialogOpen, setIsLocationDialogOpen] = useState(false)
+  const [locationPreference, setLocationPreference] = useState<LocationPreference>('birth')
   const queryClient = useQueryClient()
 
   // Update time every second for real-time clock
@@ -45,46 +57,77 @@ export default function DashboardPage() {
     return () => clearInterval(timer)
   }, [])
 
-  // Get user's current location for panchang
+  // Load saved location preference from localStorage
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const latitude = position.coords.latitude
-          const longitude = position.coords.longitude
+    const savedPreference = localStorage.getItem('panchangLocationPreference') as LocationPreference | null
+    if (savedPreference) {
+      setLocationPreference(savedPreference)
+    }
 
-          // Fetch city name using reverse geocoding
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
-            )
-            const data = await response.json()
-            const city = data.address?.city || data.address?.town || data.address?.village || data.address?.state || 'Current Location'
-
-            setCurrentLocation({
-              latitude,
-              longitude,
-              city: city,
-            })
-          } catch (error) {
-            console.error('Error fetching city name:', error)
-            setCurrentLocation({
-              latitude,
-              longitude,
-              city: 'Current Location',
-            })
-          }
-          setLocationError(null)
-        },
-        (error) => {
-          console.error('Error getting location:', error)
-          setLocationError('Unable to get current location. Using birth location.')
-        }
-      )
-    } else {
-      setLocationError('Geolocation not supported. Using birth location.')
+    // Load saved custom location if exists
+    const savedLocation = localStorage.getItem('panchangCustomLocation')
+    if (savedLocation && savedPreference === 'custom') {
+      try {
+        const location = JSON.parse(savedLocation)
+        setCurrentLocation({ ...location, type: 'custom' })
+      } catch (error) {
+        console.error('Error parsing saved location:', error)
+      }
     }
   }, [])
+
+  // Get user's location based on preference
+  useEffect(() => {
+    if (locationPreference === 'current') {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const latitude = position.coords.latitude
+            const longitude = position.coords.longitude
+
+            // Fetch city name using reverse geocoding
+            try {
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+              )
+              const data = await response.json()
+              const city = data.address?.city || data.address?.town || data.address?.village || data.address?.state || 'Current Location'
+
+              setCurrentLocation({
+                latitude,
+                longitude,
+                city: city,
+                type: 'current',
+              })
+            } catch (error) {
+              console.error('Error fetching city name:', error)
+              setCurrentLocation({
+                latitude,
+                longitude,
+                city: 'Current Location',
+                type: 'current',
+              })
+            }
+            setLocationError(null)
+          },
+          (error) => {
+            console.error('Error getting location:', error)
+            setLocationError('Unable to get current location. Using birth location.')
+            setLocationPreference('birth')
+            localStorage.setItem('panchangLocationPreference', 'birth')
+          }
+        )
+      } else {
+        setLocationError('Geolocation not supported. Using birth location.')
+        setLocationPreference('birth')
+        localStorage.setItem('panchangLocationPreference', 'birth')
+      }
+    } else if (locationPreference === 'birth') {
+      setCurrentLocation(null)
+      setLocationError(null)
+    }
+    // custom location is handled separately when user selects it
+  }, [locationPreference])
 
   const { data: profiles, isLoading: profilesLoading } = useQuery({
     queryKey: ['profiles'],
@@ -130,16 +173,15 @@ export default function DashboardPage() {
   })
 
   // Fetch life threads (dasha) data
+  // TODO: Implement life-threads/timeline endpoint in backend
   const { data: lifeThreadsData } = useQuery({
     queryKey: ['life-threads', primaryProfile?.id],
     queryFn: async () => {
       if (!primaryProfile) return null
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/life-threads/${primaryProfile.id}/timeline`
-      )
-      return response.json()
+      // Endpoint not yet implemented
+      return null
     },
-    enabled: !!primaryProfile,
+    enabled: false, // Disable until endpoint is implemented
   })
 
   // Fetch chart data for yogas and cosmic alerts
@@ -147,15 +189,27 @@ export default function DashboardPage() {
     queryKey: ['chart-d1', primaryProfile?.id],
     queryFn: async () => {
       if (!primaryProfile) return null
+
+      // Get valid session with auto-refresh
+      const { getValidSession } = await import('@/lib/supabase')
+      const session = await getValidSession()
+      if (!session?.access_token) {
+        console.warn('No valid session for chart fetch')
+        return null
+      }
+
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/charts/${primaryProfile.id}/D1`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('supabase_token')}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
         }
       )
-      if (!response.ok) return null
+      if (!response.ok) {
+        console.error('Chart fetch failed:', response.status, response.statusText)
+        return null
+      }
       return response.json()
     },
     enabled: !!primaryProfile,
@@ -217,6 +271,29 @@ export default function DashboardPage() {
   const GreetingIcon = greeting.icon
   const currentDasha = getCurrentDasha()
 
+  // Location preference handlers
+  const handleLocationChange = (preference: LocationPreference) => {
+    setLocationPreference(preference)
+    localStorage.setItem('panchangLocationPreference', preference)
+    setIsLocationDialogOpen(false)
+
+    // If switching to birth location, clear current location
+    if (preference === 'birth') {
+      setCurrentLocation(null)
+      setLocationError(null)
+    }
+  }
+
+  const getLocationLabel = () => {
+    if (currentLocation?.type === 'current') {
+      return currentLocation.city || 'Current Location'
+    } else if (currentLocation?.type === 'custom') {
+      return currentLocation.city || 'Custom Location'
+    } else {
+      return primaryProfile?.city?.display_name || primaryProfile?.birth_city || 'Birth Location'
+    }
+  }
+
   const handleDeleteProfile = async (profileId: string, profileName: string) => {
     const confirmed = window.confirm(
       `Are you sure you want to delete "${profileName}"?\n\nThis will permanently delete:\n• Birth profile\n• All associated charts (D1, D9, Moon)\n• All chart calculations\n\nThis action cannot be undone.`
@@ -275,25 +352,75 @@ export default function DashboardPage() {
         <Card className="border-2 border-jio-200 shadow-lg">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div>
+              <div className="flex-1">
                 <CardTitle className="text-2xl flex items-center gap-2">
                   <Calendar className="w-6 h-6 text-jio-600" />
                   Today's Cosmic Energy
                 </CardTitle>
-                <CardDescription className="flex items-center gap-2 mt-1">
+                <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                   <MapPin className="w-4 h-4" />
-                  {currentLocation ? (
-                    <span className="flex items-center gap-1">
-                      {currentLocation.city} <Badge variant="secondary" className="ml-2">Live</Badge>
-                    </span>
-                  ) : (
-                    <span>{primaryProfile.city?.display_name || primaryProfile.birth_city}</span>
-                  )}
-                  {locationError && (
-                    <span className="text-xs text-amber-600 ml-2">(Using birth location)</span>
-                  )}
-                </CardDescription>
+                  <span className="flex items-center gap-2">
+                    {getLocationLabel()}
+                    {currentLocation?.type === 'current' && (
+                      <Badge variant="secondary" className="text-xs">Live</Badge>
+                    )}
+                    {!currentLocation && (
+                      <span className="text-xs text-amber-600">(Using birth location)</span>
+                    )}
+                  </span>
+                </div>
               </div>
+
+              {/* Location Change Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => setIsLocationDialogOpen(true)}
+              >
+                <Edit className="w-4 h-4" />
+                Change Location
+              </Button>
+
+              <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Change Panchang Location</DialogTitle>
+                    <DialogDescription>
+                      Select which location to use for calculating today's panchang data. Your choice will be saved for future sessions.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-3 py-4">
+                    <Button
+                      variant={locationPreference === 'birth' ? 'default' : 'outline'}
+                      className="w-full justify-start"
+                      onClick={() => handleLocationChange('birth')}
+                    >
+                      <MapPin className="w-4 h-4 mr-2" />
+                      <div className="text-left">
+                        <div className="font-semibold">Use Birth Location</div>
+                        <div className="text-xs opacity-75">
+                          {primaryProfile?.city?.display_name || primaryProfile?.birth_city}
+                        </div>
+                      </div>
+                    </Button>
+
+                    <Button
+                      variant={locationPreference === 'current' ? 'default' : 'outline'}
+                      className="w-full justify-start"
+                      onClick={() => handleLocationChange('current')}
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      <div className="text-left">
+                        <div className="font-semibold">Use Current Location</div>
+                        <div className="text-xs opacity-75">
+                          Auto-detect from your device
+                        </div>
+                      </div>
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Badge variant="outline" className="text-lg">
                 <Sparkles className="w-4 h-4 mr-1" />
                 Live
@@ -503,6 +630,13 @@ export default function DashboardPage() {
               <Button variant="outline" className="w-full h-24 flex flex-col gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all">
                 <Activity className="w-8 h-8 text-blue-600" />
                 <span className="text-sm font-semibold">View Chart</span>
+              </Button>
+            </Link>
+
+            <Link href="/dashboard/profiles/new">
+              <Button variant="outline" className="w-full h-24 flex flex-col gap-2 hover:bg-emerald-50 hover:border-emerald-300 transition-all">
+                <Plus className="w-8 h-8 text-emerald-600" />
+                <span className="text-sm font-semibold">Create Profile</span>
               </Button>
             </Link>
 
@@ -906,82 +1040,106 @@ export default function DashboardPage() {
         </Card>
       )}
 
-      {/* PHASE 3: VISUAL CHART PREVIEW */}
-      {chartData?.chart_data?.planets && primaryProfile && (
-        <Card className="border-2 border-purple-200 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
-          <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <Activity className="w-6 h-6 text-purple-600" />
-              Your Planetary Positions
-            </CardTitle>
-            <CardDescription>Snapshot of your birth chart energies</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-              {Object.entries(chartData.chart_data.planets)
-                .filter(([planet]) => !['Rahu', 'Ketu'].includes(planet)) // Main planets first
-                .map(([planet, data]: [string, any]) => (
-                  <div
-                    key={planet}
-                    className="p-3 bg-white rounded-lg border-2 border-purple-200 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer"
-                  >
-                    <div className="text-center">
-                      <div className="text-2xl mb-1">
-                        {planet === 'Sun' ? '☀️' :
-                         planet === 'Moon' ? '🌙' :
-                         planet === 'Mars' ? '♂️' :
-                         planet === 'Mercury' ? '☿️' :
-                         planet === 'Jupiter' ? '♃' :
-                         planet === 'Venus' ? '♀️' :
-                         planet === 'Saturn' ? '♄' : '⭐'}
-                      </div>
-                      <p className="font-bold text-sm text-purple-900">{planet}</p>
-                      <p className="text-xs text-purple-700 mt-1">
-                        {data.sign || 'N/A'}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        House {data.house || 'N/A'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-            {/* Rahu-Ketu axis */}
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {['Rahu', 'Ketu'].map((node) => {
-                const nodeData = chartData.chart_data.planets[node]
-                return nodeData ? (
-                  <div
-                    key={node}
-                    className="p-3 bg-white rounded-lg border-2 border-orange-200 hover:border-orange-400 hover:shadow-md transition-all"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">
-                        {node === 'Rahu' ? '☊' : '☋'}
-                      </div>
-                      <div>
-                        <p className="font-bold text-sm text-orange-900">{node}</p>
-                        <p className="text-xs text-orange-700">
-                          {nodeData.sign || 'N/A'} • House {nodeData.house || 'N/A'}
+      {/* PHASE 3: VISUAL CHART PREVIEW OR QUICK ACCESS */}
+      {primaryProfile && (
+        chartData?.chart_data?.planets ? (
+          <Card className="border-2 border-purple-200 shadow-lg bg-gradient-to-br from-purple-50 to-pink-50">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Activity className="w-6 h-6 text-purple-600" />
+                Your Planetary Positions
+              </CardTitle>
+              <CardDescription>Snapshot of your birth chart energies</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                {Object.entries(chartData.chart_data.planets)
+                  .filter(([planet]) => !['Rahu', 'Ketu'].includes(planet)) // Main planets first
+                  .map(([planet, data]: [string, any]) => (
+                    <div
+                      key={planet}
+                      className="p-3 bg-white rounded-lg border-2 border-purple-200 hover:border-purple-400 hover:shadow-md transition-all cursor-pointer"
+                    >
+                      <div className="text-center">
+                        <div className="text-2xl mb-1">
+                          {planet === 'Sun' ? '☀️' :
+                           planet === 'Moon' ? '🌙' :
+                           planet === 'Mars' ? '♂️' :
+                           planet === 'Mercury' ? '☿️' :
+                           planet === 'Jupiter' ? '♃' :
+                           planet === 'Venus' ? '♀️' :
+                           planet === 'Saturn' ? '♄' : '⭐'}
+                        </div>
+                        <p className="font-bold text-sm text-purple-900">{planet}</p>
+                        <p className="text-xs text-purple-700 mt-1">
+                          {data.sign || 'N/A'}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          House {data.house || 'N/A'}
                         </p>
                       </div>
                     </div>
-                  </div>
-                ) : null
-              })}
-            </div>
+                  ))}
+              </div>
 
-            <div className="mt-4 text-center">
+              {/* Rahu-Ketu axis */}
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                {['Rahu', 'Ketu'].map((node) => {
+                  const nodeData = chartData.chart_data.planets[node]
+                  return nodeData ? (
+                    <div
+                      key={node}
+                      className="p-3 bg-white rounded-lg border-2 border-orange-200 hover:border-orange-400 hover:shadow-md transition-all"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="text-2xl">
+                          {node === 'Rahu' ? '☊' : '☋'}
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-orange-900">{node}</p>
+                          <p className="text-xs text-orange-700">
+                            {nodeData.sign || 'N/A'} • House {nodeData.house || 'N/A'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null
+                })}
+              </div>
+
+              <div className="mt-4 text-center">
+                <Link href={`/dashboard/chart/${primaryProfile.id}`}>
+                  <Button className="gap-2">
+                    <Eye className="w-4 h-4" />
+                    View Full Birth Chart
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          // Fallback card when chart data is not loaded
+          <Card className="border-2 border-purple-200 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-2">
+                <Activity className="w-6 h-6 text-purple-600" />
+                Birth Chart
+              </CardTitle>
+              <CardDescription>View your complete Vedic birth chart analysis</CardDescription>
+            </CardHeader>
+            <CardContent className="text-center py-8">
+              <p className="text-gray-600 mb-4">
+                {chartData === undefined ? 'Loading chart data...' : 'Chart data will be calculated when you view your birth chart'}
+              </p>
               <Link href={`/dashboard/chart/${primaryProfile.id}`}>
-                <Button className="gap-2">
+                <Button className="gap-2" size="lg">
                   <Eye className="w-4 h-4" />
                   View Full Birth Chart
                 </Button>
               </Link>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )
       )}
 
       {/* Quick Stats */}
@@ -1030,8 +1188,20 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Birth Profiles</CardTitle>
-            <CardDescription>Manage your birth charts</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Birth Profiles</CardTitle>
+                <CardDescription>Manage your birth charts</CardDescription>
+              </div>
+              {profiles && profiles.length > 0 && (
+                <Link href="/dashboard/profiles/new">
+                  <Button size="sm" className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    New Profile
+                  </Button>
+                </Link>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             {profilesLoading ? (
