@@ -242,8 +242,8 @@ class LifeThreadsService:
             profile_id,
             birth_date,
             profile.get("birth_time"),
-            profile.get("latitude"),
-            profile.get("longitude")
+            profile.get("birth_lat"),  # Fixed: use birth_lat instead of latitude
+            profile.get("birth_lon")   # Fixed: use birth_lon instead of longitude
         )
 
         # Cache it
