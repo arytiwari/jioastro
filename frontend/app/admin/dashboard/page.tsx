@@ -49,7 +49,7 @@ export default function AdminDashboardPage() {
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [adminUsername, setAdminUsername] = useState('')
-  const [activeTab, setActiveTab] = useState<'knowledge' | 'users'>('knowledge')
+  const [activeTab, setActiveTab] = useState<'knowledge' | 'users' | 'cities'>('knowledge')
 
   // Knowledge Bank State
   const [documents, setDocuments] = useState<Document[]>([])
@@ -365,6 +365,16 @@ export default function AdminDashboardPage() {
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
               User Management
+            </button>
+            <button
+              onClick={() => router.push('/admin/dashboard/cities')}
+              className={`${
+                activeTab === 'cities'
+                  ? 'border-jio-600 text-jio-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              City Management
             </button>
           </nav>
         </div>
