@@ -318,7 +318,6 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* PHASE 1: HERO SECTION - Your Moment in the Cosmos */}
       <Card className={`bg-gradient-to-br ${getTimeBasedGradient()} border-none text-white overflow-hidden relative`}>
-        <div className="absolute inset-0 bg-[url('/stars.png')] opacity-20"></div>
         <CardContent className="pt-8 pb-8 relative z-10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">

@@ -1,708 +1,428 @@
 """
-Jaimini Astrology System Service
+Jaimini Astrology Service
 
-Implements the Jaimini system of Vedic astrology including:
-- Chara Karakas (7 significators based on degrees)
-- Karakamsha (Navamsa position of Atmakaraka)
-- Svamsa (Navamsa position of Lagna)
-- Arudha Padas (illusion points for all houses)
-- Rashi Drishti (sign-based aspects)
-- Argala (interventions)
-- Chara Dasha (sign-based period system)
+Implements the Jaimini system of Vedic astrology, which differs from Parashara system.
+Jaimini uses Chara (movable) karakas, Arudha padas, and unique aspects/yogas.
 
-Author: JioAstro Development Team
-Date: January 2025
+Key Concepts:
+- Charakarakas: 7 temporal significators based on planetary degrees
+- Arudha Padas: Projections of houses showing material manifestations
+- Argala: Planetary interventions/obstructions
+- Jaimini Aspects: Sign-based, not degree-based
+- Rashi Drishti: Movable → Fixed, Fixed → Movable, Dual → Dual
+
+References:
+- Jaimini Sutras (Maharishi Jaimini)
+- Brihat Parashara Hora Shastra (Jaimini chapters)
 """
 
-from typing import Dict, List, Tuple, Any, Optional
-from datetime import date, datetime, timedelta
-import math
+from typing import Dict, List, Optional, Any, Tuple
 
 
 class JaiminiService:
-    """
-    Singleton service for Jaimini astrology calculations
-    """
-
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super(JaiminiService, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+    """Service for Jaimini astrology calculations"""
 
     def __init__(self):
-        if self._initialized:
-            return
+        """Initialize Jaimini service"""
+        pass
 
-        self._initialized = True
-
-        # Sign classifications
-        self.MOVABLE_SIGNS = [1, 4, 7, 10]  # Aries, Cancer, Libra, Capricorn
-        self.FIXED_SIGNS = [2, 5, 8, 11]    # Taurus, Leo, Scorpio, Aquarius
-        self.DUAL_SIGNS = [3, 6, 9, 12]     # Gemini, Virgo, Sagittarius, Pisces
-
-        # Sign names
-        self.SIGN_NAMES = [
-            "Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo",
-            "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"
-        ]
-
-        # Sign lords
-        self.SIGN_LORDS = {
-            1: "Mars", 2: "Venus", 3: "Mercury", 4: "Moon", 5: "Sun", 6: "Mercury",
-            7: "Venus", 8: "Mars", 9: "Jupiter", 10: "Saturn", 11: "Saturn", 12: "Jupiter"
-        }
-
-        # Karaka names and meanings
-        self.KARAKA_NAMES = {
-            "AK": ("Atmakaraka", "Soul", "Self-realization, spiritual path, core identity"),
-            "AmK": ("Amatyakaraka", "Minister", "Career, profession, advisors, support system"),
-            "BK": ("Bhratrukaraka", "Sibling", "Siblings, courage, initiatives, co-workers"),
-            "MK": ("Matrukaraka", "Mother", "Mother, emotions, home, vehicles, comforts"),
-            "PK": ("Pitrukaraka", "Father", "Father, authority, teachers, dharma, principles"),
-            "GK": ("Gnatikaraka", "Cousin", "Obstacles, enemies, diseases, competitors, litigation"),
-            "DK": ("Darakaraka", "Spouse", "Spouse, relationships, partnerships, business partners")
-        }
-
-    # =========================================================================
-    # CHARA KARAKAS CALCULATION
-    # =========================================================================
-
-    def calculate_chara_karakas(self, planets: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_charakarakas(self, planets: Dict[str, Any]) -> Dict[str, str]:
         """
-        Calculate the 7 Chara Karakas based on planetary degrees.
+        Calculate 7 Chara Karakas based on planetary longitude
 
-        The planet with the highest longitude becomes Atmakaraka (AK),
-        second highest becomes Amatyakaraka (AmK), and so on.
+        Karakas are assigned based on degrees within signs (0-30°).
+        The planet with highest degree becomes Atmakaraka, next becomes Amatyakaraka, etc.
 
-        Special rule: Rahu's degree is calculated from opposite point (30° - actual)
+        Karakas (Highest to Lowest degree):
+        1. Atmakaraka (AK) - Self, Soul
+        2. Amatyakaraka (AmK) - Career, Minister
+        3. Bhratrikaraka (BK) - Siblings
+        4. Matrikaraka (MK) - Mother
+        5. Putrakaraka (PK) - Children
+        6. Gnatikaraka (GK) - Relatives, Obstacles
+        7. Darakaraka (DK) - Spouse
+
+        Note: Rahu is excluded from karaka calculations (some traditions include it)
 
         Args:
-            planets: Dictionary with planet data including longitude
+            planets: Dictionary with planet positions including degrees
 
         Returns:
-            Dictionary with all 7 karakas and their details
+            Dictionary mapping karaka names to planet names
+            Example: {"AK": "Mars", "AmK": "Jupiter", "BK": "Sun", ...}
         """
-        # Extract degrees for ranking
-        planet_degrees = []
+        # Karaka names in order (highest to lowest)
+        karaka_names = ["AK", "AmK", "BK", "MK", "PK", "GK", "DK"]
 
-        for planet_name, planet_data in planets.items():
-            if planet_name in ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn", "Rahu"]:
-                longitude = planet_data.get("longitude", 0)
+        # Planets to consider (exclude Rahu/Ketu in standard Jaimini)
+        # Some traditions include Rahu as 8th karaka
+        main_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
 
-                # Special handling for Rahu - use opposite degree
-                if planet_name == "Rahu":
-                    sign_num = int(longitude / 30) + 1
-                    degree_in_sign = longitude % 30
-                    adjusted_degree = 30 - degree_in_sign
-                    adjusted_longitude = (sign_num - 1) * 30 + adjusted_degree
-                    longitude = adjusted_longitude
+        # Extract degrees for each planet
+        planet_degrees = {}
 
-                planet_degrees.append({
-                    "planet": planet_name,
-                    "longitude": longitude,
-                    "original_data": planet_data
-                })
+        for planet in main_planets:
+            if planet in planets:
+                planet_data = planets[planet]
 
-        # Sort by degree descending (highest first)
-        planet_degrees.sort(key=lambda x: x["longitude"], reverse=True)
+                # Get degree within sign (0-30°)
+                # Different possible data structures:
+                # 1. degree field directly
+                # 2. Calculate from longitude
+                # 3. degree_in_sign field
 
-        # Assign karakas in order
-        karaka_order = ["AK", "AmK", "BK", "MK", "PK", "GK", "DK"]
+                degree = 0.0
+
+                if "degree" in planet_data:
+                    # Degree within sign (0-30)
+                    degree = float(planet_data["degree"])
+                elif "longitude" in planet_data:
+                    # Absolute longitude (0-360)
+                    # Extract degree within sign
+                    longitude = float(planet_data["longitude"])
+                    degree = longitude % 30.0
+                elif "degree_in_sign" in planet_data:
+                    degree = float(planet_data["degree_in_sign"])
+
+                # Store planet with its degree
+                if degree >= 0:
+                    planet_degrees[planet] = degree
+
+        # Sort planets by degree (descending - highest first)
+        sorted_planets = sorted(planet_degrees.items(), key=lambda x: x[1], reverse=True)
+
+        # Assign karakas
         karakas = {}
 
-        for i, karaka_code in enumerate(karaka_order):
-            if i < len(planet_degrees):
-                planet_info = planet_degrees[i]
-                full_name, role, signification = self.KARAKA_NAMES[karaka_code]
-
-                karakas[karaka_code] = {
-                    "code": karaka_code,
-                    "full_name": full_name,
-                    "role": role,
-                    "signification": signification,
-                    "planet": planet_info["planet"],
-                    "longitude": planet_info["longitude"],
-                    "sign": self.SIGN_NAMES[int(planet_info["longitude"] / 30)],
-                    "sign_num": int(planet_info["longitude"] / 30) + 1,
-                    "degree_in_sign": planet_info["longitude"] % 30,
-                    "house": planet_info["original_data"].get("house", None)
+        for i, (planet, degree) in enumerate(sorted_planets[:7]):
+            if i < len(karaka_names):
+                karaka_names_full = {
+                    "AK": "Atmakaraka",
+                    "AmK": "Amatyakaraka",
+                    "BK": "Bhratrikaraka",
+                    "MK": "Matrikaraka",
+                    "PK": "Putrakaraka",
+                    "GK": "Gnatikaraka",
+                    "DK": "Darakaraka"
                 }
+                karakas[karaka_names[i]] = planet
+                karakas[karaka_names_full[karaka_names[i]]] = planet
 
         return karakas
 
-    def get_atmakaraka(self, karakas: Dict[str, Any]) -> Dict[str, Any]:
-        """Get the Atmakaraka (soul significator)"""
-        return karakas.get("AK", {})
-
-    def get_darakaraka(self, karakas: Dict[str, Any]) -> Dict[str, Any]:
-        """Get the Darakaraka (spouse significator)"""
-        return karakas.get("DK", {})
-
-    # =========================================================================
-    # KARAKAMSHA CALCULATION
-    # =========================================================================
-
-    def calculate_karakamsha(self, atmakaraka: Dict[str, Any], d9_chart: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_arudha_lagna(self, planets: Dict[str, Any], asc_sign: int) -> int:
         """
-        Calculate Karakamsha - the Navamsa (D9) position of Atmakaraka.
+        Calculate Arudha Lagna (AL) - Material projection of Ascendant
 
-        Karakamsha reveals:
-        - Spiritual inclinations and path
-        - Deep-seated desires
-        - Career aptitudes from past lives
-        - Karmic patterns
+        Formula:
+        1. Find Lagna lord's sign position
+        2. Count distance from Lagna to Lagna lord
+        3. Count same distance from Lagna lord's position
+        4. Apply special rules:
+           - If AL falls in 1st or 7th from Lagna, count from 4th/10th instead
 
         Args:
-            atmakaraka: Atmakaraka planet details
-            d9_chart: Navamsa (D9) chart data
+            planets: Planet positions
+            asc_sign: Ascendant sign (0-indexed: 0=Aries, 11=Pisces)
 
         Returns:
-            Karakamsha analysis with sign, planets, aspects, and interpretations
+            Arudha Lagna house number (1-12)
         """
-        if not atmakaraka or not d9_chart:
-            return {}
+        # Get Lagna lord
+        lagna_lord = self._get_sign_lord(asc_sign)
 
-        ak_planet = atmakaraka.get("planet")
-        if not ak_planet:
-            return {}
+        # Get Lagna lord's sign position
+        if lagna_lord not in planets:
+            return 1  # Default to 1st house if data unavailable
 
-        # Get AK's position in D9
-        d9_planets = d9_chart.get("planets", {})
-        ak_in_d9 = d9_planets.get(ak_planet, {})
+        lagna_lord_sign = planets[lagna_lord].get("sign_num", 0)
+        if lagna_lord_sign == 0:
+            return 1
 
-        if not ak_in_d9:
-            return {}
+        # Convert to 0-indexed
+        if lagna_lord_sign > 0:
+            lagna_lord_sign = lagna_lord_sign - 1
 
-        karakamsha_sign_num = ak_in_d9.get("sign_num", 1)
-        karakamsha_house = ak_in_d9.get("house", 1)
+        # Count distance from Lagna to Lagna lord (in signs)
+        distance = (lagna_lord_sign - asc_sign) % 12
 
-        # Find planets in Karakamsha
-        planets_in_karakamsha = []
-        for planet_name, planet_data in d9_planets.items():
-            if planet_data.get("sign_num") == karakamsha_sign_num and planet_name != ak_planet:
-                planets_in_karakamsha.append(planet_name)
+        # Count same distance from Lagna lord
+        arudha_sign = (lagna_lord_sign + distance) % 12
 
-        # Get sign lord
-        sign_lord = self.SIGN_LORDS.get(karakamsha_sign_num, "Unknown")
+        # Apply special rules
+        arudha_distance_from_lagna = (arudha_sign - asc_sign) % 12
 
-        # Basic significations based on sign
-        significations = self._get_karakamsha_significations(karakamsha_sign_num)
+        # If AL is in 1st or 7th from Lagna, apply correction
+        if arudha_distance_from_lagna == 0:  # Same as Lagna
+            # Count 10 houses from Lagna lord instead (4th from 7th position)
+            arudha_sign = (lagna_lord_sign + 10) % 12
+        elif arudha_distance_from_lagna == 6:  # 7th from Lagna
+            # Count 4 houses from Lagna lord instead
+            arudha_sign = (lagna_lord_sign + 4) % 12
 
-        return {
-            "sign": self.SIGN_NAMES[karakamsha_sign_num - 1],
-            "sign_num": karakamsha_sign_num,
-            "house_in_d9": karakamsha_house,
-            "lord": sign_lord,
-            "atmakaraka_planet": ak_planet,
-            "planets_in_karakamsha": planets_in_karakamsha,
-            "significations": significations["significations"],
-            "career_indications": significations["careers"],
-            "spiritual_path": significations["spiritual"],
-            "interpretation": self._interpret_karakamsha(karakamsha_sign_num, planets_in_karakamsha)
-        }
+        # Convert to house number (1-indexed)
+        arudha_house = ((arudha_sign - asc_sign) % 12) + 1
 
-    def _get_karakamsha_significations(self, sign_num: int) -> Dict[str, List[str]]:
-        """Get significations for each Karakamsha sign"""
-        sign_meanings = {
-            1: {  # Aries
-                "significations": ["Leadership", "Initiative", "Courage", "Independence"],
-                "careers": ["Military", "Sports", "Engineering", "Surgery", "Entrepreneurship"],
-                "spiritual": "Karma Yoga (Action-based spirituality)"
-            },
-            2: {  # Taurus
-                "significations": ["Stability", "Material comfort", "Art", "Beauty"],
-                "careers": ["Finance", "Banking", "Arts", "Agriculture", "Luxury goods"],
-                "spiritual": "Bhakti Yoga (Devotional path through material world)"
-            },
-            3: {  # Gemini
-                "significations": ["Communication", "Intellect", "Versatility", "Trade"],
-                "careers": ["Writing", "Teaching", "Media", "Trade", "Technology"],
-                "spiritual": "Jnana Yoga (Path of knowledge and communication)"
-            },
-            4: {  # Cancer
-                "significations": ["Nurturing", "Emotions", "Home", "Care"],
-                "careers": ["Nursing", "Counseling", "Food industry", "Real estate", "Social work"],
-                "spiritual": "Bhakti Yoga (Emotional devotion)"
-            },
-            5: {  # Leo
-                "significations": ["Authority", "Creativity", "Pride", "Leadership"],
-                "careers": ["Government", "Politics", "Entertainment", "Management", "Theater"],
-                "spiritual": "Raj Yoga (Royal path, leadership in spirituality)"
-            },
-            6: {  # Virgo
-                "significations": ["Service", "Analysis", "Health", "Perfection"],
-                "careers": ["Medicine", "Accounting", "Analysis", "Health services", "Editing"],
-                "spiritual": "Karma Yoga (Service-oriented spirituality)"
-            },
-            7: {  # Libra
-                "significations": ["Balance", "Partnerships", "Justice", "Harmony"],
-                "careers": ["Law", "Diplomacy", "Design", "Partnership business", "Counseling"],
-                "spiritual": "Bhakti Yoga (Devotion through relationships)"
-            },
-            8: {  # Scorpio
-                "significations": ["Transformation", "Research", "Occult", "Depth"],
-                "careers": ["Research", "Occult sciences", "Surgery", "Investigation", "Psychology"],
-                "spiritual": "Tantra Yoga (Transformation path, occult practices)"
-            },
-            9: {  # Sagittarius
-                "significations": ["Wisdom", "Teaching", "Philosophy", "Higher learning"],
-                "careers": ["Teaching", "Law", "Philosophy", "Publishing", "Travel industry"],
-                "spiritual": "Jnana Yoga (Path of wisdom and higher knowledge)"
-            },
-            10: {  # Capricorn
-                "significations": ["Discipline", "Structure", "Achievement", "Status"],
-                "careers": ["Administration", "Construction", "Large organizations", "Government", "Mining"],
-                "spiritual": "Karma Yoga (Disciplined spiritual practice)"
-            },
-            11: {  # Aquarius
-                "significations": ["Innovation", "Humanitarianism", "Group work", "Idealism"],
-                "careers": ["Technology", "Social causes", "Networking", "Research", "Astrology"],
-                "spiritual": "Jnana Yoga (Path of higher consciousness)"
-            },
-            12: {  # Pisces
-                "significations": ["Spirituality", "Compassion", "Imagination", "Transcendence"],
-                "careers": ["Spirituality", "Arts", "Healing", "Charity", "Isolation work"],
-                "spiritual": "Bhakti Yoga (Pure devotion and surrender)"
-            }
-        }
+        return arudha_house
 
-        return sign_meanings.get(sign_num, {
-            "significations": ["Varied influences"],
-            "careers": ["Multiple paths possible"],
-            "spiritual": "Individual path based on karmas"
-        })
-
-    def _interpret_karakamsha(self, sign_num: int, planets: List[str]) -> str:
-        """Generate interpretation of Karakamsha"""
-        sign_name = self.SIGN_NAMES[sign_num - 1]
-
-        base = f"Karakamsha in {sign_name} indicates a soul with strong {sign_name} qualities. "
-
-        if planets:
-            planet_str = ", ".join(planets)
-            base += f"With {planet_str} present, these influences are further emphasized. "
-        else:
-            base += "No other planets in Karakamsha suggest a pure expression of sign qualities. "
-
-        return base
-
-    def calculate_svamsa(self, lagna_longitude: float, d9_chart: Dict[str, Any]) -> Dict[str, Any]:
+    def calculate_arudha_padas(self, planets: Dict[str, Any], asc_sign: int) -> Dict[str, int]:
         """
-        Calculate Svamsa (Lagnamsa) - Navamsa position of Ascendant.
+        Calculate all 12 Arudha Padas (A1-A12)
+
+        Each house has an Arudha pada showing its material manifestation.
+        A1 = Arudha Lagna (AL) - Most important
 
         Args:
-            lagna_longitude: Ascendant longitude in D1
-            d9_chart: Navamsa chart data
+            planets: Planet positions
+            asc_sign: Ascendant sign (0-indexed)
 
         Returns:
-            Svamsa details with interpretation
+            Dictionary mapping pada names to house numbers
+            Example: {"AL": 5, "A2": 7, "A3": 1, ...}
         """
-        # Calculate D9 position of Lagna
-        d9_sign = self._calculate_navamsa_sign(lagna_longitude)
-
-        return {
-            "sign": self.SIGN_NAMES[d9_sign - 1],
-            "sign_num": d9_sign,
-            "lord": self.SIGN_LORDS.get(d9_sign, "Unknown"),
-            "significance": "True self-image and karmic tendencies"
-        }
-
-    def _calculate_navamsa_sign(self, longitude: float) -> int:
-        """Calculate Navamsa (D9) sign from longitude"""
-        sign = int(longitude / 30) + 1
-        degree_in_sign = longitude % 30
-        navamsa_portion = int(degree_in_sign / 3.333333)  # 30/9 = 3.33° per navamsa
-
-        # Calculate D9 sign
-        if sign in [1, 5, 9]:  # Fire signs start from own sign
-            d9_sign = ((navamsa_portion) % 12) + 1
-        elif sign in [2, 6, 10]:  # Earth signs start from 10th
-            d9_sign = ((9 + navamsa_portion) % 12) + 1
-        elif sign in [3, 7, 11]:  # Air signs start from 7th
-            d9_sign = ((6 + navamsa_portion) % 12) + 1
-        else:  # Water signs start from 4th
-            d9_sign = ((3 + navamsa_portion) % 12) + 1
-
-        return d9_sign
-
-    # =========================================================================
-    # ARUDHA PADAS CALCULATION
-    # =========================================================================
-
-    def _get_house_sign(self, houses_data: Any, house_num: int) -> int:
-        """
-        Safely get sign number for a house, handling both list and dict formats.
-
-        Args:
-            houses_data: Either a dict {"1": {"sign_num": 5}} or list [{"house": 1, "sign_num": 5}]
-            house_num: House number (1-12)
-
-        Returns:
-            Sign number (1-12)
-        """
-        if isinstance(houses_data, dict):
-            # Dict format: {"1": {"sign_num": 5}}
-            return houses_data.get(str(house_num), {}).get("sign_num", house_num)
-        elif isinstance(houses_data, list):
-            # List format: [{"house": 1, "sign_num": 5}, ...]
-            for house_obj in houses_data:
-                if isinstance(house_obj, dict) and house_obj.get("house") == house_num:
-                    return house_obj.get("sign_num", house_num)
-            return house_num
-        else:
-            # Fallback
-            return house_num
-
-    def calculate_arudha_pada(self, house: int, chart: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Calculate Arudha Pada for a given house.
-
-        Method:
-        1. Find lord of the house
-        2. Count from lord's position to the house
-        3. Count same distance from the house
-        4. Exception: If pada falls in 1st or 7th from house, count 10 signs ahead
-
-        Args:
-            house: House number (1-12)
-            chart: Birth chart data
-
-        Returns:
-            Arudha Pada sign and interpretation
-        """
-        # Get house sign (handle both list and dict formats)
-        houses = chart.get("houses", {})
-        house_sign = self._get_house_sign(houses, house)
-
-        # Get lord of house
-        lord = self.SIGN_LORDS.get(house_sign, "Sun")
-
-        # Find lord's position
-        planets = chart.get("planets", {})
-        lord_data = planets.get(lord, {})
-        lord_house = lord_data.get("house", 1)
-
-        # Calculate distance from lord to house
-        if lord_house <= house:
-            distance = house - lord_house
-        else:
-            distance = 12 - lord_house + house
-
-        # Count same distance from house
-        pada_house = (house + distance - 1) % 12 + 1
-
-        # Exception rule: If pada in 1st or 7th from house, count 10 ahead
-        diff = abs(pada_house - house)
-        if diff == 0 or diff == 6:
-            pada_house = (house + 10 - 1) % 12 + 1
-
-        pada_sign = self._get_house_sign(houses, pada_house)
-
-        return {
-            "house": pada_house,
-            "sign": self.SIGN_NAMES[pada_sign - 1] if pada_sign <= 12 else "Unknown",
-            "sign_num": pada_sign,
-            "lord": self.SIGN_LORDS.get(pada_sign, "Unknown")
-        }
-
-    def calculate_all_arudha_padas(self, chart: Dict[str, Any]) -> Dict[str, Any]:
-        """Calculate all 12 Arudha Padas"""
         arudha_padas = {}
 
-        house_meanings = {
-            1: ("AL", "Arudha Lagna", "Self-image, public persona"),
-            2: ("A2", "Dhana Pada", "Wealth perception"),
-            3: ("A3", "Vikrama Pada", "Courage, siblings image"),
-            4: ("A4", "Matru Pada", "Mother, property image"),
-            5: ("A5", "Putra Pada", "Children, creativity image"),
-            6: ("A6", "Shatru Pada", "Enemies, health image"),
-            7: ("A7", "Dara Pada", "Spouse, partnership image"),
-            8: ("A8", "Ayu Pada", "Longevity, transformation image"),
-            9: ("A9", "Bhagya Pada", "Fortune, father image"),
-            10: ("A10", "Karma Pada", "Career, status image"),
-            11: ("A11", "Labha Pada", "Gains, aspirations image"),
-            12: ("A12", "Vyaya Pada", "Losses, liberation image, also Upapada (marriage) when calculated from 12th")
-        }
+        # A1 = Arudha Lagna (special calculation)
+        arudha_padas["AL"] = self.calculate_arudha_lagna(planets, asc_sign)
+        arudha_padas["A1"] = arudha_padas["AL"]
 
-        for house_num in range(1, 13):
-            pada = self.calculate_arudha_pada(house_num, chart)
-            code, name, meaning = house_meanings[house_num]
-
-            pada_info = {
-                **pada,
-                "code": code,
-                "name": name,
-                "meaning": meaning
-            }
-
-            arudha_padas[code] = pada_info
+        # Calculate A2 through A12
+        for house_num in range(2, 13):
+            arudha_pada = self._calculate_house_arudha(planets, asc_sign, house_num)
+            arudha_padas[f"A{house_num}"] = arudha_pada
 
         return arudha_padas
 
-    def calculate_upapada_lagna(self, chart: Dict[str, Any]) -> Dict[str, Any]:
+    def _calculate_house_arudha(self, planets: Dict[str, Any], asc_sign: int, house_num: int) -> int:
         """
-        Calculate Upapada Lagna (UL) - Arudha of 12th house.
+        Calculate Arudha Pada for a specific house
 
-        UL represents:
-        - Marriage circumstances
-        - Spouse's nature as perceived
-        - Quality of married life
-        """
-        ul = self.calculate_arudha_pada(12, chart)
-        ul["name"] = "Upapada Lagna (UL)"
-        ul["code"] = "UL"
-        ul["meaning"] = "Marriage image and spouse nature"
-        return ul
-
-    # =========================================================================
-    # RASHI DRISHTI (SIGN ASPECTS)
-    # =========================================================================
-
-    def get_sign_type(self, sign_num: int) -> str:
-        """Get sign type: movable, fixed, or dual"""
-        if sign_num in self.MOVABLE_SIGNS:
-            return "movable"
-        elif sign_num in self.FIXED_SIGNS:
-            return "fixed"
-        else:
-            return "dual"
-
-    def calculate_rashi_drishti(self, sign_num: int) -> List[int]:
-        """
-        Calculate Rashi Drishti (sign aspects).
-
-        Rules:
-        - Movable signs aspect all fixed signs (except themselves)
-        - Fixed signs aspect all movable signs (except themselves)
-        - Dual signs aspect other dual signs (except themselves)
+        Same formula as Arudha Lagna but for any house
 
         Args:
-            sign_num: Sign number (1-12)
+            planets: Planet positions
+            asc_sign: Ascendant sign (0-indexed)
+            house_num: House number (1-12)
+
+        Returns:
+            Arudha Pada house number (1-12)
+        """
+        # Get house sign
+        house_sign = (asc_sign + house_num - 1) % 12
+
+        # Get house lord
+        house_lord = self._get_sign_lord(house_sign)
+
+        # Get house lord's sign position
+        if house_lord not in planets:
+            return house_num  # Default to original house
+
+        house_lord_sign = planets[house_lord].get("sign_num", 0)
+        if house_lord_sign == 0:
+            return house_num
+
+        # Convert to 0-indexed
+        if house_lord_sign > 0:
+            house_lord_sign = house_lord_sign - 1
+
+        # Count distance from house to house lord
+        distance = (house_lord_sign - house_sign) % 12
+
+        # Count same distance from house lord
+        arudha_sign = (house_lord_sign + distance) % 12
+
+        # Apply special rules
+        arudha_distance_from_house = (arudha_sign - house_sign) % 12
+
+        # If arudha is in 1st or 7th from original house, apply correction
+        if arudha_distance_from_house == 0:
+            arudha_sign = (house_lord_sign + 10) % 12
+        elif arudha_distance_from_house == 6:
+            arudha_sign = (house_lord_sign + 4) % 12
+
+        # Convert to house number relative to Lagna
+        arudha_house = ((arudha_sign - asc_sign) % 12) + 1
+
+        return arudha_house
+
+    def calculate_argala(self, house: int, planets: Dict[str, Any]) -> Dict[str, List[str]]:
+        """
+        Calculate Argala (interventions) on a house
+
+        Argala represents planetary influences that help or obstruct a house.
+
+        Benefic Argala (Help):
+        - 2nd house from reference
+        - 4th house from reference
+        - 11th house from reference
+
+        Malefic Argala (Obstruction):
+        - 3rd house from reference
+        - 10th house from reference
+
+        Virodha Argala (Counter-obstruction):
+        - 12th house (blocks 2nd house argala)
+        - 10th house (blocks 4th house argala)
+        - 3rd house (blocks 11th house argala)
+        - 9th house (blocks 3rd house argala)
+        - 4th house (blocks 10th house argala)
+
+        Args:
+            house: Reference house (1-12)
+            planets: Planet positions
+
+        Returns:
+            Dictionary with argala planets:
+            {
+                "shubha_argala": ["Jupiter", "Venus"],  # Benefic interventions
+                "papa_argala": ["Mars", "Saturn"],      # Malefic interventions
+                "virodha_argala": ["Moon"]              # Obstructions
+            }
+        """
+        benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+        malefics = ["Mars", "Saturn", "Rahu", "Ketu"]
+
+        # Calculate argala houses
+        benefic_argala_houses = [
+            (house + 1) % 12 or 12,   # 2nd house
+            (house + 3) % 12 or 12,   # 4th house
+            (house + 10) % 12 or 12   # 11th house
+        ]
+
+        malefic_argala_houses = [
+            (house + 2) % 12 or 12,   # 3rd house
+            (house + 9) % 12 or 12    # 10th house
+        ]
+
+        virodha_houses = [
+            (house + 11) % 12 or 12,  # 12th house (blocks 2nd)
+            (house + 9) % 12 or 12,   # 10th house (blocks 4th)
+            (house + 2) % 12 or 12,   # 3rd house (blocks 11th)
+            (house + 8) % 12 or 12,   # 9th house (blocks 3rd)
+            (house + 3) % 12 or 12    # 4th house (blocks 10th)
+        ]
+
+        # Find planets in argala positions
+        shubha_argala = []
+        papa_argala = []
+        virodha_argala = []
+
+        for planet, data in planets.items():
+            if planet in ["Ascendant", "MC"]:
+                continue
+
+            planet_house = data.get("house", 0)
+
+            # Check benefic argala
+            if planet_house in benefic_argala_houses:
+                if planet in benefics:
+                    shubha_argala.append(planet)
+
+            # Check malefic argala
+            if planet_house in malefic_argala_houses:
+                if planet in malefics:
+                    papa_argala.append(planet)
+
+            # Check virodha argala
+            if planet_house in virodha_houses:
+                virodha_argala.append(planet)
+
+        return {
+            "shubha_argala": shubha_argala,
+            "papa_argala": papa_argala,
+            "virodha_argala": virodha_argala
+        }
+
+    def calculate_jaimini_aspects(self, sign: int) -> List[int]:
+        """
+        Calculate Jaimini (Rashi) aspects - sign-based, not planetary
+
+        Jaimini aspects are different from Parashara:
+        - Movable signs (Aries, Cancer, Libra, Capricorn) aspect fixed signs EXCEPT the one adjacent
+        - Fixed signs (Taurus, Leo, Scorpio, Aquarius) aspect movable signs EXCEPT the one adjacent
+        - Dual signs (Gemini, Virgo, Sagittarius, Pisces) aspect other dual signs
+
+        Args:
+            sign: Sign number (0-indexed: 0=Aries, 11=Pisces)
 
         Returns:
             List of aspected sign numbers
         """
-        sign_type = self.get_sign_type(sign_num)
+        # Sign classifications
+        movable_signs = [0, 3, 6, 9]      # Aries, Cancer, Libra, Capricorn
+        fixed_signs = [1, 4, 7, 10]       # Taurus, Leo, Scorpio, Aquarius
+        dual_signs = [2, 5, 8, 11]        # Gemini, Virgo, Sagittarius, Pisces
 
-        if sign_type == "movable":
-            # Aspect all fixed signs
-            aspected = [s for s in self.FIXED_SIGNS if s != sign_num]
-        elif sign_type == "fixed":
-            # Aspect all movable signs
-            aspected = [s for s in self.MOVABLE_SIGNS if s != sign_num]
-        else:  # dual
+        aspected_signs = []
+
+        if sign in movable_signs:
+            # Aspect all fixed signs except adjacent
+            for fixed_sign in fixed_signs:
+                distance = (fixed_sign - sign) % 12
+                if distance != 1 and distance != 11:  # Not adjacent
+                    aspected_signs.append(fixed_sign)
+
+        elif sign in fixed_signs:
+            # Aspect all movable signs except adjacent
+            for movable_sign in movable_signs:
+                distance = (movable_sign - sign) % 12
+                if distance != 1 and distance != 11:  # Not adjacent
+                    aspected_signs.append(movable_sign)
+
+        elif sign in dual_signs:
             # Aspect other dual signs
-            aspected = [s for s in self.DUAL_SIGNS if s != sign_num]
+            for dual_sign in dual_signs:
+                if dual_sign != sign:
+                    aspected_signs.append(dual_sign)
 
-        return sorted(aspected)
+        return aspected_signs
 
-    def get_aspecting_signs(self, sign_num: int) -> List[int]:
-        """Get signs that aspect this sign"""
-        aspecting = []
-        for other_sign in range(1, 13):
-            if other_sign != sign_num:
-                aspects = self.calculate_rashi_drishti(other_sign)
-                if sign_num in aspects:
-                    aspecting.append(other_sign)
-        return aspecting
-
-    # =========================================================================
-    # ARGALA (INTERVENTIONS)
-    # =========================================================================
-
-    def calculate_argala(self, reference_house: int, chart: Dict[str, Any]) -> Dict[str, Any]:
+    def _get_sign_lord(self, sign_num: int) -> str:
         """
-        Calculate Argala (beneficial intervention) for a house.
-
-        Planets in 2nd, 4th, 11th from reference create beneficial argala.
-        Planets in 12th, 10th, 3rd create virodha (obstruction) to argala.
+        Get the planetary lord of a zodiac sign
 
         Args:
-            reference_house: Reference house number
-            chart: Chart data with planets
+            sign_num: Sign number (0-indexed: 0=Aries, 11=Pisces)
 
         Returns:
-            Argala analysis
+            Planet name that rules the sign
         """
-        planets = chart.get("planets", {})
-
-        # Houses creating argala
-        argala_houses = [
-            (reference_house % 12) + 1,      # 2nd house
-            (reference_house + 2) % 12 + 1,  # 4th house
-            (reference_house + 9) % 12 + 1   # 11th house
-        ]
-
-        # Houses creating virodha (obstruction)
-        virodha_houses = [
-            (reference_house + 10) % 12 + 1,  # 12th house
-            (reference_house + 8) % 12 + 1,   # 10th house
-            (reference_house + 1) % 12 + 1    # 3rd house
-        ]
-
-        argala_planets = []
-        virodha_planets = []
-
-        for planet_name, planet_data in planets.items():
-            if planet_name != "Ketu":  # Ketu doesn't create argala
-                house = planet_data.get("house", 1)
-
-                if house in argala_houses:
-                    argala_planets.append({
-                        "planet": planet_name,
-                        "house": house,
-                        "type": "beneficial"
-                    })
-                elif house in virodha_houses:
-                    virodha_planets.append({
-                        "planet": planet_name,
-                        "house": house,
-                        "type": "obstruction"
-                    })
-
-        return {
-            "argala_planets": argala_planets,
-            "virodha_planets": virodha_planets,
-            "net_effect": "beneficial" if len(argala_planets) > len(virodha_planets) else "obstructed" if len(virodha_planets) > len(argala_planets) else "neutral"
+        sign_lords = {
+            0: "Mars",      # Aries
+            1: "Venus",     # Taurus
+            2: "Mercury",   # Gemini
+            3: "Moon",      # Cancer
+            4: "Sun",       # Leo
+            5: "Mercury",   # Virgo
+            6: "Venus",     # Libra
+            7: "Mars",      # Scorpio
+            8: "Jupiter",   # Sagittarius
+            9: "Saturn",    # Capricorn
+            10: "Saturn",   # Aquarius
+            11: "Jupiter"   # Pisces
         }
 
-    # =========================================================================
-    # CHARA DASHA (SIMPLIFIED VERSION)
-    # =========================================================================
+        return sign_lords.get(sign_num, "Unknown")
 
-    def calculate_chara_dasha_years(self, sign_num: int, chart: Dict[str, Any]) -> int:
+    def _get_ascendant_sign(self, planets: Dict[str, Any]) -> Optional[int]:
         """
-        Calculate dasha years for a sign (simplified method).
-
-        Count from sign to its lord's position.
-        Each count = 1 year.
+        Extract ascendant sign from planet data
 
         Args:
-            sign_num: Sign number
-            chart: Chart data
+            planets: Planet positions dictionary
 
         Returns:
-            Number of years for this sign's dasha
+            Ascendant sign number (0-indexed) or None
         """
-        lord = self.SIGN_LORDS.get(sign_num, "Sun")
-        planets = chart.get("planets", {})
-        lord_data = planets.get(lord, {})
-        lord_sign = lord_data.get("sign_num", sign_num)
+        if "Ascendant" in planets:
+            asc_data = planets["Ascendant"]
+            if "sign_num" in asc_data:
+                # Convert to 0-indexed if needed
+                sign_num = asc_data["sign_num"]
+                return (sign_num - 1) % 12 if sign_num > 0 else 0
 
-        # Count from sign to lord's sign
-        if lord_sign >= sign_num:
-            years = lord_sign - sign_num + 1
-        else:
-            years = 12 - sign_num + lord_sign + 1
-
-        return min(years, 12)  # Max 12 years per dasha
-
-    def calculate_chara_dasha_sequence(self, chart: Dict[str, Any], birth_date: date) -> List[Dict[str, Any]]:
-        """
-        Calculate Chara Dasha sequence (simplified).
-
-        This is a basic implementation. Full Chara Dasha requires
-        complex rules based on paka, kendras, etc.
-
-        Args:
-            chart: Chart data
-            birth_date: Birth date for calculating periods
-
-        Returns:
-            List of dasha periods with dates
-        """
-        lagna_sign = chart.get("ascendant", {}).get("sign_num", 1)
-
-        # Simple forward sequence from lagna
-        dasha_sequence = []
-        current_date = birth_date
-
-        for i in range(12):
-            sign_num = ((lagna_sign + i - 1) % 12) + 1
-            years = self.calculate_chara_dasha_years(sign_num, chart)
-
-            end_date = current_date + timedelta(days=years * 365.25)
-
-            dasha_sequence.append({
-                "sign": self.SIGN_NAMES[sign_num - 1],
-                "sign_num": sign_num,
-                "start_date": current_date.isoformat(),
-                "end_date": end_date.isoformat(),
-                "duration_years": years,
-                "lord": self.SIGN_LORDS.get(sign_num, "Unknown")
-            })
-
-            current_date = end_date
-
-        return dasha_sequence
-
-    def get_current_chara_dasha(self, dasha_sequence: List[Dict[str, Any]], current_date: date = None) -> Dict[str, Any]:
-        """Get current Chara Dasha period"""
-        if current_date is None:
-            current_date = date.today()
-
-        current_date_str = current_date.isoformat()
-
-        for dasha in dasha_sequence:
-            if dasha["start_date"] <= current_date_str <= dasha["end_date"]:
-                return dasha
-
-        return {}
-
-    # =========================================================================
-    # COMPREHENSIVE JAIMINI ANALYSIS
-    # =========================================================================
-
-    def analyze_jaimini_chart(self, chart: Dict[str, Any], d9_chart: Dict[str, Any], birth_date: date) -> Dict[str, Any]:
-        """
-        Perform comprehensive Jaimini analysis of a chart.
-
-        Args:
-            chart: D1 birth chart
-            d9_chart: D9 Navamsa chart
-            birth_date: Birth date for dasha calculation
-
-        Returns:
-            Complete Jaimini analysis
-        """
-        planets = chart.get("planets", {})
-
-        # Calculate Chara Karakas
-        karakas = self.calculate_chara_karakas(planets)
-
-        # Get Atmakaraka
-        atmakaraka = self.get_atmakaraka(karakas)
-
-        # Calculate Karakamsha
-        karakamsha = self.calculate_karakamsha(atmakaraka, d9_chart)
-
-        # Calculate Svamsa
-        lagna_long = chart.get("ascendant", {}).get("longitude", 0)
-        svamsa = self.calculate_svamsa(lagna_long, d9_chart)
-
-        # Calculate Arudha Padas
-        arudha_padas = self.calculate_all_arudha_padas(chart)
-
-        # Calculate Chara Dasha
-        chara_dasha_sequence = self.calculate_chara_dasha_sequence(chart, birth_date)
-        current_chara_dasha = self.get_current_chara_dasha(chara_dasha_sequence)
-
-        return {
-            "chara_karakas": karakas,
-            "atmakaraka": atmakaraka,
-            "karakamsha": karakamsha,
-            "svamsa": svamsa,
-            "arudha_padas": arudha_padas,
-            "chara_dasha": {
-                "current": current_chara_dasha,
-                "sequence": chara_dasha_sequence
-            },
-            "calculation_date": datetime.now().isoformat()
-        }
+        return None
 
 
-# Singleton instance
+# Create singleton instance
 jaimini_service = JaiminiService()
