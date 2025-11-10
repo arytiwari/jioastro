@@ -147,7 +147,9 @@ export default function LifeThreadsPage() {
     if (!selectedProfile) return
     setLoading(true)
     try {
-      const response = await apiClient.get(`/life-threads/timeline/${selectedProfile}`)
+      // Add cache-busting parameter to force fresh data
+      const cacheBuster = Date.now()
+      const response = await apiClient.get(`/life-threads/timeline/${selectedProfile}?_=${cacheBuster}`)
       setTimeline(response.data.timeline)
     } catch (error) {
       console.error('Failed to load timeline:', error)

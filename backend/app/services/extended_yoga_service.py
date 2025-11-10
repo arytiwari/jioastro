@@ -371,7 +371,7 @@ class ExtendedYogaService:
         yogas.extend(self._detect_sanyas_yogas(planets))
 
         # NEW PHASE 4: Bhava Yogas (House Lord Placements)
-        # 95-142: Bhava Yogas (48 critical house lord placements: 1st, 5th, 9th, 10th lords)
+        # 95-238: Bhava Yogas (144 complete house lord placements: all 12 lords × 12 positions)
         yogas.extend(self._detect_bhava_yogas(planets))
 
         return yogas
@@ -2590,7 +2590,21 @@ class ExtendedYogaService:
 
         Formula: 12 house lords × 12 possible placements = 144 combinations
 
-        Currently implemented: Critical house lords (1st, 9th, 10th, 5th) = 48 yogas
+        Complete implementation: All 12 house lords (1-12) = 144 yogas
+
+        House Lords by Significance:
+        - 1st lord (Lagna/Tanu Karaka) - Self, personality, vitality
+        - 2nd lord (Dhana Karaka) - Wealth, family, speech
+        - 3rd lord (Sahaja Karaka) - Siblings, courage, communication
+        - 4th lord (Sukha Karaka) - Mother, property, education, happiness
+        - 5th lord (Putra Karaka) - Intelligence, children, past merit
+        - 6th lord (Ripu/Shatru Karaka) - Enemies, service, health
+        - 7th lord (Kalatra Karaka) - Spouse, partnerships, business
+        - 8th lord (Randhra Karaka) - Longevity, transformation, occult
+        - 9th lord (Dharma/Bhagya Karaka) - Fortune, father, spirituality
+        - 10th lord (Karma Karaka) - Career, status, profession
+        - 11th lord (Labha Karaka) - Gains, income, desires, friends
+        - 12th lord (Vyaya Karaka) - Expenses, losses, foreign, moksha
 
         Args:
             planets: Dictionary of planetary positions with house and sign_num
@@ -2610,14 +2624,11 @@ class ExtendedYogaService:
         # Get all house lords
         house_lords = self.get_house_lords_map(ascendant_sign)
 
-        # Critical house lords to detect (prioritized)
-        # 1st lord (Lagna lord) - Self, personality, overall life
-        # 9th lord (Dharma lord) - Fortune, father, spirituality
-        # 10th lord (Karma lord) - Career, status, profession
-        # 5th lord (Purva Punya) - Intelligence, children, past merit
-        critical_lords = [1, 9, 10, 5]
+        # Detect all 12 house lords (complete Bhava Yoga system)
+        # All lords are important as each governs specific life areas
+        all_lords = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
-        for lord_house in critical_lords:
+        for lord_house in all_lords:
             lord_planet = house_lords[lord_house]
             lord_placement = planets.get(lord_planet, {}).get("house", 0)
 
@@ -2717,12 +2728,21 @@ class ExtendedYogaService:
         This contains the core wisdom of Bhava Yogas - effects when a house lord
         occupies a specific house.
 
-        Currently implemented:
-        - 1st lord placements (12 yogas)
-        - 9th lord placements (12 yogas)
-        - 10th lord placements (12 yogas)
-        - 5th lord placements (12 yogas)
-        Total: 48 critical Bhava Yogas
+        Complete implementation (144 Bhava Yogas):
+        - 1st lord placements (12 yogas) - Lagna/Self yogas
+        - 2nd lord placements (12 yogas) - Wealth/Family yogas
+        - 3rd lord placements (12 yogas) - Courage/Skills yogas
+        - 4th lord placements (12 yogas) - Property/Happiness yogas
+        - 5th lord placements (12 yogas) - Intelligence/Children yogas
+        - 6th lord placements (12 yogas) - Service/Health yogas
+        - 7th lord placements (12 yogas) - Partnership/Marriage yogas
+        - 8th lord placements (12 yogas) - Transformation/Occult yogas
+        - 9th lord placements (12 yogas) - Fortune/Dharma yogas
+        - 10th lord placements (12 yogas) - Career/Karma yogas
+        - 11th lord placements (12 yogas) - Gains/Income yogas
+        - 12th lord placements (12 yogas) - Moksha/Foreign yogas
+
+        Total: 144 complete Bhava Yogas (all house lord combinations)
 
         Args:
             lord_house: Which house lord (1-12)
@@ -3093,6 +3113,726 @@ class ExtendedYogaService:
                 "effects": "Children may reside abroad, creative work in isolation, expenses on children's education, speculation causes expenses, spiritual creativity, meditation brings insights",
                 "strength": "Medium",
                 "life_areas": ["Foreign Lands", "Spirituality", "Expenses", "Isolation"]
+            }
+        }
+
+        # ====================================================================
+        # 2ND LORD (DHANA KARAKA) PLACEMENTS - Wealth, Family, Speech
+        # ====================================================================
+        bhava_effects[2] = {
+            1: {
+                "name": "Dhana Lagna Yoga",
+                "description": "2nd lord in 1st house - Self-earned wealth",
+                "effects": "Self-made wealth, eloquent speaker, strong family values, attractive face, good eating habits, resourceful personality, wealth through personal efforts",
+                "strength": "Strong",
+                "life_areas": ["Wealth", "Personality", "Speech", "Self-reliance"]
+            },
+            2: {
+                "name": "Dhana Adhi Yoga",
+                "description": "2nd lord in 2nd house - Wealth multiplication",
+                "effects": "Great wealth accumulation, strong family bonds, sweet speech, excellent financial management, inheritance, multiple income sources, food prosperity",
+                "strength": "Very Strong",
+                "life_areas": ["Wealth", "Family", "Speech", "Prosperity"]
+            },
+            3: {
+                "name": "Sahasa Dhana Yoga",
+                "description": "2nd lord in 3rd house - Wealth through courage",
+                "effects": "Wealth through skills/arts, siblings support financially, earnings from communication/writing, self-effort brings money, short journeys profitable",
+                "strength": "Medium",
+                "life_areas": ["Skills", "Communication", "Siblings", "Courage"]
+            },
+            4: {
+                "name": "Sukha Dhana Yoga",
+                "description": "2nd lord in 4th house - Property wealth",
+                "effects": "Wealth from property/vehicles, mother's family prosperous, comfortable home life, education brings wealth, real estate success, landed property",
+                "strength": "Strong",
+                "life_areas": ["Property", "Comfort", "Education", "Mother"]
+            },
+            5: {
+                "name": "Putra Dhana Yoga",
+                "description": "2nd lord in 5th house - Intelligent wealth",
+                "effects": "Wealth through speculation/investments, children bring prosperity, creative earnings, past life merit brings wealth, lottery/shares favorable, intelligent financial decisions",
+                "strength": "Very Strong",
+                "life_areas": ["Speculation", "Children", "Intelligence", "Investments"]
+            },
+            6: {
+                "name": "Ripu Dhana Yoga",
+                "description": "2nd lord in 6th house - Service wealth",
+                "effects": "Earnings through service/medicine, wealth after overcoming obstacles, loans/debts possible but manageable, enemies create financial stress, health expenses",
+                "strength": "Weak",
+                "life_areas": ["Service", "Debts", "Obstacles", "Health"]
+            },
+            7: {
+                "name": "Kalatra Dhana Yoga",
+                "description": "2nd lord in 7th house - Partnership wealth",
+                "effects": "Wealth through spouse/partnerships, business brings prosperity, marriage improves finances, foreign trade profitable, eloquent in public speaking",
+                "strength": "Strong",
+                "life_areas": ["Marriage", "Business", "Partnership", "Trade"]
+            },
+            8: {
+                "name": "Randhra Dhana Yoga",
+                "description": "2nd lord in 8th house - Hidden wealth",
+                "effects": "Sudden financial ups and downs, inheritance likely, wealth through research/occult, family secrets affect finances, longevity of wealth uncertain, insurance/wills important",
+                "strength": "Weak",
+                "life_areas": ["Inheritance", "Uncertainty", "Occult", "Transformation"]
+            },
+            9: {
+                "name": "Dharma Dhana Yoga (Raj Yoga)",
+                "description": "2nd lord in 9th house - Fortune wealth",
+                "effects": "Excellent Raj Yoga - wealth through father/gurus, dharmic earnings, religious donations bring returns, fortunate family, higher education brings wealth, ethical money",
+                "strength": "Very Strong",
+                "life_areas": ["Fortune", "Ethics", "Father", "Spirituality"]
+            },
+            10: {
+                "name": "Karma Dhana Yoga",
+                "description": "2nd lord in 10th house - Career wealth",
+                "effects": "Wealth through profession, family business success, career brings financial stability, good reputation increases earnings, government favor possible",
+                "strength": "Strong",
+                "life_areas": ["Career", "Profession", "Reputation", "Authority"]
+            },
+            11: {
+                "name": "Labha Dhana Yoga",
+                "description": "2nd lord in 11th house - Continuous gains",
+                "effects": "Excellent wealth yoga - multiple income streams, elder siblings helpful, desires fulfilled through wealth, network brings prosperity, steady gains throughout life",
+                "strength": "Very Strong",
+                "life_areas": ["Gains", "Income", "Desires", "Network"]
+            },
+            12: {
+                "name": "Vyaya Dhana Yoga",
+                "description": "2nd lord in 12th house - Expenses on family",
+                "effects": "Family expenses high, wealth goes to charity/spirituality, foreign residence possible, speech may cause losses, expenditure on education, hidden wealth abroad",
+                "strength": "Medium",
+                "life_areas": ["Expenses", "Foreign", "Charity", "Losses"]
+            }
+        }
+
+        # ====================================================================
+        # 3RD LORD (SAHAJA KARAKA) PLACEMENTS - Siblings, Courage, Communication
+        # ====================================================================
+        bhava_effects[3] = {
+            1: {
+                "name": "Sahasa Lagna Yoga",
+                "description": "3rd lord in 1st house - Courageous personality",
+                "effects": "Very courageous and adventurous, self-reliant nature, younger siblings influence life, skilled in arts/crafts, active communication style, athletic build",
+                "strength": "Strong",
+                "life_areas": ["Courage", "Skills", "Independence", "Communication"]
+            },
+            2: {
+                "name": "Dhana Sahaja Yoga",
+                "description": "3rd lord in 2nd house - Wealth through skills",
+                "effects": "Earnings through skills/arts, siblings contribute to wealth, communication skills bring money, family supports courage, writing/media income",
+                "strength": "Medium",
+                "life_areas": ["Skills", "Wealth", "Communication", "Siblings"]
+            },
+            3: {
+                "name": "Sahaja Adhi Yoga",
+                "description": "3rd lord in 3rd house - Maximum courage",
+                "effects": "Extremely courageous, excellent relationship with siblings, highly skilled, successful in arts/media, short travels beneficial, strong willpower, initiative brings success",
+                "strength": "Very Strong",
+                "life_areas": ["Courage", "Siblings", "Skills", "Initiative"]
+            },
+            4: {
+                "name": "Sukha Sahaja Yoga",
+                "description": "3rd lord in 4th house - Skillful comfort",
+                "effects": "Property through self-effort, mother encourages skills, comfortable life through talents, vehicles for travel, education in arts, home-based creative work",
+                "strength": "Medium",
+                "life_areas": ["Property", "Skills", "Comfort", "Mother"]
+            },
+            5: {
+                "name": "Putra Sahaja Yoga",
+                "description": "3rd lord in 5th house - Creative skills",
+                "effects": "Highly creative and artistic, children are talented, speculation through skills, intelligent communication, performing arts, romantic courage",
+                "strength": "Strong",
+                "life_areas": ["Creativity", "Skills", "Children", "Romance"]
+            },
+            6: {
+                "name": "Ripu Sahaja Yoga",
+                "description": "3rd lord in 6th house - Competitive courage",
+                "effects": "Victory through courage, siblings may have health issues, competition brings success, service requires skills, courage overcomes enemies, medical/healing skills",
+                "strength": "Medium",
+                "life_areas": ["Competition", "Service", "Courage", "Victory"]
+            },
+            7: {
+                "name": "Kalatra Sahaja Yoga",
+                "description": "3rd lord in 7th house - Partnership skills",
+                "effects": "Spouse is artistic/communicative, business partnerships successful, courage in relationships, travels with spouse, diplomatic skills, trade journeys",
+                "strength": "Medium",
+                "life_areas": ["Partnership", "Communication", "Business", "Travel"]
+            },
+            8: {
+                "name": "Randhra Sahaja Yoga",
+                "description": "3rd lord in 8th house - Hidden talents",
+                "effects": "Courage in crisis, research/investigative skills, occult communication abilities, transformative efforts, siblings face ups and downs, longevity through courage",
+                "strength": "Weak",
+                "life_areas": ["Research", "Occult", "Crisis", "Transformation"]
+            },
+            9: {
+                "name": "Dharma Sahaja Yoga",
+                "description": "3rd lord in 9th house - Dharmic courage",
+                "effects": "Courageous in dharma, long journeys bring skills, siblings are fortunate, religious arts/music, teaching communication, publishing success, pilgrimage journeys",
+                "strength": "Strong",
+                "life_areas": ["Fortune", "Travel", "Teaching", "Publishing"]
+            },
+            10: {
+                "name": "Karma Sahaja Yoga",
+                "description": "3rd lord in 10th house - Skillful career",
+                "effects": "Career in communication/media/arts, self-made career success, professional skills recognized, siblings help career, entrepreneurial courage, performance profession",
+                "strength": "Strong",
+                "life_areas": ["Career", "Skills", "Performance", "Recognition"]
+            },
+            11: {
+                "name": "Labha Sahaja Yoga",
+                "description": "3rd lord in 11th house - Gains through skills",
+                "effects": "Skills bring income, siblings bring gains, desires fulfilled through effort, communication network profitable, artistic income, wishes achieved through courage",
+                "strength": "Strong",
+                "life_areas": ["Gains", "Skills", "Desires", "Network"]
+            },
+            12: {
+                "name": "Vyaya Sahaja Yoga",
+                "description": "3rd lord in 12th house - Foreign skills",
+                "effects": "Skills used abroad, siblings may live far away, expenses on hobbies/arts, isolation develops talents, spiritual communication, meditation requires effort",
+                "strength": "Weak",
+                "life_areas": ["Foreign", "Isolation", "Spirituality", "Expenses"]
+            }
+        }
+
+        # ====================================================================
+        # 4TH LORD (SUKHA KARAKA) PLACEMENTS - Mother, Property, Education, Happiness
+        # ====================================================================
+        bhava_effects[4] = {
+            1: {
+                "name": "Sukha Lagna Yoga",
+                "description": "4th lord in 1st house - Comfortable personality",
+                "effects": "Mother's influence strong, property ownership, vehicles, educational success, peaceful nature, domestic happiness, emotional security, comfortable life",
+                "strength": "Strong",
+                "life_areas": ["Comfort", "Mother", "Property", "Education"]
+            },
+            2: {
+                "name": "Dhana Sukha Yoga",
+                "description": "4th lord in 2nd house - Property wealth",
+                "effects": "Wealth through real estate, family property, mother brings prosperity, comfortable family life, ancestral wealth, vehicles as assets, savings for comfort",
+                "strength": "Strong",
+                "life_areas": ["Property", "Wealth", "Family", "Assets"]
+            },
+            3: {
+                "name": "Sahaja Sukha Yoga",
+                "description": "4th lord in 3rd house - Property through effort",
+                "effects": "Property through self-effort, mother encourages skills, siblings share property, short moves for property, courage brings comfort, education in arts",
+                "strength": "Medium",
+                "life_areas": ["Effort", "Property", "Skills", "Siblings"]
+            },
+            4: {
+                "name": "Sukha Adhi Yoga",
+                "description": "4th lord in 4th house - Maximum happiness",
+                "effects": "Excellent property holdings, strong mother's support, multiple vehicles, superior education, domestic bliss, emotional fulfillment, landed property, peaceful heart",
+                "strength": "Very Strong",
+                "life_areas": ["Property", "Mother", "Education", "Happiness"]
+            },
+            5: {
+                "name": "Putra Sukha Yoga",
+                "description": "4th lord in 5th house - Educational intelligence",
+                "effects": "Excellent education, intelligent children, creative home, mother is wise, property for children, speculation in real estate, comfortable romance, teaching from home",
+                "strength": "Very Strong",
+                "life_areas": ["Education", "Intelligence", "Children", "Creativity"]
+            },
+            6: {
+                "name": "Ripu Sukha Yoga",
+                "description": "4th lord in 6th house - Property challenges",
+                "effects": "Property disputes possible, mother's health issues, emotional stress, service from home, medical education, debt for property, victory through persistence, healthcare real estate",
+                "strength": "Weak",
+                "life_areas": ["Disputes", "Service", "Health", "Obstacles"]
+            },
+            7: {
+                "name": "Kalatra Sukha Yoga",
+                "description": "4th lord in 7th house - Partnership property",
+                "effects": "Property through spouse, comfortable marriage, business from home, relocation after marriage, spouse is educated, partnership in real estate, vehicles through marriage",
+                "strength": "Strong",
+                "life_areas": ["Marriage", "Property", "Partnership", "Relocation"]
+            },
+            8: {
+                "name": "Randhra Sukha Yoga",
+                "description": "4th lord in 8th house - Inheritance property",
+                "effects": "Inherited property, mother's longevity concerns, sudden property gains/losses, hidden assets, research education, transformation through family, occult real estate",
+                "strength": "Weak",
+                "life_areas": ["Inheritance", "Uncertainty", "Mother", "Transformation"]
+            },
+            9: {
+                "name": "Dharma Sukha Yoga (Raj Yoga)",
+                "description": "4th lord in 9th house - Fortunate property",
+                "effects": "Excellent Raj Yoga - religious property, fortunate mother, higher education abroad, dharmic comfort, father and mother harmonious, pilgrimage properties, ashram/temple land",
+                "strength": "Very Strong",
+                "life_areas": ["Fortune", "Education", "Religion", "Mother"]
+            },
+            10: {
+                "name": "Karma Sukha Yoga (Raj Yoga)",
+                "description": "4th lord in 10th house - Career property",
+                "effects": "Excellent Raj Yoga - property through career, professional education, office/workplace ownership, mother supports career, government property, fame brings comfort, authority",
+                "strength": "Very Strong",
+                "life_areas": ["Career", "Property", "Fame", "Authority"]
+            },
+            11: {
+                "name": "Labha Sukha Yoga",
+                "description": "4th lord in 11th house - Property gains",
+                "effects": "Multiple properties, elder siblings share property, desires for comfort fulfilled, income from real estate, vehicles as gains, networking brings property, wishes achieved",
+                "strength": "Strong",
+                "life_areas": ["Gains", "Property", "Income", "Desires"]
+            },
+            12: {
+                "name": "Vyaya Sukha Yoga",
+                "description": "4th lord in 12th house - Foreign property",
+                "effects": "Property abroad, mother may live far, expenses on property/vehicles, foreign education, isolated property, spiritual home, meditation room, ashram residence",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Spirituality", "Isolation", "Expenses"]
+            }
+        }
+
+        # ====================================================================
+        # 6TH LORD (RIPU/SHATRU KARAKA) PLACEMENTS - Enemies, Service, Health
+        # ====================================================================
+        bhava_effects[6] = {
+            1: {
+                "name": "Ripu Lagna Yoga",
+                "description": "6th lord in 1st house - Competitive personality",
+                "effects": "Competitive nature, health needs attention, service-oriented, ability to fight obstacles, enemies openly visible, medical profession possible, athletic build",
+                "strength": "Weak",
+                "life_areas": ["Competition", "Health", "Service", "Enemies"]
+            },
+            2: {
+                "name": "Dhana Ripu Yoga",
+                "description": "6th lord in 2nd house - Wealth through service",
+                "effects": "Earnings through service/medicine, family disputes over money, debts affect wealth, speech creates enemies, hard work for savings, overcoming financial obstacles",
+                "strength": "Weak",
+                "life_areas": ["Service", "Debts", "Family", "Obstacles"]
+            },
+            3: {
+                "name": "Sahaja Ripu Yoga",
+                "description": "6th lord in 3rd house - Victory through courage",
+                "effects": "Victory over enemies through courage, siblings may face health issues, competitive skills, service communication, effort overcomes obstacles, brave in competition",
+                "strength": "Medium",
+                "life_areas": ["Victory", "Courage", "Competition", "Siblings"]
+            },
+            4: {
+                "name": "Sukha Ripu Yoga",
+                "description": "6th lord in 4th house - Property disputes",
+                "effects": "Property disputes possible, mother's health concerns, stress at home, service from property, medical education, debt for vehicles, emotional challenges",
+                "strength": "Weak",
+                "life_areas": ["Disputes", "Property", "Mother", "Stress"]
+            },
+            5: {
+                "name": "Putra Ripu Yoga",
+                "description": "6th lord in 5th house - Children health issues",
+                "effects": "Children's health needs care, delayed progeny, speculation causes debts, creative service, competitive intelligence, educational obstacles, victory through intellect",
+                "strength": "Weak",
+                "life_areas": ["Children", "Health", "Obstacles", "Speculation"]
+            },
+            6: {
+                "name": "Ripu Adhi Yoga",
+                "description": "6th lord in 6th house - Victory over enemies",
+                "effects": "Excellent for victory - defeats all enemies, strong health recovery, success in service/legal fields, overcomes debts, litigation expertise, medical profession success",
+                "strength": "Strong",
+                "life_areas": ["Victory", "Service", "Health", "Competition"]
+            },
+            7: {
+                "name": "Kalatra Ripu Yoga",
+                "description": "6th lord in 7th house - Partnership conflicts",
+                "effects": "Conflicts in marriage/partnerships, spouse may have health issues, business disputes, marriage after obstacles, partner in service field, legal partnerships",
+                "strength": "Weak",
+                "life_areas": ["Marriage", "Conflicts", "Partnership", "Legal"]
+            },
+            8: {
+                "name": "Randhra Ripu Yoga (Viparita Raj Yoga)",
+                "description": "6th lord in 8th house - Transformation through obstacles",
+                "effects": "Viparita Raj Yoga - enemies destroy themselves, chronic health but long life, sudden victory over obstacles, inheritance through service, occult healing, research medicine",
+                "strength": "Medium",
+                "life_areas": ["Longevity", "Victory", "Occult", "Healing"]
+            },
+            9: {
+                "name": "Dharma Ripu Yoga",
+                "description": "6th lord in 9th house - Obstacles to fortune",
+                "effects": "Conflicts with father/gurus, dharma through service, health issues during travel, legal battles over beliefs, competitive higher education, service abroad",
+                "strength": "Weak",
+                "life_areas": ["Conflicts", "Father", "Travel", "Beliefs"]
+            },
+            10: {
+                "name": "Karma Ripu Yoga",
+                "description": "6th lord in 10th house - Service career",
+                "effects": "Career in service/medicine/legal fields, workplace competition, success through hard work, enemies in profession, health stress from career, government service",
+                "strength": "Medium",
+                "life_areas": ["Career", "Service", "Competition", "Work"]
+            },
+            11: {
+                "name": "Labha Ripu Yoga",
+                "description": "6th lord in 11th house - Gains through service",
+                "effects": "Income through service, victory brings gains, debts eventually paid, elder siblings face obstacles, desires fulfilled after struggle, competitive income",
+                "strength": "Medium",
+                "life_areas": ["Gains", "Service", "Victory", "Income"]
+            },
+            12: {
+                "name": "Vyaya Ripu Yoga (Viparita Raj Yoga)",
+                "description": "6th lord in 12th house - Hidden victory",
+                "effects": "Viparita Raj Yoga - enemies defeated secretly, expenses destroy debts, service abroad, health expenses but healing, hospitalization for recovery, foreign medical work",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Victory", "Healing", "Expenses"]
+            }
+        }
+
+        # ====================================================================
+        # 7TH LORD (KALATRA KARAKA) PLACEMENTS - Spouse, Partnerships, Business
+        # ====================================================================
+        bhava_effects[7] = {
+            1: {
+                "name": "Kalatra Lagna Yoga",
+                "description": "7th lord in 1st house - Partnership focused",
+                "effects": "Spouse plays major role in life, attractive personality, focus on relationships, partner-oriented, business success, public relations skills, early marriage possible",
+                "strength": "Strong",
+                "life_areas": ["Marriage", "Partnership", "Personality", "Relationships"]
+            },
+            2: {
+                "name": "Dhana Kalatra Yoga",
+                "description": "7th lord in 2nd house - Wealth through spouse",
+                "effects": "Wealth through marriage/partnerships, spouse brings prosperity, family business partnerships, eloquent partner, in-laws support finances, joint assets grow",
+                "strength": "Strong",
+                "life_areas": ["Wealth", "Marriage", "Partnership", "Family"]
+            },
+            3: {
+                "name": "Sahaja Kalatra Yoga",
+                "description": "7th lord in 3rd house - Active partnerships",
+                "effects": "Spouse is courageous/communicative, business partnerships in media/arts, siblings introduce spouse, marriage through effort, partner travels, creative business",
+                "strength": "Medium",
+                "life_areas": ["Partnership", "Communication", "Courage", "Travel"]
+            },
+            4: {
+                "name": "Sukha Kalatra Yoga",
+                "description": "7th lord in 4th house - Comfortable marriage",
+                "effects": "Domestic happiness through spouse, property after marriage, spouse like mother figure, partner is educated, comfortable partnership, relocation for marriage, vehicles together",
+                "strength": "Strong",
+                "life_areas": ["Marriage", "Comfort", "Property", "Happiness"]
+            },
+            5: {
+                "name": "Putra Kalatra Yoga",
+                "description": "7th lord in 5th house - Romantic marriage",
+                "effects": "Love marriage, spouse is intelligent/creative, children from good marriage, speculation with partner, romantic relationship, creative business, joyful partnership",
+                "strength": "Very Strong",
+                "life_areas": ["Romance", "Love", "Children", "Creativity"]
+            },
+            6: {
+                "name": "Ripu Kalatra Yoga",
+                "description": "7th lord in 6th house - Partnership challenges",
+                "effects": "Marital disputes possible, spouse in service/health field, delayed marriage, obstacles in partnerships, partner overcomes enemies, business competition, health issues to spouse",
+                "strength": "Weak",
+                "life_areas": ["Conflicts", "Delays", "Service", "Obstacles"]
+            },
+            7: {
+                "name": "Kalatra Adhi Yoga",
+                "description": "7th lord in 7th house - Perfect partnership",
+                "effects": "Excellent marriage, strong spouse, successful partnerships, long-lasting relationships, business prosperity, public recognition, balanced relationships, partner is ideal match",
+                "strength": "Very Strong",
+                "life_areas": ["Marriage", "Partnership", "Business", "Public"]
+            },
+            8: {
+                "name": "Randhra Kalatra Yoga",
+                "description": "7th lord in 8th house - Transformative marriage",
+                "effects": "Spouse brings transformation, inheritance through marriage, partner interested in occult, sudden changes in relationship, research partnerships, longevity concerns, deep intimacy",
+                "strength": "Weak",
+                "life_areas": ["Transformation", "Inheritance", "Intimacy", "Occult"]
+            },
+            9: {
+                "name": "Dharma Kalatra Yoga (Raj Yoga)",
+                "description": "7th lord in 9th house - Fortunate marriage",
+                "effects": "Excellent Raj Yoga - spouse is fortunate/spiritual, marriage brings dharma, partner from good family, long distance marriage, religious partnership, foreign spouse possible, blessed union",
+                "strength": "Very Strong",
+                "life_areas": ["Fortune", "Marriage", "Dharma", "Travel"]
+            },
+            10: {
+                "name": "Karma Kalatra Yoga (Raj Yoga)",
+                "description": "7th lord in 10th house - Career partnership",
+                "effects": "Excellent Raj Yoga - spouse helps career, business partnerships excel, fame through marriage, professional partner, public recognition together, authority in partnerships",
+                "strength": "Very Strong",
+                "life_areas": ["Career", "Fame", "Partnership", "Authority"]
+            },
+            11: {
+                "name": "Labha Kalatra Yoga",
+                "description": "7th lord in 11th house - Profitable partnerships",
+                "effects": "Gains through spouse/partnerships, desires fulfilled in marriage, business brings income, profitable collaborations, network through spouse, wishes achieved together",
+                "strength": "Strong",
+                "life_areas": ["Gains", "Income", "Desires", "Network"]
+            },
+            12: {
+                "name": "Vyaya Kalatra Yoga",
+                "description": "7th lord in 12th house - Foreign partnerships",
+                "effects": "Spouse from foreign land, marriage causes relocation, expenses on partnerships, spiritual union, isolated together, bed pleasures good, foreign business, partner abroad",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Spirituality", "Expenses", "Isolation"]
+            }
+        }
+
+        # ====================================================================
+        # 8TH LORD (RANDHRA KARAKA) PLACEMENTS - Longevity, Transformation, Occult
+        # ====================================================================
+        bhava_effects[8] = {
+            1: {
+                "name": "Randhra Lagna Yoga",
+                "description": "8th lord in 1st house - Mysterious personality",
+                "effects": "Mysterious aura, interest in occult, transformative life experiences, health fluctuations, research-oriented mind, sudden changes, long life if well-placed, secretive nature",
+                "strength": "Weak",
+                "life_areas": ["Occult", "Transformation", "Health", "Mystery"]
+            },
+            2: {
+                "name": "Dhana Randhra Yoga",
+                "description": "8th lord in 2nd house - Uncertain wealth",
+                "effects": "Sudden financial ups/downs, inheritance possible, family secrets, wealth through research/occult, speech about mysteries, savings fluctuate, hidden family wealth",
+                "strength": "Weak",
+                "life_areas": ["Inheritance", "Fluctuation", "Secrets", "Wealth"]
+            },
+            3: {
+                "name": "Sahaja Randhra Yoga",
+                "description": "8th lord in 3rd house - Courageous transformation",
+                "effects": "Siblings face transformations, courage in crisis, occult communication, research skills, sudden short journeys, transformation through effort, investigative abilities",
+                "strength": "Medium",
+                "life_areas": ["Courage", "Research", "Siblings", "Crisis"]
+            },
+            4: {
+                "name": "Sukha Randhra Yoga",
+                "description": "8th lord in 4th house - Property inheritance",
+                "effects": "Inherited property, mother's longevity concerns, sudden property changes, emotional transformations, education in research, hidden real estate, occult from home",
+                "strength": "Weak",
+                "life_areas": ["Inheritance", "Property", "Mother", "Emotions"]
+            },
+            5: {
+                "name": "Putra Randhra Yoga",
+                "description": "5th lord in 8th house - Transformative creativity",
+                "effects": "Children face transformations, delayed progeny, occult intelligence, research education, sudden speculative gains/losses, past life karma affects children, mystical insights",
+                "strength": "Weak",
+                "life_areas": ["Children", "Occult", "Research", "Transformation"]
+            },
+            6: {
+                "name": "Ripu Randhra Yoga (Viparita Raj Yoga)",
+                "description": "8th lord in 6th house - Longevity through obstacles",
+                "effects": "Viparita Raj Yoga - long life despite health challenges, victory over chronic enemies, transformation destroys obstacles, occult healing powers, service in research/medicine",
+                "strength": "Medium",
+                "life_areas": ["Longevity", "Victory", "Healing", "Service"]
+            },
+            7: {
+                "name": "Kalatra Randhra Yoga",
+                "description": "8th lord in 7th house - Transformative partnerships",
+                "effects": "Spouse brings transformation, inheritance through marriage, partner interested in occult, sudden partnership changes, deep intimacy, research partnerships, longevity concerns",
+                "strength": "Weak",
+                "life_areas": ["Marriage", "Transformation", "Inheritance", "Intimacy"]
+            },
+            8: {
+                "name": "Randhra Adhi Yoga",
+                "description": "8th lord in 8th house - Occult mastery",
+                "effects": "Long life, occult/mysticism mastery, inheritance likely, research excellence, transformation ability, sudden gains, hidden wealth, regeneration power, tantric knowledge",
+                "strength": "Strong",
+                "life_areas": ["Longevity", "Occult", "Inheritance", "Transformation"]
+            },
+            9: {
+                "name": "Dharma Randhra Yoga",
+                "description": "8th lord in 9th house - Mystical wisdom",
+                "effects": "Mystical spirituality, transformation through dharma, research in philosophy, sudden foreign journeys, occult teachings, father's longevity concerns, hidden religious knowledge",
+                "strength": "Medium",
+                "life_areas": ["Mysticism", "Philosophy", "Transformation", "Father"]
+            },
+            10: {
+                "name": "Karma Randhra Yoga",
+                "description": "8th lord in 10th house - Research career",
+                "effects": "Career in research/occult/investigation, sudden career changes, inheritance affects profession, transformation through work, detective/psychology/mining career, authority fluctuates",
+                "strength": "Medium",
+                "life_areas": ["Career", "Research", "Investigation", "Change"]
+            },
+            11: {
+                "name": "Labha Randhra Yoga",
+                "description": "8th lord in 11th house - Sudden gains",
+                "effects": "Sudden unexpected gains, inheritance from elder siblings, occult income, transformation brings profits, research network, desires fulfilled mysteriously, lottery wins possible",
+                "strength": "Medium",
+                "life_areas": ["Gains", "Inheritance", "Sudden", "Income"]
+            },
+            12: {
+                "name": "Vyaya Randhra Yoga (Viparita Raj Yoga)",
+                "description": "8th lord in 12th house - Spiritual transformation",
+                "effects": "Viparita Raj Yoga - spiritual transformation, expenses on research, foreign occult studies, liberation through transformation, moksha yoga, meditation brings insights, hidden powers",
+                "strength": "Medium",
+                "life_areas": ["Spirituality", "Moksha", "Occult", "Liberation"]
+            }
+        }
+
+        # ====================================================================
+        # 11TH LORD (LABHA KARAKA) PLACEMENTS - Gains, Income, Friends
+        # ====================================================================
+        bhava_effects[11] = {
+            1: {
+                "name": "Labha Lagna Yoga",
+                "description": "11th lord in 1st house - Gains through self",
+                "effects": "Self-made income, desires fulfilled through personality, elder siblings helpful, optimistic nature, gains through appearance, networking abilities, ambitious personality",
+                "strength": "Strong",
+                "life_areas": ["Gains", "Personality", "Desires", "Self-effort"]
+            },
+            2: {
+                "name": "Dhana Labha Yoga",
+                "description": "11th lord in 2nd house - Wealth multiplication",
+                "effects": "Excellent wealth yoga - multiple income sources, family brings gains, savings accumulate, desires for wealth fulfilled, elder siblings support finances, continuous prosperity",
+                "strength": "Very Strong",
+                "life_areas": ["Wealth", "Income", "Savings", "Prosperity"]
+            },
+            3: {
+                "name": "Sahaja Labha Yoga",
+                "description": "11th lord in 3rd house - Gains through skills",
+                "effects": "Income through skills/communication, siblings bring profits, creative income, networking brings success, short journeys profitable, artistic gains, courageous for desires",
+                "strength": "Strong",
+                "life_areas": ["Skills", "Communication", "Gains", "Network"]
+            },
+            4: {
+                "name": "Sukha Labha Yoga",
+                "description": "11th lord in 4th house - Property gains",
+                "effects": "Gains from real estate, mother brings prosperity, comfortable income, multiple properties, vehicles as gains, educational income, networking from home, desires for comfort fulfilled",
+                "strength": "Strong",
+                "life_areas": ["Property", "Gains", "Comfort", "Mother"]
+            },
+            5: {
+                "name": "Putra Labha Yoga (Raj Yoga)",
+                "description": "11th lord in 5th house - Speculative gains",
+                "effects": "Excellent Raj Yoga - gains through speculation/investments, children bring prosperity, creative income, past merit brings gains, lottery/shares favorable, desires fulfilled through intelligence",
+                "strength": "Very Strong",
+                "life_areas": ["Speculation", "Children", "Creativity", "Gains"]
+            },
+            6: {
+                "name": "Ripu Labha Yoga",
+                "description": "11th lord in 6th house - Gains through service",
+                "effects": "Income through service, victory over financial obstacles, desires after struggle, competitive income, debt eventually repaid, healing professions bring gains, hard work pays",
+                "strength": "Medium",
+                "life_areas": ["Service", "Competition", "Victory", "Income"]
+            },
+            7: {
+                "name": "Kalatra Labha Yoga",
+                "description": "11th lord in 7th house - Partnership gains",
+                "effects": "Gains through spouse/partnerships, business brings profits, desires fulfilled through marriage, partner is prosperous, networking through spouse, profitable collaborations",
+                "strength": "Strong",
+                "life_areas": ["Partnership", "Business", "Marriage", "Gains"]
+            },
+            8: {
+                "name": "Randhra Labha Yoga",
+                "description": "11th lord in 8th house - Sudden gains",
+                "effects": "Sudden unexpected income, inheritance brings gains, occult/research income, desires fulfilled mysteriously, lottery possible, transformation brings profits, hidden income sources",
+                "strength": "Medium",
+                "life_areas": ["Sudden", "Inheritance", "Occult", "Gains"]
+            },
+            9: {
+                "name": "Dharma Labha Yoga (Raj Yoga)",
+                "description": "11th lord in 9th house - Fortunate gains",
+                "effects": "Excellent Raj Yoga - fortune brings gains, dharmic income, father's network helpful, higher education brings income, desires fulfilled through luck, religious gains, blessed prosperity",
+                "strength": "Very Strong",
+                "life_areas": ["Fortune", "Dharma", "Gains", "Prosperity"]
+            },
+            10: {
+                "name": "Karma Labha Yoga",
+                "description": "11th lord in 10th house - Career gains",
+                "effects": "Career brings excellent income, professional network strong, desires fulfilled through work, authority increases earnings, reputation brings gains, government favor possible",
+                "strength": "Strong",
+                "life_areas": ["Career", "Income", "Authority", "Fame"]
+            },
+            11: {
+                "name": "Labha Adhi Yoga",
+                "description": "11th lord in 11th house - Maximum gains",
+                "effects": "Excellent gains yoga - all desires fulfilled, multiple income streams, elder siblings very helpful, networking brings wealth, wishes achieved easily, continuous prosperity throughout life",
+                "strength": "Very Strong",
+                "life_areas": ["Gains", "Desires", "Income", "Wishes"]
+            },
+            12: {
+                "name": "Vyaya Labha Yoga",
+                "description": "11th lord in 12th house - Foreign gains",
+                "effects": "Income from abroad, expenses equal income, desires for spirituality, foreign network, charitable giving, gains through isolation, spiritual desires fulfilled, hidden income",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Expenses", "Spirituality", "Charity"]
+            }
+        }
+
+        # ====================================================================
+        # 12TH LORD (VYAYA KARAKA) PLACEMENTS - Expenses, Losses, Foreign, Moksha
+        # ====================================================================
+        bhava_effects[12] = {
+            1: {
+                "name": "Vyaya Lagna Yoga",
+                "description": "12th lord in 1st house - Spiritual personality",
+                "effects": "Spiritual inclinations, expenses on self/health, foreign residence possible, isolated personality, meditation-oriented, charitable nature, moksha desires, pilgrimage interests",
+                "strength": "Medium",
+                "life_areas": ["Spirituality", "Foreign", "Expenses", "Isolation"]
+            },
+            2: {
+                "name": "Dhana Vyaya Yoga",
+                "description": "12th lord in 2nd house - Wealth expenses",
+                "effects": "High family expenses, wealth goes to charity, foreign investments, speech about spirituality, savings for foreign travel, generous donations, hidden wealth abroad",
+                "strength": "Weak",
+                "life_areas": ["Expenses", "Charity", "Foreign", "Wealth"]
+            },
+            3: {
+                "name": "Sahaja Vyaya Yoga",
+                "description": "12th lord in 3rd house - Foreign skills",
+                "effects": "Skills used abroad, siblings may live far, expenses on hobbies/arts, courage for spirituality, isolation develops talents, communication about meditation, journeys abroad",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Skills", "Isolation", "Spirituality"]
+            },
+            4: {
+                "name": "Sukha Vyaya Yoga",
+                "description": "12th lord in 4th house - Foreign property",
+                "effects": "Property abroad, mother lives far or spiritual, expenses on vehicles/property, foreign education, isolated residence, meditation room important, ashram property, emotional detachment",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Property", "Spirituality", "Mother"]
+            },
+            5: {
+                "name": "Putra Vyaya Yoga",
+                "description": "12th lord in 5th house - Foreign children",
+                "effects": "Children abroad or spiritual, expenses on children's education, creativity in isolation, speculation causes losses, meditation brings insights, spiritual intelligence, foreign study",
+                "strength": "Medium",
+                "life_areas": ["Children", "Foreign", "Spirituality", "Expenses"]
+            },
+            6: {
+                "name": "Ripu Vyaya Yoga (Viparita Raj Yoga)",
+                "description": "12th lord in 6th house - Victory through expenses",
+                "effects": "Viparita Raj Yoga - expenses destroy enemies, debts lead to liberation, service abroad, healing expenses beneficial, foreign medical work, obstacles lead to moksha, hospitalization heals",
+                "strength": "Medium",
+                "life_areas": ["Victory", "Foreign", "Healing", "Liberation"]
+            },
+            7: {
+                "name": "Kalatra Vyaya Yoga",
+                "description": "12th lord in 7th house - Foreign spouse",
+                "effects": "Spouse from foreign land, marriage abroad, partnership expenses, relocation after marriage, spiritual partnership, bed pleasures good, business abroad, isolated with partner",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Marriage", "Relocation", "Expenses"]
+            },
+            8: {
+                "name": "Randhra Vyaya Yoga (Viparita Raj Yoga)",
+                "description": "12th lord in 8th house - Spiritual transformation",
+                "effects": "Viparita Raj Yoga - moksha yoga, spiritual transformation deep, expenses on occult/research, foreign inheritance, isolation brings insights, meditation on death, liberation focus, tantric practices",
+                "strength": "Medium",
+                "life_areas": ["Moksha", "Transformation", "Spirituality", "Occult"]
+            },
+            9: {
+                "name": "Dharma Vyaya Yoga",
+                "description": "12th lord in 9th house - Foreign dharma",
+                "effects": "Spiritual journeys abroad, father lives far, expenses on pilgrimage, foreign gurus, higher education abroad, charitable dharma, ashram life, renunciation tendencies, monastery attraction",
+                "strength": "Medium",
+                "life_areas": ["Pilgrimage", "Foreign", "Dharma", "Renunciation"]
+            },
+            10: {
+                "name": "Karma Vyaya Yoga",
+                "description": "12th lord in 10th house - Foreign career",
+                "effects": "Career abroad, expenses on profession, work in isolation/hospitals/ashrams, foreign business, spiritual career, losses through authority, MNC work, export-import, international profession",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Career", "Isolation", "Spirituality"]
+            },
+            11: {
+                "name": "Labha Vyaya Yoga",
+                "description": "12th lord in 11th house - Foreign gains",
+                "effects": "Income from abroad, expenses equal gains, desires for spirituality fulfilled, foreign network, charitable income, gains through isolation, spiritual wishes achieved, hidden profits",
+                "strength": "Medium",
+                "life_areas": ["Foreign", "Gains", "Spirituality", "Network"]
+            },
+            12: {
+                "name": "Vyaya Adhi Yoga",
+                "description": "12th lord in 12th house - Complete moksha",
+                "effects": "Strong moksha yoga - complete spiritual liberation, life abroad, isolated residence, meditation mastery, ashram/monastery life, detachment from material, enlightenment focus, final liberation",
+                "strength": "Strong",
+                "life_areas": ["Moksha", "Liberation", "Spirituality", "Foreign"]
             }
         }
 

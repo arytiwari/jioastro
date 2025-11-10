@@ -268,24 +268,26 @@ class LifeThreadsService:
             return self._generate_default_timeline(profile_id, birth_date)
 
         try:
-            # Create datetime from birth date and time
+            # Parse birth time
             time_parts = birth_time.split(':')
-            birth_datetime = datetime.combine(
-                birth_date,
-                datetime_time(int(time_parts[0]), int(time_parts[1]), 0)
-            )
+            birth_time_obj = datetime_time(int(time_parts[0]), int(time_parts[1]), 0)
+
+            # Get profile name (fetch from database if needed)
+            profile_name = f"Profile {profile_id[:8]}"  # Default name
 
             # Calculate accurate birth chart using Swiss Ephemeris
             astro_service = AccurateVedicAstrology()
-            chart_data = astro_service.calculate_chart(
-                birth_datetime=birth_datetime,
+            chart_data = astro_service.calculate_birth_chart(
+                name=profile_name,
+                birth_date=birth_date,
+                birth_time=birth_time_obj,
                 latitude=latitude,
                 longitude=longitude,
-                timezone_str="UTC"  # Will be converted internally
+                timezone_str="Asia/Kolkata"
             )
 
             # Get the Vimshottari Dasha data from chart
-            dasha_data = chart_data.get("vimshottari_dasha", {})
+            dasha_data = chart_data.get("dasha", {})
             mahadashas = dasha_data.get("mahadashas", [])
 
             if not mahadashas:
