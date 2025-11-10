@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Plus, Edit, Trash2, Search, MapPin } from '@/components/icons'
+import { Plus, Edit, Trash2, Search, MapPin, ArrowLeft } from '@/components/icons'
 import { apiClient } from '@/lib/api'
 
 interface City {
@@ -18,6 +19,7 @@ interface City {
 }
 
 export default function AdminCitiesPage() {
+  const router = useRouter()
   const [cities, setCities] = useState<City[]>([])
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -117,6 +119,16 @@ export default function AdminCitiesPage() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Back Button */}
+      <Button
+        variant="outline"
+        onClick={() => router.push('/admin/dashboard')}
+        className="mb-4"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back to Dashboard
+      </Button>
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
