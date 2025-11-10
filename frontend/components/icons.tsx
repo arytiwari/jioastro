@@ -85,5 +85,7 @@ export {
   Compass,
   Wind,
   Flame,
+  Sunrise,
+  Sunset,
   GitBranch as Timeline
 } from 'lucide-react'

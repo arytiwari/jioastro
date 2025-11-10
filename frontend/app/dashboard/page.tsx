@@ -1211,7 +1211,7 @@ function getNakshatraGuidance(nakshatra: string): string[] {
   }
 
   return nakshatraQualities[nakshatra] || [
-    'Today's energy supports balanced actions',
+    "Today's energy supports balanced actions",
     'Good for routine work and steady progress',
     'Stay mindful and present',
   ]
