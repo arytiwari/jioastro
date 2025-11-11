@@ -667,6 +667,12 @@ class ExtendedYogaService:
         # 49a: Comprehensive Penury Yogas (BPHS Ch.42)
         yogas.extend(self._detect_penury_yogas(planets))
 
+        # ===== PHASE 4.2: Complex Penury Yogas (Ch.42 continued) - 3 yogas =====
+        # Note: AK-related penury yogas (Ch.42.14-15) will be in Jaimini phase
+        yogas.extend(self._detect_moon_navamsa_maraka_yoga(planets))
+        yogas.extend(self._detect_rasi_navamsa_lagna_maraka_yoga(planets))
+        yogas.extend(self._detect_benefic_malefic_misplacement_yoga(planets))
+
         # 49b: Royal Association Yogas (Jaimini - BPHS Ch.40)
         yogas.extend(self._detect_royal_association_yogas(planets))
 
@@ -708,6 +714,9 @@ class ExtendedYogaService:
         yogas.extend(self._detect_trimurti_yoga(planets))
         yogas.extend(self._detect_lagna_adhi_yoga(planets))
 
+        # ===== PHASE 4.3: Additional Named Yogas (Ch.36) - 1 yoga =====
+        yogas.extend(self._detect_kalpadruma_yoga(planets))
+
         # ===== PHASE 2.2: Subtle Raj Yogas - 5 yogas =====
         # Note: birth_moment_yoga requires birth_data parameter - skip for now
         # yogas.extend(self._detect_birth_moment_yoga(planets, birth_data=None))
@@ -715,13 +724,19 @@ class ExtendedYogaService:
         yogas.extend(self._detect_exalted_aspects_on_lagna(planets))
         yogas.extend(self._detect_benefic_in_single_kendra(planets))
 
-        # ===== PHASE 2.3: Divisional Amplifiers (Ch.41) - 6 yogas =====
+        # ===== PHASE 2.3: Divisional Amplifiers (Ch.41.18-22) - 6 yogas =====
         # Note: These require D9 data - will only detect if D9 fields present
         yogas.extend(self._detect_parijata_yoga(planets))
         yogas.extend(self._detect_uttama_yoga(planets))
         yogas.extend(self._detect_gopura_yoga(planets))
         yogas.extend(self._detect_simhasana_yoga(planets))
         yogas.extend(self._detect_parvata_divisional_yoga(planets))
+
+        # ===== PHASE 4.1: Advanced Divisional Amplifiers (Ch.41.23-25) - 3 yogas =====
+        # Note: These require comprehensive D9 data integration
+        yogas.extend(self._detect_devaloka_yoga(planets))
+        yogas.extend(self._detect_brahmaloka_yoga(planets))
+        yogas.extend(self._detect_iravatamsa_yoga(planets))
 
         # Enrich all yogas with classification metadata (importance, impact, life_area)
         return self.enrich_yogas(yogas)
@@ -4881,6 +4896,233 @@ class ExtendedYogaService:
 
         return yogas
 
+    # ==============================================================================
+    # PHASE 4.2: Complex Penury Yogas (Ch.42 continued) - 3 yogas
+    # Note: AK-related penury yogas (Ch.42.14-15) deferred to Jaimini phase
+    # ==============================================================================
+
+    def _detect_moon_navamsa_maraka_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Moon's Navamsa Lord as Maraka (Ch.42.10)
+        Effect: Financial losses through emotional decisions, wealth instability
+
+        Formation:
+        - Moon's Navamsa (D9) sign lord must be a maraka planet (2nd or 7th house lord)
+        - Indicates losses through emotional attachments, poor financial judgment
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get maraka lords (2nd and 7th house lords)
+        lord_2 = self._get_house_lord(2, asc_sign)
+        lord_7 = self._get_house_lord(7, asc_sign)
+        maraka_lords = [lord_2, lord_7]
+
+        # Get Moon's D9 sign
+        moon_data = planets.get("Moon", {})
+        moon_d9_sign = moon_data.get("d9_sign", None)
+
+        # Skip if D9 data not available
+        if moon_d9_sign is None:
+            return yogas
+
+        # Get lord of Moon's D9 sign (convert to 0-indexed)
+        moon_d9_sign_lord = self._get_sign_lord(moon_d9_sign - 1)
+
+        # Check if Moon's D9 lord is a maraka
+        if moon_d9_sign_lord in maraka_lords:
+            maraka_house = 2 if moon_d9_sign_lord == lord_2 else 7
+
+            yogas.append({
+                "name": "Moon Navamsa Maraka Yoga",
+                "description": f"Moon's Navamsa sign ruled by {moon_d9_sign_lord} ({maraka_house}th lord) - financial losses through emotional decisions, wealth instability due to mental attachments, impulsive spending, need for disciplined wealth management",
+                "strength": "Medium",
+                "category": "Penury Yoga",
+                "bphs_category": "Major Challenges",
+                "bphs_section": "I) Penury (Ch.42)",
+                "bphs_ref": "Ch.42.10",
+                "yoga_forming_planets": ["Moon", moon_d9_sign_lord],
+                "formation": f"Moon in D9 sign ruled by {moon_d9_sign_lord} (maraka)"
+            })
+
+        return yogas
+
+    def _detect_rasi_navamsa_lagna_maraka_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Rasi Lagna Lord & Navamsa Lagna Lord as Maraka (Ch.42.11)
+        Effect: Severe financial obstacles, identity crisis affecting wealth
+
+        Formation:
+        - Rasi (D1) Lagna lord is a maraka planet (2nd or 7th house lord from D1 lagna)
+        - AND/OR Navamsa (D9) Lagna lord is a maraka planet (2nd or 7th house lord from D9 lagna)
+        - Double maraka (both conditions) indicates extreme financial difficulties
+
+        Note: Requires D9 lagna data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        # Get D1 ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get D1 Lagna lord and maraka lords
+        lord_1_d1 = self._get_house_lord(1, asc_sign)
+        lord_2_d1 = self._get_house_lord(2, asc_sign)
+        lord_7_d1 = self._get_house_lord(7, asc_sign)
+        maraka_lords_d1 = [lord_2_d1, lord_7_d1]
+
+        # Check D1 condition: Is lagna lord also a maraka lord?
+        d1_maraka = (lord_1_d1 in maraka_lords_d1)
+
+        # Get D9 lagna from Ascendant planet data (if available)
+        asc_data = planets.get("Ascendant", {})
+        d9_lagna_sign = asc_data.get("d9_sign", None)
+
+        # If D9 lagna not available, check only D1 condition
+        if d9_lagna_sign is None:
+            if d1_maraka:
+                yogas.append({
+                    "name": "Rasi Lagna Maraka Yoga",
+                    "description": f"Rasi Lagna lord ({lord_1_d1}) is also maraka lord - financial obstacles tied to self-identity, wealth struggles linked to core personality, need for identity transformation for prosperity",
+                    "strength": "Medium",
+                    "category": "Penury Yoga",
+                    "bphs_category": "Major Challenges",
+                    "bphs_section": "I) Penury (Ch.42)",
+                    "bphs_ref": "Ch.42.11",
+                    "yoga_forming_planets": [lord_1_d1],
+                    "formation": f"{lord_1_d1} rules both 1st house and maraka house"
+                })
+            return yogas
+
+        # Get D9 Lagna lord and maraka lords
+        lord_1_d9 = self._get_sign_lord(d9_lagna_sign - 1)
+        # D9 maraka lords are 2nd and 7th from D9 lagna
+        d9_house_2_sign = self._wrap_1_to_12(d9_lagna_sign + 1)
+        d9_house_7_sign = self._wrap_1_to_12(d9_lagna_sign + 6)
+        lord_2_d9 = self._get_sign_lord(d9_house_2_sign - 1)
+        lord_7_d9 = self._get_sign_lord(d9_house_7_sign - 1)
+        maraka_lords_d9 = [lord_2_d9, lord_7_d9]
+
+        # Check D9 condition: Is D9 lagna lord also a D9 maraka lord?
+        d9_maraka = (lord_1_d9 in maraka_lords_d9)
+
+        # Create yogas based on conditions
+        if d1_maraka and d9_maraka:
+            yogas.append({
+                "name": "Double Lagna Maraka Yoga",
+                "description": f"Both Rasi Lagna lord ({lord_1_d1}) and Navamsa Lagna lord ({lord_1_d9}) are maraka lords - SEVERE financial obstacles, extreme wealth struggles in both outer (D1) and inner (D9) life, requires major karmic transformation and spiritual remedies",
+                "strength": "Very Strong",
+                "category": "Penury Yoga",
+                "bphs_category": "Major Challenges",
+                "bphs_section": "I) Penury (Ch.42)",
+                "bphs_ref": "Ch.42.11",
+                "yoga_forming_planets": [lord_1_d1, lord_1_d9],
+                "formation": f"D1 Lagna lord ({lord_1_d1}) and D9 Lagna lord ({lord_1_d9}) both marakas"
+            })
+        elif d1_maraka:
+            yogas.append({
+                "name": "Rasi Lagna Maraka Yoga",
+                "description": f"Rasi Lagna lord ({lord_1_d1}) is maraka lord - financial obstacles tied to self-identity, wealth struggles in outer life, need for personality transformation",
+                "strength": "Medium",
+                "category": "Penury Yoga",
+                "bphs_category": "Major Challenges",
+                "bphs_section": "I) Penury (Ch.42)",
+                "bphs_ref": "Ch.42.11",
+                "yoga_forming_planets": [lord_1_d1],
+                "formation": f"D1 Lagna lord ({lord_1_d1}) is maraka"
+            })
+        elif d9_maraka:
+            yogas.append({
+                "name": "Navamsa Lagna Maraka Yoga",
+                "description": f"Navamsa Lagna lord ({lord_1_d9}) is maraka lord - financial obstacles in dharma and marriage, wealth struggles in inner spiritual life, transformation through relationships needed",
+                "strength": "Medium",
+                "category": "Penury Yoga",
+                "bphs_category": "Major Challenges",
+                "bphs_section": "I) Penury (Ch.42)",
+                "bphs_ref": "Ch.42.11",
+                "yoga_forming_planets": [lord_1_d9],
+                "formation": f"D9 Lagna lord ({lord_1_d9}) is maraka"
+            })
+
+        return yogas
+
+    def _detect_benefic_malefic_misplacement_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Benefics in Bad Houses, Malefics in Good Houses (Ch.42.12)
+        Effect: Inverted fortunes, obstacles where help expected, unexpected difficulties
+
+        Formation:
+        - Benefic planets (Jupiter, Venus, Mercury, waxing Moon) predominantly in dusthana (6, 8, 12)
+        - Malefic planets (Saturn, Mars, Rahu, Ketu) predominantly in kendra/trikona (1, 4, 5, 7, 9, 10)
+        - Creates reverse effect where beneficial energies are wasted and malefic energies dominate important areas
+
+        Note: This is a general misplacement pattern yoga
+        """
+        yogas = []
+
+        # Define benefics and malefics
+        benefics = ["Jupiter", "Venus", "Mercury"]
+        malefics = ["Saturn", "Mars", "Rahu", "Ketu"]
+
+        # Check Moon's paksha (waxing = benefic)
+        moon_data = planets.get("Moon", {})
+        moon_longitude = moon_data.get("longitude", 0)
+        sun_data = planets.get("Sun", {})
+        sun_longitude = sun_data.get("longitude", 0)
+        moon_sun_distance = (moon_longitude - sun_longitude) % 360
+        is_waxing = 0 < moon_sun_distance < 180
+        if is_waxing:
+            benefics.append("Moon")
+        else:
+            malefics.append("Moon")
+
+        # Count benefics in dusthana
+        benefics_in_dusthana = []
+        for planet in benefics:
+            planet_house = planets.get(planet, {}).get("house", 0)
+            if planet_house in [6, 8, 12]:
+                benefics_in_dusthana.append((planet, planet_house))
+
+        # Count malefics in good houses (kendra + trikona)
+        malefics_in_good = []
+        good_houses = [1, 4, 5, 7, 9, 10]
+        for planet in malefics:
+            planet_house = planets.get(planet, {}).get("house", 0)
+            if planet_house in good_houses:
+                malefics_in_good.append((planet, planet_house))
+
+        # Check if majority of benefics in dusthana AND majority of malefics in good houses
+        benefics_total = len(benefics)
+        malefics_total = len(malefics)
+        benefics_misplaced_pct = len(benefics_in_dusthana) / benefics_total if benefics_total > 0 else 0
+        malefics_misplaced_pct = len(malefics_in_good) / malefics_total if malefics_total > 0 else 0
+
+        # Trigger yoga if both conditions met (at least 50% misplacement for each group)
+        if benefics_misplaced_pct >= 0.5 and malefics_misplaced_pct >= 0.5:
+            benefic_details = ", ".join([f"{p} in {h}th" for p, h in benefics_in_dusthana])
+            malefic_details = ", ".join([f"{p} in {h}th" for p, h in malefics_in_good])
+
+            yogas.append({
+                "name": "Benefic-Malefic Misplacement Yoga",
+                "description": f"Benefics in dusthana ({benefic_details}) and malefics in good houses ({malefic_details}) - inverted fortunes, obstacles where help expected, beneficial energies wasted in struggles, malefic energies dominate important life areas, need to work against natural flow",
+                "strength": "Strong",
+                "category": "Penury Yoga",
+                "bphs_category": "Major Challenges",
+                "bphs_section": "I) Penury (Ch.42)",
+                "bphs_ref": "Ch.42.12",
+                "yoga_forming_planets": [p for p, _ in benefics_in_dusthana] + [p for p, _ in malefics_in_good],
+                "formation": f"{len(benefics_in_dusthana)}/{benefics_total} benefics in dusthana, {len(malefics_in_good)}/{malefics_total} malefics in good houses"
+            })
+
+        return yogas
+
     def _detect_balarishta_yoga(self, planets: Dict) -> List[Dict]:
         """
         Balarishta Yoga: Indicators of childhood health challenges
@@ -8298,6 +8540,105 @@ class ExtendedYogaService:
         return yogas
 
     # ==============================================================================
+    # PHASE 4.3: Additional Named Yogas (Ch.36) - 1 yoga
+    # Note: Remaining variations deferred to future phases
+    # ==============================================================================
+
+    def _detect_kalpadruma_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Kalpadruma Yoga (Ch.36.33-34): Wish-Fulfilling Tree Yoga
+        Effect: Great prosperity, fulfillment of desires, abundant resources like celestial Kalpadruma tree
+
+        Formation (BPHS Ch.36.33-34):
+        - Lagna lord, Jupiter, and Venus all in:
+          * Kendras (1, 4, 7, 10) from each other
+          * OR Trikonas (1, 5, 9) from each other
+          * Own signs or exaltation signs
+        - Creates divine blessing like wish-fulfilling Kalpadruma tree of Indra's heaven
+
+        Note: This is distinct from Parijāta (divisional amplifier) though sometimes grouped together
+        """
+        yogas = []
+
+        # Get ascendant sign
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get Lagna lord
+        lagna_lord = self._get_house_lord(1, asc_sign)
+
+        # Get data for the three key planets
+        ll_data = planets.get(lagna_lord, {})
+        jupiter_data = planets.get("Jupiter", {})
+        venus_data = planets.get("Venus", {})
+
+        ll_house = ll_data.get("house", 0)
+        jup_house = jupiter_data.get("house", 0)
+        ven_house = venus_data.get("house", 0)
+
+        ll_sign = ll_data.get("sign_num", 0)
+        jup_sign = jupiter_data.get("sign_num", 0)
+        ven_sign = venus_data.get("sign_num", 0)
+
+        # Check if all three have valid positions
+        if not all([ll_house, jup_house, ven_house, ll_sign, jup_sign, ven_sign]):
+            return yogas
+
+        # Check mutual kendra/trikona relationships
+        # LL to Jupiter
+        ll_to_jup = self._wrap_1_to_12(jup_house - ll_house + 1)
+        ll_jup_kendra_trikona = ll_to_jup in [1, 4, 5, 7, 9, 10]
+
+        # LL to Venus
+        ll_to_ven = self._wrap_1_to_12(ven_house - ll_house + 1)
+        ll_ven_kendra_trikona = ll_to_ven in [1, 4, 5, 7, 9, 10]
+
+        # Jupiter to Venus
+        jup_to_ven = self._wrap_1_to_12(ven_house - jup_house + 1)
+        jup_ven_kendra_trikona = jup_to_ven in [1, 4, 5, 7, 9, 10]
+
+        # All three must be in kendra/trikona from each other
+        mutual_kendra_trikona = ll_jup_kendra_trikona and ll_ven_kendra_trikona and jup_ven_kendra_trikona
+
+        if not mutual_kendra_trikona:
+            return yogas
+
+        # Check strength conditions (own sign or exaltation for each)
+        ll_strong = (ll_sign in self.OWN_SIGNS.get(lagna_lord, [])) or (ll_sign == self.EXALTATION_SIGNS.get(lagna_lord, 0))
+        jup_strong = (jup_sign in [9, 12]) or (jup_sign == 4)  # Jupiter owns Sag/Pisces, exalted in Cancer
+        ven_strong = (ven_sign in [2, 7]) or (ven_sign == 12)  # Venus owns Taurus/Libra, exalted in Pisces
+
+        # Count strong planets
+        strong_count = sum([ll_strong, jup_strong, ven_strong])
+
+        # Yoga forms if at least 2 of 3 are strong (relaxed condition) or all 3 (full condition)
+        if strong_count >= 2:
+            strength_desc = []
+            if ll_strong:
+                strength_desc.append(f"{lagna_lord} strong")
+            if jup_strong:
+                strength_desc.append("Jupiter strong")
+            if ven_strong:
+                strength_desc.append("Venus strong")
+
+            strength_label = "Very Strong" if strong_count == 3 else "Strong"
+
+            yogas.append({
+                "name": "Kalpadruma Yoga",
+                "description": f"Lagna lord ({lagna_lord}), Jupiter, and Venus in mutual kendra/trikona with {', '.join(strength_desc)} - great prosperity like celestial wish-fulfilling tree (kalpadruma), abundant resources, fulfillment of desires, divine blessings, wealth and happiness",
+                "strength": strength_label,
+                "category": "Named Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.33-34",
+                "yoga_forming_planets": [lagna_lord, "Jupiter", "Venus"],
+                "formation": f"{lagna_lord} in {ll_house}th, Jupiter in {jup_house}th, Venus in {ven_house}th (mutual kendra/trikona, {strong_count}/3 strong)"
+            })
+
+        return yogas
+
+    # ==============================================================================
     # PHASE 2.2: Subtle Raj Yogas - 5 yogas
     # ==============================================================================
 
@@ -8796,9 +9137,178 @@ class ExtendedYogaService:
 
         return yogas
 
-    # Note: Additional divisional amplifiers (Devaloka, Brahmaloka, Iravatamsa)
-    # require more complex D9 analysis and are skipped for now.
-    # They can be added once comprehensive D9 integration is complete.
+    # ==============================================================================
+    # PHASE 4.1: Advanced Divisional Amplifiers (Ch.41.23-25) - 3 yogas
+    # Note: These require comprehensive D9 data integration
+    # ==============================================================================
+
+    def _detect_devaloka_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Devaloka Yoga (Ch.41.23): Planet in Mooltrikona in both D1 and D9
+        Effect: Divine realm blessings, exceptional fortune, sustained excellence
+
+        Formation:
+        - Any planet in its Mooltrikona sign in both Rashi (D1) and Navamsa (D9)
+        - Mooltrikona is a special degrees range within own sign (highest strength after exaltation)
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet, mooltrikona_sign in self.MOOLTRIKONA_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None:
+                continue
+
+            # Check D1 Mooltrikona (simplified - using sign-level, not degree-level)
+            d1_mooltrikona = (planet_d1_sign == mooltrikona_sign)
+
+            # Check D9 Mooltrikona
+            d9_mooltrikona = (planet_d9_sign == mooltrikona_sign)
+
+            if d1_mooltrikona and d9_mooltrikona:
+                planet_meanings = {
+                    "Sun": "leadership, authority, father, soul",
+                    "Moon": "mind, emotions, mother, public relations",
+                    "Mars": "courage, energy, property, siblings",
+                    "Mercury": "intelligence, communication, commerce",
+                    "Jupiter": "wisdom, fortune, children, dharma",
+                    "Venus": "love, arts, luxury, partnerships",
+                    "Saturn": "discipline, longevity, service, karma"
+                }
+
+                yogas.append({
+                    "name": f"Devaloka Yoga ({planet})",
+                    "description": f"{planet} in Mooltrikona in both D1 and D9 - divine realm (devaloka) blessings in {planet_meanings.get(planet, 'significations')}, exceptional fortune, sustained excellence, godly favor",
+                    "strength": "Very Strong",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Major Positive Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.23",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    def _detect_brahmaloka_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Brahmaloka Yoga (Ch.41.24): Planet in friend's sign in both D1 and D9
+        Effect: Brahma realm blessings, creative power, harmonious success
+
+        Formation:
+        - Any planet in a friend's sign in both Rashi (D1) and Navamsa (D9)
+        - Requires planetary friendship relationships
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet in ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]:
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None or planet_d1_sign == 0:
+                continue
+
+            # Get sign lords for D1 and D9 positions
+            # Note: _get_sign_lord expects 0-indexed, so convert from 1-indexed
+            d1_sign_lord = self._get_sign_lord(planet_d1_sign - 1)
+            d9_sign_lord = self._get_sign_lord(planet_d9_sign - 1)
+
+            # Check if both sign lords are friends of the planet
+            friends = self.FRIENDSHIPS.get(planet, {}).get("friends", [])
+
+            d1_friend_sign = d1_sign_lord in friends
+            d9_friend_sign = d9_sign_lord in friends
+
+            if d1_friend_sign and d9_friend_sign:
+                planet_meanings = {
+                    "Sun": "authority, leadership, recognition",
+                    "Moon": "emotional harmony, mental peace",
+                    "Mars": "supported courage, protected energy",
+                    "Mercury": "favorable communication, easy learning",
+                    "Jupiter": "blessed wisdom, fortunate growth",
+                    "Venus": "harmonious love, artistic success",
+                    "Saturn": "supported discipline, rewarded patience"
+                }
+
+                yogas.append({
+                    "name": f"Brahmaloka Yoga ({planet})",
+                    "description": f"{planet} in friend's signs in both D1 (ruled by {d1_sign_lord}) and D9 (ruled by {d9_sign_lord}) - Brahma realm blessings in {planet_meanings.get(planet, 'significations')}, creative power, harmonious success, divine support",
+                    "strength": "Strong",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Major Positive Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.24",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    def _detect_iravatamsa_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Iravatāṁsa Yoga (Ch.41.25): Planet exalted in D9 only (not in D1)
+        Effect: Hidden potential, late blooming excellence, inner strength manifesting
+
+        Formation:
+        - Planet NOT exalted in D1 (Rashi)
+        - Same planet IS exalted in D9 (Navamsa)
+        - Shows potential that develops over time, especially in marriage and dharma
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet, exalt_sign in self.EXALTATION_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+            planet_d9_exalted = planet_data.get("d9_exalted", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None and planet_d9_exalted is None:
+                continue
+
+            # Check D1 exaltation (should be FALSE for this yoga)
+            d1_exalted = (planet_d1_sign == exalt_sign)
+
+            # Check D9 exaltation (should be TRUE for this yoga)
+            d9_exalted = False
+            if planet_d9_exalted is not None:
+                d9_exalted = planet_d9_exalted
+            elif planet_d9_sign is not None:
+                d9_exalted = (planet_d9_sign == exalt_sign)
+
+            # Formation: NOT exalted in D1, BUT exalted in D9
+            if not d1_exalted and d9_exalted:
+                planet_meanings = {
+                    "Sun": "leadership, authority, soul purpose",
+                    "Moon": "emotional depth, intuitive wisdom",
+                    "Mars": "courage, strategic action, delayed victories",
+                    "Mercury": "communication mastery, analytical skills",
+                    "Jupiter": "philosophical wisdom, spiritual growth",
+                    "Venus": "refined taste, artistic development",
+                    "Saturn": "earned authority, mature discipline"
+                }
+
+                yogas.append({
+                    "name": f"Iravatāṁsa Yoga ({planet})",
+                    "description": f"{planet} exalted in D9 but not D1 - hidden potential in {planet_meanings.get(planet, 'significations')}, late blooming excellence, inner strength that manifests over time especially in marriage and dharma, like celestial elephant Iravata emerging",
+                    "strength": "Medium",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Standard Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.25",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
 
     def enrich_yogas(self, yogas: List[Dict]) -> List[Dict]:
         """Deduplicate and enrich all yogas with classification metadata"""
