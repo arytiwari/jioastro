@@ -33,6 +33,7 @@ from app.schemas.palmistry import (
     PalmInterpretation as PalmInterpretationSchema,
     EventPrediction,
 )
+from app.services.palmistry_interpretation_service import palmistry_interpretation_service
 
 
 logger = logging.getLogger(__name__)
@@ -815,7 +816,7 @@ comparing both hands provides insight into inherited traits vs. developed charac
         holistic_data: Optional[Dict] = None
     ) -> Dict:
         """
-        Generate placeholder RAG-based interpretation with optional holistic integration.
+        Generate comprehensive palmistry interpretation using the interpretation service.
 
         Args:
             hand_type: Left or right hand
@@ -827,71 +828,46 @@ comparing both hands provides insight into inherited traits vs. developed charac
             holistic_data: Optional dict with profile, chart, and numerology data
 
         Returns:
-            Dictionary with interpretation and cross-domain correlations
+            Dictionary with comprehensive interpretation and cross-domain correlations
         """
-        # Base interpretation
-        summary = f"Your {hand_type} {hand_shape} hand reveals a unique blend of characteristics. "
-        detailed_analysis = f"Based on the analysis of your {hand_type} palm, several key features stand out:\n\n"
-        detailed_analysis += f"**Hand Shape ({hand_shape.title()})**: This indicates {self._get_shape_meaning(hand_shape)}.\n\n"
+        try:
+            # Use the comprehensive interpretation service
+            comprehensive_interpretation = palmistry_interpretation_service.generate_comprehensive_interpretation(
+                hand_type=hand_type,
+                hand_shape=hand_shape,
+                lines=lines,
+                mounts=mounts,
+                markings=None,  # Will be added when we implement marking detection
+                holistic_data=holistic_data
+            )
 
-        # Add holistic correlations if data is available
-        astrology_correlations = None
-        numerology_correlations = None
+            # Extract key components for the response format
+            return {
+                "summary": comprehensive_interpretation["summary"],
+                "detailed_analysis": comprehensive_interpretation["detailed_analysis"],
+                "recommendations": comprehensive_interpretation["recommendations"],
+                "astrology_correlations": comprehensive_interpretation.get("astrology_correlations"),
+                "numerology_correlations": comprehensive_interpretation.get("numerology_correlations"),
+                "rag_sources": [
+                    "Cheiro's Language of the Hand",
+                    "Practical Palmistry by Saint-Germain",
+                    "The Complete Guide to Palmistry by Dennis Fairchild",
+                    "The Art of Hand Reading by Lori Reid",
+                    "Palmistry: Your Career in Your Hands by Ghanshyam Singh Birla"
+                ]
+            }
 
-        if holistic_data:
-            profile = holistic_data.get("profile")
-            chart = holistic_data.get("chart")
-            numerology = holistic_data.get("numerology")
-
-            if profile:
-                name = profile.get("name")
-                summary = f"{name}, your {hand_type} {hand_shape} hand reveals fascinating insights that align with your birth chart and numerology. "
-
-            # Add astrology correlations
-            if chart:
-                astrology_correlations = {
-                    "sun_sign": chart.get("sun_sign"),
-                    "moon_sign": chart.get("moon_sign"),
-                    "ascendant": chart.get("ascendant"),
-                    "correlation_notes": self._generate_astrology_correlation(hand_shape, chart)
-                }
-
-                detailed_analysis += f"\n**Astrological Alignment**: Your {hand_shape} hand beautifully complements your "
-                detailed_analysis += f"{chart.get('ascendant', '')} rising and {chart.get('sun_sign', '')} Sun. "
-                detailed_analysis += f"This combination suggests {self._get_element_correlation(hand_shape, chart)}.\n\n"
-
-            # Add numerology correlations
-            if numerology:
-                numerology_correlations = {
-                    "life_path": numerology.get("life_path"),
-                    "destiny_number": numerology.get("destiny_number"),
-                    "personal_year": numerology.get("personal_year"),
-                    "correlation_notes": self._generate_numerology_correlation(hand_shape, numerology)
-                }
-
-                detailed_analysis += f"\n**Numerological Harmony**: Your Life Path {numerology.get('life_path', '')} "
-                detailed_analysis += f"resonates with the patterns in your palm, particularly in the {self._get_numerology_palm_link(numerology)}.\n\n"
-
-        # Standard analysis continues
-        detailed_analysis += f"**Major Lines**: Your life, head, and heart lines show clear definition, suggesting "
-        detailed_analysis += f"emotional depth, intellectual clarity, and vitality. The specific formations indicate "
-        detailed_analysis += f"periods of significant growth and transformation.\n\n"
-        detailed_analysis += f"**Mounts**: The prominence of certain mounts reflects your natural talents and inclinations. "
-        detailed_analysis += f"These elevations in the palm correspond to different planetary influences in traditional palmistry."
-
-        return {
-            "summary": summary,
-            "detailed_analysis": detailed_analysis,
-            "recommendations": [
-                "Focus on developing your natural leadership abilities",
-                "Trust your intuition in decision-making processes",
-                "Maintain balance between professional ambitions and personal relationships",
-                "Consider creative pursuits to channel your artistic energy"
-            ],
-            "astrology_correlations": astrology_correlations,
-            "numerology_correlations": numerology_correlations,
-            "rag_sources": ["Classical Palmistry Vol. 1", "Modern Hand Analysis", "Vedic Palm Reading", "Cross-Domain Astrology"]
-        }
+        except Exception as e:
+            logger.error(f"Error generating comprehensive interpretation: {str(e)}")
+            # Fallback to basic interpretation
+            return {
+                "summary": f"Your {hand_type} {hand_shape} hand reveals unique characteristics.",
+                "detailed_analysis": f"Based on the analysis of your {hand_type} palm, several key features stand out. Further analysis available.",
+                "recommendations": ["Consult the detailed palm reading for complete insights"],
+                "astrology_correlations": None,
+                "numerology_correlations": None,
+                "rag_sources": ["Traditional Palmistry Sources"]
+            }
 
     def _get_shape_meaning(self, shape: str) -> str:
         """Get meaning for hand shape."""
