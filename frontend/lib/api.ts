@@ -163,9 +163,10 @@ class APIClient {
   }
 
   // Generic HTTP methods
-  async get<T = any>(path: string): Promise<{ data: T }> {
+  async get<T = any>(path: string, config?: any): Promise<{ data: T }> {
     return this.request<T>(path, {
       method: 'GET',
+      ...config,
     })
   }
 
@@ -1335,6 +1336,138 @@ class APIClient {
     return this.request(`/cosmic-energy/share-template?${params.toString()}`, {
       method: 'POST'
     })
+  }
+
+  // =============================================================================
+  // FRIEND CONNECTION APIs (Viral Loop)
+  // =============================================================================
+
+  async inviteFriend(friendEmail: string) {
+    return this.request('/cosmic-energy/invite-friend', {
+      method: 'POST',
+      body: JSON.stringify({ friend_email: friendEmail })
+    })
+  }
+
+  async getFriendConnections() {
+    return this.request('/cosmic-energy/friend-connections')
+  }
+
+  async acceptFriendRequest(connectionId: string) {
+    return this.request(`/cosmic-energy/accept-friend/${connectionId}`, {
+      method: 'POST'
+    })
+  }
+
+  // =============================================================================
+  // PUSH NOTIFICATION APIs
+  // =============================================================================
+
+  async registerPushToken(token: string, platform: string, deviceId?: string) {
+    return this.request('/cosmic-energy/register-push-token', {
+      method: 'POST',
+      body: JSON.stringify({ token, platform, device_id: deviceId })
+    })
+  }
+
+  async updateNotificationPreferences(preferences: {
+    daily_score_enabled?: boolean
+    weekly_summary_enabled?: boolean
+    friend_activity_enabled?: boolean
+  }) {
+    const params = new URLSearchParams()
+    if (preferences.daily_score_enabled !== undefined) {
+      params.append('daily_score_enabled', String(preferences.daily_score_enabled))
+    }
+    if (preferences.weekly_summary_enabled !== undefined) {
+      params.append('weekly_summary_enabled', String(preferences.weekly_summary_enabled))
+    }
+    if (preferences.friend_activity_enabled !== undefined) {
+      params.append('friend_activity_enabled', String(preferences.friend_activity_enabled))
+    }
+    return this.request(`/cosmic-energy/notification-preferences?${params.toString()}`, {
+      method: 'PUT'
+    })
+  }
+
+  // =============================================================================
+  // WIDGET & ENGAGEMENT APIs
+  // =============================================================================
+
+  async getWidgetData(profileId: string) {
+    const params = new URLSearchParams({ profile_id: profileId })
+    return this.request(`/cosmic-energy/widget-data?${params.toString()}`)
+  }
+
+  async trackEngagement(action: string) {
+    const params = new URLSearchParams({ action })
+    return this.request(`/cosmic-energy/track-engagement?${params.toString()}`, {
+      method: 'POST'
+    })
+  }
+
+  // ============================================================================
+  // ASTROWORDLE APIs
+  // ============================================================================
+
+  // Get today's AstroWordle challenge
+  async getAstroWordleToday() {
+    return this.request('/astrowordle/today')
+  }
+
+  // Submit a guess for the daily challenge
+  async submitAstroWordleGuess(guess: string, challengeId: string) {
+    return this.request('/astrowordle/submit-guess', {
+      method: 'POST',
+      body: JSON.stringify({ guess, challenge_id: challengeId })
+    })
+  }
+
+  // Get user's AstroWordle statistics and streaks
+  async getAstroWordleStats() {
+    return this.request('/astrowordle/my-stats')
+  }
+
+  // Get user's play history
+  async getAstroWordleHistory(limit: number = 30) {
+    const params = new URLSearchParams({ limit: limit.toString() })
+    return this.request(`/astrowordle/history?${params.toString()}`)
+  }
+
+  // Get global leaderboard
+  async getAstroWordleLeaderboard(leaderboardType: string = 'all_time', limit: number = 100) {
+    const params = new URLSearchParams({
+      leaderboard_type: leaderboardType,
+      limit: limit.toString()
+    })
+    return this.request(`/astrowordle/leaderboard?${params.toString()}`)
+  }
+
+  // Get friends-only leaderboard
+  async getAstroWordleFriendsLeaderboard() {
+    return this.request('/astrowordle/friends-leaderboard')
+  }
+
+  // Generate share template
+  async generateAstroWordleShare(attemptId: string, templateType: string = 'whatsapp') {
+    return this.request('/astrowordle/generate-share', {
+      method: 'POST',
+      body: JSON.stringify({ attempt_id: attemptId, template_type: templateType })
+    })
+  }
+
+  // Challenge a friend
+  async challengeAstroWordleFriend(friendUserId: string, attemptId: string) {
+    return this.request('/astrowordle/challenge-friend', {
+      method: 'POST',
+      body: JSON.stringify({ friend_user_id: friendUserId, attempt_id: attemptId })
+    })
+  }
+
+  // Get my challenges (sent and received)
+  async getAstroWordleChallenges(statusFilter: string = 'all') {
+    const params = new URLSearchParams({ status_filter: statusFilter })
+    return this.request(`/astrowordle/my-challenges?${params.toString()}`)
   }
 }
 
