@@ -57,9 +57,276 @@ class ExtendedYogaService:
         "Saturn": {"friends": ["Mercury", "Venus"], "neutrals": ["Jupiter"], "enemies": ["Sun", "Moon", "Mars"]},
     }
 
+    # Mooltrikona signs (with specific degree ranges - using sign-level for now)
+    MOOLTRIKONA_SIGNS = {
+        "Sun": 5,       # Leo 0-20°
+        "Moon": 4,      # Cancer 3-27°
+        "Mars": 1,      # Aries 0-12°
+        "Mercury": 6,   # Virgo 16-20°
+        "Jupiter": 9,   # Sagittarius 0-10°
+        "Venus": 7,     # Libra 0-15°
+        "Saturn": 11,   # Aquarius 0-20°
+    }
+
     def __init__(self):
         """Initialize Extended Yoga Service with Jaimini integration"""
         self.jaimini = JaiminiService()
+
+    def _wrap_1_to_12(self, n: int) -> int:
+        """
+        Wrap number to 1-12 range (BPHS-compliant house distance calculation)
+
+        This is critical for accurate aspect and house relationship calculations.
+        Examples:
+        - _wrap_1_to_12(13) = 1
+        - _wrap_1_to_12(0) = 12
+        - _wrap_1_to_12(-1) = 11
+
+        Returns:
+            int: Number in range 1-12
+        """
+        return (n - 1) % 12 + 1
+
+    def _in_kendra(self, house: int) -> bool:
+        """Angular houses: 1, 4, 7, 10"""
+        return house in [1, 4, 7, 10]
+
+    def _in_trikona(self, house: int) -> bool:
+        """Trinal houses: 1, 5, 9"""
+        return house in [1, 5, 9]
+
+    def _in_upachaya(self, house: int) -> bool:
+        """Growth houses: 3, 6, 10, 11"""
+        return house in [3, 6, 10, 11]
+
+    def _in_panaphara(self, house: int) -> bool:
+        """Succeedent houses: 2, 5, 8, 11"""
+        return house in [2, 5, 8, 11]
+
+    def _in_apoklima(self, house: int) -> bool:
+        """Cadent houses: 3, 6, 9, 12"""
+        return house in [3, 6, 9, 12]
+
+    def _in_dusthana(self, house: int) -> bool:
+        """Malefic houses: 6, 8, 12"""
+        return house in [6, 8, 12]
+
+    def _get_planet_dignity(self, planet_name: str, planets: Dict) -> str:
+        """
+        Get comprehensive dignity classification (Phase 2 Enhancement)
+
+        Returns: 'vargottama'|'exaltation'|'mooltrikona'|'own'|'neutral'|'debilitation'
+
+        Hierarchy (strongest to weakest):
+        1. Vargottama: Same sign in D1 and D9 (special strength)
+        2. Exaltation: Planet at peak strength
+        3. Mooltrikona: Special degrees in own sign
+        4. Own: Planet in its own sign
+        5. Neutral: Neither benefic nor malefic placement
+        6. Debilitation: Planet at weakest strength
+        """
+        planet_data = planets.get(planet_name, {})
+        sign_num = planet_data.get("sign_num", 0)
+        degrees = planet_data.get("degree", 0)
+
+        # Check vargottama (requires D9 data)
+        d9_sign = planet_data.get("d9_sign", 0)
+        if d9_sign and sign_num == d9_sign:
+            return "vargottama"
+
+        # Check exaltation
+        if planet_data.get("exalted", False):
+            return "exaltation"
+
+        # Check debilitation
+        if planet_data.get("debilitated", False):
+            return "debilitation"
+
+        # Check mooltrikona (sign-level for now, degree-specific in future)
+        if self._is_in_mooltrikona(planet_name, sign_num, degrees):
+            return "mooltrikona"
+
+        # Check own sign
+        if planet_data.get("own_sign", False):
+            return "own"
+
+        return "neutral"
+
+    def _is_in_mooltrikona(self, planet: str, sign_num: int, degrees: float = 0) -> bool:
+        """
+        Check if planet is in its mooltrikona sign/degrees
+
+        Mooltrikona represents the 'throne' of a planet - special strength
+        between own sign and exaltation. Future enhancement: degree-specific.
+        """
+        mooltrikona_sign = self.MOOLTRIKONA_SIGNS.get(planet, 0)
+        if not mooltrikona_sign:
+            return False
+
+        # Sign-level check (degree-specific ranges commented for future)
+        if sign_num == mooltrikona_sign:
+            # Future: Add degree ranges
+            # Sun: Leo 0-20°, Moon: Cancer 3-27°, Mars: Aries 0-12°
+            # Mercury: Virgo 16-20°, Jupiter: Sag 0-10°
+            # Venus: Libra 0-15°, Saturn: Aquarius 0-20°
+            return True
+
+        return False
+
+    def _is_planet_tainted(self, planet: str, planets: Dict, options: Dict = None) -> bool:
+        """
+        Check if planet is tainted (afflicted by malefics) - Phase 2 Enhancement
+
+        A benefic planet becomes tainted when:
+        - Conjunct with natural malefics (Mars, Saturn, Rahu, Ketu)
+        - Aspected by natural malefics
+        - In enemy sign while aspected by malefics
+
+        This is crucial for Mercury and Moon benefic/malefic determination.
+        """
+        if planet not in planets:
+            return False
+
+        planet_house = planets[planet].get("house", 0)
+        if not planet_house:
+            return False
+
+        # Natural malefics
+        natural_malefics = ["Mars", "Saturn", "Rahu", "Ketu"]
+
+        # Check for conjunction with malefics
+        for malefic in natural_malefics:
+            if malefic in planets:
+                malefic_house = planets[malefic].get("house", 0)
+                if malefic_house == planet_house:
+                    return True  # Tainted by conjunction
+
+        # Check for aspects from malefics
+        for malefic in natural_malefics:
+            if malefic in planets:
+                malefic_house = planets[malefic].get("house", 0)
+                if malefic_house and self._planet_aspects_house_simple(malefic, malefic_house, planet_house):
+                    return True  # Tainted by aspect
+
+        return False
+
+    def _planet_aspects_house_simple(self, planet: str, from_house: int, to_house: int) -> bool:
+        """
+        Simple aspect check (for tainting detection)
+        Same logic as in _check_mutual_aspect but as standalone method
+        """
+        distance = self._wrap_1_to_12(to_house - from_house + 1)
+
+        if distance == 1:
+            return False
+
+        # All planets aspect 7th house
+        if distance == 7:
+            return True
+
+        # Mars special aspects: 4th, 8th
+        if planet == "Mars" and distance in [4, 8]:
+            return True
+
+        # Jupiter special aspects: 5th, 9th
+        if planet == "Jupiter" and distance in [5, 9]:
+            return True
+
+        # Saturn special aspects: 3rd, 10th
+        if planet == "Saturn" and distance in [3, 10]:
+            return True
+
+        return False
+
+    def _is_benefic(self, planet: str, planets: Dict, options: Dict = None) -> bool:
+        """
+        Determine if planet is benefic (PHASE 3: Context-dependent per BPHS)
+
+        Natural benefics: Jupiter, Venus (always benefic)
+        Conditional benefics:
+        - Mercury: Benefic if not tainted (afflicted by malefics)
+        - Moon: Benefic if waxing (Shukla Paksha) and not tainted
+
+        This follows BPHS rules for contextual benefic determination.
+
+        Args:
+            planet: Planet name
+            planets: Planet positions dict
+            options: Chart options dict with 'moonPhase' and 'treatMercuryAsBenefic'
+
+        Returns:
+            bool: True if planet is benefic in this context
+        """
+        # Natural benefics (always benefic)
+        if planet in ["Jupiter", "Venus"]:
+            return True
+
+        # Mercury: Conditional benefic
+        if planet == "Mercury":
+            # Check option flag
+            treat_as_benefic = True
+            if options:
+                treat_as_benefic = options.get("treatMercuryAsBenefic", True)
+
+            # Check if tainted
+            tainted = self._is_planet_tainted(planet, planets, options)
+
+            return treat_as_benefic and not tainted
+
+        # Moon: Conditional benefic (waxing phase)
+        if planet == "Moon":
+            moon_phase = "unknown"
+            if options:
+                moon_phase = options.get("moonPhase", "unknown")
+
+            # Check if tainted
+            tainted = self._is_planet_tainted(planet, planets, options)
+
+            # Waxing Moon (Shukla Paksha) is benefic if not tainted
+            return (moon_phase == "waxing") and not tainted
+
+        return False
+
+    def _is_malefic(self, planet: str, planets: Dict, options: Dict = None) -> bool:
+        """
+        Determine if planet is malefic (PHASE 3: Context-dependent per BPHS)
+
+        Natural malefics: Sun, Mars, Saturn, Rahu, Ketu (always malefic)
+        Conditional malefics:
+        - Moon: Malefic if waning (Krishna Paksha) or tainted
+        - Mercury: Malefic if tainted (afflicted by malefics)
+
+        This follows BPHS rules for contextual malefic determination.
+
+        Args:
+            planet: Planet name
+            planets: Planet positions dict
+            options: Chart options dict with 'moonPhase'
+
+        Returns:
+            bool: True if planet is malefic in this context
+        """
+        # Natural malefics (always malefic)
+        if planet in ["Sun", "Mars", "Saturn", "Rahu", "Ketu"]:
+            return True
+
+        # Moon: Conditional malefic (waning phase or tainted)
+        if planet == "Moon":
+            moon_phase = "unknown"
+            if options:
+                moon_phase = options.get("moonPhase", "unknown")
+
+            # Check if tainted
+            tainted = self._is_planet_tainted(planet, planets, options)
+
+            # Waning Moon (Krishna Paksha) or tainted Moon is malefic
+            return (moon_phase == "waning") or tainted
+
+        # Mercury: Conditional malefic (if tainted)
+        if planet == "Mercury":
+            return self._is_planet_tainted(planet, planets, options)
+
+        return False
 
     def _calculate_planet_dignity(self, planet_name: str, planets: Dict) -> int:
         """
@@ -402,6 +669,16 @@ class ExtendedYogaService:
 
         # 49b: Royal Association Yogas (Jaimini - BPHS Ch.40)
         yogas.extend(self._detect_royal_association_yogas(planets))
+
+        # PHASE 4 ENHANCEMENTS: BPHS-Compliant Classical Yogas
+        # 49c: Sun-based yogas (Vesi, Vasi, Ubhayachari) - BPHS Classical
+        yogas.extend(self._detect_sun_based_yogas(planets))
+
+        # 49d: Vaapī Nabhasa Yoga (Panaphara/Apoklima pattern) - BPHS Classical
+        yogas.extend(self._detect_vaapi_nabhasa_yoga(planets, options={}))
+
+        # 49e: Kālanidhi Wealth Yoga - BPHS Classical
+        yogas.extend(self._detect_kalanidhi_yoga(planets, options={}))
 
         # NEW YOGAS - Phase 3: Medium Priority
         # 50: Balarishta Yoga
@@ -3363,25 +3640,36 @@ class ExtendedYogaService:
 
         # Helper function to check if planet aspects a house
         def planet_aspects_house(planet: str, from_house: int, to_house: int) -> bool:
-            # Calculate house distance
-            distance = (to_house - from_house) % 12
-            if distance == 0:
-                return False  # Same house, not an aspect
+            """
+            Check if planet aspects a house (BPHS-compliant Vedic aspects)
 
-            # All planets aspect 7th house
-            if distance == 6:  # 7th house is 6 positions away (1-indexed to 0-indexed)
+            All planets: 7th house (opposition)
+            Mars: 4th, 7th, 8th houses
+            Jupiter: 5th, 7th, 9th houses
+            Saturn: 3rd, 7th, 10th houses
+
+            CRITICAL FIX: Uses _wrap_1_to_12 for proper zodiacal distance
+            """
+            # Calculate house distance using zodiacal wrapping (1-12 range)
+            distance = self._wrap_1_to_12(to_house - from_house + 1)
+
+            if distance == 1:  # Same house, not an aspect
+                return False
+
+            # All planets aspect 7th house (FIXED: was 6, now 7)
+            if distance == 7:
                 return True
 
-            # Mars special aspects: 4th (3 positions), 8th (7 positions)
-            if planet == "Mars" and distance in [3, 7]:
+            # Mars special aspects: 4th, 8th (FIXED: was [3,7], now [4,8])
+            if planet == "Mars" and distance in [4, 8]:
                 return True
 
-            # Jupiter special aspects: 5th (4 positions), 9th (8 positions)
-            if planet == "Jupiter" and distance in [4, 8]:
+            # Jupiter special aspects: 5th, 9th (CORRECT)
+            if planet == "Jupiter" and distance in [5, 9]:
                 return True
 
-            # Saturn special aspects: 3rd (2 positions), 10th (9 positions)
-            if planet == "Saturn" and distance in [2, 9]:
+            # Saturn special aspects: 3rd, 10th (FIXED: was [2,9], now [3,10])
+            if planet == "Saturn" and distance in [3, 10]:
                 return True
 
             return False
@@ -3579,9 +3867,10 @@ class ExtendedYogaService:
                     })
 
             # 3. MUTUAL KENDRA - Medium
-            # Check if the two lords occupy kendra positions from each other
-            house_distance = abs(lord1_house - lord2_house)
-            if house_distance in [3, 6, 9]:  # 4th, 7th, 10th from each other (kendra relationship)
+            # Check if the two lords occupy kendra positions from each other (1, 4, 7, 10 apart)
+            # CRITICAL FIX: Use zodiacal distance, not absolute distance
+            kendra_distance = self._wrap_1_to_12(lord2_house - lord1_house + 1)
+            if kendra_distance in [1, 4, 7, 10]:  # FIXED: was abs([3,6,9]), now [1,4,7,10]
                 if (self._check_lord_strength(lord1, planets, "neutral") and
                     self._check_lord_strength(lord2, planets, "neutral")):
 
@@ -3595,8 +3884,10 @@ class ExtendedYogaService:
                     })
 
             # 4. MUTUAL TRIKONA - Medium
-            # Check if the two lords occupy trikona positions from each other
-            if house_distance in [4, 8]:  # 5th, 9th from each other (trikona relationship)
+            # Check if the two lords occupy trikona positions from each other (1, 5, 9 apart)
+            # CRITICAL FIX: Use zodiacal distance, not absolute distance
+            trikona_distance = self._wrap_1_to_12(lord2_house - lord1_house + 1)
+            if trikona_distance in [1, 5, 9]:  # FIXED: was abs([4,8]), now [1,5,9]
                 if (self._check_lord_strength(lord1, planets, "neutral") and
                     self._check_lord_strength(lord2, planets, "neutral")):
 
@@ -6415,6 +6706,177 @@ class ExtendedYogaService:
                 deduplicated.append(best_yoga)
 
         return deduplicated
+
+    def _detect_sun_based_yogas(self, planets: Dict) -> List[Dict]:
+        """
+        PHASE 4: Detect Vesi, Vasi, and Ubhayachari yogas (Sun-based) - BPHS Classical
+
+        - Vesi: Planet(s) in 2nd house from Sun (future-oriented, ambitious)
+        - Vasi: Planet(s) in 12th house from Sun (reflective, hidden support)
+        - Ubhayachari: Planets in both 2nd and 12th from Sun (balanced, strongest)
+
+        These are fundamental BPHS yogas for personality and character.
+        """
+        yogas = []
+
+        sun_house = planets.get("Sun", {}).get("house", 0)
+        if not sun_house:
+            return yogas
+
+        planets_in_2nd = []
+        planets_in_12th = []
+
+        for planet_name, planet_data in planets.items():
+            if planet_name in ["Sun", "Moon", "Ascendant", "MC"]:
+                continue
+
+            planet_house = planet_data.get("house", 0)
+            if not planet_house:
+                continue
+
+            distance = self._wrap_1_to_12(planet_house - sun_house + 1)
+
+            if distance == 2:
+                planets_in_2nd.append(planet_name)
+            elif distance == 12:
+                planets_in_12th.append(planet_name)
+
+        # Check for yogas
+        has_2nd = len(planets_in_2nd) > 0
+        has_12th = len(planets_in_12th) > 0
+
+        if has_2nd and has_12th:
+            # Ubhayachari (strongest) - surrounded by planets
+            yogas.append({
+                "name": "Ubhayachari Yoga",
+                "description": f"Planets on both sides of Sun ({', '.join(planets_in_12th)} in 12th, {', '.join(planets_in_2nd)} in 2nd) - balanced personality, supportive influences, success through effort, harmonious character",
+                "strength": "Strong",
+                "category": "Sun-based Yoga",
+                "yoga_forming_planets": planets_in_12th + planets_in_2nd + ["Sun"]
+            })
+        elif has_2nd:
+            # Vesi - planets after Sun
+            yogas.append({
+                "name": "Vesi Yoga",
+                "description": f"Planet(s) in 2nd from Sun ({', '.join(planets_in_2nd)}) - future-oriented, ambitious, material success, self-made achievements",
+                "strength": "Medium",
+                "category": "Sun-based Yoga",
+                "yoga_forming_planets": planets_in_2nd + ["Sun"]
+            })
+        elif has_12th:
+            # Vasi - planets before Sun
+            yogas.append({
+                "name": "Vasi Yoga",
+                "description": f"Planet(s) in 12th from Sun ({', '.join(planets_in_12th)}) - reflective nature, behind-the-scenes influence, hidden support, contemplative mind",
+                "strength": "Medium",
+                "category": "Sun-based Yoga",
+                "yoga_forming_planets": planets_in_12th + ["Sun"]
+            })
+
+        return yogas
+
+    def _detect_vaapi_nabhasa_yoga(self, planets: Dict, options: Dict = None) -> List[Dict]:
+        """
+        PHASE 4: Detect Vaapī Nabhasa Yoga - All planets in Panaphara OR Apoklima
+
+        Nabhasa yoga from BPHS indicating balanced energy distribution:
+        - Panaphara (succeedent houses): 2, 5, 8, 11
+        - Apoklima (cadent houses): 3, 6, 9, 12
+
+        When all 7 planets are in one category, creates specific energy pattern.
+        """
+        yogas = []
+        main_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
+
+        # Check if all planets exist
+        planets_present = [p for p in main_planets if p in planets and planets[p].get("house", 0)]
+        if len(planets_present) < 7:
+            return yogas
+
+        # Count planets in panaphara and apoklima
+        panaphara_count = 0
+        apoklima_count = 0
+
+        for planet_name in main_planets:
+            if planet_name not in planets:
+                continue
+
+            planet_house = planets[planet_name].get("house", 0)
+            if not planet_house:
+                continue
+
+            if self._in_panaphara(planet_house):
+                panaphara_count += 1
+            elif self._in_apoklima(planet_house):
+                apoklima_count += 1
+
+        # Check for Vaapī Yoga
+        if panaphara_count == 7:
+            yogas.append({
+                "name": "Vaapī Nabhasa Yoga - Panaphara",
+                "description": "All 7 planets in Panaphara houses (2,5,8,11) - steady progress, resourcefulness, balanced energy distribution, success through persistent effort",
+                "strength": "Medium",
+                "category": "Nabhasa Yoga - Pattern"
+            })
+        elif apoklima_count == 7:
+            yogas.append({
+                "name": "Vaapī Nabhasa Yoga - Apoklima",
+                "description": "All 7 planets in Apoklima houses (3,6,9,12) - philosophical nature, behind-the-scenes work, delayed but lasting results, gradual growth",
+                "strength": "Medium",
+                "category": "Nabhasa Yoga - Pattern"
+            })
+
+        return yogas
+
+    def _detect_kalanidhi_yoga(self, planets: Dict, options: Dict = None) -> List[Dict]:
+        """
+        PHASE 4: Detect Kālanidhi Wealth Yoga - BPHS Classical
+
+        Formation:
+        - Venus in 2nd OR 11th house
+        - Mercury in 2nd OR 11th house
+        - Jupiter aspects Venus OR Mercury
+
+        Effect: Exceptional wealth through wisdom, learning, and refined tastes.
+        Named after Kalanidhi (treasure of arts and learning).
+        """
+        yogas = []
+
+        # Get planet houses
+        venus_house = planets.get("Venus", {}).get("house", 0)
+        mercury_house = planets.get("Mercury", {}).get("house", 0)
+        jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+
+        if not all([venus_house, mercury_house, jupiter_house]):
+            return yogas
+
+        # Check if Venus and Mercury in 2nd or 11th
+        venus_in_wealth = venus_house in [2, 11]
+        mercury_in_wealth = mercury_house in [2, 11]
+
+        if not (venus_in_wealth and mercury_in_wealth):
+            return yogas
+
+        # Check if Jupiter aspects Venus or Mercury
+        jupiter_aspects_venus = self._planet_aspects_house_simple("Jupiter", jupiter_house, venus_house)
+        jupiter_aspects_mercury = self._planet_aspects_house_simple("Jupiter", jupiter_house, mercury_house)
+
+        if jupiter_aspects_venus or jupiter_aspects_mercury:
+            aspected_planets = []
+            if jupiter_aspects_venus:
+                aspected_planets.append("Venus")
+            if jupiter_aspects_mercury:
+                aspected_planets.append("Mercury")
+
+            yogas.append({
+                "name": "Kālanidhi Yoga",
+                "description": f"Venus in {venus_house}th, Mercury in {mercury_house}th, Jupiter aspects {'/'.join(aspected_planets)} - exceptional wealth through learning, refined tastes, artistic talents, and wise investments. Treasure of arts and knowledge.",
+                "strength": "Strong",
+                "category": "Dhana Yoga - Wealth",
+                "yoga_forming_planets": ["Venus", "Mercury", "Jupiter"]
+            })
+
+        return yogas
 
     def enrich_yogas(self, yogas: List[Dict]) -> List[Dict]:
         """Deduplicate and enrich all yogas with classification metadata"""
