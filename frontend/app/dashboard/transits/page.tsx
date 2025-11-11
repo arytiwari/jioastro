@@ -16,12 +16,41 @@ interface Profile {
   is_primary?: boolean
 }
 
+interface TransitPlanet {
+  planet: string
+  sign: string
+  degree: number
+  house: number
+  retrograde: boolean
+  interpretation: string
+}
+
+interface TransitAspect {
+  transiting_planet: string
+  natal_planet: string
+  aspect_type: string
+  orb: number
+  strength: string
+  interpretation: string
+  is_applying: boolean
+}
+
+interface SignChange {
+  planet: string
+  current_sign: string
+  next_sign: string
+  change_date: string
+  days_until: number
+}
+
 interface TransitData {
-  transit_planets: Record<string, any>
-  significant_aspects: any[]
-  house_transits: any[]
-  upcoming_sign_changes: any[]
-  interpretation?: string
+  transit_date: string
+  current_positions: TransitPlanet[]
+  significant_aspects: TransitAspect[]
+  upcoming_sign_changes: SignChange[]
+  timeline_events?: any[]
+  summary: string
+  focus_areas: string[]
 }
 
 const ASPECT_COLORS: Record<string, string> = {
@@ -215,19 +244,27 @@ export default function TransitsPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {Object.entries(transitData.transit_planets).map(([planet, data]: [string, any]) => (
-                  <div key={planet} className="p-3 border rounded-lg">
+                {transitData.current_positions.map((position: TransitPlanet) => (
+                  <div key={position.planet} className="p-3 border rounded-lg">
                     <div className="flex items-center justify-between mb-1">
-                      <p className="font-semibold text-gray-900">{planet}</p>
-                      <span className="text-xs text-gray-600">{data.sign}</span>
+                      <p className="font-semibold text-gray-900">{position.planet}</p>
+                      <span className="text-xs text-gray-600">{position.sign}</span>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      {data.degree?.toFixed(2)}° {data.sign}
+                    <p className="text-sm text-gray-600 mb-1">
+                      {position.degree.toFixed(2)}° {position.sign}
                     </p>
-                    {data.is_retrograde && (
+                    <p className="text-xs text-gray-500">
+                      House {position.house}
+                    </p>
+                    {position.retrograde && (
                       <span className="inline-block mt-1 text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded">
                         Retrograde
                       </span>
+                    )}
+                    {position.interpretation && (
+                      <p className="text-xs text-gray-600 mt-2 italic">
+                        {position.interpretation}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -249,53 +286,25 @@ export default function TransitsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {transitData.significant_aspects.map((aspect: any, index: number) => (
+                  {transitData.significant_aspects.map((aspect: TransitAspect, index: number) => (
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <p className="font-semibold text-gray-900">
-                            Transit {aspect.transit_planet} {aspect.aspect_type} Natal {aspect.natal_planet}
+                            Transit {aspect.transiting_planet} {aspect.aspect_type} Natal {aspect.natal_planet}
                           </p>
                           <p className="text-sm text-gray-600 mt-1">
-                            Orb: {aspect.orb?.toFixed(2)}° • Strength: {(aspect.strength * 100).toFixed(0)}%
+                            Orb: {aspect.orb.toFixed(2)}° • Strength: {aspect.strength}
+                            {aspect.is_applying && ' (Applying)'}
                           </p>
                         </div>
-                        <span className={`text-xs font-medium px-2 py-1 rounded ${ASPECT_COLORS[aspect.aspect_type]}`}>
+                        <span className={`text-xs font-medium px-2 py-1 rounded ${ASPECT_COLORS[aspect.aspect_type] || 'bg-gray-100 text-gray-800'}`}>
                           {aspect.aspect_type}
                         </span>
                       </div>
                       {aspect.interpretation && (
                         <p className="text-sm text-gray-700 mt-2">{aspect.interpretation}</p>
                       )}
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* House Transits */}
-          {transitData.house_transits && transitData.house_transits.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Home className="w-5 h-5 text-green-600" />
-                  House Transits
-                </CardTitle>
-                <CardDescription>
-                  Planets transiting through your birth chart houses
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {transitData.house_transits.map((transit: any, index: number) => (
-                    <div key={index} className="p-3 border rounded-lg">
-                      <p className="font-semibold text-gray-900">
-                        {transit.planet} in House {transit.house}
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {transit.interpretation || `${transit.planet} is currently transiting your ${transit.house}th house`}
-                      </p>
                     </div>
                   ))}
                 </div>
@@ -317,22 +326,19 @@ export default function TransitsPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {transitData.upcoming_sign_changes.map((change: any, index: number) => (
+                  {transitData.upcoming_sign_changes.map((change: SignChange, index: number) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {change.planet}: {change.from_sign} → {change.to_sign}
+                          {change.planet}: {change.current_sign} → {change.next_sign}
                         </p>
-                        {change.interpretation && (
-                          <p className="text-xs text-gray-600 mt-1">{change.interpretation}</p>
-                        )}
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-gray-900">
-                          {new Date(change.date).toLocaleDateString()}
+                          {new Date(change.change_date).toLocaleDateString()}
                         </p>
                         <p className="text-xs text-gray-600">
-                          {Math.ceil((new Date(change.date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))} days
+                          {Math.round(change.days_until)} days
                         </p>
                       </div>
                     </div>
@@ -342,21 +348,33 @@ export default function TransitsPage() {
             </Card>
           )}
 
-          {/* Overall Interpretation */}
-          {transitData.interpretation && (
+          {/* Overall Summary */}
+          {transitData.summary && (
             <Card className="border-2 border-jio-200 bg-jio-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-jio-600" />
-                  Overall Transit Interpretation
+                  Transit Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose prose-sm max-w-none">
                   <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {transitData.interpretation}
+                    {transitData.summary}
                   </p>
                 </div>
+                {transitData.focus_areas && transitData.focus_areas.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-jio-200">
+                    <p className="text-sm font-semibold text-gray-900 mb-2">Focus Areas:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {transitData.focus_areas.map((area: string, index: number) => (
+                        <span key={index} className="px-3 py-1 bg-jio-100 text-jio-800 rounded-full text-sm">
+                          {area}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
