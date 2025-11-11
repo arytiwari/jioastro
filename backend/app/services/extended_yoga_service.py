@@ -755,7 +755,10 @@ class ExtendedYogaService:
                         "name": yoga_names[planet],
                         "description": base_desc,
                         "strength": calculated_strength,
-                        "category": "Pancha Mahapurusha"
+                        "category": "Pancha Mahapurusha",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
+                        "bphs_ref": "Ch.75.1-2"
                     })
 
         return yogas
@@ -780,7 +783,10 @@ class ExtendedYogaService:
                 "name": "Adhi Yoga",
                 "description": f"Benefics ({', '.join(benefics_in_678)}) in 6th/7th/8th from Moon - brings wealth, power, health, longevity",
                 "strength": "Strong",
-                "category": "Wealth & Power"
+                "category": "Wealth & Power",
+                "bphs_category": "Standard Yogas",
+                "bphs_section": "A) Moon Yogas (Ch.37)",
+                "bphs_ref": "Ch.37.1-2"
             })
 
         return yogas
@@ -798,7 +804,10 @@ class ExtendedYogaService:
                 "name": "Chamara Yoga",
                 "description": "Jupiter exalted in Kendra - brings fame, learning, authority, royal favor",
                 "strength": "Strong",
-                "category": "Fame & Authority"
+                "category": "Fame & Authority",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "D) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.11-12"
             })
         return yogas
 
@@ -817,7 +826,10 @@ class ExtendedYogaService:
                     "name": "Lakshmi Yoga",
                     "description": "Strong Venus in Kendra - brings wealth, prosperity, luxury, beauty",
                     "strength": "Medium",
-                    "category": "Wealth"
+                    "category": "Wealth",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.27-28"
                 })
 
         # Saraswati Yoga (BPHS Classical Definition)
@@ -898,6 +910,9 @@ class ExtendedYogaService:
                         "description": f"Mercury, Jupiter, Venus in favorable houses from Lagna{strength_note} - exceptional learning, wisdom, eloquence, artistic talents, mastery of arts and sciences, blessed by Goddess Saraswati",
                         "strength": "Very Strong" if jup_exalted else "Strong",
                         "category": "Learning & Wisdom",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                         "importance": "major",
                         "impact": "positive",
                         "yoga_forming_planets": ["Mercury", "Jupiter", "Venus"],
@@ -923,7 +938,10 @@ class ExtendedYogaService:
                     "name": "Amala Yoga",
                     "description": f"{planet} in 10th from Moon - lasting fame, good character, prosperity",
                     "strength": "Medium",
-                    "category": "Fame & Reputation"
+                    "category": "Fame & Reputation",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.5-6"
                 })
                 break
 
@@ -947,7 +965,10 @@ class ExtendedYogaService:
                 "name": "Parvata Yoga",
                 "description": "Benefics in Kendras without malefics - wealth, learning, charitable nature",
                 "strength": "Medium",
-                "category": "Wealth & Character"
+                "category": "Wealth & Character",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.7-8"
             })
 
         return yogas
@@ -966,7 +987,10 @@ class ExtendedYogaService:
                 "name": "Kahala Yoga",
                 "description": "Jupiter well-placed - brings courage, leadership, victory",
                 "strength": "Medium",
-                "category": "Leadership"
+                "category": "Leadership",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.9-10"
             })
 
         return yogas
@@ -986,7 +1010,10 @@ class ExtendedYogaService:
                 "name": "Chandra-Mangala Yoga",
                 "description": "Moon-Mars conjunction - wealth through property, courage, practical nature",
                 "strength": "Medium",
-                "category": "Wealth"
+                "category": "Wealth",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
         # 7th house aspect
         elif abs(moon_house - mars_house) == 6 or abs(moon_house - mars_house) == 6:
@@ -994,7 +1021,10 @@ class ExtendedYogaService:
                 "name": "Chandra-Mangala Yoga (aspect)",
                 "description": "Moon-Mars in opposition - wealth, determination, property gains",
                 "strength": "Weak",
-                "category": "Wealth"
+                "category": "Wealth",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -1013,7 +1043,10 @@ class ExtendedYogaService:
                 "name": "Guru-Mangala Yoga",
                 "description": "Jupiter-Mars conjunction - technical expertise, engineering skills, strategic thinking",
                 "strength": "Medium",
-                "category": "Skills & Leadership"
+                "category": "Skills & Leadership",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -1052,6 +1085,9 @@ class ExtendedYogaService:
                     "description": "Malefics in dusthanas - success through overcoming adversity, turning difficulties into opportunities",
                     "strength": "Medium",
                     "category": "Overcoming Obstacles",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                     "importance": "moderate",
                     "impact": "positive"
                 })
@@ -1070,6 +1106,9 @@ class ExtendedYogaService:
                 "description": f"6th lord ({lord_6th}) in {lord_6th_house}th house - Victory over enemies, good health, courage and fighting spirit, happiness, success in competitive fields",
                 "strength": "Strong",
                 "category": "Viparita Raj Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                 "importance": "major",
                 "impact": "positive",
                 "formation": f"6th house lord {lord_6th} placed in dusthana ({lord_6th_house}th house)"
@@ -1085,6 +1124,9 @@ class ExtendedYogaService:
                 "description": f"8th lord ({lord_8th}) in {lord_8th_house}th house - Long life despite obstacles, overcoming dangers and accidents, success in occult sciences, fearless nature, inheritance gains",
                 "strength": "Strong",
                 "category": "Viparita Raj Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                 "importance": "major",
                 "impact": "positive",
                 "formation": f"8th house lord {lord_8th} placed in dusthana ({lord_8th_house}th house)"
@@ -1100,6 +1142,9 @@ class ExtendedYogaService:
                 "description": f"12th lord ({lord_12th}) in {lord_12th_house}th house - Success despite financial difficulties, spiritual wisdom and inclinations, charity and helping others, independent nature, gains from foreign lands or spirituality",
                 "strength": "Strong",
                 "category": "Viparita Raj Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                 "importance": "major",
                 "impact": "positive",
                 "formation": f"12th house lord {lord_12th} placed in dusthana ({lord_12th_house}th house)"
@@ -1225,6 +1270,9 @@ class ExtendedYogaService:
                     "description": f"5th lord ({lord_5th}) and 9th lord ({lord_9th}) in {rel_type}, {strength_desc} - Fortune through education, righteous actions, spiritual merit, ethical wealth, grace of dharma",
                     "strength": strength,
                     "category": "Dharma & Fortune",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                     "importance": "major" if strength in ["Strong", "Medium"] else "moderate",
                     "impact": "positive",
                     "formation": f"5th house lord {lord_5th} in {lord_5th_house}th, 9th house lord {lord_9th} in {lord_9th_house}th ({rel_type})"
@@ -1252,6 +1300,9 @@ class ExtendedYogaService:
                     "description": f"Lagna lord ({lagna_lord}) in {lagna_lord_house}th (Kendra/Trikona) with strong benefic(s) {benefic_names} - Goddess Lakshmi's blessings, wealth, prosperity, luxury, beauty, royal comforts, fortunate life",
                     "strength": "Strong",
                     "category": "Wealth & Prosperity",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.27-28",
                     "importance": "major",
                     "impact": "positive",
                     "formation": f"Lagna lord {lagna_lord} in {lagna_lord_house}th house with strong benefic(s) in dharma houses"
@@ -1268,6 +1319,9 @@ class ExtendedYogaService:
                     "description": f"Strong Lagna lord ({lagna_lord}) in {lagna_lord_house}th house (Kendra/Trikona) - Fame, honor, happiness, righteous conduct, enjoyment of pleasures, celestial tree of desires fulfilled",
                     "strength": "Strong",
                     "category": "Fame & Honor",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                     "importance": "major",
                     "impact": "positive",
                     "formation": f"Lagna lord {lagna_lord} strong in {lagna_lord_house}th house (Kendra/Trikona)"
@@ -1291,7 +1345,10 @@ class ExtendedYogaService:
                     "name": "Neecha Bhanga Raj Yoga",
                     "description": f"{planet} debilitation cancellation potential - difficulties transform into exceptional results",
                     "strength": "Strong",
-                    "category": "Transformation"
+                    "category": "Transformation",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         return yogas
@@ -1314,6 +1371,9 @@ class ExtendedYogaService:
                     "description": f"{planet} in 2nd from Sun - wealth, fame, good character, ethical nature, respect",
                     "strength": "Medium",
                     "category": "Sun-Based Yogas",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "B) Sun Yogas (Ch.38)",
+                        "bphs_ref": "Ch.38.1",
                     "importance": "major",
                     "impact": "positive"
                 })
@@ -1339,6 +1399,9 @@ class ExtendedYogaService:
                     "description": f"{planet} in 12th from Sun - skills, authority, independence, self-confidence, leadership",
                     "strength": "Medium",
                     "category": "Sun-Based Yogas",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "B) Sun Yogas (Ch.38)",
+                        "bphs_ref": "Ch.38.1",
                     "importance": "major",
                     "impact": "positive"
                 })
@@ -1372,6 +1435,9 @@ class ExtendedYogaService:
                 "description": "Planets on both sides of Sun - wealth, fame, eloquence, balanced nature, royal honors (combines Vesi and Vosi benefits)",
                 "strength": "Strong",
                 "category": "Sun-Based Yogas",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "B) Sun Yogas (Ch.38)",
+                        "bphs_ref": "Ch.38.1-4",
                 "importance": "major",
                 "impact": "positive"
             })
@@ -1396,6 +1462,9 @@ class ExtendedYogaService:
                     "description": f"{planet} in 2nd from Moon - self-made wealth, intelligence, prosperity, comfort, policy-making abilities",
                     "strength": "Medium",
                     "category": "Moon-Based Yogas",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "A) Moon Yogas (Ch.37)",
+                        "bphs_ref": "Ch.37.3-6",
                     "importance": "major",
                     "impact": "positive"
                 })
@@ -1421,6 +1490,9 @@ class ExtendedYogaService:
                     "description": f"{planet} in 12th from Moon - fame, good health, ornaments, comfort, renown, well-formed body",
                     "strength": "Medium",
                     "category": "Moon-Based Yogas",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "A) Moon Yogas (Ch.37)",
+                        "bphs_ref": "Ch.37.3-6",
                     "importance": "major",
                     "impact": "positive"
                 })
@@ -1454,6 +1526,9 @@ class ExtendedYogaService:
                 "description": "Planets on both sides of Moon - royal status, wealth, vehicles, attendants, comforts, balanced mind (combines Sunapha and Anapha benefits)",
                 "strength": "Strong",
                 "category": "Moon-Based Yogas",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "A) Moon Yogas (Ch.37)",
+                        "bphs_ref": "Ch.37.3-6",
                 "importance": "major",
                 "impact": "positive"
             })
@@ -1480,7 +1555,10 @@ class ExtendedYogaService:
                 "name": "Kemadruma Yoga",
                 "description": "Moon isolated (no planets in 2nd/12th) - potential struggles, need for self-reliance (can be canceled by other factors)",
                 "strength": "Weak",
-                "category": "Challenge"
+                "category": "Challenge",
+                        "bphs_category": "Major Challenges",
+                        "bphs_section": "B) Moon Challenges (Ch.37.13)",
+                        "bphs_ref": "Ch.37.13"
             })
 
         return yogas
@@ -1502,7 +1580,10 @@ class ExtendedYogaService:
                     "name": "Budhaditya Yoga",
                     "description": "Sun-Mercury conjunction - sharp intelligence, communication skills, business acumen, learning ability",
                     "strength": strength,
-                    "category": "Intelligence"
+                    "category": "Intelligence",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         return yogas
@@ -1550,7 +1631,10 @@ class ExtendedYogaService:
                 "name": "Ganesha Yoga - Jupiter-Ketu",
                 "description": f"Jupiter conjunct Ketu{house_note} - profound wisdom, spiritual intelligence, obstacle removal through insight, research abilities, philosophical nature, mystical knowledge",
                 "strength": strength,
-                "category": "Intelligence & Spirituality"
+                "category": "Intelligence & Spirituality",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # Venus-Ketu Conjunction (Artistic/Creative Ganesha Yoga)
@@ -1567,7 +1651,10 @@ class ExtendedYogaService:
                 "name": "Ganesha Yoga - Venus-Ketu",
                 "description": f"Venus conjunct Ketu{house_note} - spiritual artistic talents, unconventional beauty appreciation, detached relationships leading to deeper understanding, mystical creativity",
                 "strength": strength,
-                "category": "Creativity & Spirituality"
+                "category": "Creativity & Spirituality",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -1587,7 +1674,10 @@ class ExtendedYogaService:
                 "name": "Nipuna Yoga",
                 "description": "Mercury-Jupiter in favorable positions - exceptional skills, expertise, scholarly nature",
                 "strength": "Medium",
-                "category": "Skills & Learning"
+                "category": "Skills & Learning",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -1706,7 +1796,10 @@ class ExtendedYogaService:
                 "name": "Rajju Yoga",
                 "description": "All planets in movable signs - Active, travels frequently, wandering nature, restless but successful through movement",
                 "strength": "Strong",
-                "category": "Nabhasa - Ashraya"
+                "category": "Nabhasa - Ashraya",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.7"
             })
 
         # Musala Yoga - All in fixed
@@ -1715,7 +1808,10 @@ class ExtendedYogaService:
                 "name": "Musala Yoga",
                 "description": "All planets in fixed signs - Stable, determined, wealthy, leadership qualities, patient and persistent",
                 "strength": "Strong",
-                "category": "Nabhasa - Ashraya"
+                "category": "Nabhasa - Ashraya",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.7"
             })
 
         # Nala Yoga - All in dual
@@ -1724,7 +1820,10 @@ class ExtendedYogaService:
                 "name": "Nala Yoga",
                 "description": "All planets in dual signs - Versatile, adaptable, skilled in multiple areas, diplomatic but indecisive",
                 "strength": "Strong",
-                "category": "Nabhasa - Ashraya"
+                "category": "Nabhasa - Ashraya",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.7"
             })
 
         # Maala Yoga - Mixed placement
@@ -1733,7 +1832,10 @@ class ExtendedYogaService:
                 "name": "Maala Yoga",
                 "description": "Planets distributed across all sign types - Balanced personality, enjoys comforts, multiple talents, moderate wealth",
                 "strength": "Medium",
-                "category": "Nabhasa - Ashraya"
+                "category": "Nabhasa - Ashraya",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.7"
             })
 
         return yogas
@@ -1759,7 +1861,10 @@ class ExtendedYogaService:
                 "name": "Mala Yoga",
                 "description": "All benefics in kendras - Virtuous, wealthy, enjoys luxuries, respected, happy family life",
                 "strength": "Strong",
-                "category": "Nabhasa - Dala"
+                "category": "Nabhasa - Dala",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.8"
             })
 
         # Sarpa Yoga - All malefics in kendras
@@ -1768,7 +1873,10 @@ class ExtendedYogaService:
                 "name": "Sarpa Yoga",
                 "description": "Malefics in kendras - Struggles, obstacles, cunning nature, gains through effort, sudden ups and downs",
                 "strength": "Medium",
-                "category": "Nabhasa - Dala"
+                "category": "Nabhasa - Dala",
+                        "bphs_category": "Major Challenges",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.8"
             })
 
         return yogas
@@ -1798,7 +1906,10 @@ class ExtendedYogaService:
                 "name": "Gola Yoga",
                 "description": "All planets in one house - Intense focus, specialized skills, poverty early then prosperity, concentrated energy",
                 "strength": "Medium",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Major Challenges",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.16"
             })
 
         # 2. Yuga Yoga - All planets in houses 1-4
@@ -1807,7 +1918,10 @@ class ExtendedYogaService:
                 "name": "Yuga Yoga",
                 "description": "All planets in first quadrant (H1-4) - Religious nature, charitable deeds, respected in society, spiritual tendencies",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.16"
             })
 
         # 3. Shola Yoga - All planets in houses 5-8
@@ -1816,7 +1930,10 @@ class ExtendedYogaService:
                 "name": "Shola Yoga",
                 "description": "All planets in second quadrant (H5-8) - Courageous, argumentative, wealthy through effort, leadership qualities",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.16"
             })
 
         # 4. Halaka/Hal Yoga - No planets in kendras (1,4,7,10)
@@ -1827,7 +1944,10 @@ class ExtendedYogaService:
                 "name": "Hal Yoga",
                 "description": "No planets in kendras - Agricultural pursuits, farming, land-related work, hardworking nature",
                 "strength": "Medium",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.10"
             })
 
         # 5. Vajra Yoga - All in 1st & 7th OR benefics in all kendras
@@ -1836,7 +1956,10 @@ class ExtendedYogaService:
                 "name": "Vajra Yoga (Nabhasa)",
                 "description": "Planets in 1st & 7th or benefics in all kendras - Strong personality, success in early and late life, diamond-like strength",
                 "strength": "Very Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # 6. Yava Yoga - All in 1st & 4th OR 1st & 10th
@@ -1845,7 +1968,10 @@ class ExtendedYogaService:
                 "name": "Yava Yoga",
                 "description": "Planets in angular houses from lagna - Middle life prosperity, charitable, religious observances",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.11"
             })
 
         # 7. Kamala/Padma Yoga - All planets in kendras
@@ -1854,7 +1980,10 @@ class ExtendedYogaService:
                 "name": "Kamala Yoga",
                 "description": "All planets in kendras (1,4,7,10) - Fame, wealth, long life, royal honors, lotus-like grace",
                 "strength": "Very Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.12"
             })
 
         # 8. Vaapi Yoga - All in Panaphar (2,5,8,11) OR Apoklima (3,6,9,12), NO Kendras
@@ -1873,6 +2002,9 @@ class ExtendedYogaService:
                     "description": "All planets in Panaphar (2,5,8,11) or Apoklima (3,6,9,12), no Kendras - Well of wealth, accumulation, secretive nature, supportive relationships, high position through hard work",
                     "strength": "Strong",
                     "category": "Nabhasa - Akriti",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.12",
                     "importance": "major",  # Wealth-giving yoga
                     "impact": "positive"
                 })
@@ -1883,7 +2015,10 @@ class ExtendedYogaService:
                 "name": "Yupa Yoga",
                 "description": "Planets from 1st to 4th house - Religious sacrifices, spiritual practices, revered for rituals",
                 "strength": "Medium",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.13"
             })
 
         # 10. Ishwara Yoga - All from lagna to 7th house
@@ -1892,7 +2027,10 @@ class ExtendedYogaService:
                 "name": "Ishwara Yoga",
                 "description": "Planets from 1st to 7th house - Lordship qualities, authority, ministerial positions, wealth",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.13"
             })
 
         # 11. Shakti Yoga - All in 7 consecutive signs/houses
@@ -1903,7 +2041,10 @@ class ExtendedYogaService:
                         "name": "Shakti Yoga",
                         "description": "7 planets in consecutive houses - Cowardice in youth, courage in old age, lazy but successful",
                         "strength": "Medium",
-                        "category": "Nabhasa - Akriti"
+                        "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.13"
                     })
                     break
 
@@ -1915,7 +2056,10 @@ class ExtendedYogaService:
                         "name": "Danda Yoga",
                         "description": "6 planets in consecutive houses - Staff/stick pattern, serving others, moderate income",
                         "strength": "Medium",
-                        "category": "Nabhasa - Akriti"
+                        "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.13"
                     })
                     break
 
@@ -1928,7 +2072,10 @@ class ExtendedYogaService:
                         "name": "Naukaa Yoga",
                         "description": "7 planets in boat pattern from kendra - Water/ship related work, travel, trade voyages",
                         "strength": "Medium",
-                        "category": "Nabhasa - Akriti"
+                        "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.14"
                     })
                     break
 
@@ -1939,7 +2086,10 @@ class ExtendedYogaService:
                 "name": "Koota Yoga",
                 "description": "Planets in dusthana houses (4,8,12) - Deceptive nature, imprisonment, confinement, secrecy",
                 "strength": "Weak",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.14"
             })
 
         # 15. Chatra/Chhatra Yoga - All planets from 10th house
@@ -1948,7 +2098,10 @@ class ExtendedYogaService:
                 "name": "Chatra Yoga",
                 "description": "Planets from 10th house onwards - Royal canopy, rulership, authority, happiness in early life",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.14"
             })
 
         # 16. Chaapa/Dhanu Yoga - All in trikona houses (1,5,9)
@@ -1957,7 +2110,10 @@ class ExtendedYogaService:
                 "name": "Chaapa Yoga",
                 "description": "All in trikonas (1,5,9) - Bow/archer pattern, wandering, incarceration in middle age, final success",
                 "strength": "Medium",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.14"
             })
 
         # 17. Ardha Chandra Yoga - All in 7 houses from lagna
@@ -1966,7 +2122,10 @@ class ExtendedYogaService:
                 "name": "Ardha Chandra Yoga",
                 "description": "7 planets spread in half-moon pattern from lagna - Handsome, famous, commanding, head of army",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.14"
             })
 
         # 18. Chakra Yoga - All planets in kendra and trikona only
@@ -1976,7 +2135,10 @@ class ExtendedYogaService:
                 "name": "Chakra Yoga",
                 "description": "Planets in kendras and trikonas - Sovereign ruler, powerful leader, tremendous authority, wheel pattern",
                 "strength": "Very Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.15"
             })
 
         # 19. Samudra Yoga - All in 6 consecutive signs
@@ -1987,7 +2149,10 @@ class ExtendedYogaService:
                         "name": "Samudra Yoga",
                         "description": "6 planets in consecutive houses - Ocean of wealth, treasure accumulation, generous",
                         "strength": "Strong",
-                        "category": "Nabhasa - Akriti"
+                        "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.15"
                     })
                     break
 
@@ -1999,7 +2164,10 @@ class ExtendedYogaService:
                     "name": "Dama Yoga",
                     "description": "Planets in consecutive houses - Charitable, helpful nature, gains through service, moderate wealth",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Major Challenges",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.16"
                 })
 
         # NEW NABHASA AKRITI YOGAS - BPHS IDs 6-31
@@ -2012,7 +2180,10 @@ class ExtendedYogaService:
                     "name": "Gada Yoga",
                     "description": f"All planets in two successive kendras ({k1}th & {k2}th) - Club-like strength, success through partnerships, gains through joint efforts",
                     "strength": "Strong",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.9"
                 })
                 break
 
@@ -2025,7 +2196,10 @@ class ExtendedYogaService:
                     "name": "Sakata Yoga (Nabhasa)",
                     "description": "All planets only in 1st and 7th houses - Cart-wheel pattern, ups and downs in life, gains through persistence",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 8: Vihaga Yoga - All planets only in 4th and 10th
@@ -2034,7 +2208,10 @@ class ExtendedYogaService:
                 "name": "Vihaga Yoga",
                 "description": "All planets only in 4th and 10th houses - Bird-like movement, travel, messenger, diplomatic success",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.9"
             })
 
         # ID 9: Śṛṅgāṭaka Yoga - All planets only in trikonas (1, 5, 9)
@@ -2045,7 +2222,10 @@ class ExtendedYogaService:
                     "name": "Śṛṅgāṭaka Yoga",
                     "description": "All planets only in trikonas (1,5,9) - Crossroads of fortune, righteous living, religious authority, spiritual leadership",
                     "strength": "Very Strong",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.10"
                 })
 
         # ID 10: Hala Yoga (Corrected BPHS version) - All in Trishadaya sets
@@ -2062,7 +2242,10 @@ class ExtendedYogaService:
                     "name": "Hala Yoga (Corrected)",
                     "description": f"All planets in {tri_desc} (Trishadaya) - Plough pattern, agricultural success, land-related wealth, hardworking nature",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
                 break
 
@@ -2077,7 +2260,10 @@ class ExtendedYogaService:
                 "name": "Vajra Yoga (BPHS Corrected)",
                 "description": f"All {pattern} - Diamond strength, invincible in conflicts, lasting success",
                 "strength": "Very Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 12: Yava (Corrected) - All benefics in 4&10 OR all malefics in 1&7
@@ -2090,7 +2276,10 @@ class ExtendedYogaService:
                 "name": "Yava Yoga (BPHS Corrected)",
                 "description": f"All {pattern} - Barley grain pattern, prosperity in middle life, charitable deeds",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # IDs 15-18: Spread Patterns (BPHS Corrected) - 7 planets spread over quadrants
@@ -2102,7 +2291,10 @@ class ExtendedYogaService:
                     "name": "Yupa Yoga (BPHS)",
                     "description": "7 planets spread over 1st-4th houses - Sacrificial post, religious authority, ritualistic success",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
             # ID 16: Śara - 7 planets spread over houses 4-7
@@ -2111,7 +2303,10 @@ class ExtendedYogaService:
                     "name": "Śara Yoga",
                     "description": "7 planets spread over 4th-7th houses - Arrow pattern, goal-oriented, success through partnerships",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.13"
                 })
 
             # ID 17: Śakti (Corrected) - 7 planets spread over houses 7-10
@@ -2120,7 +2315,10 @@ class ExtendedYogaService:
                     "name": "Śakti Yoga (BPHS)",
                     "description": "7 planets spread over 7th-10th houses - Spear pattern, powerful authority, career success, combative strength",
                     "strength": "Strong",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
             # ID 18: Daṇḍa (Corrected) - 7 planets spread over houses 10-1 (wrapping)
@@ -2129,7 +2327,10 @@ class ExtendedYogaService:
                     "name": "Daṇḍa Yoga (BPHS)",
                     "description": "7 planets spread over 10th-1st houses (wrapping) - Staff pattern, authority through discipline, administrative success",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # IDs 19-22: Consecutive House Patterns (BPHS Corrected)
@@ -2142,7 +2343,10 @@ class ExtendedYogaService:
                     "name": "Nauka Yoga (BPHS)",
                     "description": "7 consecutive houses starting from 1st - Boat pattern, water-related success, trade voyages",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
             # ID 20: Kūṭa (Corrected) - 7 consecutive from house 4
@@ -2152,7 +2356,10 @@ class ExtendedYogaService:
                     "name": "Kūṭa Yoga (BPHS)",
                     "description": "7 consecutive houses starting from 4th - Heap/pile pattern, accumulation of wealth, property success",
                     "strength": "Medium",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
             # ID 21: Chatra (Corrected) - 7 consecutive from house 7
@@ -2163,7 +2370,10 @@ class ExtendedYogaService:
                     "name": "Chatra Yoga (BPHS)",
                     "description": "7 consecutive houses starting from 7th - Umbrella/canopy pattern, royal protection, success in partnerships",
                     "strength": "Strong",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
             # ID 22: Dhanus/Chāpa (Corrected) - 7 consecutive from house 10
@@ -2173,7 +2383,10 @@ class ExtendedYogaService:
                     "name": "Dhanus Yoga (BPHS)",
                     "description": "7 consecutive houses starting from 10th - Bow pattern, career authority, leadership, focused ambition",
                     "strength": "Strong",
-                    "category": "Nabhasa - Akriti"
+                    "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # IDs 23-24: Alternate Sign Patterns (BPHS Corrected)
@@ -2190,7 +2403,10 @@ class ExtendedYogaService:
                 "name": "Chakra Yoga (BPHS)",
                 "description": f"6+ planets in alternate signs ({pattern}) - Wheel of fortune, sovereign power, universal authority",
                 "strength": "Very Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 24: Samudra (Corrected) - 6 alternate signs from 2nd house
@@ -2201,7 +2417,10 @@ class ExtendedYogaService:
                 "name": "Samudra Yoga (BPHS)",
                 "description": "6+ planets in alternate even houses - Ocean pattern, vast wealth, treasure accumulation, generous nature",
                 "strength": "Strong",
-                "category": "Nabhasa - Akriti"
+                "category": "Nabhasa - Akriti",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -2228,7 +2447,10 @@ class ExtendedYogaService:
                     "name": "Shakata Yoga",
                     "description": "Moon in 6/8/12 from Jupiter - Financial ups and downs, cart-wheel life, gains through perseverance",
                     "strength": "Weak",
-                    "category": "Challenge"
+                    "category": "Challenge",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.9"
                 })
 
         # Shrinatha Yoga - Lord of exaltation in kendra
@@ -2239,7 +2461,10 @@ class ExtendedYogaService:
                 "name": "Shrinatha Yoga",
                 "description": "Venus in kendra - Wealth, comforts, vehicles, luxurious lifestyle, royal treatment",
                 "strength": "Strong",
-                "category": "Wealth & Comfort"
+                "category": "Wealth & Comfort",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.18"
             })
 
         # Kusuma Yoga - Jupiter in lagna, Moon/Venus in 7th
@@ -2252,7 +2477,10 @@ class ExtendedYogaService:
                 "name": "Kusuma Yoga",
                 "description": "Jupiter in 1st, Moon/Venus in 7th - Fame, respect, learned, wealthy, authority position",
                 "strength": "Very Strong",
-                "category": "Fame & Authority"
+                "category": "Fame & Authority",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.29-30"
             })
 
         # Matsya Yoga - All planets in 1st-7th houses
@@ -2264,7 +2492,10 @@ class ExtendedYogaService:
                 "name": "Matsya Yoga",
                 "description": "Planets concentrated in 1-7 houses - Righteous, charitable, enjoys comforts, fish-like adaptability",
                 "strength": "Medium",
-                "category": "Fame & Character"
+                "category": "Fame & Character",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.21-22"
             })
 
         # Kurma Yoga - All planets in 4th-10th houses
@@ -2275,7 +2506,10 @@ class ExtendedYogaService:
                 "name": "Kurma Yoga",
                 "description": "Planets concentrated in 4-10 houses - Patient, determined, steady progress, turtle-like perseverance, long-lasting gains",
                 "strength": "Medium",
-                "category": "Wealth & Character"
+                "category": "Wealth & Character",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.23-24"
             })
 
         return yogas
@@ -2321,7 +2555,10 @@ class ExtendedYogaService:
                 "name": "Gajakesari Yoga",
                 "description": base_desc,
                 "strength": strength,
-                "category": "Raja Yoga"
+                "category": "Raja Yoga",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.3-4"
             })
 
         return yogas
@@ -2357,7 +2594,10 @@ class ExtendedYogaService:
                 "name": "Raj Yoga (Kendra-Trikona)",
                 "description": f"Benefics in Kendra ({', '.join(benefics_in_kendra)}) and Trikona ({', '.join(benefics_in_trikona)}) - power, status, authority, leadership, prosperity",
                 "strength": strength,
-                "category": "Raja Yoga"
+                "category": "Raja Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "A) Rāja (Ch.39)",
+                "bphs_ref": "Ch.39"
             })
 
         return yogas
@@ -2380,7 +2620,10 @@ class ExtendedYogaService:
                 "name": "Grahan Yoga (Solar Eclipse)",
                 "description": f"Sun-Rahu conjunction in house {sun_house} - challenges with father/authority, ego struggles, spiritual awakening through identity crisis, potential for occult knowledge",
                 "strength": "Strong",
-                "category": "Eclipse Yoga"
+                "category": "Eclipse Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # Sun-Ketu conjunction
@@ -2389,7 +2632,10 @@ class ExtendedYogaService:
                 "name": "Grahan Yoga (Solar Eclipse - Ketu)",
                 "description": f"Sun-Ketu conjunction in house {sun_house} - detachment from ego, spiritual inclination, challenges with father, enlightenment through self-dissolution",
                 "strength": "Medium",
-                "category": "Eclipse Yoga"
+                "category": "Eclipse Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # Moon-Rahu conjunction (Lunar Eclipse)
@@ -2398,7 +2644,10 @@ class ExtendedYogaService:
                 "name": "Grahan Yoga (Lunar Eclipse)",
                 "description": f"Moon-Rahu conjunction in house {moon_house} - emotional turbulence, mental restlessness, challenges with mother, obsessive thinking, powerful intuition",
                 "strength": "Very Strong",
-                "category": "Eclipse Yoga"
+                "category": "Eclipse Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # Moon-Ketu conjunction
@@ -2407,7 +2656,10 @@ class ExtendedYogaService:
                 "name": "Grahan Yoga (Lunar Eclipse - Ketu)",
                 "description": f"Moon-Ketu conjunction in house {moon_house} - emotional detachment, psychic abilities, past-life memories, spiritual sensitivity, challenges with mother",
                 "strength": "Strong",
-                "category": "Eclipse Yoga"
+                "category": "Eclipse Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -2439,7 +2691,10 @@ class ExtendedYogaService:
                 "name": "Dharma-Karmadhipati Yoga",
                 "description": f"{benefic_in_9th} in 9th (dharma) and {benefic_in_10th} in 10th (karma) - career success, righteous conduct, fame through good deeds, fortune and profession aligned",
                 "strength": strength,
-                "category": "Raja Yoga"
+                "category": "Raja Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -2470,7 +2725,10 @@ class ExtendedYogaService:
                 "name": "Dhana Yoga",
                 "description": f"Benefics ({', '.join(planet_names)}) in wealth houses ({', '.join(house_list)}) - multiple income sources, financial growth, prosperity through wisdom",
                 "strength": strength,
-                "category": "Wealth Yoga"
+                "category": "Wealth Yoga",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "B) Dhana (Ch.41)",
+                        "bphs_ref": "Ch.41"
             })
 
         return yogas
@@ -2504,7 +2762,10 @@ class ExtendedYogaService:
                 "name": "Chandal Yoga",
                 "description": desc,
                 "strength": strength,
-                "category": "Challenge Yoga"
+                "category": "Challenge Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -2546,7 +2807,10 @@ class ExtendedYogaService:
                 "name": "Kubera Yoga",
                 "description": "All three benefics (Jupiter, Venus, Mercury) are strong - exceptional wealth, luxuries, multiple income streams, prosperity like the god of wealth Kubera",
                 "strength": strength,
-                "category": "Extreme Wealth"
+                "category": "Extreme Wealth",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -2706,7 +2970,10 @@ class ExtendedYogaService:
                     "name": "Aries Wealth Yoga",
                     "description": "Mars (Lagna lord) with Sun/Jupiter - wealth through courage, leadership, military/sports, Mars-ruled professions",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Taurus Ascendant (asc_sign = 1)
@@ -2718,7 +2985,10 @@ class ExtendedYogaService:
                     "name": "Taurus Wealth Yoga",
                     "description": "Strong Venus (Lagna lord) - wealth through arts, beauty, luxury goods, Venusian professions, material comforts",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Gemini Ascendant (asc_sign = 2)
@@ -2732,7 +3002,10 @@ class ExtendedYogaService:
                     "name": "Gemini Wealth Yoga",
                     "description": "Mercury (Lagna lord) with Venus - wealth through communication, business, trade, intellectual pursuits",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Cancer Ascendant (asc_sign = 3)
@@ -2746,7 +3019,10 @@ class ExtendedYogaService:
                     "name": "Cancer Wealth Yoga",
                     "description": "Moon (Lagna lord) with Jupiter - wealth through nurturing, care professions, real estate, emotional intelligence",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Leo Ascendant (asc_sign = 4)
@@ -2761,7 +3037,10 @@ class ExtendedYogaService:
                     "name": "Leo Wealth Yoga",
                     "description": "Sun (Lagna lord) with Mars/Jupiter - wealth through authority, government, leadership, royal professions",
                     "strength": "Very Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Virgo Ascendant (asc_sign = 5)
@@ -2773,7 +3052,10 @@ class ExtendedYogaService:
                     "name": "Virgo Wealth Yoga",
                     "description": "Mercury (Lagna lord) in Virgo - wealth through analysis, service, health professions, detailed work",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Libra Ascendant (asc_sign = 6)
@@ -2787,7 +3069,10 @@ class ExtendedYogaService:
                     "name": "Libra Wealth Yoga",
                     "description": "Venus (Lagna lord) with Saturn - wealth through law, justice, balanced partnerships, diplomatic work",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Scorpio Ascendant (asc_sign = 7)
@@ -2801,7 +3086,10 @@ class ExtendedYogaService:
                     "name": "Scorpio Wealth Yoga",
                     "description": "Mars (Lagna lord) with Moon - wealth through transformation, research, occult sciences, investigation",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Sagittarius Ascendant (asc_sign = 8)
@@ -2813,7 +3101,10 @@ class ExtendedYogaService:
                     "name": "Sagittarius Wealth Yoga",
                     "description": "Jupiter (Lagna lord) in own/exalted sign - wealth through wisdom, teaching, philosophy, higher education",
                     "strength": "Very Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Capricorn Ascendant (asc_sign = 9)
@@ -2827,7 +3118,10 @@ class ExtendedYogaService:
                     "name": "Capricorn Wealth Yoga",
                     "description": "Saturn (Lagna lord) with Venus - wealth through discipline, long-term investments, structured business, persistence",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Aquarius Ascendant (asc_sign = 10)
@@ -2841,7 +3135,10 @@ class ExtendedYogaService:
                     "name": "Aquarius Wealth Yoga",
                     "description": "Saturn (Lagna lord) with Mercury - wealth through innovation, technology, networking, humanitarian work",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # Pisces Ascendant (asc_sign = 11)
@@ -2855,7 +3152,10 @@ class ExtendedYogaService:
                     "name": "Pisces Wealth Yoga",
                     "description": "Jupiter (Lagna lord) with Moon - wealth through spirituality, healing, creative arts, compassionate work",
                     "strength": "Strong",
-                    "category": "Wealth Yoga - Ascendant Specific"
+                    "category": "Wealth Yoga - Ascendant Specific",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         return yogas
@@ -2929,7 +3229,10 @@ class ExtendedYogaService:
                     "description": f"{lord_1} and {lord_12} exchange signs (1st-12th parivartana) - loss of vitality, expenses exceed income, wealth dissipation" +
                                    (" with maraka influence (severe)" if is_maraka_involved else ""),
                     "strength": "Strong" if is_maraka_involved else "Medium",
-                    "category": "Penury Yoga - Parivartana"
+                    "category": "Penury Yoga - Parivartana",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 263: 1L-6L parivartana with maraka influence
@@ -2945,7 +3248,10 @@ class ExtendedYogaService:
                     "description": f"{lord_1} and {lord_6} exchange signs (1st-6th parivartana) - chronic debts, enemies, litigation, health expenses" +
                                    (" with maraka influence (severe)" if is_maraka_involved else ""),
                     "strength": "Strong" if is_maraka_involved else "Medium",
-                    "category": "Penury Yoga - Parivartana"
+                    "category": "Penury Yoga - Parivartana",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ====== PATTERN 2: Dusthana Placements of Lagna Lord (IDs 264-266) ======
@@ -2963,7 +3269,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Malefic Lagna Lord with Ketu",
                     "description": f"{lord_1} (malefic lagna lord) conjunct Ketu - amplified obstacles, loss of direction, material detachment causing difficulties",
                     "strength": "Medium",
-                    "category": "Penury Yoga - Affliction"
+                    "category": "Penury Yoga - Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
             # Note: Jupiter-Ketu or Venus-Ketu are NOT included as they form beneficial Ganesha Yoga
 
@@ -2973,7 +3282,10 @@ class ExtendedYogaService:
                 "name": "Daridra Yoga - Lagna Lord in 8th",
                 "description": f"{lord_1} in 8th house - chronic obstacles, sudden transformations, inheritance issues, hidden financial drains",
                 "strength": "Medium",
-                "category": "Penury Yoga - Affliction"
+                "category": "Penury Yoga - Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 265: 1L with malefic in dusthana (6/8/12) AND 2L debilitated
@@ -2995,7 +3307,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Lagna Lord Afflicted, Dhana Lord Fallen",
                     "description": f"{lord_1} with malefic in dusthana ({lord_1_house}th) AND {lord_2} debilitated - severe financial struggles, difficulty earning and retaining wealth",
                     "strength": "Very Strong",
-                    "category": "Penury Yoga - Affliction"
+                    "category": "Penury Yoga - Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 266: 1L with 6/8/12 lords without benefic aspect
@@ -3026,7 +3341,10 @@ class ExtendedYogaService:
                         "name": "Daridra Yoga - Lagna Lord with Dusthana Lords",
                         "description": f"{lord_1} with dusthana lords without benefic protection - obstacles from enemies, debts, hidden matters without relief",
                         "strength": "Strong",
-                        "category": "Penury Yoga - Affliction"
+                        "category": "Penury Yoga - Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                     })
 
         # ====== PATTERN 3: Dharma Lords Afflicted (ID 267) ======
@@ -3042,7 +3360,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Dharma Lords Afflicted",
                     "description": f"{lord_5} in 6th and {lord_9} in 12th with maraka influence - loss of past merit, spiritual obstacles, difficulties with children and fortune",
                     "strength": "Very Strong",
-                    "category": "Penury Yoga - Dharma Affliction"
+                    "category": "Penury Yoga - Dharma Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ====== PATTERN 4: Malefics in Lagna (ID 268) ======
@@ -3067,7 +3388,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Malefics in Lagna with Maraka",
                     "description": f"Malefics ({', '.join(malefics_in_lagna)}) in Lagna with maraka lord - damaged personality, obstacles to self-expression, chronic health/wealth issues",
                     "strength": "Strong",
-                    "category": "Penury Yoga - Lagna Affliction"
+                    "category": "Penury Yoga - Lagna Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ====== PATTERN 5: Dispositor Chains (ID 269) ======
@@ -3090,7 +3414,10 @@ class ExtendedYogaService:
                 "name": "Daridra Yoga - Dusthana Chain",
                 "description": f"Dispositors of dusthana lords also in dusthana - deep karmic debt patterns, recurring obstacles, difficulty breaking negative cycles",
                 "strength": "Strong",
-                "category": "Penury Yoga - Dispositor"
+                "category": "Penury Yoga - Dispositor",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ====== PATTERN 6: House Distribution (ID 272) ======
@@ -3114,7 +3441,10 @@ class ExtendedYogaService:
                 "name": "Daridra Yoga - Inverted House Distribution",
                 "description": f"Benefics ({', '.join(benefics_in_bad)}) in dusthana, malefics ({', '.join(malefics_in_good)}) in trikonas - reversed fortune, good intentions bring problems, obstacles appear as opportunities",
                 "strength": "Strong",
-                "category": "Penury Yoga - Distribution"
+                "category": "Penury Yoga - Distribution",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ====== PATTERN 7: 2nd House Afflictions (IDs 276-277) ======
@@ -3128,7 +3458,10 @@ class ExtendedYogaService:
                 "name": "Daridra Yoga - Mars-Saturn in 2nd",
                 "description": "Mars and Saturn both in 2nd house - harsh speech, family conflicts, difficulty accumulating wealth, blocked income sources",
                 "strength": "Strong",
-                "category": "Penury Yoga - 2nd House"
+                "category": "Penury Yoga - 2nd House",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 277: Sun-Saturn mutual aspects
@@ -3143,7 +3476,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Sun-Saturn Opposition",
                     "description": "Sun and Saturn in mutual 7th house aspect - conflict between authority and limitation, father issues, career obstacles, delayed recognition",
                     "strength": "Medium",
-                    "category": "Penury Yoga - Aspect"
+                    "category": "Penury Yoga - Aspect",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ====== PATTERN 8: Moon Afflictions (IDs 270-271 - D1 Proxy) ======
@@ -3170,7 +3506,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Moon Afflicted by Maraka",
                     "description": f"Moon {'with maraka lord' if moon_with_maraka else 'in maraka house'} in D1 - mental anxiety about finances, emotional attachment to wealth causing loss (full analysis requires Navamsa)",
                     "strength": "Medium",
-                    "category": "Penury Yoga - Moon Affliction"
+                    "category": "Penury Yoga - Moon Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 271: Both Lagna lords afflicted (D1 proxy)
@@ -3187,7 +3526,10 @@ class ExtendedYogaService:
                     "name": "Daridra Yoga - Lagna Lord under Maraka Influence",
                     "description": f"{lord_1} {'with maraka lord' if lord_1_with_maraka else 'in maraka house'} - vitality and prosperity threatened by death-inflicting influences (full analysis requires both D1 and D9)",
                     "strength": "Strong",
-                    "category": "Penury Yoga - Lagna Affliction"
+                    "category": "Penury Yoga - Lagna Affliction",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ====== PATTERN 9: Dasha-Period Indicators (IDs 273-275 - General Proxies) ======
@@ -3211,7 +3553,10 @@ class ExtendedYogaService:
                 "name": "Daridra Yoga - Afflicted Dusthana Lord Dashas",
                 "description": f"Dusthana lords ({', '.join(problematic_dasha_lords)}) debilitated in dusthana - their Mahadasha/Antardasha periods will bring financial difficulties, health issues, legal problems (timing requires Vimshottari Dasha calculation)",
                 "strength": "Strong",
-                "category": "Penury Yoga - Dasha Indicator"
+                "category": "Penury Yoga - Dasha Indicator",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 275: Maraka lord dashas with weak wealth houses
@@ -3239,7 +3584,10 @@ class ExtendedYogaService:
                 "name": "Daridra Yoga - Weak Wealth Lords, Strong Maraka",
                 "description": f"Wealth houses ({', '.join(map(str, weak_wealth_houses))}) have weak lords while maraka lords are strong - their dasha periods will drain accumulated wealth, medical expenses, family obligations (timing analysis requires Vimshottari Dasha)",
                 "strength": "Medium",
-                "category": "Penury Yoga - Dasha Indicator"
+                "category": "Penury Yoga - Dasha Indicator",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         return yogas
@@ -3300,7 +3648,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Career Lord with Amatyakaraka",
                 "description": f"10th lord ({lord_10}) conjunct Amatyakaraka ({amk_planet}) - professional success through ministerial/executive abilities, career advancement, administrative positions",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 209: Clean 10th & 11th houses (no malefics)
@@ -3313,7 +3664,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Clean Career & Gains Houses",
                 "description": "10th and 11th houses free from malefics - unobstructed career growth, smooth income flow, respected professional reputation",
                 "strength": "Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 210: AmK with AK's dispositor
@@ -3326,7 +3680,10 @@ class ExtendedYogaService:
                     "name": "Raja Yoga - AmK with AK Dispositor",
                     "description": f"Amatyakaraka ({amk_planet}) with {ak_planet}'s dispositor ({ak_dispositor}) - career aligned with soul purpose, work supports self-development",
                     "strength": "Strong",
-                    "category": "Royal Association - Jaimini"
+                    "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 211: AK with benefic planets
@@ -3345,7 +3702,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Atmakaraka with Benefics",
                 "description": f"Atmakaraka ({ak_planet}) with benefics ({', '.join(benefics_with_ak)}) - blessed soul, spiritual support, divine grace in self-development",
                 "strength": "Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 212: AmK in own/exaltation
@@ -3355,7 +3715,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Strong Amatyakaraka",
                 "description": f"Amatyakaraka ({amk_planet}) in {state} - powerful career karaka, executive excellence, ministerial abilities, professional mastery",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 213: AK in trines (1, 5, 9)
@@ -3365,7 +3728,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Atmakaraka in Trikona",
                 "description": f"Atmakaraka ({ak_planet}) in {house_names[ak_house]} - soul in dharma houses, righteous path, spiritual growth leads to material success",
                 "strength": "Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 214: AK in kendras (1, 4, 7, 10)
@@ -3375,7 +3741,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Atmakaraka in Kendra",
                 "description": f"Atmakaraka ({ak_planet}) in {house_names[ak_house]} - strong self-expression, angular power, ability to manifest soul's purpose in world",
                 "strength": "Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 215: AmK in kendras
@@ -3385,7 +3754,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Amatyakaraka in Kendra",
                 "description": f"Amatyakaraka ({amk_planet}) in {house_names[amk_house]} - career success through angular strength, professional prominence, leadership positions",
                 "strength": "Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 216: AK and AmK in mutual kendras
@@ -3396,7 +3768,10 @@ class ExtendedYogaService:
                     "name": "Raja Yoga - AK-AmK Mutual Kendra",
                     "description": f"Atmakaraka ({ak_planet}) and Amatyakaraka ({amk_planet}) in mutual kendras - soul and career in perfect alignment, self-realization through profession",
                     "strength": "Very Strong",
-                    "category": "Royal Association - Jaimini"
+                    "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 217: AK exalted
@@ -3405,7 +3780,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Exalted Atmakaraka",
                 "description": f"Atmakaraka ({ak_planet}) exalted - supreme self-expression, soul at its highest potential, destined for greatness",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 218: AK in own sign
@@ -3414,7 +3792,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Atmakaraka in Own Sign",
                 "description": f"Atmakaraka ({ak_planet}) in own sign - self-mastery, comfortable with soul's purpose, natural authority in chosen field",
                 "strength": "Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 219: Both AK and AmK strong (exalted or own)
@@ -3423,7 +3804,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - Both Karakas Strong",
                 "description": f"Both Atmakaraka ({ak_planet}) and Amatyakaraka ({amk_planet}) in exaltation/own signs - complete success, self and career both empowered, leadership excellence",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 220: AmK aspecting 10th house (Jaimini aspects)
@@ -3440,7 +3824,10 @@ class ExtendedYogaService:
                     "name": "Raja Yoga - AmK Aspects 10th House",
                     "description": f"Amatyakaraka ({amk_planet}) aspects 10th house with Jaimini aspect - career karaka directly influences profession, ministerial success, administrative power",
                     "strength": "Strong",
-                    "category": "Royal Association - Jaimini"
+                    "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
                 })
 
         # ID 221: AK and AmK conjunct
@@ -3449,7 +3836,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - AK-AmK Conjunction",
                 "description": f"Atmakaraka ({ak_planet}) conjunct Amatyakaraka ({amk_planet}) - soul and career unified, work IS life purpose, complete dedication brings supreme success",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 222: AmK in 10th house
@@ -3458,7 +3848,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - AmK in 10th House",
                 "description": f"Amatyakaraka ({amk_planet}) in 10th house - career karaka in career house, ministerial positions, executive authority, professional eminence",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # ID 223: AK in 10th house
@@ -3467,7 +3860,10 @@ class ExtendedYogaService:
                 "name": "Raja Yoga - AK in 10th House",
                 "description": f"Atmakaraka ({ak_planet}) in 10th house - soul's purpose IS career, destined for public recognition, self-realization through profession",
                 "strength": "Very Strong",
-                "category": "Royal Association - Jaimini"
+                "category": "Royal Association - Jaimini",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -4274,6 +4670,9 @@ class ExtendedYogaService:
                     "description": f"10th lord {lord_10} strong in 10th house - exceptional professional success, career authority, recognition in chosen field",
                     "strength": "Strong",
                     "category": "Raj Yoga Support",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "A) Rāja (Ch.39)",
+                        "bphs_ref": "Ch.39",
                     "yoga_forming_planets": [lord_10],
                     "formation": f"{lord_10} in own/exalted sign in 10th house"
                 })
@@ -4336,6 +4735,9 @@ class ExtendedYogaService:
                 "name": "All-Benefic Kendras Yoga",
                 "description": f"All occupied kendras contain only benefics ({', '.join(set(benefic_list))}) - harmonious life, balanced success in all four pillars (self, home, relationships, career)",
                 "strength": "Medium",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "A) Rāja (Ch.39)",
+                "bphs_ref": "Ch.39.48",
                 "category": "Raj Yoga Support",
                 "yoga_forming_planets": list(set(benefic_list)),
                 "formation": f"Benefics in kendras: {', '.join([f'{h}th' for h in occupied_kendras])}"
@@ -4377,6 +4779,9 @@ class ExtendedYogaService:
                 "description": f"Moon in 3rd from Venus, Venus in 11th from Moon - emotional prosperity, artistic gains, harmony between heart and desires",
                 "strength": "Medium",
                 "category": "Raj Yoga Support",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "A) Rāja (Ch.39)",
+                        "bphs_ref": "Ch.39.41",
                 "yoga_forming_planets": ["Moon", "Venus"],
                 "formation": f"Moon in {moon_house}th, Venus in {venus_house}th (mutual 3-11)"
             })
@@ -4388,6 +4793,9 @@ class ExtendedYogaService:
                 "description": f"Venus in 3rd from Moon, Moon in 11th from Venus - material prosperity, creative success, gains through emotional intelligence",
                 "strength": "Medium",
                 "category": "Raj Yoga Support",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "A) Rāja (Ch.39)",
+                        "bphs_ref": "Ch.39.41",
                 "yoga_forming_planets": ["Moon", "Venus"],
                 "formation": f"Venus in {venus_house}th, Moon in {moon_house}th (mutual 3-11)"
             })
@@ -4440,6 +4848,9 @@ class ExtendedYogaService:
                 "description": f"Lord of 11th house ({lord_of_11th}) placed in {eleventh_lord_house}th house - financial struggles, obstacles to wealth accumulation, losses through {meaning}, need for careful financial planning and debt management",
                 "strength": "Medium",
                 "category": "Challenge Yoga",
+                        "bphs_category": "Major Challenges",
+                        "bphs_section": "A) Penury (Ch.42)",
+                        "bphs_ref": "Ch.42",
                 "yoga_forming_planets": [lord_of_11th],
                 "formation": f"{lord_of_11th} (11th lord) in {eleventh_lord_house}th house"
             })
@@ -4479,7 +4890,10 @@ class ExtendedYogaService:
                 "name": "Balarishta Yoga",
                 "description": f"Moon afflicted or malefics in critical houses - indicates need for extra care in childhood, potential health challenges in early years. Note: Modern medicine significantly mitigates these effects",
                 "strength": "Weak",
-                "category": "Health Indicator"
+                "category": "Health Indicator",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -4518,7 +4932,10 @@ class ExtendedYogaService:
                 "name": "Kroora Yoga",
                 "description": desc,
                 "strength": strength,
-                "category": "Personality Indicator"
+                "category": "Personality Indicator",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -4548,7 +4965,10 @@ class ExtendedYogaService:
                 "name": "Vallaki Yoga",
                 "description": "Benefics in upachayas (3,6,10,11) with malefics elsewhere - Musical talents, artistic skills, cultured nature",
                 "strength": "Medium",
-                "category": "Nabhasa - Sankhya"
+                "category": "Nabhasa - Sankhya",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # 2. Daam Yoga - Malefics in 6th and 12th houses
@@ -4558,7 +4978,10 @@ class ExtendedYogaService:
                 "name": "Daam Yoga",
                 "description": "Malefics in 6th and 12th houses - Binding pattern, obstacles, enemies, losses, need for perseverance",
                 "strength": "Weak",
-                "category": "Nabhasa - Sankhya"
+                "category": "Nabhasa - Sankhya",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         # 3. Paasha Yoga - All malefics in upachayas (3,6,10,11)
@@ -4567,7 +4990,10 @@ class ExtendedYogaService:
                 "name": "Paasha Yoga",
                 "description": "All malefics in upachayas (3,6,10,11) - Noose/bondage pattern, imprisonment risk, restricted freedom",
                 "strength": "Weak",
-                "category": "Nabhasa - Sankhya"
+                "category": "Nabhasa - Sankhya",
+                        "bphs_category": "Major Challenges",
+                        "bphs_section": "F) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.16"
             })
 
         # 4. Vīṇā Yoga (ID 31) - All 7 planets spread over exactly 7 signs
@@ -4586,7 +5012,10 @@ class ExtendedYogaService:
                 "name": "Vīṇā Yoga",
                 "description": "All 7 planets spread over exactly 7 signs - Musical instrument pattern, artistic talents, cultured nature, harmonious life, success in fine arts",
                 "strength": "Strong",
-                "category": "Nabhasa - Sankhya"
+                "category": "Nabhasa - Sankhya",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -4631,6 +5060,9 @@ class ExtendedYogaService:
                     "description": f"4+ planets in house {house} {'(including Saturn) ' if has_saturn else ''}- Great renunciation, strong spiritual calling, monastic tendencies, detachment from material world",
                     "strength": "Very Strong" if has_saturn else "Strong",
                     "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                     "yoga_forming_planets": planets_in_house
                 })
                 break
@@ -4648,6 +5080,9 @@ class ExtendedYogaService:
                             "description": "Jupiter in kendra from Moon with Saturn - Wandering monk, spiritual teacher, pilgrimages, renunciation after worldly experiences",
                             "strength": "Strong",
                             "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                             "yoga_forming_planets": ["Jupiter", "Saturn", "Moon"]
                         })
 
@@ -4663,6 +5098,9 @@ class ExtendedYogaService:
                         "description": "Exalted/strong Saturn with Moon - Complete renunciation, hermit lifestyle, absolute detachment, spiritual mastery",
                         "strength": "Very Strong",
                         "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                         "yoga_forming_planets": ["Saturn", "Moon"]
                     })
 
@@ -4674,6 +5112,9 @@ class ExtendedYogaService:
                     "description": "Jupiter & Saturn in kendras, Moon in 9th/10th - Scholarly renunciation, teacher of scriptures, revered sage",
                     "strength": "Strong",
                     "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                     "yoga_forming_planets": ["Jupiter", "Saturn", "Moon"]
                 })
 
@@ -4685,6 +5126,9 @@ class ExtendedYogaService:
                     "description": "Jupiter-9th, Saturn-8th, Rahu/Ketu-4th - Continuous spiritual practice, mysticism, unbroken meditation",
                     "strength": "Very Strong",
                     "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                     "yoga_forming_planets": ["Jupiter", "Saturn", "Rahu" if rahu_house == 4 else "Ketu"]
                 })
 
@@ -4706,6 +5150,9 @@ class ExtendedYogaService:
                         "description": "Saturn-Jupiter in mutual kendra with malefics - Late-life renunciation after worldly experiences, spiritual turning point",
                         "strength": "Medium",
                         "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                         "yoga_forming_planets": ["Jupiter", "Saturn"]
                     })
 
@@ -4716,6 +5163,9 @@ class ExtendedYogaService:
                 "description": "4+ planets in 10th house - Fame through spirituality, religious leadership, public spiritual teaching",
                 "strength": "Strong",
                 "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                 "yoga_forming_planets": [p for p in main_planets if planets.get(p, {}).get("house", 0) == 10]
             })
         elif ketu_house == 10 and 10 in house_planet_count and house_planet_count[10] >= 3:
@@ -4724,6 +5174,9 @@ class ExtendedYogaService:
                 "description": "Ketu in 10th with 3+ planets - Spiritual fame, mystical teaching, guide to liberation",
                 "strength": "Strong",
                 "category": "Sanyas Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                 "yoga_forming_planets": [p for p in main_planets + ["Ketu"] if planets.get(p, {}).get("house", 0) == 10]
             })
 
@@ -4765,7 +5218,10 @@ class ExtendedYogaService:
                 "effects": "Determination, ability to overcome obstacles, research aptitude, can be stubborn",
                 "nature": "Mixed",
                 "deity": "Yama (God of Death)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Priti Yoga",
@@ -4773,7 +5229,10 @@ class ExtendedYogaService:
                 "effects": "Friendly nature, popularity, good relationships, pleasant personality, social success",
                 "nature": "Auspicious",
                 "deity": "Vishnu (Preserver)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Ayushman Yoga",
@@ -4781,7 +5240,10 @@ class ExtendedYogaService:
                 "effects": "Longevity, good health, vitality, blessed with long life and prosperity",
                 "nature": "Auspicious",
                 "deity": "Chandra (Moon)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Saubhagya Yoga",
@@ -4789,7 +5251,10 @@ class ExtendedYogaService:
                 "effects": "Fortune, happiness, blessed life, marital bliss, overall well-being",
                 "nature": "Auspicious",
                 "deity": "Brahma (Creator)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Shobhana Yoga",
@@ -4797,7 +5262,10 @@ class ExtendedYogaService:
                 "effects": "Attractiveness, beauty, charm, artistic talents, refined tastes",
                 "nature": "Auspicious",
                 "deity": "Brihaspati (Jupiter)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Atiganda Yoga",
@@ -4805,7 +5273,10 @@ class ExtendedYogaService:
                 "effects": "Obstacles, conflicts, aggressive nature, challenges in relationships",
                 "nature": "Inauspicious",
                 "deity": "Agni (Fire)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Sukarma Yoga",
@@ -4813,7 +5284,10 @@ class ExtendedYogaService:
                 "effects": "Good deeds, virtuous nature, ethical conduct, success through right action",
                 "nature": "Auspicious",
                 "deity": "Indra (King of Gods)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Dhriti Yoga",
@@ -4821,7 +5295,10 @@ class ExtendedYogaService:
                 "effects": "Patience, perseverance, determination, ability to sustain efforts, steady progress",
                 "nature": "Auspicious",
                 "deity": "Jala (Water)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Shoola Yoga",
@@ -4829,7 +5306,10 @@ class ExtendedYogaService:
                 "effects": "Sharp mind, critical nature, pain/suffering, can be harsh or piercing in speech",
                 "nature": "Inauspicious",
                 "deity": "Sarpa (Serpent)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Ganda Yoga",
@@ -4837,7 +5317,10 @@ class ExtendedYogaService:
                 "effects": "Obstacles, difficulties, prone to accidents, need for caution in undertakings",
                 "nature": "Inauspicious",
                 "deity": "Agni (Fire)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Vriddhi Yoga",
@@ -4845,7 +5328,10 @@ class ExtendedYogaService:
                 "effects": "Growth, expansion, prosperity, accumulation of wealth, business success",
                 "nature": "Auspicious",
                 "deity": "Vishnu (Preserver)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Dhruva Yoga",
@@ -4853,7 +5339,10 @@ class ExtendedYogaService:
                 "effects": "Stability, permanence, fixed determination, long-lasting results, reliability",
                 "nature": "Auspicious",
                 "deity": "Bhumi (Earth)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Vyaghata Yoga",
@@ -4861,7 +5350,10 @@ class ExtendedYogaService:
                 "effects": "Violence, conflicts, accidents, sudden events, aggressive tendencies",
                 "nature": "Inauspicious",
                 "deity": "Vayu (Wind)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Harshana Yoga",
@@ -4869,7 +5361,10 @@ class ExtendedYogaService:
                 "effects": "Joy, cheerfulness, optimism, brings happiness to self and others, uplifting nature",
                 "nature": "Auspicious",
                 "deity": "Bhaga (Fortune)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Vajra Yoga",
@@ -4877,7 +5372,10 @@ class ExtendedYogaService:
                 "effects": "Diamond-like strength, invincibility, powerful personality, strong constitution",
                 "nature": "Auspicious",
                 "deity": "Indra (King of Gods)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Siddhi Yoga",
@@ -4885,7 +5383,10 @@ class ExtendedYogaService:
                 "effects": "Spiritual attainment, success in endeavors, accomplishment of goals, mastery",
                 "nature": "Auspicious",
                 "deity": "Ganesha (Remover of Obstacles)",
-                "strength": "Very Strong"
+                "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Vyatipata Yoga",
@@ -4893,7 +5394,10 @@ class ExtendedYogaService:
                 "effects": "Calamities, misfortunes, sudden reversals, need for careful planning",
                 "nature": "Inauspicious",
                 "deity": "Rudra (Destroyer)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Variyan Yoga",
@@ -4901,7 +5405,10 @@ class ExtendedYogaService:
                 "effects": "Nobility, generosity, charitable nature, respected in society, humanitarian",
                 "nature": "Auspicious",
                 "deity": "Varuna (Water God)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Parigha Yoga",
@@ -4909,7 +5416,10 @@ class ExtendedYogaService:
                 "effects": "Obstacles, confinement, restrictions, delays in achievements, perseverance needed",
                 "nature": "Inauspicious",
                 "deity": "Tvashta (Celestial Architect)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Shiva Yoga",
@@ -4917,7 +5427,10 @@ class ExtendedYogaService:
                 "effects": "Auspiciousness, spiritual inclination, blessings of Lord Shiva, transformation",
                 "nature": "Auspicious",
                 "deity": "Shiva (Transformer)",
-                "strength": "Very Strong"
+                "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Siddha Yoga",
@@ -4925,7 +5438,10 @@ class ExtendedYogaService:
                 "effects": "Perfection, accomplishment, spiritual realization, mastery in chosen field",
                 "nature": "Auspicious",
                 "deity": "Kartikeya (Warrior God)",
-                "strength": "Very Strong"
+                "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Sadhya Yoga",
@@ -4933,7 +5449,10 @@ class ExtendedYogaService:
                 "effects": "Achievable goals, practical success, manifestation of desires, diligence",
                 "nature": "Auspicious",
                 "deity": "Savita (Solar Deity)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Shubha Yoga",
@@ -4941,7 +5460,10 @@ class ExtendedYogaService:
                 "effects": "Auspiciousness, good fortune, pleasant life, beneficial results, positive outlook",
                 "nature": "Auspicious",
                 "deity": "Lakshmi (Goddess of Wealth)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Shukla Yoga",
@@ -4949,7 +5471,10 @@ class ExtendedYogaService:
                 "effects": "Purity, righteousness, moral character, clean intentions, virtuous living",
                 "nature": "Auspicious",
                 "deity": "Parvati (Divine Mother)",
-                "strength": "Strong"
+                "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Brahma Yoga",
@@ -4957,7 +5482,10 @@ class ExtendedYogaService:
                 "effects": "Spiritual knowledge, wisdom, scholarly pursuits, connection with divine, vedic learning",
                 "nature": "Auspicious",
                 "deity": "Brahma (Creator)",
-                "strength": "Very Strong"
+                "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Indra Yoga",
@@ -4965,7 +5493,10 @@ class ExtendedYogaService:
                 "effects": "Leadership, authority, royal qualities, command over others, administrative skills",
                 "nature": "Auspicious",
                 "deity": "Indra (King of Gods)",
-                "strength": "Very Strong"
+                "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             },
             {
                 "name": "Vaidhriti Yoga",
@@ -4973,7 +5504,10 @@ class ExtendedYogaService:
                 "effects": "Obstacles, opposition, reversals, need for patience, challenges in sustaining efforts",
                 "nature": "Inauspicious",
                 "deity": "Pitris (Ancestors)",
-                "strength": "Medium"
+                "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec"
             }
         ]
 
@@ -5420,6 +5954,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 1st house - Self-empowered personality",
                 "effects": "Strong personality, good health, magnetic presence, self-confidence, leadership qualities, independent nature, long life",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Personality", "Health", "Self-confidence", "Leadership"]
             },
             2: {
@@ -5427,6 +5964,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 2nd house - Self-earned wealth",
                 "effects": "Wealth through own efforts, eloquent speech, family support, good financial sense, accumulation of resources",
                 "strength": "Strong",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Dhana (Ch.41)",
+                "bphs_ref": "Ch.41",
                 "life_areas": ["Wealth", "Family", "Speech", "Resources"]
             },
             3: {
@@ -5434,6 +5974,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 3rd house - Courage and skills",
                 "effects": "Courageous nature, younger siblings bring joy, skilled in arts/crafts, short journeys profitable, self-made success",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Courage", "Siblings", "Skills", "Communication"]
             },
             4: {
@@ -5441,6 +5984,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 4th house - Happiness and comfort",
                 "effects": "Property ownership, vehicles, mother's blessings, educational success, domestic happiness, comfortable life",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Mother", "Education", "Happiness"]
             },
             5: {
@@ -5448,6 +5994,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 5th house - Intelligence and progeny",
                 "effects": "High intelligence, blessed with children, creative talents, good speculation, spiritual inclinations, past life merit",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Intelligence", "Children", "Creativity", "Spirituality"]
             },
             6: {
@@ -5455,6 +6004,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 6th house - Victory over obstacles",
                 "effects": "Health challenges but eventual victory over enemies, success in service/competition, ability to overcome obstacles, may face debts early in life",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Health", "Enemies", "Service", "Competition"]
             },
             7: {
@@ -5462,6 +6014,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 7th house - Partnership focused",
                 "effects": "Focus on partnerships, spouse plays important role, business success, public relations skills, may travel for work/partnership",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Partnership", "Business", "Travel"]
             },
             8: {
@@ -5469,6 +6024,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 8th house - Transformation and longevity",
                 "effects": "Interest in occult/mysticism, transformative life experiences, research abilities, inheritance possible, need to guard health",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Longevity", "Occult", "Research", "Transformation"]
             },
             9: {
@@ -5476,6 +6034,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 9th house - Fortune and blessings",
                 "effects": "Great fortune, father's support, spiritual wisdom, higher education, long journeys bring success, dharmic life, strong moral character",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Father", "Spirituality", "Higher Education"]
             },
             10: {
@@ -5483,6 +6044,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 10th house - Career success",
                 "effects": "Outstanding career success, fame, leadership in profession, authority, respect in society, strong work ethic, public recognition",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Fame", "Leadership", "Authority"]
             },
             11: {
@@ -5490,6 +6054,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 11th house - Gains and fulfillment",
                 "effects": "Multiple income sources, fulfillment of desires, large friend circle, elder siblings supportive, gains increase with age",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Friends", "Desires", "Income"]
             },
             12: {
@@ -5497,6 +6064,9 @@ class ExtendedYogaService:
                 "description": "1st lord in 12th house - Foreign lands and spirituality",
                 "effects": "Foreign residence/travel, spiritual pursuits, expenses on self, isolation for meditation, success in foreign lands, charitable nature",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign Lands", "Spirituality", "Expenses", "Isolation"]
             }
         }
@@ -5510,6 +6080,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 1st house - Fortune in personality",
                 "effects": "Fortunate personality, blessed life, dharmic conduct, wise and philosophical, respected for knowledge, father's blessings strong",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Wisdom", "Respect", "Dharma"]
             },
             2: {
@@ -5517,6 +6090,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 2nd house - Wealth through fortune",
                 "effects": "Wealth from fortune and family, father may help financially, truthful speech brings gains, family traditions important",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Family", "Fortune", "Values"]
             },
             3: {
@@ -5524,6 +6100,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 3rd house - Fortune through courage",
                 "effects": "Fortune through self-effort and courage, younger siblings blessed, communication skills lead to success, religious writings possible",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Courage", "Communication", "Self-effort", "Writing"]
             },
             4: {
@@ -5531,6 +6110,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 4th house - Fortunate domestic life",
                 "effects": "Property through fortune, mother is fortunate, educational opportunities abundant, vehicles and comforts, peaceful home",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Mother", "Education", "Comfort"]
             },
             5: {
@@ -5538,6 +6120,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 5th house - Highly fortunate yoga",
                 "effects": "Excellent Raj Yoga - blessed children, high intelligence, spiritual wisdom, creative genius, speculation brings gains, mantra siddhi possible",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Children", "Intelligence", "Spirituality", "Creativity"]
             },
             6: {
@@ -5545,6 +6130,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 6th house - Challenges to fortune",
                 "effects": "Father may have health issues, fortune comes through service/competition, obstacles to higher education initially, victory over enemies through dharma",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Service", "Obstacles", "Father's Health", "Competition"]
             },
             7: {
@@ -5552,6 +6140,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 7th house - Fortune through partnerships",
                 "effects": "Fortunate marriage, spouse brings luck, business partnerships blessed, travel for spiritual/business purposes successful",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Partnership", "Fortune", "Travel"]
             },
             8: {
@@ -5559,6 +6150,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 8th house - Hidden fortune",
                 "effects": "Inheritance possible, sudden gains from fortune, interest in occult/spirituality deepens with age, father's longevity good, research into philosophy",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Inheritance", "Occult", "Research", "Sudden Gains"]
             },
             9: {
@@ -5566,6 +6160,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 9th house - Maximum fortune",
                 "effects": "Extremely fortunate life, father is prosperous and supportive, higher education abroad possible, spiritual teacher potential, pilgrimage to holy places, dharmic wealth",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Father", "Higher Education", "Spirituality"]
             },
             10: {
@@ -5573,6 +6170,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 10th house - Fortune through career",
                 "effects": "Raj Yoga - career brings fortune, ethical profession, fame through righteous action, father may influence career, respected leader",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Fortune", "Ethics", "Fame"]
             },
             11: {
@@ -5580,6 +6180,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 11th house - Fortune brings gains",
                 "effects": "Fortunate gains, desires fulfilled easily, elder siblings fortunate, income from multiple sources, fortune increases after marriage",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Desires", "Fortune", "Income"]
             },
             12: {
@@ -5587,6 +6190,9 @@ class ExtendedYogaService:
                 "description": "9th lord in 12th house - Foreign fortune and moksha",
                 "effects": "Fortune in foreign lands, spiritual expenditures bring merit, pilgrimage expenses, father may reside abroad, moksha yoga - liberation pursuits",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign Lands", "Spirituality", "Pilgrimage", "Liberation"]
             }
         }
@@ -5600,6 +6206,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 1st house - Career-focused personality",
                 "effects": "Strong career focus, self-made success, professional reputation excellent, leadership in chosen field, work defines identity",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Self-made Success", "Leadership", "Identity"]
             },
             2: {
@@ -5607,6 +6216,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 2nd house - Wealth through career",
                 "effects": "Career brings wealth, family profession possible, eloquent professional speaker, financial success through work, reputation for earning ability",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Career", "Family Business", "Speech"]
             },
             3: {
@@ -5614,6 +6226,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 3rd house - Career through skills",
                 "effects": "Success through skills and communication, media/writing career possible, younger siblings help career, short business trips, courageous professional decisions",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Skills", "Communication", "Media", "Courage"]
             },
             4: {
@@ -5621,6 +6236,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 4th house - Career brings comfort",
                 "effects": "Real estate career possible, mother influences profession, educational institutions, vehicles for work, professional happiness, work from home success",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Real Estate", "Education", "Mother's Influence", "Comfort"]
             },
             5: {
@@ -5628,6 +6246,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 5th house - Creative career success",
                 "effects": "Creative profession, children may continue profession, intelligent career choices, speculation in career pays off, teaching/entertainment career",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Creativity", "Children", "Teaching", "Entertainment"]
             },
             6: {
@@ -5635,6 +6256,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 6th house - Service-oriented career",
                 "effects": "Service profession (medical, legal, military), competitive career, success over professional rivals, litigation expertise, health-related profession",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Service", "Competition", "Medicine", "Law"]
             },
             7: {
@@ -5642,6 +6266,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 7th house - Partnership in career",
                 "effects": "Business partnerships successful, spouse may be business partner, foreign business, public relations career, consulting profession",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Business Partnership", "Foreign Trade", "Consulting", "Public Relations"]
             },
             8: {
@@ -5649,6 +6276,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 8th house - Transformative career",
                 "effects": "Research career, occult/astrology profession, sudden career changes, insurance/investigation work, inheritance may affect career, crisis management",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Research", "Occult", "Investigation", "Transformation"]
             },
             9: {
@@ -5656,6 +6286,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 9th house - Fortunate career (Raj Yoga)",
                 "effects": "Highly fortunate profession, father helps career, higher education leads to career success, teaching/law/religion career, foreign assignments, ethical profession brings respect",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Higher Education", "Teaching", "Ethics"]
             },
             10: {
@@ -5663,6 +6296,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 10th house - Career powerhouse",
                 "effects": "Extraordinary career success, natural leader, peak professional achievement, authority in field, famous in profession, strong work ethic, lasting legacy",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career Success", "Fame", "Authority", "Legacy"]
             },
             11: {
@@ -5670,6 +6306,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 11th house - Career brings massive gains",
                 "effects": "High income from career, professional desires fulfilled, network crucial for career, multiple income streams from profession, elder siblings aid career",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Income", "Gains", "Networking", "Desires"]
             },
             12: {
@@ -5677,6 +6316,9 @@ class ExtendedYogaService:
                 "description": "10th lord in 12th house - Foreign/spiritual career",
                 "effects": "Foreign career/postings, hospital/prison/ashram work, spiritual profession, expenses on career, work in isolated places, charitable organizations, behind-scenes work",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign Career", "Spirituality", "Isolation", "Charity"]
             }
         }
@@ -5690,6 +6332,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 1st house - Intelligence shines",
                 "effects": "Highly intelligent personality, creative self-expression, speculative mind, children bring joy, past life merits visible, romantic nature",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Intelligence", "Creativity", "Children", "Romance"]
             },
             2: {
@@ -5697,6 +6342,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 2nd house - Wealth through intelligence",
                 "effects": "Intelligent financial decisions, speculation brings wealth, children contribute to family wealth, creative speech/voice, artistic talents bring income",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Speculation", "Creativity", "Speech"]
             },
             3: {
@@ -5704,6 +6352,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 3rd house - Creative communication",
                 "effects": "Creative writing/media skills, younger siblings intelligent, artistic crafts, courageous speculation, short travels with children",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Writing", "Communication", "Arts", "Siblings"]
             },
             4: {
@@ -5711,6 +6362,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 4th house - Domestic creativity",
                 "effects": "Children bring domestic happiness, property through speculation, creative home environment, mother is creative/intelligent, educational institutions at home",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Home", "Children", "Education", "Property"]
             },
             5: {
@@ -5718,6 +6372,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 5th house - Maximum creativity",
                 "effects": "Blessed with intelligent children, exceptional creativity, speculation highly favorable, mantra siddhi, teaching abilities, spiritual practices powerful, romance flourishes",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Children", "Creativity", "Spirituality", "Speculation"]
             },
             6: {
@@ -5725,6 +6382,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 6th house - Challenges to progeny",
                 "effects": "Delayed children or health issues to children, speculation may cause debts, creative work in service/medicine, competitive intelligence, victory through intellect",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Obstacles", "Service", "Children's Health", "Competition"]
             },
             7: {
@@ -5732,6 +6392,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 7th house - Creative partnerships",
                 "effects": "Spouse is creative/intelligent, children after marriage bring joy, creative business partnerships, romantic marriage, speculation in partnership",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Partnership", "Romance", "Children"]
             },
             8: {
@@ -5739,6 +6402,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 8th house - Hidden creativity",
                 "effects": "Interest in occult knowledge, research-oriented intelligence, sudden speculative gains/losses, inheritance from children, transformative creativity, mystical children",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Occult", "Research", "Transformation", "Speculation"]
             },
             9: {
@@ -5746,6 +6412,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 9th house - Fortunate intelligence",
                 "effects": "Excellent Raj Yoga - highly intelligent and fortunate children, past merit brings fortune, creative spiritual wisdom, higher education excellent, speculation blessed by luck",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Intelligence", "Spirituality", "Children"]
             },
             10: {
@@ -5753,6 +6422,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 10th house - Creative career",
                 "effects": "Creative profession brings success, children follow in career, intelligent career decisions, speculation affects career, teaching/entertainment profession",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Creativity", "Children", "Fame"]
             },
             11: {
@@ -5760,6 +6432,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 11th house - Creative gains",
                 "effects": "Speculation brings gains, children achieve their desires, creative network, multiple income from creative work, fulfillment through children",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Children", "Speculation", "Desires"]
             },
             12: {
@@ -5767,6 +6442,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 12th house - Foreign creativity",
                 "effects": "Children may reside abroad, creative work in isolation, expenses on children's education, speculation causes expenses, spiritual creativity, meditation brings insights",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign Lands", "Spirituality", "Expenses", "Isolation"]
             }
         }
@@ -5780,6 +6458,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 1st house - Self-earned wealth",
                 "effects": "Self-made wealth, eloquent speaker, strong family values, attractive face, good eating habits, resourceful personality, wealth through personal efforts",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Personality", "Speech", "Self-reliance"]
             },
             2: {
@@ -5787,6 +6468,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 2nd house - Wealth multiplication",
                 "effects": "Great wealth accumulation, strong family bonds, sweet speech, excellent financial management, inheritance, multiple income sources, food prosperity",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Family", "Speech", "Prosperity"]
             },
             3: {
@@ -5794,6 +6478,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 3rd house - Wealth through courage",
                 "effects": "Wealth through skills/arts, siblings support financially, earnings from communication/writing, self-effort brings money, short journeys profitable",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Skills", "Communication", "Siblings", "Courage"]
             },
             4: {
@@ -5801,6 +6488,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 4th house - Property wealth",
                 "effects": "Wealth from property/vehicles, mother's family prosperous, comfortable home life, education brings wealth, real estate success, landed property",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Comfort", "Education", "Mother"]
             },
             5: {
@@ -5808,6 +6498,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 5th house - Intelligent wealth",
                 "effects": "Wealth through speculation/investments, children bring prosperity, creative earnings, past life merit brings wealth, lottery/shares favorable, intelligent financial decisions",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Speculation", "Children", "Intelligence", "Investments"]
             },
             6: {
@@ -5815,6 +6508,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 6th house - Service wealth",
                 "effects": "Earnings through service/medicine, wealth after overcoming obstacles, loans/debts possible but manageable, enemies create financial stress, health expenses",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Service", "Debts", "Obstacles", "Health"]
             },
             7: {
@@ -5822,6 +6518,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 7th house - Partnership wealth",
                 "effects": "Wealth through spouse/partnerships, business brings prosperity, marriage improves finances, foreign trade profitable, eloquent in public speaking",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Business", "Partnership", "Trade"]
             },
             8: {
@@ -5829,6 +6528,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 8th house - Hidden wealth",
                 "effects": "Sudden financial ups and downs, inheritance likely, wealth through research/occult, family secrets affect finances, longevity of wealth uncertain, insurance/wills important",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Inheritance", "Uncertainty", "Occult", "Transformation"]
             },
             9: {
@@ -5836,6 +6538,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 9th house - Fortune wealth",
                 "effects": "Excellent Raj Yoga - wealth through father/gurus, dharmic earnings, religious donations bring returns, fortunate family, higher education brings wealth, ethical money",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Ethics", "Father", "Spirituality"]
             },
             10: {
@@ -5843,6 +6548,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 10th house - Career wealth",
                 "effects": "Wealth through profession, family business success, career brings financial stability, good reputation increases earnings, government favor possible",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Profession", "Reputation", "Authority"]
             },
             11: {
@@ -5850,6 +6558,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 11th house - Continuous gains",
                 "effects": "Excellent wealth yoga - multiple income streams, elder siblings helpful, desires fulfilled through wealth, network brings prosperity, steady gains throughout life",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Income", "Desires", "Network"]
             },
             12: {
@@ -5857,6 +6568,9 @@ class ExtendedYogaService:
                 "description": "2nd lord in 12th house - Expenses on family",
                 "effects": "Family expenses high, wealth goes to charity/spirituality, foreign residence possible, speech may cause losses, expenditure on education, hidden wealth abroad",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Expenses", "Foreign", "Charity", "Losses"]
             }
         }
@@ -5870,6 +6584,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 1st house - Courageous personality",
                 "effects": "Very courageous and adventurous, self-reliant nature, younger siblings influence life, skilled in arts/crafts, active communication style, athletic build",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Courage", "Skills", "Independence", "Communication"]
             },
             2: {
@@ -5877,6 +6594,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 2nd house - Wealth through skills",
                 "effects": "Earnings through skills/arts, siblings contribute to wealth, communication skills bring money, family supports courage, writing/media income",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Skills", "Wealth", "Communication", "Siblings"]
             },
             3: {
@@ -5884,6 +6604,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 3rd house - Maximum courage",
                 "effects": "Extremely courageous, excellent relationship with siblings, highly skilled, successful in arts/media, short travels beneficial, strong willpower, initiative brings success",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Courage", "Siblings", "Skills", "Initiative"]
             },
             4: {
@@ -5891,6 +6614,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 4th house - Skillful comfort",
                 "effects": "Property through self-effort, mother encourages skills, comfortable life through talents, vehicles for travel, education in arts, home-based creative work",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Skills", "Comfort", "Mother"]
             },
             5: {
@@ -5898,6 +6624,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 5th house - Creative skills",
                 "effects": "Highly creative and artistic, children are talented, speculation through skills, intelligent communication, performing arts, romantic courage",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Creativity", "Skills", "Children", "Romance"]
             },
             6: {
@@ -5905,6 +6634,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 6th house - Competitive courage",
                 "effects": "Victory through courage, siblings may have health issues, competition brings success, service requires skills, courage overcomes enemies, medical/healing skills",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Competition", "Service", "Courage", "Victory"]
             },
             7: {
@@ -5912,6 +6644,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 7th house - Partnership skills",
                 "effects": "Spouse is artistic/communicative, business partnerships successful, courage in relationships, travels with spouse, diplomatic skills, trade journeys",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Partnership", "Communication", "Business", "Travel"]
             },
             8: {
@@ -5919,6 +6654,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 8th house - Hidden talents",
                 "effects": "Courage in crisis, research/investigative skills, occult communication abilities, transformative efforts, siblings face ups and downs, longevity through courage",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Research", "Occult", "Crisis", "Transformation"]
             },
             9: {
@@ -5926,6 +6664,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 9th house - Dharmic courage",
                 "effects": "Courageous in dharma, long journeys bring skills, siblings are fortunate, religious arts/music, teaching communication, publishing success, pilgrimage journeys",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Travel", "Teaching", "Publishing"]
             },
             10: {
@@ -5933,6 +6674,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 10th house - Skillful career",
                 "effects": "Career in communication/media/arts, self-made career success, professional skills recognized, siblings help career, entrepreneurial courage, performance profession",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Skills", "Performance", "Recognition"]
             },
             11: {
@@ -5940,6 +6684,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 11th house - Gains through skills",
                 "effects": "Skills bring income, siblings bring gains, desires fulfilled through effort, communication network profitable, artistic income, wishes achieved through courage",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Skills", "Desires", "Network"]
             },
             12: {
@@ -5947,6 +6694,9 @@ class ExtendedYogaService:
                 "description": "3rd lord in 12th house - Foreign skills",
                 "effects": "Skills used abroad, siblings may live far away, expenses on hobbies/arts, isolation develops talents, spiritual communication, meditation requires effort",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Isolation", "Spirituality", "Expenses"]
             }
         }
@@ -5960,6 +6710,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 1st house - Comfortable personality",
                 "effects": "Mother's influence strong, property ownership, vehicles, educational success, peaceful nature, domestic happiness, emotional security, comfortable life",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Comfort", "Mother", "Property", "Education"]
             },
             2: {
@@ -5967,6 +6720,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 2nd house - Property wealth",
                 "effects": "Wealth through real estate, family property, mother brings prosperity, comfortable family life, ancestral wealth, vehicles as assets, savings for comfort",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Wealth", "Family", "Assets"]
             },
             3: {
@@ -5974,6 +6730,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 3rd house - Property through effort",
                 "effects": "Property through self-effort, mother encourages skills, siblings share property, short moves for property, courage brings comfort, education in arts",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Effort", "Property", "Skills", "Siblings"]
             },
             4: {
@@ -5981,6 +6740,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 4th house - Maximum happiness",
                 "effects": "Excellent property holdings, strong mother's support, multiple vehicles, superior education, domestic bliss, emotional fulfillment, landed property, peaceful heart",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Mother", "Education", "Happiness"]
             },
             5: {
@@ -5988,6 +6750,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 5th house - Educational intelligence",
                 "effects": "Excellent education, intelligent children, creative home, mother is wise, property for children, speculation in real estate, comfortable romance, teaching from home",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Education", "Intelligence", "Children", "Creativity"]
             },
             6: {
@@ -5995,6 +6760,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 6th house - Property challenges",
                 "effects": "Property disputes possible, mother's health issues, emotional stress, service from home, medical education, debt for property, victory through persistence, healthcare real estate",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Disputes", "Service", "Health", "Obstacles"]
             },
             7: {
@@ -6002,6 +6770,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 7th house - Partnership property",
                 "effects": "Property through spouse, comfortable marriage, business from home, relocation after marriage, spouse is educated, partnership in real estate, vehicles through marriage",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Property", "Partnership", "Relocation"]
             },
             8: {
@@ -6009,6 +6780,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 8th house - Inheritance property",
                 "effects": "Inherited property, mother's longevity concerns, sudden property gains/losses, hidden assets, research education, transformation through family, occult real estate",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Inheritance", "Uncertainty", "Mother", "Transformation"]
             },
             9: {
@@ -6016,6 +6790,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 9th house - Fortunate property",
                 "effects": "Excellent Raj Yoga - religious property, fortunate mother, higher education abroad, dharmic comfort, father and mother harmonious, pilgrimage properties, ashram/temple land",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Education", "Religion", "Mother"]
             },
             10: {
@@ -6023,6 +6800,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 10th house - Career property",
                 "effects": "Excellent Raj Yoga - property through career, professional education, office/workplace ownership, mother supports career, government property, fame brings comfort, authority",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Property", "Fame", "Authority"]
             },
             11: {
@@ -6030,6 +6810,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 11th house - Property gains",
                 "effects": "Multiple properties, elder siblings share property, desires for comfort fulfilled, income from real estate, vehicles as gains, networking brings property, wishes achieved",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Property", "Income", "Desires"]
             },
             12: {
@@ -6037,6 +6820,9 @@ class ExtendedYogaService:
                 "description": "4th lord in 12th house - Foreign property",
                 "effects": "Property abroad, mother may live far, expenses on property/vehicles, foreign education, isolated property, spiritual home, meditation room, ashram residence",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Spirituality", "Isolation", "Expenses"]
             }
         }
@@ -6050,6 +6836,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 1st house - Competitive personality",
                 "effects": "Competitive nature, health needs attention, service-oriented, ability to fight obstacles, enemies openly visible, medical profession possible, athletic build",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Competition", "Health", "Service", "Enemies"]
             },
             2: {
@@ -6057,6 +6846,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 2nd house - Wealth through service",
                 "effects": "Earnings through service/medicine, family disputes over money, debts affect wealth, speech creates enemies, hard work for savings, overcoming financial obstacles",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Service", "Debts", "Family", "Obstacles"]
             },
             3: {
@@ -6064,6 +6856,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 3rd house - Victory through courage",
                 "effects": "Victory over enemies through courage, siblings may face health issues, competitive skills, service communication, effort overcomes obstacles, brave in competition",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Victory", "Courage", "Competition", "Siblings"]
             },
             4: {
@@ -6071,6 +6866,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 4th house - Property disputes",
                 "effects": "Property disputes possible, mother's health concerns, stress at home, service from property, medical education, debt for vehicles, emotional challenges",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Disputes", "Property", "Mother", "Stress"]
             },
             5: {
@@ -6078,6 +6876,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 5th house - Children health issues",
                 "effects": "Children's health needs care, delayed progeny, speculation causes debts, creative service, competitive intelligence, educational obstacles, victory through intellect",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Children", "Health", "Obstacles", "Speculation"]
             },
             6: {
@@ -6085,6 +6886,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 6th house - Victory over enemies",
                 "effects": "Excellent for victory - defeats all enemies, strong health recovery, success in service/legal fields, overcomes debts, litigation expertise, medical profession success",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Victory", "Service", "Health", "Competition"]
             },
             7: {
@@ -6092,6 +6896,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 7th house - Partnership conflicts",
                 "effects": "Conflicts in marriage/partnerships, spouse may have health issues, business disputes, marriage after obstacles, partner in service field, legal partnerships",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Conflicts", "Partnership", "Legal"]
             },
             8: {
@@ -6099,6 +6906,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 8th house - Transformation through obstacles",
                 "effects": "Viparita Raj Yoga - enemies destroy themselves, chronic health but long life, sudden victory over obstacles, inheritance through service, occult healing, research medicine",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Longevity", "Victory", "Occult", "Healing"]
             },
             9: {
@@ -6106,6 +6916,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 9th house - Obstacles to fortune",
                 "effects": "Conflicts with father/gurus, dharma through service, health issues during travel, legal battles over beliefs, competitive higher education, service abroad",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Conflicts", "Father", "Travel", "Beliefs"]
             },
             10: {
@@ -6113,6 +6926,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 10th house - Service career",
                 "effects": "Career in service/medicine/legal fields, workplace competition, success through hard work, enemies in profession, health stress from career, government service",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Service", "Competition", "Work"]
             },
             11: {
@@ -6120,6 +6936,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 11th house - Gains through service",
                 "effects": "Income through service, victory brings gains, debts eventually paid, elder siblings face obstacles, desires fulfilled after struggle, competitive income",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Service", "Victory", "Income"]
             },
             12: {
@@ -6127,6 +6946,9 @@ class ExtendedYogaService:
                 "description": "6th lord in 12th house - Hidden victory",
                 "effects": "Viparita Raj Yoga - enemies defeated secretly, expenses destroy debts, service abroad, health expenses but healing, hospitalization for recovery, foreign medical work",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Victory", "Healing", "Expenses"]
             }
         }
@@ -6140,6 +6962,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 1st house - Partnership focused",
                 "effects": "Spouse plays major role in life, attractive personality, focus on relationships, partner-oriented, business success, public relations skills, early marriage possible",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Partnership", "Personality", "Relationships"]
             },
             2: {
@@ -6147,6 +6972,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 2nd house - Wealth through spouse",
                 "effects": "Wealth through marriage/partnerships, spouse brings prosperity, family business partnerships, eloquent partner, in-laws support finances, joint assets grow",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Marriage", "Partnership", "Family"]
             },
             3: {
@@ -6154,6 +6982,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 3rd house - Active partnerships",
                 "effects": "Spouse is courageous/communicative, business partnerships in media/arts, siblings introduce spouse, marriage through effort, partner travels, creative business",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Partnership", "Communication", "Courage", "Travel"]
             },
             4: {
@@ -6161,6 +6992,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 4th house - Comfortable marriage",
                 "effects": "Domestic happiness through spouse, property after marriage, spouse like mother figure, partner is educated, comfortable partnership, relocation for marriage, vehicles together",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Comfort", "Property", "Happiness"]
             },
             5: {
@@ -6168,6 +7002,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 5th house - Romantic marriage",
                 "effects": "Love marriage, spouse is intelligent/creative, children from good marriage, speculation with partner, romantic relationship, creative business, joyful partnership",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Romance", "Love", "Children", "Creativity"]
             },
             6: {
@@ -6175,6 +7012,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 6th house - Partnership challenges",
                 "effects": "Marital disputes possible, spouse in service/health field, delayed marriage, obstacles in partnerships, partner overcomes enemies, business competition, health issues to spouse",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Conflicts", "Delays", "Service", "Obstacles"]
             },
             7: {
@@ -6182,6 +7022,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 7th house - Perfect partnership",
                 "effects": "Excellent marriage, strong spouse, successful partnerships, long-lasting relationships, business prosperity, public recognition, balanced relationships, partner is ideal match",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Partnership", "Business", "Public"]
             },
             8: {
@@ -6189,6 +7032,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 8th house - Transformative marriage",
                 "effects": "Spouse brings transformation, inheritance through marriage, partner interested in occult, sudden changes in relationship, research partnerships, longevity concerns, deep intimacy",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Transformation", "Inheritance", "Intimacy", "Occult"]
             },
             9: {
@@ -6196,6 +7042,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 9th house - Fortunate marriage",
                 "effects": "Excellent Raj Yoga - spouse is fortunate/spiritual, marriage brings dharma, partner from good family, long distance marriage, religious partnership, foreign spouse possible, blessed union",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Marriage", "Dharma", "Travel"]
             },
             10: {
@@ -6203,6 +7052,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 10th house - Career partnership",
                 "effects": "Excellent Raj Yoga - spouse helps career, business partnerships excel, fame through marriage, professional partner, public recognition together, authority in partnerships",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Fame", "Partnership", "Authority"]
             },
             11: {
@@ -6210,6 +7062,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 11th house - Profitable partnerships",
                 "effects": "Gains through spouse/partnerships, desires fulfilled in marriage, business brings income, profitable collaborations, network through spouse, wishes achieved together",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Income", "Desires", "Network"]
             },
             12: {
@@ -6217,6 +7072,9 @@ class ExtendedYogaService:
                 "description": "7th lord in 12th house - Foreign partnerships",
                 "effects": "Spouse from foreign land, marriage causes relocation, expenses on partnerships, spiritual union, isolated together, bed pleasures good, foreign business, partner abroad",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Spirituality", "Expenses", "Isolation"]
             }
         }
@@ -6230,6 +7088,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 1st house - Mysterious personality",
                 "effects": "Mysterious aura, interest in occult, transformative life experiences, health fluctuations, research-oriented mind, sudden changes, long life if well-placed, secretive nature",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Occult", "Transformation", "Health", "Mystery"]
             },
             2: {
@@ -6237,6 +7098,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 2nd house - Uncertain wealth",
                 "effects": "Sudden financial ups/downs, inheritance possible, family secrets, wealth through research/occult, speech about mysteries, savings fluctuate, hidden family wealth",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Inheritance", "Fluctuation", "Secrets", "Wealth"]
             },
             3: {
@@ -6244,6 +7108,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 3rd house - Courageous transformation",
                 "effects": "Siblings face transformations, courage in crisis, occult communication, research skills, sudden short journeys, transformation through effort, investigative abilities",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Courage", "Research", "Siblings", "Crisis"]
             },
             4: {
@@ -6251,6 +7118,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 4th house - Property inheritance",
                 "effects": "Inherited property, mother's longevity concerns, sudden property changes, emotional transformations, education in research, hidden real estate, occult from home",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Inheritance", "Property", "Mother", "Emotions"]
             },
             5: {
@@ -6258,6 +7128,9 @@ class ExtendedYogaService:
                 "description": "5th lord in 8th house - Transformative creativity",
                 "effects": "Children face transformations, delayed progeny, occult intelligence, research education, sudden speculative gains/losses, past life karma affects children, mystical insights",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Children", "Occult", "Research", "Transformation"]
             },
             6: {
@@ -6265,6 +7138,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 6th house - Longevity through obstacles",
                 "effects": "Viparita Raj Yoga - long life despite health challenges, victory over chronic enemies, transformation destroys obstacles, occult healing powers, service in research/medicine",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Longevity", "Victory", "Healing", "Service"]
             },
             7: {
@@ -6272,6 +7148,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 7th house - Transformative partnerships",
                 "effects": "Spouse brings transformation, inheritance through marriage, partner interested in occult, sudden partnership changes, deep intimacy, research partnerships, longevity concerns",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Marriage", "Transformation", "Inheritance", "Intimacy"]
             },
             8: {
@@ -6279,6 +7158,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 8th house - Occult mastery",
                 "effects": "Long life, occult/mysticism mastery, inheritance likely, research excellence, transformation ability, sudden gains, hidden wealth, regeneration power, tantric knowledge",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Longevity", "Occult", "Inheritance", "Transformation"]
             },
             9: {
@@ -6286,6 +7168,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 9th house - Mystical wisdom",
                 "effects": "Mystical spirituality, transformation through dharma, research in philosophy, sudden foreign journeys, occult teachings, father's longevity concerns, hidden religious knowledge",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Mysticism", "Philosophy", "Transformation", "Father"]
             },
             10: {
@@ -6293,6 +7178,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 10th house - Research career",
                 "effects": "Career in research/occult/investigation, sudden career changes, inheritance affects profession, transformation through work, detective/psychology/mining career, authority fluctuates",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Research", "Investigation", "Change"]
             },
             11: {
@@ -6300,6 +7188,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 11th house - Sudden gains",
                 "effects": "Sudden unexpected gains, inheritance from elder siblings, occult income, transformation brings profits, research network, desires fulfilled mysteriously, lottery wins possible",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Inheritance", "Sudden", "Income"]
             },
             12: {
@@ -6307,6 +7198,9 @@ class ExtendedYogaService:
                 "description": "8th lord in 12th house - Spiritual transformation",
                 "effects": "Viparita Raj Yoga - spiritual transformation, expenses on research, foreign occult studies, liberation through transformation, moksha yoga, meditation brings insights, hidden powers",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Spirituality", "Moksha", "Occult", "Liberation"]
             }
         }
@@ -6320,6 +7214,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 1st house - Gains through self",
                 "effects": "Self-made income, desires fulfilled through personality, elder siblings helpful, optimistic nature, gains through appearance, networking abilities, ambitious personality",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Personality", "Desires", "Self-effort"]
             },
             2: {
@@ -6327,6 +7224,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 2nd house - Wealth multiplication",
                 "effects": "Excellent wealth yoga - multiple income sources, family brings gains, savings accumulate, desires for wealth fulfilled, elder siblings support finances, continuous prosperity",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Wealth", "Income", "Savings", "Prosperity"]
             },
             3: {
@@ -6334,6 +7234,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 3rd house - Gains through skills",
                 "effects": "Income through skills/communication, siblings bring profits, creative income, networking brings success, short journeys profitable, artistic gains, courageous for desires",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Skills", "Communication", "Gains", "Network"]
             },
             4: {
@@ -6341,6 +7244,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 4th house - Property gains",
                 "effects": "Gains from real estate, mother brings prosperity, comfortable income, multiple properties, vehicles as gains, educational income, networking from home, desires for comfort fulfilled",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Property", "Gains", "Comfort", "Mother"]
             },
             5: {
@@ -6348,6 +7254,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 5th house - Speculative gains",
                 "effects": "Excellent Raj Yoga - gains through speculation/investments, children bring prosperity, creative income, past merit brings gains, lottery/shares favorable, desires fulfilled through intelligence",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Speculation", "Children", "Creativity", "Gains"]
             },
             6: {
@@ -6355,6 +7264,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 6th house - Gains through service",
                 "effects": "Income through service, victory over financial obstacles, desires after struggle, competitive income, debt eventually repaid, healing professions bring gains, hard work pays",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Service", "Competition", "Victory", "Income"]
             },
             7: {
@@ -6362,6 +7274,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 7th house - Partnership gains",
                 "effects": "Gains through spouse/partnerships, business brings profits, desires fulfilled through marriage, partner is prosperous, networking through spouse, profitable collaborations",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Partnership", "Business", "Marriage", "Gains"]
             },
             8: {
@@ -6369,6 +7284,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 8th house - Sudden gains",
                 "effects": "Sudden unexpected income, inheritance brings gains, occult/research income, desires fulfilled mysteriously, lottery possible, transformation brings profits, hidden income sources",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Sudden", "Inheritance", "Occult", "Gains"]
             },
             9: {
@@ -6376,6 +7294,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 9th house - Fortunate gains",
                 "effects": "Excellent Raj Yoga - fortune brings gains, dharmic income, father's network helpful, higher education brings income, desires fulfilled through luck, religious gains, blessed prosperity",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Fortune", "Dharma", "Gains", "Prosperity"]
             },
             10: {
@@ -6383,6 +7304,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 10th house - Career gains",
                 "effects": "Career brings excellent income, professional network strong, desires fulfilled through work, authority increases earnings, reputation brings gains, government favor possible",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Career", "Income", "Authority", "Fame"]
             },
             11: {
@@ -6390,6 +7314,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 11th house - Maximum gains",
                 "effects": "Excellent gains yoga - all desires fulfilled, multiple income streams, elder siblings very helpful, networking brings wealth, wishes achieved easily, continuous prosperity throughout life",
                 "strength": "Very Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Gains", "Desires", "Income", "Wishes"]
             },
             12: {
@@ -6397,6 +7324,9 @@ class ExtendedYogaService:
                 "description": "11th lord in 12th house - Foreign gains",
                 "effects": "Income from abroad, expenses equal income, desires for spirituality, foreign network, charitable giving, gains through isolation, spiritual desires fulfilled, hidden income",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Expenses", "Spirituality", "Charity"]
             }
         }
@@ -6410,6 +7340,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 1st house - Spiritual personality",
                 "effects": "Spiritual inclinations, expenses on self/health, foreign residence possible, isolated personality, meditation-oriented, charitable nature, moksha desires, pilgrimage interests",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Spirituality", "Foreign", "Expenses", "Isolation"]
             },
             2: {
@@ -6417,6 +7350,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 2nd house - Wealth expenses",
                 "effects": "High family expenses, wealth goes to charity, foreign investments, speech about spirituality, savings for foreign travel, generous donations, hidden wealth abroad",
                 "strength": "Weak",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Expenses", "Charity", "Foreign", "Wealth"]
             },
             3: {
@@ -6424,6 +7360,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 3rd house - Foreign skills",
                 "effects": "Skills used abroad, siblings may live far, expenses on hobbies/arts, courage for spirituality, isolation develops talents, communication about meditation, journeys abroad",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Skills", "Isolation", "Spirituality"]
             },
             4: {
@@ -6431,6 +7370,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 4th house - Foreign property",
                 "effects": "Property abroad, mother lives far or spiritual, expenses on vehicles/property, foreign education, isolated residence, meditation room important, ashram property, emotional detachment",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Property", "Spirituality", "Mother"]
             },
             5: {
@@ -6438,6 +7380,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 5th house - Foreign children",
                 "effects": "Children abroad or spiritual, expenses on children's education, creativity in isolation, speculation causes losses, meditation brings insights, spiritual intelligence, foreign study",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Children", "Foreign", "Spirituality", "Expenses"]
             },
             6: {
@@ -6445,6 +7390,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 6th house - Victory through expenses",
                 "effects": "Viparita Raj Yoga - expenses destroy enemies, debts lead to liberation, service abroad, healing expenses beneficial, foreign medical work, obstacles lead to moksha, hospitalization heals",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Victory", "Foreign", "Healing", "Liberation"]
             },
             7: {
@@ -6452,6 +7400,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 7th house - Foreign spouse",
                 "effects": "Spouse from foreign land, marriage abroad, partnership expenses, relocation after marriage, spiritual partnership, bed pleasures good, business abroad, isolated with partner",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Marriage", "Relocation", "Expenses"]
             },
             8: {
@@ -6459,6 +7410,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 8th house - Spiritual transformation",
                 "effects": "Viparita Raj Yoga - moksha yoga, spiritual transformation deep, expenses on occult/research, foreign inheritance, isolation brings insights, meditation on death, liberation focus, tantric practices",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Moksha", "Transformation", "Spirituality", "Occult"]
             },
             9: {
@@ -6466,6 +7420,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 9th house - Foreign dharma",
                 "effects": "Spiritual journeys abroad, father lives far, expenses on pilgrimage, foreign gurus, higher education abroad, charitable dharma, ashram life, renunciation tendencies, monastery attraction",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Pilgrimage", "Foreign", "Dharma", "Renunciation"]
             },
             10: {
@@ -6473,6 +7430,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 10th house - Foreign career",
                 "effects": "Career abroad, expenses on profession, work in isolation/hospitals/ashrams, foreign business, spiritual career, losses through authority, MNC work, export-import, international profession",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Career", "Isolation", "Spirituality"]
             },
             11: {
@@ -6480,6 +7440,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 11th house - Foreign gains",
                 "effects": "Income from abroad, expenses equal gains, desires for spirituality fulfilled, foreign network, charitable income, gains through isolation, spiritual wishes achieved, hidden profits",
                 "strength": "Medium",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Foreign", "Gains", "Spirituality", "Network"]
             },
             12: {
@@ -6487,6 +7450,9 @@ class ExtendedYogaService:
                 "description": "12th lord in 12th house - Complete moksha",
                 "effects": "Strong moksha yoga - complete spiritual liberation, life abroad, isolated residence, meditation mastery, ashram/monastery life, detachment from material, enlightenment focus, final liberation",
                 "strength": "Strong",
+                "bphs_category": "Non-BPHS (Practical)",
+                "bphs_section": "Modern/Practical Addition",
+                "bphs_ref": "Not in BPHS spec",
                 "life_areas": ["Moksha", "Liberation", "Spirituality", "Foreign"]
             }
         }
@@ -6752,6 +7718,9 @@ class ExtendedYogaService:
                 "description": f"Planets on both sides of Sun ({', '.join(planets_in_12th)} in 12th, {', '.join(planets_in_2nd)} in 2nd) - balanced personality, supportive influences, success through effort, harmonious character",
                 "strength": "Strong",
                 "category": "Sun-based Yoga",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "B) Sun Yogas (Ch.38)",
+                        "bphs_ref": "Ch.38.1-4",
                 "yoga_forming_planets": planets_in_12th + planets_in_2nd + ["Sun"]
             })
         elif has_2nd:
@@ -6761,6 +7730,9 @@ class ExtendedYogaService:
                 "description": f"Planet(s) in 2nd from Sun ({', '.join(planets_in_2nd)}) - future-oriented, ambitious, material success, self-made achievements",
                 "strength": "Medium",
                 "category": "Sun-based Yoga",
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "B) Sun Yogas (Ch.38)",
+                        "bphs_ref": "Ch.38.1",
                 "yoga_forming_planets": planets_in_2nd + ["Sun"]
             })
         elif has_12th:
@@ -6770,6 +7742,9 @@ class ExtendedYogaService:
                 "description": f"Planet(s) in 12th from Sun ({', '.join(planets_in_12th)}) - reflective nature, behind-the-scenes influence, hidden support, contemplative mind",
                 "strength": "Medium",
                 "category": "Sun-based Yoga",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec",
                 "yoga_forming_planets": planets_in_12th + ["Sun"]
             })
 
@@ -6816,14 +7791,20 @@ class ExtendedYogaService:
                 "name": "Vaapī Nabhasa Yoga - Panaphara",
                 "description": "All 7 planets in Panaphara houses (2,5,8,11) - steady progress, resourcefulness, balanced energy distribution, success through persistent effort",
                 "strength": "Medium",
-                "category": "Nabhasa Yoga - Pattern"
+                "category": "Nabhasa Yoga - Pattern",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
         elif apoklima_count == 7:
             yogas.append({
                 "name": "Vaapī Nabhasa Yoga - Apoklima",
                 "description": "All 7 planets in Apoklima houses (3,6,9,12) - philosophical nature, behind-the-scenes work, delayed but lasting results, gradual growth",
                 "strength": "Medium",
-                "category": "Nabhasa Yoga - Pattern"
+                "category": "Nabhasa Yoga - Pattern",
+                        "bphs_category": "Non-BPHS (Practical)",
+                        "bphs_section": "Modern/Practical Addition",
+                        "bphs_ref": "Not in BPHS spec"
             })
 
         return yogas
@@ -6873,6 +7854,9 @@ class ExtendedYogaService:
                 "description": f"Venus in {venus_house}th, Mercury in {mercury_house}th, Jupiter aspects {'/'.join(aspected_planets)} - exceptional wealth through learning, refined tastes, artistic talents, and wise investments. Treasure of arts and knowledge.",
                 "strength": "Strong",
                 "category": "Dhana Yoga - Wealth",
+                        "bphs_category": "Major Positive Yogas",
+                        "bphs_section": "D) Named Yogas (Ch.36)",
+                        "bphs_ref": "Ch.36.31-32",
                 "yoga_forming_planets": ["Venus", "Mercury", "Jupiter"]
             })
 
