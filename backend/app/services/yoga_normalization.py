@@ -493,6 +493,16 @@ class YogaNormalizer:
                 yoga["impact"] = self.get_impact(category)
                 yoga["category_type"] = category  # Add for reporting
 
+                # Preserve or add BPHS classification fields
+                # These fields are added by detection functions in extended_yoga_service.py
+                # If not present, mark as "Non-BPHS (Practical)"
+                if "bphs_category" not in yoga or not yoga["bphs_category"]:
+                    yoga["bphs_category"] = "Non-BPHS (Practical)"
+                if "bphs_section" not in yoga or not yoga["bphs_section"]:
+                    yoga["bphs_section"] = "Modern Practical Analysis"
+                if "bphs_ref" not in yoga or not yoga["bphs_ref"]:
+                    yoga["bphs_ref"] = "N/A"
+
                 # Mark as seen and add to result
                 seen[canonical_name.lower()] = True
                 deduplicated.append(yoga)

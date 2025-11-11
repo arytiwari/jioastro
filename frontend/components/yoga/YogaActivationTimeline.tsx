@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Calendar, Clock, TrendingUp, AlertCircle, Sparkles } from 'lucide-react'
 import { apiClient } from '@/lib/api'
@@ -57,18 +58,26 @@ const INTENSITY_COLORS: Record<string, string> = {
 
 export function YogaActivationTimeline({ yogas, profileId }: YogaActivationTimelineProps) {
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([])
   const [error, setError] = useState<string | null>(null)
   const [activeView, setActiveView] = useState<'timeline' | 'list'>('timeline')
+  const [visibleCount, setVisibleCount] = useState(5) // Initially load 5 yogas
 
   useEffect(() => {
     if (yogas.length > 0 && profileId) {
       fetchYogaTimings()
     }
-  }, [yogas, profileId])
+  }, [yogas, profileId, visibleCount])
 
   const fetchYogaTimings = async () => {
-    setLoading(true)
+    // Use loadingMore for subsequent loads, loading for initial load
+    const isInitialLoad = timelineEvents.length === 0
+    if (isInitialLoad) {
+      setLoading(true)
+    } else {
+      setLoadingMore(true)
+    }
     setError(null)
 
     try {
@@ -77,7 +86,10 @@ export function YogaActivationTimeline({ yogas, profileId }: YogaActivationTimel
         y.strength === 'Very Strong' || y.strength === 'Strong'
       )
 
-      const timingPromises = significantYogas.map(async (yoga) => {
+      // Only fetch the first `visibleCount` yogas for pagination
+      const yogasToFetch = significantYogas.slice(0, visibleCount)
+
+      const timingPromises = yogasToFetch.map(async (yoga) => {
         try {
           const response = await apiClient.get(`/enhancements/yoga-timing/${profileId}`, {
             params: { yoga_name: yoga.name }
@@ -113,7 +125,15 @@ export function YogaActivationTimeline({ yogas, profileId }: YogaActivationTimel
       setError(err.message || 'Failed to load timeline')
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
+  }
+
+  const loadMore = () => {
+    const significantYogas = yogas.filter(y =>
+      y.strength === 'Very Strong' || y.strength === 'Strong'
+    )
+    setVisibleCount(Math.min(visibleCount + 5, significantYogas.length))
   }
 
   const formatDate = (dateStr: string) => {
@@ -321,6 +341,40 @@ export function YogaActivationTimeline({ yogas, profileId }: YogaActivationTimel
             })}
           </div>
         )}
+
+        {/* Load More Button */}
+        {(() => {
+          const significantYogas = yogas.filter(y =>
+            y.strength === 'Very Strong' || y.strength === 'Strong'
+          )
+          const hasMore = visibleCount < significantYogas.length
+
+          return hasMore ? (
+            <div className="flex justify-center mt-6">
+              <Button
+                onClick={loadMore}
+                variant="outline"
+                disabled={loadingMore}
+                className="border-jio-500 text-jio-700 hover:bg-jio-50"
+              >
+                {loadingMore ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-jio-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Loading more...
+                  </>
+                ) : (
+                  <>
+                    Load More ({significantYogas.length - visibleCount} remaining)
+                  </>
+                )}
+              </Button>
+            </div>
+          ) : timelineEvents.length > 0 ? (
+            <p className="text-center text-sm text-gray-600 mt-6">
+              All {significantYogas.length} significant yogas loaded
+            </p>
+          ) : null
+        })()}
 
         {/* Info note */}
         <div className="mt-6 p-3 bg-blue-50 border border-blue-200 rounded-lg">
