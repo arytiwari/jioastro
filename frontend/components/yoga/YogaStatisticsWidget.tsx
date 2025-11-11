@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { apiClient } from '@/lib/api'
 import { Loader2, BarChart3, CheckCircle2, AlertCircle, Book, Sparkles } from 'lucide-react'
 import Link from 'next/link'
+import { YogaEncyclopediaModal } from './YogaEncyclopediaModal'
 
 interface YogaStatistics {
   total_yogas: number
@@ -272,12 +273,16 @@ export function YogaStatisticsWidget() {
               View Coverage Report
             </Button>
           </Link>
-          <Link href="/dashboard/yogas/search" className="flex-1">
-            <Button variant="outline" className="w-full border-purple-300 hover:bg-purple-50">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Yoga Encyclopedia
-            </Button>
-          </Link>
+          <div className="flex-1">
+            <YogaEncyclopediaModal
+              trigger={
+                <Button variant="outline" className="w-full border-purple-300 hover:bg-purple-50">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Yoga Encyclopedia
+                </Button>
+              }
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
