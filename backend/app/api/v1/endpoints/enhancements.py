@@ -1056,44 +1056,163 @@ async def lookup_yoga_by_name(
         # Get all yoga definitions from the service
         # This is a metadata lookup, not actual detection
         yoga_definitions = {
-            "Ruchaka Yoga": {
-                "description": "Mars in kendra (1,4,7,10) in own sign (Aries/Scorpio) or exalted (Capricorn)",
-                "category": "Pancha Mahapurusha",
-                "bphs_category": "Major Positive Yogas",
-                "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
-                "bphs_ref": "Ch.75.1-2",
-                "effects": "Courage, leadership, victory over enemies, commander qualities, warrior spirit",
-                "activation_age": "25-35 years",
-                "life_areas": ["Career", "Leadership", "Military", "Sports", "Competition"],
-                "cancellation_conditions": ["Mars debilitated", "Mars combusted", "Mars in dusthana (6/8/12)"]
-            },
             "Gajakesari Yoga": {
                 "description": "Jupiter in kendra (1,4,7,10) from Moon",
                 "category": "Named Yoga",
                 "bphs_category": "Major Positive Yogas",
                 "bphs_section": "B) Named Yogas (Ch.36)",
                 "bphs_ref": "Ch.36.3-4",
-                "effects": "Prosperity, wisdom, fame, knowledge, respect in society, wealth accumulation",
+                "effects": "Prosperity, wisdom, fame, knowledge, respect in society, wealth accumulation. Person becomes wise, virtuous, and enjoys comforts.",
                 "activation_age": "28-35 years",
                 "life_areas": ["Wealth", "Wisdom", "Fame", "Education", "Social Status"],
-                "cancellation_conditions": ["Jupiter debilitated", "Jupiter combusted", "Moon weak or afflicted"]
+                "cancellation_conditions": ["Jupiter debilitated", "Jupiter combusted", "Moon weak or afflicted", "Jupiter in dusthana (6/8/12)"]
             },
-            # Add more key yoga definitions as needed
+            "Ruchaka Yoga": {
+                "description": "Mars in kendra (1,4,7,10) in own sign (Aries/Scorpio) or exalted (Capricorn)",
+                "category": "Pancha Mahapurusha",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
+                "bphs_ref": "Ch.75.1-2",
+                "effects": "Courage, leadership, victory over enemies, commander qualities, warrior spirit. Person becomes brave, wealthy, and enjoys power.",
+                "activation_age": "25-35 years",
+                "life_areas": ["Career", "Leadership", "Military", "Sports", "Competition"],
+                "cancellation_conditions": ["Mars debilitated", "Mars combusted", "Mars in dusthana (6/8/12)", "Malefic aspects on Mars"]
+            },
+            "Hamsa Yoga": {
+                "description": "Jupiter in kendra (1,4,7,10) in own sign (Sagittarius/Pisces) or exalted (Cancer)",
+                "category": "Pancha Mahapurusha",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
+                "bphs_ref": "Ch.75.3-4",
+                "effects": "Spiritual wisdom, righteousness, teaching abilities, prosperity, respect. Person becomes learned, virtuous, and charitable.",
+                "activation_age": "30-40 years",
+                "life_areas": ["Spirituality", "Education", "Teaching", "Philosophy", "Wealth"],
+                "cancellation_conditions": ["Jupiter debilitated", "Jupiter combusted", "Jupiter in dusthana", "Malefic aspects"]
+            },
+            "Bhadra Yoga": {
+                "description": "Mercury in kendra (1,4,7,10) in own sign (Gemini/Virgo) or exalted (Virgo)",
+                "category": "Pancha Mahapurusha",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
+                "bphs_ref": "Ch.75.5-6",
+                "effects": "Intelligence, communication skills, business acumen, analytical abilities, eloquence. Person becomes learned, wealthy through intellect.",
+                "activation_age": "25-32 years",
+                "life_areas": ["Communication", "Business", "Writing", "Analysis", "Trade"],
+                "cancellation_conditions": ["Mercury debilitated", "Mercury combusted", "Mercury in dusthana", "Malefic aspects"]
+            },
+            "Malavya Yoga": {
+                "description": "Venus in kendra (1,4,7,10) in own sign (Taurus/Libra) or exalted (Pisces)",
+                "category": "Pancha Mahapurusha",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
+                "bphs_ref": "Ch.75.7-8",
+                "effects": "Beauty, artistic talents, luxury, material comforts, harmonious relationships. Person enjoys vehicles, wealth, and pleasures.",
+                "activation_age": "25-35 years",
+                "life_areas": ["Arts", "Beauty", "Luxury", "Relationships", "Wealth"],
+                "cancellation_conditions": ["Venus debilitated", "Venus combusted", "Venus in dusthana", "Malefic aspects"]
+            },
+            "Sasa Yoga": {
+                "description": "Saturn in kendra (1,4,7,10) in own sign (Capricorn/Aquarius) or exalted (Libra)",
+                "category": "Pancha Mahapurusha",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "E) Pañcha-Mahāpuruṣa (Ch.75)",
+                "bphs_ref": "Ch.75.9-10",
+                "effects": "Discipline, longevity, organizational abilities, authority, success through hard work. Person becomes a leader or head of community.",
+                "activation_age": "35-45 years",
+                "life_areas": ["Administration", "Discipline", "Longevity", "Authority", "Service"],
+                "cancellation_conditions": ["Saturn debilitated", "Saturn combusted", "Saturn in dusthana", "Malefic aspects"]
+            },
+            "Raj Yoga": {
+                "description": "Conjunction or mutual aspect between lords of Kendra (1,4,7,10) and Trikona (1,5,9) houses",
+                "category": "Raj Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "D) Rāja Yoga (Ch.40-41)",
+                "bphs_ref": "Ch.40.1-3",
+                "effects": "Power, authority, royal status, prosperity, fame, leadership positions. One of the most powerful yogas for success.",
+                "activation_age": "Varies based on specific planets",
+                "life_areas": ["Power", "Authority", "Fame", "Leadership", "Wealth"],
+                "cancellation_conditions": ["Planets debilitated", "Planets combusted", "Planets in dusthana", "Strong malefic influences"]
+            },
+            "Dhana Yoga": {
+                "description": "Lords of wealth houses (2,5,9,11) in mutual connection or aspecting wealth houses",
+                "category": "Wealth Yoga",
+                "bphs_category": "Standard Yogas",
+                "bphs_section": "C) Dhana (Wealth) Yogas (Ch.11-12)",
+                "bphs_ref": "Ch.11.5-8",
+                "effects": "Wealth accumulation, financial prosperity, inheritance, gains from various sources. Strong financial security.",
+                "activation_age": "28-42 years",
+                "life_areas": ["Wealth", "Finance", "Assets", "Inheritance", "Business"],
+                "cancellation_conditions": ["Planets in debilitation", "Dusthana lords involved", "Strong 6th/8th/12th house influence"]
+            },
+            "Dhana from Moon Yoga": {
+                "description": "Lords of 2nd and 11th from Moon in mutual aspect or conjunction",
+                "category": "Wealth Yoga",
+                "bphs_category": "Standard Yogas",
+                "bphs_section": "C) Dhana (Wealth) Yogas (Ch.11-12)",
+                "bphs_ref": "Ch.11.12-14",
+                "effects": "Wealth through mental efforts, business acumen, family wealth, emotional security through finances.",
+                "activation_age": "25-35 years",
+                "life_areas": ["Business", "Family Wealth", "Mental Work", "Finance", "Security"],
+                "cancellation_conditions": ["Moon afflicted", "Lords debilitated", "Dusthana influence on Moon"]
+            },
+            "Neecha Bhanga Raj Yoga": {
+                "description": "Debilitated planet gets cancellation through specific conditions: exalted dispositor, mutual aspects, or placement in kendra",
+                "category": "Transformation",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "F) Neecha Bhanga (Ch.44)",
+                "bphs_ref": "Ch.44.6-8",
+                "effects": "Transformation of weakness into strength, rise after fall, overcoming obstacles, unique success from adverse conditions.",
+                "activation_age": "30-40 years",
+                "life_areas": ["Transformation", "Overcoming Obstacles", "Unique Success", "Resilience"],
+                "cancellation_conditions": ["Debilitation lords also afflicted", "No supporting planets", "Multiple debilitations"]
+            },
+            "Kala Sarpa Yoga": {
+                "description": "All planets hemmed between Rahu and Ketu (all on one side of Rahu-Ketu axis)",
+                "category": "Challenge",
+                "bphs_category": "Major Challenges",
+                "bphs_section": "Non-BPHS (Practical)",
+                "bphs_ref": "Practical (Not in BPHS)",
+                "effects": "Intense life experiences, periodic obstacles, spiritual growth through challenges, unconventional path. Can give great results if channeled properly.",
+                "activation_age": "Throughout life with specific intensity during Rahu/Ketu dashas",
+                "life_areas": ["Life Challenges", "Spiritual Growth", "Karma", "Transformation"],
+                "cancellation_conditions": ["Planets on both sides of axis", "Benefic in kendra", "Strong Moon or Jupiter"]
+            },
+            "Kedāra Yoga": {
+                "description": "Lord of 2nd house in 2nd, 5th, 9th, or 11th house with benefic aspects",
+                "category": "Wealth & Agriculture",
+                "bphs_category": "Standard Yogas",
+                "bphs_section": "C) Dhana (Wealth) Yogas (Ch.11-12)",
+                "bphs_ref": "Ch.11.18-20",
+                "effects": "Agricultural prosperity, land ownership, real estate gains, family wealth, food security. Traditional farming success.",
+                "activation_age": "30-45 years",
+                "life_areas": ["Agriculture", "Real Estate", "Land", "Family Business", "Wealth"],
+                "cancellation_conditions": ["2nd lord debilitated", "Malefic aspects on 2nd house", "Dusthana placement"]
+            },
+            "Vīṇā Yoga": {
+                "description": "Benefics in 2nd and 12th from lagna or specific planetary combinations creating musical talent",
+                "category": "Arts & Music",
+                "bphs_category": "Minor Yogas & Subtle Influences",
+                "bphs_section": "G) Artistic & Musical Yogas (Ch.17)",
+                "bphs_ref": "Ch.17.5-7",
+                "effects": "Musical talents, artistic expression, melodious voice, skill in fine arts, creative abilities. Excellence in music and performing arts.",
+                "activation_age": "15-30 years",
+                "life_areas": ["Music", "Arts", "Performance", "Creativity", "Expression"],
+                "cancellation_conditions": ["Malefics in 2nd/12th", "Afflicted Venus", "No Mercury strength"]
+            }
         }
 
         yoga_info = yoga_definitions.get(yoga_name)
 
         if not yoga_info:
-            return {
-                "success": False,
-                "message": f"Yoga '{yoga_name}' not found in database. Available yogas: 379",
-                "suggestion": "Use /yogas/statistics to see all available yogas"
-            }
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Yoga '{yoga_name}' not found in database"
+            )
 
         return {
             "success": True,
             "yoga_name": yoga_name,
-            "information": yoga_info
+            "yoga_info": yoga_info
         }
 
     except Exception as e:
