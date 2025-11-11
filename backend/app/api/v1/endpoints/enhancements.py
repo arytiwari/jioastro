@@ -6,7 +6,7 @@ Remedies, Rectification, Transits, and Shadbala
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date, time, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 
 logger = logging.getLogger(__name__)
 
@@ -1106,7 +1106,7 @@ async def lookup_yoga_by_name(
 
 @router.post("/yogas/compare")
 async def compare_yogas_between_profiles(
-    profile_ids: List[str],
+    profile_ids: List[str] = Body(..., embed=True),
     current_user: dict = Depends(get_current_user)
 ):
     """
