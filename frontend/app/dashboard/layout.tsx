@@ -142,6 +142,7 @@ export default function DashboardLayout({
       { name: 'Current Transits', href: '/dashboard/transits', icon: Sun },
     ],
     insights: [
+      { name: 'Cosmic Energy', href: '/dashboard/cosmic-energy', icon: Zap, badge: 'NEW' },
       { name: 'Instant Onboarding', href: '/dashboard/instant-onboarding', icon: Zap, badge: 'NEW' },
       { name: 'Life Snapshot', href: '/dashboard/life-snapshot', icon: Eye, badge: 'NEW' },
       { name: 'Evidence Mode', href: '/dashboard/evidence-mode', icon: Shield, badge: 'NEW' },
@@ -152,6 +153,7 @@ export default function DashboardLayout({
   const systemsMenu = {
     vedic: [
       { name: 'Varshaphal (Annual)', href: '/dashboard/varshaphal', icon: Calendar, badge: 'NEW' },
+      { name: 'Calendar Year', href: '/dashboard/calendar-year', icon: Calendar, badge: 'NEW' },
       { name: 'Jaimini System', href: '/dashboard/jaimini', icon: Award, badge: 'NEW' },
       { name: 'Lal Kitab', href: '/dashboard/lal-kitab', icon: BookOpen, badge: 'NEW' },
       { name: 'Ashtakavarga', href: '/dashboard/ashtakavarga', icon: Activity, badge: 'NEW' },

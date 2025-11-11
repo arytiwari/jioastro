@@ -276,12 +276,65 @@ async def get_current_transits(
             reference_date=reference_date
         )
 
-        # Add timeline if requested (placeholder - method not yet implemented)
-        if request.include_timeline:
-            # TODO: Implement timeline calculation for future dates
-            transits_result['timeline_events'] = []
+        # Transform service response to match TransitResponse schema
+        from app.schemas.enhancements import TransitPlanet
 
-        return TransitResponse(**transits_result)
+        # Convert transits dict to list of TransitPlanet objects
+        current_positions = []
+        transits_dict = transits_result.get('transits', {})
+
+        for planet_name, transit_data in transits_dict.items():
+            # Filter to requested planets if specified
+            if request.focus_planets and planet_name not in request.focus_planets:
+                continue
+
+            current_positions.append(TransitPlanet(
+                planet=planet_name,
+                sign=transit_data['sign'],
+                degree=transit_data['degree'],
+                house=transit_data['house_from_lagna'],
+                retrograde=False,  # TODO: Add retrograde detection
+                interpretation=transit_data['effects']
+            ))
+
+        # Generate summary from significant transits
+        significant_transits_list = transits_result.get('significant_transits', [])
+        summary = "Current Transit Analysis:\n\n"
+        summary += "\n".join(f"• {transit}" for transit in significant_transits_list)
+
+        # Extract focus areas from effects
+        focus_areas = []
+        for transit_data in transits_dict.values():
+            effects = transit_data.get('effects', '')
+            # Extract keywords for focus areas
+            if 'career' in effects.lower() or 'work' in effects.lower():
+                if 'Career & Work' not in focus_areas:
+                    focus_areas.append('Career & Work')
+            if 'health' in effects.lower():
+                if 'Health' not in focus_areas:
+                    focus_areas.append('Health')
+            if 'relationship' in effects.lower() or 'marriage' in effects.lower() or 'partnership' in effects.lower():
+                if 'Relationships' not in focus_areas:
+                    focus_areas.append('Relationships')
+            if 'wealth' in effects.lower() or 'financial' in effects.lower() or 'income' in effects.lower():
+                if 'Wealth & Finance' not in focus_areas:
+                    focus_areas.append('Wealth & Finance')
+            if 'spiritual' in effects.lower():
+                if 'Spirituality' not in focus_areas:
+                    focus_areas.append('Spirituality')
+
+        # Build response matching TransitResponse schema
+        response_data = {
+            'transit_date': transit_dt,
+            'current_positions': current_positions,
+            'significant_aspects': [],  # TODO: Implement aspect calculations
+            'upcoming_sign_changes': [],  # TODO: Implement sign change predictions
+            'timeline_events': [] if request.include_timeline else None,
+            'summary': summary,
+            'focus_areas': focus_areas if focus_areas else ['General Life Matters']
+        }
+
+        return TransitResponse(**response_data)
 
     except HTTPException:
         raise

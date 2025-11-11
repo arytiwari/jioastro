@@ -754,6 +754,17 @@ class APIClient {
     })
   }
 
+  // Calendar Year Predictions endpoints
+  async generateCalendarYear(data: {
+    profile_id: string
+    target_year: number
+  }) {
+    return this.request('/calendar-year/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
   // Muhurta (Electional Astrology) endpoints
   async getPanchang(data: {
     datetime: string
@@ -1291,6 +1302,39 @@ class APIClient {
 
   async getFengShuiStats() {
     return this.request('/feng-shui/stats')
+  }
+
+  // =============================================================================
+  // COSMIC ENERGY SCORE™ ENDPOINTS (Viral Features)
+  // =============================================================================
+
+  async getMyCosmicScore(profileId: string, targetDate?: string) {
+    const params = new URLSearchParams({ profile_id: profileId })
+    if (targetDate) params.append('target_date', targetDate)
+    return this.request(`/cosmic-energy/my-score?${params.toString()}`)
+  }
+
+  async get30DayTrend(profileId: string, startDate?: string) {
+    const params = new URLSearchParams({ profile_id: profileId })
+    if (startDate) params.append('start_date', startDate)
+    return this.request(`/cosmic-energy/30-day-trend?${params.toString()}`)
+  }
+
+  async getFriendsScores(profileId: string, targetDate?: string) {
+    const params = new URLSearchParams({ profile_id: profileId })
+    if (targetDate) params.append('target_date', targetDate)
+    return this.request(`/cosmic-energy/friends-scores?${params.toString()}`)
+  }
+
+  async generateShareTemplate(profileId: string, templateType: string = 'instagram_story', targetDate?: string) {
+    const params = new URLSearchParams({
+      profile_id: profileId,
+      template_type: templateType
+    })
+    if (targetDate) params.append('target_date', targetDate)
+    return this.request(`/cosmic-energy/share-template?${params.toString()}`, {
+      method: 'POST'
+    })
   }
 }
 

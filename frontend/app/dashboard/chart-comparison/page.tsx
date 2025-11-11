@@ -12,6 +12,7 @@ import { useMutation, useQuery } from '@/lib/query'
 import {
   Loader2,
   Users,
+  User,
   Heart,
   TrendingUp,
   AlertCircle,
@@ -1177,6 +1178,300 @@ export default function ChartComparisonPage() {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Individual Person Analysis - Person 1 */}
+                <Card className="border-2 border-blue-300 dark:border-blue-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-blue-600" />
+                      {business3WayResult.profiles?.p1?.name} - Individual Analysis
+                    </CardTitle>
+                    <CardDescription>
+                      Complete compatibility analysis for Person 1 with both partners
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* P1 Compatibility Overview */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-900/20">
+                        <p className="text-xs text-muted-foreground mb-1">With {business3WayResult.profiles?.p2?.name}</p>
+                        <p className={`text-2xl font-bold ${getScoreColor(business3WayResult.pair12?.summary?.overall_score)}`}>
+                          {business3WayResult.pair12?.summary?.overall_score}%
+                        </p>
+                        <p className="text-xs capitalize mt-1">{business3WayResult.pair12?.summary?.compatibility_level}</p>
+                      </div>
+                      <div className="p-4 rounded-lg border bg-blue-50 dark:bg-blue-900/20">
+                        <p className="text-xs text-muted-foreground mb-1">With {business3WayResult.profiles?.p3?.name}</p>
+                        <p className={`text-2xl font-bold ${getScoreColor(business3WayResult.pair13?.summary?.overall_score)}`}>
+                          {business3WayResult.pair13?.summary?.overall_score}%
+                        </p>
+                        <p className="text-xs capitalize mt-1">{business3WayResult.pair13?.summary?.compatibility_level}</p>
+                      </div>
+                    </div>
+
+                    {/* P1 Strengths */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-700 dark:text-green-400">
+                        <CheckCircle className="w-4 h-4" />
+                        Key Strengths in Team
+                      </h4>
+                      <ul className="space-y-2 text-sm">
+                        {[
+                          ...new Set([
+                            ...(business3WayResult.pair12?.summary?.strengths || []),
+                            ...(business3WayResult.pair13?.summary?.strengths || []),
+                          ]),
+                        ]
+                          .slice(0, 4)
+                          .map((strength: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 p-2 rounded bg-green-50 dark:bg-green-900/20">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                              <span>{strength}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+
+                    {/* P1 Challenges */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                        <AlertCircle className="w-4 h-4" />
+                        Areas to Navigate
+                      </h4>
+                      <ul className="space-y-2 text-sm">
+                        {[
+                          ...new Set([
+                            ...(business3WayResult.pair12?.summary?.challenges || []),
+                            ...(business3WayResult.pair13?.summary?.challenges || []),
+                          ]),
+                        ]
+                          .slice(0, 4)
+                          .map((challenge: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 p-2 rounded bg-orange-50 dark:bg-orange-900/20">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-orange-600 flex-shrink-0" />
+                              <span>{challenge}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+
+                    {/* P1 Compatibility Factors */}
+                    {business3WayResult.pair12?.compatibility_factors && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Compatibility Factors Breakdown</h4>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          {Object.entries(business3WayResult.pair12.compatibility_factors).map(([factor, data]: [string, any]) => (
+                            <div key={factor} className="p-3 rounded-lg border bg-card">
+                              <p className="font-medium capitalize mb-1">{factor.replace('_', ' ')}</p>
+                              <div className="flex items-center gap-2">
+                                <div className={`text-lg font-bold ${getScoreColor(data.score)}`}>
+                                  {data.score}%
+                                </div>
+                                <span className="text-muted-foreground">{data.interpretation}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Individual Person Analysis - Person 2 */}
+                <Card className="border-2 border-green-300 dark:border-green-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-green-600" />
+                      {business3WayResult.profiles?.p2?.name} - Individual Analysis
+                    </CardTitle>
+                    <CardDescription>
+                      Complete compatibility analysis for Person 2 with both partners
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* P2 Compatibility Overview */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg border bg-green-50 dark:bg-green-900/20">
+                        <p className="text-xs text-muted-foreground mb-1">With {business3WayResult.profiles?.p1?.name}</p>
+                        <p className={`text-2xl font-bold ${getScoreColor(business3WayResult.pair12?.summary?.overall_score)}`}>
+                          {business3WayResult.pair12?.summary?.overall_score}%
+                        </p>
+                        <p className="text-xs capitalize mt-1">{business3WayResult.pair12?.summary?.compatibility_level}</p>
+                      </div>
+                      <div className="p-4 rounded-lg border bg-green-50 dark:bg-green-900/20">
+                        <p className="text-xs text-muted-foreground mb-1">With {business3WayResult.profiles?.p3?.name}</p>
+                        <p className={`text-2xl font-bold ${getScoreColor(business3WayResult.pair23?.summary?.overall_score)}`}>
+                          {business3WayResult.pair23?.summary?.overall_score}%
+                        </p>
+                        <p className="text-xs capitalize mt-1">{business3WayResult.pair23?.summary?.compatibility_level}</p>
+                      </div>
+                    </div>
+
+                    {/* P2 Strengths */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-700 dark:text-green-400">
+                        <CheckCircle className="w-4 h-4" />
+                        Key Strengths in Team
+                      </h4>
+                      <ul className="space-y-2 text-sm">
+                        {[
+                          ...new Set([
+                            ...(business3WayResult.pair12?.summary?.strengths || []),
+                            ...(business3WayResult.pair23?.summary?.strengths || []),
+                          ]),
+                        ]
+                          .slice(0, 4)
+                          .map((strength: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 p-2 rounded bg-green-50 dark:bg-green-900/20">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                              <span>{strength}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+
+                    {/* P2 Challenges */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                        <AlertCircle className="w-4 h-4" />
+                        Areas to Navigate
+                      </h4>
+                      <ul className="space-y-2 text-sm">
+                        {[
+                          ...new Set([
+                            ...(business3WayResult.pair12?.summary?.challenges || []),
+                            ...(business3WayResult.pair23?.summary?.challenges || []),
+                          ]),
+                        ]
+                          .slice(0, 4)
+                          .map((challenge: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 p-2 rounded bg-orange-50 dark:bg-orange-900/20">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-orange-600 flex-shrink-0" />
+                              <span>{challenge}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+
+                    {/* P2 Compatibility Factors */}
+                    {business3WayResult.pair12?.compatibility_factors && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Compatibility Factors Breakdown</h4>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          {Object.entries(business3WayResult.pair12.compatibility_factors).map(([factor, data]: [string, any]) => (
+                            <div key={factor} className="p-3 rounded-lg border bg-card">
+                              <p className="font-medium capitalize mb-1">{factor.replace('_', ' ')}</p>
+                              <div className="flex items-center gap-2">
+                                <div className={`text-lg font-bold ${getScoreColor(data.score)}`}>
+                                  {data.score}%
+                                </div>
+                                <span className="text-muted-foreground">{data.interpretation}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Individual Person Analysis - Person 3 */}
+                <Card className="border-2 border-purple-300 dark:border-purple-700">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <User className="w-5 h-5 text-purple-600" />
+                      {business3WayResult.profiles?.p3?.name} - Individual Analysis
+                    </CardTitle>
+                    <CardDescription>
+                      Complete compatibility analysis for Person 3 with both partners
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* P3 Compatibility Overview */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-lg border bg-purple-50 dark:bg-purple-900/20">
+                        <p className="text-xs text-muted-foreground mb-1">With {business3WayResult.profiles?.p1?.name}</p>
+                        <p className={`text-2xl font-bold ${getScoreColor(business3WayResult.pair13?.summary?.overall_score)}`}>
+                          {business3WayResult.pair13?.summary?.overall_score}%
+                        </p>
+                        <p className="text-xs capitalize mt-1">{business3WayResult.pair13?.summary?.compatibility_level}</p>
+                      </div>
+                      <div className="p-4 rounded-lg border bg-purple-50 dark:bg-purple-900/20">
+                        <p className="text-xs text-muted-foreground mb-1">With {business3WayResult.profiles?.p2?.name}</p>
+                        <p className={`text-2xl font-bold ${getScoreColor(business3WayResult.pair23?.summary?.overall_score)}`}>
+                          {business3WayResult.pair23?.summary?.overall_score}%
+                        </p>
+                        <p className="text-xs capitalize mt-1">{business3WayResult.pair23?.summary?.compatibility_level}</p>
+                      </div>
+                    </div>
+
+                    {/* P3 Strengths */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2 text-green-700 dark:text-green-400">
+                        <CheckCircle className="w-4 h-4" />
+                        Key Strengths in Team
+                      </h4>
+                      <ul className="space-y-2 text-sm">
+                        {[
+                          ...new Set([
+                            ...(business3WayResult.pair13?.summary?.strengths || []),
+                            ...(business3WayResult.pair23?.summary?.strengths || []),
+                          ]),
+                        ]
+                          .slice(0, 4)
+                          .map((strength: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 p-2 rounded bg-green-50 dark:bg-green-900/20">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-green-600 flex-shrink-0" />
+                              <span>{strength}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+
+                    {/* P3 Challenges */}
+                    <div>
+                      <h4 className="font-semibold mb-2 flex items-center gap-2 text-orange-700 dark:text-orange-400">
+                        <AlertCircle className="w-4 h-4" />
+                        Areas to Navigate
+                      </h4>
+                      <ul className="space-y-2 text-sm">
+                        {[
+                          ...new Set([
+                            ...(business3WayResult.pair13?.summary?.challenges || []),
+                            ...(business3WayResult.pair23?.summary?.challenges || []),
+                          ]),
+                        ]
+                          .slice(0, 4)
+                          .map((challenge: any, idx: number) => (
+                            <li key={idx} className="flex items-start gap-2 p-2 rounded bg-orange-50 dark:bg-orange-900/20">
+                              <ArrowRight className="w-4 h-4 mt-0.5 text-orange-600 flex-shrink-0" />
+                              <span>{challenge}</span>
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
+
+                    {/* P3 Compatibility Factors */}
+                    {business3WayResult.pair13?.compatibility_factors && (
+                      <div>
+                        <h4 className="font-semibold mb-2">Compatibility Factors Breakdown</h4>
+                        <div className="grid grid-cols-2 gap-3 text-xs">
+                          {Object.entries(business3WayResult.pair13.compatibility_factors).map(([factor, data]: [string, any]) => (
+                            <div key={factor} className="p-3 rounded-lg border bg-card">
+                              <p className="font-medium capitalize mb-1">{factor.replace('_', ' ')}</p>
+                              <div className="flex items-center gap-2">
+                                <div className={`text-lg font-bold ${getScoreColor(data.score)}`}>
+                                  {data.score}%
+                                </div>
+                                <span className="text-muted-foreground">{data.interpretation}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
                 {/* Team Dynamics Summary */}
                 <Card className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20">

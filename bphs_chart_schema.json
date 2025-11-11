@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BPHSChart",
+  "type": "object",
+  "required": [
+    "ascSign",
+    "placements"
+  ],
+  "properties": {
+    "ascSign": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12
+    },
+    "options": {
+      "type": "object",
+      "properties": {
+        "treatMercuryAsBenefic": {
+          "type": "boolean",
+          "default": true
+        },
+        "moonPhase": {
+          "type": "string",
+          "enum": [
+            "waxing",
+            "waning",
+            "unknown"
+          ],
+          "default": "unknown"
+        }
+      }
+    },
+    "placements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "planet",
+          "sign"
+        ],
+        "properties": {
+          "planet": {
+            "type": "string",
+            "enum": [
+              "Sun",
+              "Moon",
+              "Mars",
+              "Mercury",
+              "Jupiter",
+              "Venus",
+              "Saturn",
+              "Rahu",
+              "Ketu"
+            ]
+          },
+          "sign": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "house": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 12
+          },
+          "degrees": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 30
+          },
+          "retro": {
+            "type": "boolean"
+          },
+          "dignity": {
+            "type": "string",
+            "enum": [
+              "exaltation",
+              "own",
+              "mooltrikona",
+              "debilitation",
+              "neutral",
+              "vargottama"
+            ]
+          },
+          "tainted": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

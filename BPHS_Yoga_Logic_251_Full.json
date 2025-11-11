@@ -1,0 +1,1955 @@
+[
+  {
+    "id": 1,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Rajju",
+    "logic": "All seven classical grahas placed only in movable signs.",
+    "bphs_ref": "Ch.35.7"
+  },
+  {
+    "id": 2,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Mushala",
+    "logic": "All seven grahas only in fixed signs.",
+    "bphs_ref": "Ch.35.7"
+  },
+  {
+    "id": 3,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Nala",
+    "logic": "All seven grahas only in dual signs.",
+    "bphs_ref": "Ch.35.7"
+  },
+  {
+    "id": 4,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Māla",
+    "logic": "Benefics occupying any three kendras (1/4/7/10).",
+    "bphs_ref": "Ch.35.8"
+  },
+  {
+    "id": 5,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Sarpa",
+    "logic": "Malefics occupying any three kendras.",
+    "bphs_ref": "Ch.35.8"
+  },
+  {
+    "id": 6,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Gada",
+    "logic": "All grahas confined to any two successive kendras.",
+    "bphs_ref": "Ch.35.9"
+  },
+  {
+    "id": 7,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Sakata",
+    "logic": "All grahas only in 1 and 7.",
+    "bphs_ref": "Ch.35.9"
+  },
+  {
+    "id": 8,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Vihaga",
+    "logic": "All grahas only in 4 and 10.",
+    "bphs_ref": "Ch.35.9"
+  },
+  {
+    "id": 9,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Śṛṅgāṭaka",
+    "logic": "All grahas only in 1, 5 and 9.",
+    "bphs_ref": "Ch.35.10"
+  },
+  {
+    "id": 10,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Hala",
+    "logic": "All grahas only in (2,6,10) or (3,7,11) or (4,8,12).",
+    "bphs_ref": "Ch.35.10"
+  },
+  {
+    "id": 11,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Vajra",
+    "logic": "All benefics in 1 and 7 OR all malefics in 4 and 10.",
+    "bphs_ref": "Ch.35.11"
+  },
+  {
+    "id": 12,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Yava",
+    "logic": "All benefics in 4 and 10 OR all malefics in 1 and 7.",
+    "bphs_ref": "Ch.35.11"
+  },
+  {
+    "id": 13,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Kamala",
+    "logic": "All seven grahas in the four kendras.",
+    "bphs_ref": "Ch.35.12"
+  },
+  {
+    "id": 14,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Vapi",
+    "logic": "All seven grahas in all panaphara (2/5/8/11) OR all apoklima (3/6/9/12).",
+    "bphs_ref": "Ch.35.12"
+  },
+  {
+    "id": 15,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Yupa",
+    "logic": "Seven grahas spread over 1–4.",
+    "bphs_ref": "Ch.35.13"
+  },
+  {
+    "id": 16,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Śara",
+    "logic": "Seven grahas spread over 4–7.",
+    "bphs_ref": "Ch.35.13"
+  },
+  {
+    "id": 17,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Śakti",
+    "logic": "Seven grahas spread over 7–10.",
+    "bphs_ref": "Ch.35.13"
+  },
+  {
+    "id": 18,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Daṇḍa",
+    "logic": "Seven grahas spread over 10–1.",
+    "bphs_ref": "Ch.35.13"
+  },
+  {
+    "id": 19,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Nauka",
+    "logic": "Seven consecutive houses starting at 1.",
+    "bphs_ref": "Ch.35.14"
+  },
+  {
+    "id": 20,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Kūṭa",
+    "logic": "Seven consecutive houses starting at 4.",
+    "bphs_ref": "Ch.35.14"
+  },
+  {
+    "id": 21,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Chatra",
+    "logic": "Seven consecutive houses starting at 7.",
+    "bphs_ref": "Ch.35.14"
+  },
+  {
+    "id": 22,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Dhanus/Chāpa",
+    "logic": "Seven consecutive houses starting at 10.",
+    "bphs_ref": "Ch.35.14"
+  },
+  {
+    "id": 23,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Chakra",
+    "logic": "Six alternate signs occupied from Lagna.",
+    "bphs_ref": "Ch.35.15"
+  },
+  {
+    "id": 24,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Samudra",
+    "logic": "Six alternate signs occupied from 2nd house.",
+    "bphs_ref": "Ch.35.15"
+  },
+  {
+    "id": 25,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Gola",
+    "logic": "All seven grahas in one sign.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 26,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Yuga",
+    "logic": "All seven confined to two signs.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 27,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Śūla",
+    "logic": "All seven confined to three signs.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 28,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Kedāra",
+    "logic": "All seven confined to four signs.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 29,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Pāśa",
+    "logic": "All seven confined to five signs.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 30,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Dāma",
+    "logic": "All seven confined to six signs.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 31,
+    "section": "A) Nabhasa (Ch.35)",
+    "name": "Vīṇā",
+    "logic": "All seven spread over seven signs.",
+    "bphs_ref": "Ch.35.16"
+  },
+  {
+    "id": 32,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Gaja‑Keśarī",
+    "logic": "Jupiter in a kendra from the Moon (not debilitated).",
+    "bphs_ref": "Ch.36.3–4"
+  },
+  {
+    "id": 33,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Amala",
+    "logic": "A benefic in the 10th from Lagna or from Moon, unafflicted.",
+    "bphs_ref": "Ch.36.5–6"
+  },
+  {
+    "id": 34,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Parvata",
+    "logic": "Benefics in 1st/7th; malefics in 3rd/6th (or kendras filled by benefics without malefics).",
+    "bphs_ref": "Ch.36.7–8"
+  },
+  {
+    "id": 35,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Kahāla",
+    "logic": "3rd lord strong and connected with 11th lord.",
+    "bphs_ref": "Ch.36.9–10"
+  },
+  {
+    "id": 36,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Chāmara",
+    "logic": "Lagna lord strong in kendra/konas under benefic influence.",
+    "bphs_ref": "Ch.36.11–12"
+  },
+  {
+    "id": 37,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Śaṅkha",
+    "logic": "5th and 6th lords in mutual kendras and strong; Lagna lord in a movable sign.",
+    "bphs_ref": "Ch.36.13–14"
+  },
+  {
+    "id": 38,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Bherī",
+    "logic": "1st, 2nd, 7th, 10th lords in kendras; Moon with benefic.",
+    "bphs_ref": "Ch.36.15–16"
+  },
+  {
+    "id": 39,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Mṛdaṅga",
+    "logic": "2nd and 11th lords in kendra/trikona and strong; benefic Moon.",
+    "bphs_ref": "Ch.36.17"
+  },
+  {
+    "id": 40,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Śrīnātha",
+    "logic": "7th lord in own/exaltation with benefic aspect; Lagna lord strong.",
+    "bphs_ref": "Ch.36.18"
+  },
+  {
+    "id": 41,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Śārada",
+    "logic": "Jupiter in kendra; Venus in trine; Moon & Lagna lord strong.",
+    "bphs_ref": "Ch.36.19–20"
+  },
+  {
+    "id": 42,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Matsya",
+    "logic": "Benefics in 4th/10th; malefics in 3rd/6th.",
+    "bphs_ref": "Ch.36.21–22"
+  },
+  {
+    "id": 43,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Kūrma",
+    "logic": "Benefics in kendras in own/exaltation.",
+    "bphs_ref": "Ch.36.23–24"
+  },
+  {
+    "id": 44,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Khadga",
+    "logic": "2nd and 9th lords in mutual kendra/trikona and strong.",
+    "bphs_ref": "Ch.36.25–26"
+  },
+  {
+    "id": 45,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Lakṣmī",
+    "logic": "Lagna lord strong; Jupiter & Venus strong in kendra/trikona.",
+    "bphs_ref": "Ch.36.27–28"
+  },
+  {
+    "id": 46,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Kusuma",
+    "logic": "Benefics in kendras; Lagna lord strong; Moon unafflicted.",
+    "bphs_ref": "Ch.36.29–30"
+  },
+  {
+    "id": 47,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Kālanidhi",
+    "logic": "Mercury & Venus in 2nd or 11th with Jupiter’s aspect.",
+    "bphs_ref": "Ch.36.31–32"
+  },
+  {
+    "id": 48,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Kalpadruma (Parijāta)",
+    "logic": "Lagna lord in own/exaltation; its dispositor strong; and the next dispositor also strong.",
+    "bphs_ref": "Ch.36.33–34"
+  },
+  {
+    "id": 49,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Trimūrti—Hari",
+    "logic": "Atmakaraka strong in kendra/konas with benefic aspect.",
+    "bphs_ref": "Ch.36.35–36"
+  },
+  {
+    "id": 50,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Trimūrti—Hara",
+    "logic": "Putrakaraka strong similarly.",
+    "bphs_ref": "Ch.36.35–36"
+  },
+  {
+    "id": 51,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Trimūrti—Brahmā",
+    "logic": "Amsa/creative significator strong by varga and aspect.",
+    "bphs_ref": "Ch.36.35–36"
+  },
+  {
+    "id": 52,
+    "section": "B) Named Yogas (Ch.36)",
+    "name": "Lagna‑Ādhi",
+    "logic": "Benefics in 6/7/8 from Lagna (Ādhi‑type).",
+    "bphs_ref": "Ch.36.37"
+  },
+  {
+    "id": 53,
+    "section": "C) Moon’s Yogas (Ch.37)",
+    "name": "Sunāpha",
+    "logic": "(Except Sun) planet(s) in 2nd from Moon.",
+    "bphs_ref": "Ch.37.3–6"
+  },
+  {
+    "id": 54,
+    "section": "C) Moon’s Yogas (Ch.37)",
+    "name": "Anāpha",
+    "logic": "(Except Sun) planet(s) in 12th from Moon.",
+    "bphs_ref": "Ch.37.3–6"
+  },
+  {
+    "id": 55,
+    "section": "C) Moon’s Yogas (Ch.37)",
+    "name": "Durudhura",
+    "logic": "Planets (except Sun) both 2nd and 12th from Moon.",
+    "bphs_ref": "Ch.37.3–6"
+  },
+  {
+    "id": 56,
+    "section": "C) Moon’s Yogas (Ch.37)",
+    "name": "Adhi from Moon",
+    "logic": "Benefics in 6/7/8 from Moon.",
+    "bphs_ref": "Ch.37.1–2"
+  },
+  {
+    "id": 57,
+    "section": "C) Moon’s Yogas (Ch.37)",
+    "name": "Dhana from Moon",
+    "logic": "Wealth combinations reckoned from Moon as Lagna.",
+    "bphs_ref": "Ch.37.7–12"
+  },
+  {
+    "id": 58,
+    "section": "C) Moon’s Yogas (Ch.37)",
+    "name": "Kemadruma (affliction)",
+    "logic": "No planet in 2nd/12th from Moon; none in kendras from Moon; none in 2nd/12th from Lagna.",
+    "bphs_ref": "Ch.37.13"
+  },
+  {
+    "id": 59,
+    "section": "D) Sun’s Yogas (Ch.38)",
+    "name": "Vesi",
+    "logic": "Any planet(s) (except Moon) in 2nd from Sun.",
+    "bphs_ref": "Ch.38.1"
+  },
+  {
+    "id": 60,
+    "section": "D) Sun’s Yogas (Ch.38)",
+    "name": "Vasi",
+    "logic": "Any planet(s) (except Moon) in 12th from Sun.",
+    "bphs_ref": "Ch.38.1"
+  },
+  {
+    "id": 61,
+    "section": "D) Sun’s Yogas (Ch.38)",
+    "name": "Ubhayachari",
+    "logic": "Planets (except Moon) both 2nd and 12th from Sun.",
+    "bphs_ref": "Ch.38.1–4"
+  },
+  {
+    "id": 62,
+    "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+    "name": "Ruchaka",
+    "logic": "Mars in own/exaltation in a kendra.",
+    "bphs_ref": "Ch.75.1–2"
+  },
+  {
+    "id": 63,
+    "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+    "name": "Bhadrā",
+    "logic": "Mercury in own/exaltation in a kendra.",
+    "bphs_ref": "Ch.75.1–2"
+  },
+  {
+    "id": 64,
+    "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+    "name": "Haṁsa",
+    "logic": "Jupiter in own/exaltation in a kendra.",
+    "bphs_ref": "Ch.75.1–2"
+  },
+  {
+    "id": 65,
+    "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+    "name": "Mālavya",
+    "logic": "Venus in own/exaltation in a kendra.",
+    "bphs_ref": "Ch.75.1–2"
+  },
+  {
+    "id": 66,
+    "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+    "name": "Śaśa",
+    "logic": "Saturn in own/exaltation in a kendra.",
+    "bphs_ref": "Ch.75.1–2"
+  },
+  {
+    "id": 67,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 5L — conjunction",
+    "logic": "Lords 1L (Lagna lord) and 5L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 68,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 5L — mutual aspect",
+    "logic": "Lords 1L (Lagna lord) and 5L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 69,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 5L — mutual kendra",
+    "logic": "Lords 1L (Lagna lord) and 5L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 70,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 5L — mutual trikona",
+    "logic": "Lords 1L (Lagna lord) and 5L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 71,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 5L — parivartana",
+    "logic": "Lords 1L (Lagna lord) and 5L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 72,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 9L — conjunction",
+    "logic": "Lords 1L (Lagna lord) and 9L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 73,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 9L — mutual aspect",
+    "logic": "Lords 1L (Lagna lord) and 9L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 74,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 9L — mutual kendra",
+    "logic": "Lords 1L (Lagna lord) and 9L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 75,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 9L — mutual trikona",
+    "logic": "Lords 1L (Lagna lord) and 9L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 76,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 1L (Lagna lord) with 9L — parivartana",
+    "logic": "Lords 1L (Lagna lord) and 9L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 77,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 5L — conjunction",
+    "logic": "Lords 4L and 5L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 78,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 5L — mutual aspect",
+    "logic": "Lords 4L and 5L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 79,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 5L — mutual kendra",
+    "logic": "Lords 4L and 5L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 80,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 5L — mutual trikona",
+    "logic": "Lords 4L and 5L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 81,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 5L — parivartana",
+    "logic": "Lords 4L and 5L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 82,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 9L — conjunction",
+    "logic": "Lords 4L and 9L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 83,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 9L — mutual aspect",
+    "logic": "Lords 4L and 9L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 84,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 9L — mutual kendra",
+    "logic": "Lords 4L and 9L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 85,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 9L — mutual trikona",
+    "logic": "Lords 4L and 9L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 86,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 4L with 9L — parivartana",
+    "logic": "Lords 4L and 9L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 87,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 5L — conjunction",
+    "logic": "Lords 7L and 5L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 88,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 5L — mutual aspect",
+    "logic": "Lords 7L and 5L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 89,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 5L — mutual kendra",
+    "logic": "Lords 7L and 5L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 90,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 5L — mutual trikona",
+    "logic": "Lords 7L and 5L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 91,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 5L — parivartana",
+    "logic": "Lords 7L and 5L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 92,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 9L — conjunction",
+    "logic": "Lords 7L and 9L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 93,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 9L — mutual aspect",
+    "logic": "Lords 7L and 9L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 94,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 9L — mutual kendra",
+    "logic": "Lords 7L and 9L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 95,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 9L — mutual trikona",
+    "logic": "Lords 7L and 9L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 96,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 7L with 9L — parivartana",
+    "logic": "Lords 7L and 9L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 97,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 5L — conjunction",
+    "logic": "Lords 10L and 5L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 98,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 5L — mutual aspect",
+    "logic": "Lords 10L and 5L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 99,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 5L — mutual kendra",
+    "logic": "Lords 10L and 5L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 100,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 5L — mutual trikona",
+    "logic": "Lords 10L and 5L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 101,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 5L — parivartana",
+    "logic": "Lords 10L and 5L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 102,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 9L — conjunction",
+    "logic": "Lords 10L and 9L conjoin each other in any sign; both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 103,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 9L — mutual aspect",
+    "logic": "Lords 10L and 9L mutually aspect each other (Parāśari full drishti); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 104,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 9L — mutual kendra",
+    "logic": "Lords 10L and 9L are placed in mutual kendras (1/4/7/10 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 105,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 9L — mutual trikona",
+    "logic": "Lords 10L and 9L are placed in mutual trikonas (1/5/9 from each other); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 106,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 10L with 9L — parivartana",
+    "logic": "Lords 10L and 9L are in mutual sign exchange (parivartana); both have at least neutral dignity; no severe affliction.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 107,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 5L–9L — conjunction",
+    "logic": "5th and 9th lords conjoin each other in any sign; at least one strong (own/exaltation/vargottama).",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 108,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 5L–9L — mutual aspect",
+    "logic": "5th and 9th lords mutually aspect each other (Parāśari full drishti); at least one strong (own/exaltation/vargottama).",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 109,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 5L–9L — mutual kendra",
+    "logic": "5th and 9th lords are placed in mutual kendras (1/4/7/10 from each other); at least one strong (own/exaltation/vargottama).",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 110,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 5L–9L — mutual trikona",
+    "logic": "5th and 9th lords are placed in mutual trikonas (1/5/9 from each other); at least one strong (own/exaltation/vargottama).",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 111,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Rāja‑Yoga: 5L–9L — parivartana",
+    "logic": "5th and 9th lords are in mutual sign exchange (parivartana); at least one strong (own/exaltation/vargottama).",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 112,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Jupiter placed in the 2nd from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 113,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Venus placed in the 2nd from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 114,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Mercury (untainted) placed in the 2nd from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 115,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "waxing Moon placed in the 2nd from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 116,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Jupiter placed in the 4th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 117,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Venus placed in the 4th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 118,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Mercury (untainted) placed in the 4th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 119,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "waxing Moon placed in the 4th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 120,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Jupiter placed in the 5th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 121,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Venus placed in the 5th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 122,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Mercury (untainted) placed in the 5th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 123,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "waxing Moon placed in the 5th from anchor (counted from Lagna lord’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 124,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Jupiter placed in the 2nd from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 125,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Venus placed in the 2nd from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 126,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Mercury (untainted) placed in the 2nd from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 127,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "waxing Moon placed in the 2nd from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 128,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Jupiter placed in the 4th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 129,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Venus placed in the 4th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 130,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Mercury (untainted) placed in the 4th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 131,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "waxing Moon placed in the 4th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 132,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Jupiter placed in the 5th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 133,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Venus placed in the 5th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 134,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "Mercury (untainted) placed in the 5th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 135,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic support to authority",
+    "logic": "waxing Moon placed in the 5th from anchor (counted from Atmakaraka’s sign) without malefic conjunction/aspect.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 136,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Sun in the 3rd from anchor (from Lagna lord’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 137,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Mars in the 3rd from anchor (from Lagna lord’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 138,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Saturn in the 3rd from anchor (from Lagna lord’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 139,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Sun in the 6th from anchor (from Lagna lord’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 140,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Mars in the 6th from anchor (from Lagna lord’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 141,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Saturn in the 6th from anchor (from Lagna lord’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 142,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Sun in the 3rd from anchor (from Atmakaraka’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 143,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Mars in the 3rd from anchor (from Atmakaraka’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 144,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Saturn in the 3rd from anchor (from Atmakaraka’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 145,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Sun in the 6th from anchor (from Atmakaraka’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 146,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Mars in the 6th from anchor (from Atmakaraka’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 147,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Valor/Overcoming (Upachaya malefics)",
+    "logic": "Saturn in the 6th from anchor (from Atmakaraka’s sign) while Lagna lord is unafflicted.",
+    "bphs_ref": "Ch.39.9–10"
+  },
+  {
+    "id": 148,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Wealth by exalted benefic in 2nd",
+    "logic": "Jupiter exalted in the 2nd from Lagna or strong in Hora; no malefic conjunction.",
+    "bphs_ref": "Ch.39.18"
+  },
+  {
+    "id": 149,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Wealth by exalted benefic in 2nd",
+    "logic": "Venus exalted in the 2nd from Lagna or strong in Hora; no malefic conjunction.",
+    "bphs_ref": "Ch.39.18"
+  },
+  {
+    "id": 150,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Wealth by exalted benefic in 2nd",
+    "logic": "Mercury (untainted) exalted in the 2nd from Lagna or strong in Hora; no malefic conjunction.",
+    "bphs_ref": "Ch.39.18"
+  },
+  {
+    "id": 151,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Wealth by exalted benefic in 2nd",
+    "logic": "waxing Moon exalted in the 2nd from Lagna or strong in Hora; no malefic conjunction.",
+    "bphs_ref": "Ch.39.18"
+  },
+  {
+    "id": 152,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Sun debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 153,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Sun debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 154,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Sun debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 155,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Sun debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 156,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Moon debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 157,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Moon debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 158,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Moon debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 159,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Moon debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 160,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mars debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 161,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mars debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 162,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mars debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 163,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mars debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 164,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mercury debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 165,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mercury debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 166,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mercury debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 167,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Mercury debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 168,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Jupiter debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 169,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Jupiter debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 170,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Jupiter debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 171,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Jupiter debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 172,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Venus debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 173,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Venus debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 174,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Venus debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 175,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Venus debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 176,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Saturn debilitated in the 3rd; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 177,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Saturn debilitated in the 6th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 178,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Saturn debilitated in the 8th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 179,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Viparīta‑like Rāja support",
+    "logic": "Saturn debilitated in the 12th; Lagna lord in own/exaltation and aspecting Lagna.",
+    "bphs_ref": "Ch.39.19–21"
+  },
+  {
+    "id": 180,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Karma Rāja‑Yoga",
+    "logic": "10th lord in own/exaltation in 10th and aspecting Lagna or its lord.",
+    "bphs_ref": "Ch.39.21–22"
+  },
+  {
+    "id": 181,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "All‑benefic Kendras",
+    "logic": "All occupied kendras by benefics; no malefic in kendras.",
+    "bphs_ref": "Ch.39.48"
+  },
+  {
+    "id": 182,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Moon–Venus mutual 3/11 (case A)",
+    "logic": "Moon in 3rd from Venus and Venus in 11th from Moon; mutual aspect present.",
+    "bphs_ref": "Ch.39.41"
+  },
+  {
+    "id": 183,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Moon–Venus mutual 3/11 (case B)",
+    "logic": "Venus in 3rd from Moon and Moon in 11th from Venus; mutual aspect present.",
+    "bphs_ref": "Ch.39.41"
+  },
+  {
+    "id": 184,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Exalted aspects on Lagna",
+    "logic": "Four or more exalted planets aspect Lagna (excluding Moon).",
+    "bphs_ref": "Ch.39.43"
+  },
+  {
+    "id": 185,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Exalted aspects on Lagna",
+    "logic": "Four or more exalted planets aspect Lagna (excluding Moon).",
+    "bphs_ref": "Ch.39.43"
+  },
+  {
+    "id": 186,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Exalted aspects on Lagna",
+    "logic": "Four or more exalted planets aspect Lagna (excluding Moon).",
+    "bphs_ref": "Ch.39.43"
+  },
+  {
+    "id": 187,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Exalted aspects on Lagna",
+    "logic": "Four or more exalted planets aspect Lagna (excluding Moon).",
+    "bphs_ref": "Ch.39.43"
+  },
+  {
+    "id": 188,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Arūḍha relations",
+    "logic": "AL and Darapada in mutual kendra/trine or 3–11; benefic influence on AL.",
+    "bphs_ref": "Ch.39.23"
+  },
+  {
+    "id": 189,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Strong Vargottama Moon",
+    "logic": "Vargottama Moon with aspects from four or more planets.",
+    "bphs_ref": "Ch.39.42"
+  },
+  {
+    "id": 190,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Birth moment factor",
+    "logic": "Birth within ~2.5 ghatis of noon or midnight yields eminence.",
+    "bphs_ref": "Ch.39.40"
+  },
+  {
+    "id": 191,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Venus guarding gains",
+    "logic": "4/10/2/11 lords aspect Lagna; Venus aspects 11th from AL and AL holds a benefic.",
+    "bphs_ref": "Ch.39.29–31"
+  },
+  {
+    "id": 192,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Jupiter placed in the 1st with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 193,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Jupiter placed in the 4th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 194,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Jupiter placed in the 7th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 195,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Jupiter placed in the 10th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 196,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Venus placed in the 1st with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 197,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Venus placed in the 4th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 198,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Venus placed in the 7th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 199,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Venus placed in the 10th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 200,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Mercury (untainted) placed in the 1st with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 201,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Mercury (untainted) placed in the 4th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 202,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Mercury (untainted) placed in the 7th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 203,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "Mercury (untainted) placed in the 10th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 204,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "waxing Moon placed in the 1st with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 205,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "waxing Moon placed in the 4th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 206,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "waxing Moon placed in the 7th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 207,
+    "section": "F) Rāja‑Yoga Expanded (Ch.39)",
+    "name": "Benefic in Kendra",
+    "logic": "waxing Moon placed in the 10th with shubha argalā; no papakartari on the house.",
+    "bphs_ref": "Ch.39"
+  },
+  {
+    "id": 208,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "10L with AmK",
+    "logic": "10th lord associated with Amatyakaraka (AmK) or AmK’s dispositor; or their mutual aspect.",
+    "bphs_ref": "Ch.40.1"
+  },
+  {
+    "id": 209,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "Clean 10H/11H",
+    "logic": "10th & 11th free from malefic occupation/aspect; 11th aspected by its own lord.",
+    "bphs_ref": "Ch.40.2"
+  },
+  {
+    "id": 210,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AmK with dispositor of AK",
+    "logic": "AmK conjoins dispositor of Atmakaraka.",
+    "bphs_ref": "Ch.40.3"
+  },
+  {
+    "id": 211,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AK with benefic",
+    "logic": "Atmakaraka conjoins/aspected by a benefic.",
+    "bphs_ref": "Ch.40.4"
+  },
+  {
+    "id": 212,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AmK in own/exaltation",
+    "logic": "Amatyakaraka in own/exaltation sign.",
+    "bphs_ref": "Ch.40.4"
+  },
+  {
+    "id": 213,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AK in trines",
+    "logic": "Atmakaraka in 1/5/9.",
+    "bphs_ref": "Ch.40.5"
+  },
+  {
+    "id": 214,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AK or AmK in kendras/trines",
+    "logic": "Either karaka in kendra/konas.",
+    "bphs_ref": "Ch.40.6"
+  },
+  {
+    "id": 215,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "War‑chief pattern",
+    "logic": "Malefics in 3/6 from AK or from Arudha Lagna.",
+    "bphs_ref": "Ch.40.7"
+  },
+  {
+    "id": 216,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AK aspects 9L",
+    "logic": "AK in kendra/konas/own/exaltation aspecting 9th lord.",
+    "bphs_ref": "Ch.40.8"
+  },
+  {
+    "id": 217,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "Lunar‑AK ministership",
+    "logic": "Moon’s sign lord as AK in Lagna with benefic → ministerial association later.",
+    "bphs_ref": "Ch.40.9"
+  },
+  {
+    "id": 218,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AK in 5/7/10/9 with benefic",
+    "logic": "Yields royal wealth and favors.",
+    "bphs_ref": "Ch.40.10"
+  },
+  {
+    "id": 219,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "AL(9) = Lagna or AK in 9th",
+    "logic": "Arudha of 9th equals Lagna or AK in 9th.",
+    "bphs_ref": "Ch.40.11"
+  },
+  {
+    "id": 220,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "11L in 11H with protection",
+    "logic": "11th lord in own sign/own house 11th, free from malefics; AK with benefic.",
+    "bphs_ref": "Ch.40.12"
+  },
+  {
+    "id": 221,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "Parivartana 1L–10L",
+    "logic": "Exchange between Lagna lord and 10th lord.",
+    "bphs_ref": "Ch.40.13"
+  },
+  {
+    "id": 222,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "Karakamsha 4th",
+    "logic": "Venus and Moon in 4th from Karakamsha.",
+    "bphs_ref": "Ch.40.14"
+  },
+  {
+    "id": 223,
+    "section": "G) Royal Association (Ch.40)",
+    "name": "LL/AK with 5L",
+    "logic": "Lagna lord or AK joined with 5th lord in kendras/trines.",
+    "bphs_ref": "Ch.40.15"
+  },
+  {
+    "id": 224,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Venu‑5 & Ma‑11",
+    "logic": "Venus rules the 5th and occupies 5th; Mars in 11th.",
+    "bphs_ref": "Ch.41.2"
+  },
+  {
+    "id": 225,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Budha‑5 & Mo+Ma+Ju‑11",
+    "logic": "Mercury rules 5th and occupies 5th; Moon+Mars+Jupiter in 11th.",
+    "bphs_ref": "Ch.41.3"
+  },
+  {
+    "id": 226,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Surya‑5 & Sa+Mo+Ju‑11",
+    "logic": "Sun rules 5th and occupies it; Saturn+Moon+Jupiter in 11th.",
+    "bphs_ref": "Ch.41.4"
+  },
+  {
+    "id": 227,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Sun+Moon‑11 & Sat‑5 own",
+    "logic": "Sun and Moon conjoined in 11th; Saturn in own sign in 5th.",
+    "bphs_ref": "Ch.41.5"
+  },
+  {
+    "id": 228,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Guru‑5 own & Budha‑11",
+    "logic": "Jupiter in own sign in 5th; Mercury in 11th.",
+    "bphs_ref": "Ch.41.6"
+  },
+  {
+    "id": 229,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Ma‑5 own & Śukra‑11",
+    "logic": "Mars owns 5th and sits there; Venus in 11th.",
+    "bphs_ref": "Ch.41.7"
+  },
+  {
+    "id": 230,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Chandra‑5 own & Śani‑11",
+    "logic": "Moon owns 5th and sits there; Saturn in 11th.",
+    "bphs_ref": "Ch.41.8"
+  },
+  {
+    "id": 231,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Leo asc variant",
+    "logic": "Leo Lagna: Sun in Leo with aspect/association of Mars & Jupiter.",
+    "bphs_ref": "Ch.41.9"
+  },
+  {
+    "id": 232,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Cancer asc variant",
+    "logic": "Cancer Lagna: Moon in Cancer with Mercury & Jupiter influence.",
+    "bphs_ref": "Ch.41.10"
+  },
+  {
+    "id": 233,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Mars rising own sign",
+    "logic": "Mars rising in own sign with Mercury, Venus & Saturn influence.",
+    "bphs_ref": "Ch.41.11"
+  },
+  {
+    "id": 234,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Mercury rising own sign",
+    "logic": "Mercury rising in own sign with Saturn & Jupiter influence.",
+    "bphs_ref": "Ch.41.12"
+  },
+  {
+    "id": 235,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Jupiter rising own sign",
+    "logic": "Jupiter rising in own sign with Mercury & Mars influence.",
+    "bphs_ref": "Ch.41.13"
+  },
+  {
+    "id": 236,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Venus rising own sign",
+    "logic": "Venus rising in own sign with Saturn & Mercury influence.",
+    "bphs_ref": "Ch.41.14"
+  },
+  {
+    "id": 237,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Saturn rising own sign",
+    "logic": "Saturn rising in own sign with Mars & Jupiter influence.",
+    "bphs_ref": "Ch.41.15"
+  },
+  {
+    "id": 238,
+    "section": "H) Wealth (Ch.41)",
+    "name": "5L–9L wealth link",
+    "logic": "5th & 9th lords strong and mutually related → wealth.",
+    "bphs_ref": "Ch.41.16"
+  },
+  {
+    "id": 239,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in conjunction; strength condition: both in own signs.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 240,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in conjunction; strength condition: both exalted or vargottama.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 241,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in conjunction; strength condition: either in own/exaltation and the other aspected by benefic.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 242,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual aspect; strength condition: both in own signs.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 243,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual aspect; strength condition: both exalted or vargottama.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 244,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual aspect; strength condition: either in own/exaltation and the other aspected by benefic.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 245,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in parivartana; strength condition: both in own signs.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 246,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in parivartana; strength condition: both exalted or vargottama.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 247,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in parivartana; strength condition: either in own/exaltation and the other aspected by benefic.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 248,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual kendra; strength condition: both in own signs.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 249,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual kendra; strength condition: both exalted or vargottama.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 250,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual kendra; strength condition: either in own/exaltation and the other aspected by benefic.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 251,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual trikona; strength condition: both in own signs.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 252,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual trikona; strength condition: both exalted or vargottama.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 253,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Lakṣmī‑type Wealth Link",
+    "logic": "5L and 9L in mutual trikona; strength condition: either in own/exaltation and the other aspected by benefic.",
+    "bphs_ref": "Ch.41.16, 28–34"
+  },
+  {
+    "id": 254,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Parijāta' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 255,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Uttama' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 256,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Gopura' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 257,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Siṁhāsana' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 258,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Parvata' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 259,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Devaloka' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 260,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Brahmaloka' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 261,
+    "section": "H) Wealth (Ch.41)",
+    "name": "Divisional Amplifier",
+    "logic": "Dignity outcome level 'Iravataṁsa' attained for Lagna lord per varga ladder → elevates wealth results.",
+    "bphs_ref": "Ch.41.18–27"
+  },
+  {
+    "id": 262,
+    "section": "I) Penury (Ch.42)",
+    "name": "1L‑12H & 12L‑1H with maraka",
+    "logic": "1st lord in 12th and 12th lord in 1st with maraka influence.",
+    "bphs_ref": "Ch.42.2"
+  },
+  {
+    "id": 263,
+    "section": "I) Penury (Ch.42)",
+    "name": "1L‑6H & 6L‑1H with maraka",
+    "logic": "As above for 6th axis.",
+    "bphs_ref": "Ch.42.3"
+  },
+  {
+    "id": 264,
+    "section": "I) Penury (Ch.42)",
+    "name": "1L‑8H with Ketu on Lagna/Moon",
+    "logic": "Ascendant or Moon with Ketu while 1L in 8th.",
+    "bphs_ref": "Ch.42.4"
+  },
+  {
+    "id": 265,
+    "section": "I) Penury (Ch.42)",
+    "name": "1L malefic in 6/8/12 & 2L fallen",
+    "logic": "1L with malefic in 6/8/12; 2L in enemy/debilitation.",
+    "bphs_ref": "Ch.42.5"
+  },
+  {
+    "id": 266,
+    "section": "I) Penury (Ch.42)",
+    "name": "1L with dusthana lords",
+    "logic": "1L conjoins 6/8/12 lords (or Saturn) without benefic aspect.",
+    "bphs_ref": "Ch.42.6"
+  },
+  {
+    "id": 267,
+    "section": "I) Penury (Ch.42)",
+    "name": "5L‑6H & 9L‑12H maraka afflicted",
+    "logic": "5L in 6th and 9L in 12th with maraka aspects.",
+    "bphs_ref": "Ch.42.7"
+  },
+  {
+    "id": 268,
+    "section": "I) Penury (Ch.42)",
+    "name": "Malefics in Lagna (exception noted)",
+    "logic": "Malefics in Lagna (except 9L/10L) with maraka links.",
+    "bphs_ref": "Ch.42.8"
+  },
+  {
+    "id": 269,
+    "section": "I) Penury (Ch.42)",
+    "name": "Dusthana dispositors afflicted",
+    "logic": "Dispositors of 6/8/12 lords again in 6/8/12 and afflicted.",
+    "bphs_ref": "Ch.42.9"
+  },
+  {
+    "id": 270,
+    "section": "I) Penury (Ch.42)",
+    "name": "Moon’s navamsa lord maraka",
+    "logic": "Navamsa lord of the Moon joins maraka or sits in maraka house.",
+    "bphs_ref": "Ch.42.10"
+  },
+  {
+    "id": 271,
+    "section": "I) Penury (Ch.42)",
+    "name": "Rasi LL & Navamsa LL maraka",
+    "logic": "Both Lagna lords (Rasi & Navamsa) under maraka influence.",
+    "bphs_ref": "Ch.42.11"
+  },
+  {
+    "id": 272,
+    "section": "I) Penury (Ch.42)",
+    "name": "Benefics in bad houses",
+    "logic": "Benefics in inauspicious houses while malefics in auspicious ones.",
+    "bphs_ref": "Ch.42.12"
+  },
+  {
+    "id": 273,
+    "section": "I) Penury (Ch.42)",
+    "name": "Dasha harm by dusthana links",
+    "logic": "Any planet linked to 6/8/12 lords harms finances in its dasha unless trinal lord aspects.",
+    "bphs_ref": "Ch.42.13"
+  },
+  {
+    "id": 274,
+    "section": "I) Penury (Ch.42)",
+    "name": "AK expense factors I",
+    "logic": "8th/12th from AK aspected by AK’s navamsa lord and Lagna lord.",
+    "bphs_ref": "Ch.42.14"
+  },
+  {
+    "id": 275,
+    "section": "I) Penury (Ch.42)",
+    "name": "AK expense factors II",
+    "logic": "12th from AK aspected by its dispositor or by Lagna lord.",
+    "bphs_ref": "Ch.42.15"
+  },
+  {
+    "id": 276,
+    "section": "I) Penury (Ch.42)",
+    "name": "Mars+Saturn in 2nd (no Mercury)",
+    "logic": "Mars & Saturn together in 2nd → poverty; cancelled if Mercury aspects.",
+    "bphs_ref": "Ch.42.16–18"
+  },
+  {
+    "id": 277,
+    "section": "I) Penury (Ch.42)",
+    "name": "Sun or Saturn in 2nd with mutual aspect",
+    "logic": "Sun in 2nd aspected by Saturn (or Saturn in 2nd aspected by Sun) → poverty; otherwise riches.",
+    "bphs_ref": "Ch.42.16–18"
+  },
+  {
+    "id": 278,
+    "section": "J) Vaapī Clarification",
+    "name": "Vaapī (Nabhasa) pattern",
+    "logic": "All seven grahas in all panaphara houses (2/5/8/11) OR all apoklima (3/6/9/12).",
+    "bphs_ref": "Ch.35.12"
+  },
+  {
+    "id": 279,
+    "section": "J) Vaapī Clarification",
+    "name": "Vaapī (Fortune—modern usage)",
+    "logic": "5L & 9L in mutual kendra/trikona/conjunction/aspect and strong — prosperity and grace.",
+    "bphs_ref": "Ch.39 & Ch.41"
+  }
+]

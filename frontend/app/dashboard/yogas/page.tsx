@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Sparkles, Award, TrendingUp, BookOpen, Heart, Sun, Star,
-  ChevronDown, ChevronUp, Filter, BarChart3 as BarChart, Info
+  ChevronDown, ChevronUp, Filter, BarChart3 as BarChart, Info, RefreshCw
 } from '@/components/icons'
 import { YogaDetailsModal } from '@/components/yoga/YogaDetailsModal'
 import { YogaActivationTimeline } from '@/components/yoga/YogaActivationTimeline'
@@ -107,7 +107,7 @@ export default function YogasPage() {
     loadProfiles()
   }, [])
 
-  const handleAnalyze = async () => {
+  const handleAnalyze = async (regenerateChart: boolean = false) => {
     if (!selectedProfile) {
       setError('Please select a birth profile')
       return
@@ -118,6 +118,21 @@ export default function YogasPage() {
     setYogas([])
 
     try {
+      // If regenerate flag is true, delete and recalculate the chart first
+      // This ensures the chart data has the updated yogas with new normalization
+      if (regenerateChart) {
+        try {
+          // Delete existing D1 chart
+          await apiClient.deleteChart(selectedProfile, 'D1')
+        } catch (e) {
+          console.log('Chart not found or already deleted, will calculate fresh')
+        }
+
+        // Recalculate D1 chart (which includes yoga detection with new logic)
+        await apiClient.calculateChart(selectedProfile, 'D1')
+      }
+
+      // Now analyze yogas (will use the freshly calculated chart if regenerated)
       const response = await apiClient.analyzeYogasForProfile({
         profile_id: selectedProfile,
         include_all: includeAll,
@@ -343,6 +358,32 @@ export default function YogasPage() {
                   </div>
                 </div>
               )}
+
+              {/* Regenerate Button */}
+              <div className="mt-4">
+                <Button
+                  onClick={() => handleAnalyze(true)}
+                  variant="outline"
+                  className="w-full border-jio-500 text-jio-700 hover:bg-jio-50"
+                  disabled={analyzing}
+                  size="lg"
+                >
+                  {analyzing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-jio-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                      Regenerating Chart & Analysis...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="w-5 h-5 mr-2" />
+                      Regenerate Analysis
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  This will recalculate your birth chart with updated yoga detection and show results in both Yogas and Birth Chart pages
+                </p>
+              </div>
 
               {/* Categories */}
               <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">

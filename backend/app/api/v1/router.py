@@ -31,6 +31,7 @@ from app.api.v1.endpoints import (
     rituals,
     reality_check,
     expert_knowledge,
+    cosmic_energy,
 )
 
 api_router = APIRouter()
@@ -64,3 +65,4 @@ api_router.include_router(expert_console.router, prefix="/expert", tags=["expert
 api_router.include_router(rituals.router, prefix="/rituals", tags=["rituals"])
 api_router.include_router(reality_check.router, prefix="/reality-check", tags=["reality-check"])
 api_router.include_router(expert_knowledge.router, prefix="/admin/expert-knowledge", tags=["expert-knowledge"])
+api_router.include_router(cosmic_energy.router, prefix="/cosmic-energy", tags=["cosmic-energy", "viral-features"])

@@ -789,24 +789,9 @@ class AccurateVedicAstrology:
                 "category": "General"
             })
 
-        # Remove duplicates (keep first occurrence)
-        seen = set()
-        unique_yogas = []
-        for yoga in yogas:
-            if yoga["name"] not in seen:
-                seen.add(yoga["name"])
-                unique_yogas.append(yoga)
-
-        # Enrich basic yogas (extended yogas are already enriched by detect_extended_yogas)
-        # Only enrich yogas that don't have importance field (i.e., basic yogas)
-        enriched_yogas = []
-        for yoga in unique_yogas:
-            if "importance" not in yoga:
-                # This is a basic yoga, enrich it
-                enriched_yogas.append(extended_yoga_service._enrich_yoga_with_metadata(yoga))
-            else:
-                # This is already enriched (from extended yogas)
-                enriched_yogas.append(yoga)
+        # Apply comprehensive normalization and enrichment
+        # This ensures consistent yoga detection between chart calculation and yoga analysis
+        enriched_yogas = extended_yoga_service.enrich_yogas(yogas)
 
         return enriched_yogas
 

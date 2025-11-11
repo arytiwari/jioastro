@@ -181,8 +181,9 @@ export function NorthIndianChart({
     // Dynamically import the master chart generator
     const loadChart = async () => {
       try {
-        // Import the master version
-        const NorthIndianChartMaster = (await import('@/lib/NorthIndianChartMaster')).default
+        // Import the master version - handle both CommonJS and ES module exports
+        const module = await import('@/lib/NorthIndianChartMaster')
+        const NorthIndianChartMaster = module.default || module
 
         // Transform backend data to master format
         const masterData = transformChartData(chartData)
