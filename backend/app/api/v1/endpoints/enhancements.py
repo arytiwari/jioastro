@@ -703,6 +703,10 @@ async def analyze_yogas(
             )
 
         chart_data = chart['chart_data']
+        # Parse JSON if chart_data is a string
+        if isinstance(chart_data, str):
+            import json
+            chart_data = json.loads(chart_data)
         planets = chart_data.get('planets', {})
 
         # Detect yogas
