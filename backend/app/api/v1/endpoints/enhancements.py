@@ -255,29 +255,31 @@ async def get_current_transits(
 
         chart_data = chart['chart_data']
 
-        # Parse transit date
-        transit_dt = datetime.fromisoformat(request.transit_date) if request.transit_date else datetime.now()
+        # Use transit date (already parsed by Pydantic from JSON string)
+        transit_dt = request.transit_date if request.transit_date else datetime.now()
+
+        # Extract natal Moon sign and Ascendant sign from chart data
+        planets = chart_data.get('planets', {})
+        moon_data = planets.get('Moon', {})
+        asc_data = planets.get('Ascendant', {})
+
+        natal_moon_sign = moon_data.get('sign_num', 0)
+        natal_ascendant_sign = asc_data.get('sign_num', 0)
+
+        # Convert datetime to date for transit calculation
+        reference_date = transit_dt.date() if isinstance(transit_dt, datetime) else transit_dt
 
         # Calculate transits
-        transits_result = transit_service.calculate_current_transits(
-            birth_chart=chart_data,
-            transit_date=transit_dt,
-            latitude=float(profile['birth_lat']),
-            longitude=float(profile['birth_lon']),
-            timezone_str=profile.get('birth_timezone', 'UTC')
+        transits_result = transit_service.get_current_transits(
+            natal_moon_sign=natal_moon_sign,
+            natal_ascendant_sign=natal_ascendant_sign,
+            reference_date=reference_date
         )
 
-        # Add timeline if requested
+        # Add timeline if requested (placeholder - method not yet implemented)
         if request.include_timeline:
-            timeline_result = transit_service.calculate_transit_timeline(
-                birth_chart=chart_data,
-                start_date=transit_dt,
-                end_date=transit_dt + timedelta(days=30),
-                latitude=float(profile['birth_lat']),
-                longitude=float(profile['birth_lon']),
-                timezone_str=profile.get('birth_timezone', 'UTC')
-            )
-            transits_result['timeline_events'] = timeline_result.get('timeline', [])
+            # TODO: Implement timeline calculation for future dates
+            transits_result['timeline_events'] = []
 
         return TransitResponse(**transits_result)
 
