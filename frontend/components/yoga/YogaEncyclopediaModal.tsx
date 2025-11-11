@@ -48,8 +48,9 @@ export function YogaEncyclopediaModal({ trigger }: YogaEncyclopediaModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+  const handleSearch = async (yogaNameOverride?: string) => {
+    const yogaToSearch = yogaNameOverride || searchTerm
+    if (!yogaToSearch.trim()) {
       setError('Please enter a yoga name')
       return
     }
@@ -58,12 +59,12 @@ export function YogaEncyclopediaModal({ trigger }: YogaEncyclopediaModalProps) {
       setLoading(true)
       setError(null)
       setSearched(true)
-      const response = await apiClient.lookupYoga(searchTerm.trim())
+      const response = await apiClient.lookupYoga(yogaToSearch.trim())
       setYogaInfo(response.data.yoga_info)
     } catch (err: any) {
       console.error('Failed to lookup yoga:', err)
       if (err.status === 404) {
-        setError(`Yoga "${searchTerm}" not found. Try searching for: Gajakesari Yoga, Ruchaka Yoga, Raj Yoga, Dhana Yoga, etc.`)
+        setError(`Yoga "${yogaToSearch}" not found. Try searching for: Gajakesari Yoga, Ruchaka Yoga, Raj Yoga, Dhana Yoga, etc.`)
       } else {
         setError(err.message || 'Failed to search for yoga')
       }
@@ -179,7 +180,7 @@ export function YogaEncyclopediaModal({ trigger }: YogaEncyclopediaModalProps) {
                       className="cursor-pointer hover:bg-purple-50 hover:border-purple-300"
                       onClick={() => {
                         setSearchTerm(yoga)
-                        setTimeout(() => handleSearch(), 100)
+                        handleSearch(yoga)
                       }}
                     >
                       {yoga}
