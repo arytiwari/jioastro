@@ -69,7 +69,8 @@ export default function BphsReportPage() {
       setLoading(true)
       setError(null)
       const response = await apiClient.getYogaBphsReport()
-      setReport(response.data)
+      // Backend returns { success, report, message }, extract the report
+      setReport(response.data.report || response.data)
     } catch (err: any) {
       console.error('Failed to load BPHS report:', err)
       setError(err.message || 'Failed to load report')
