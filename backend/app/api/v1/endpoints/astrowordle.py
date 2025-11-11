@@ -8,6 +8,7 @@ from typing import Dict, Any, List, Optional
 from datetime import date, datetime
 import logging
 from uuid import UUID
+from pydantic import BaseModel
 
 from app.core.security import get_current_user
 from app.services.supabase_service import supabase_service
@@ -16,6 +17,11 @@ from app.services.astrowordle_service import AstroWordleService
 router = APIRouter()
 logger = logging.getLogger(__name__)
 game_service = AstroWordleService()
+
+# Request models
+class GuessRequest(BaseModel):
+    guess: str
+    challenge_id: str
 
 
 # ============================================================================
@@ -133,10 +139,15 @@ async def get_todays_challenge(
         )
 
 
+from pydantic import BaseModel
+
+class GuessRequest(BaseModel):
+    guess: str
+    challenge_id: str
+
 @router.post("/submit-guess")
 async def submit_guess(
-    guess: str,
-    challenge_id: str,
+    request: GuessRequest,
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
     """
@@ -158,6 +169,8 @@ async def submit_guess(
     try:
         supabase = supabase_service.client
         user_id = current_user["user_id"]
+        guess = request.guess
+        challenge_id = request.challenge_id
 
         # Get challenge and question
         challenge = supabase.table("astrowordle_daily_challenges") \

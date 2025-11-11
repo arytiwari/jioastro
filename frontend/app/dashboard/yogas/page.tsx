@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { apiClient } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -9,10 +10,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   Sparkles, Award, TrendingUp, BookOpen, Heart, Sun, Star,
-  ChevronDown, ChevronUp, Filter, BarChart3 as BarChart, Info, RefreshCw
+  ChevronDown, ChevronUp, Filter, BarChart3 as BarChart, Info, RefreshCw, Users
 } from '@/components/icons'
 import { YogaDetailsModal } from '@/components/yoga/YogaDetailsModal'
 import { YogaActivationTimeline } from '@/components/yoga/YogaActivationTimeline'
+import { YogaStatisticsWidget } from '@/components/yoga/YogaStatisticsWidget'
+import { YogaEncyclopediaModal } from '@/components/yoga/YogaEncyclopediaModal'
 import MajorYogaCard from '@/components/yoga/MajorYogaCard'
 import ChallengeYogaCard from '@/components/yoga/ChallengeYogaCard'
 import YogaSection from '@/components/yoga/YogaSection'
@@ -328,12 +331,26 @@ export default function YogasPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Yoga Analysis</h1>
-        <p className="text-gray-600 mt-2">
-          Discover 25+ classical Vedic yogas in your birth chart - special planetary combinations that indicate specific life themes and strengths
-        </p>
+      <div className="flex items-start justify-between flex-wrap gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Yoga Analysis</h1>
+          <p className="text-gray-600 mt-2">
+            Discover 379 classical & practical yogas in your birth chart - special planetary combinations that indicate specific life themes and strengths
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <YogaEncyclopediaModal />
+          <Link href="/dashboard/yogas/compare">
+            <Button variant="outline">
+              <Users className="h-4 w-4 mr-2" />
+              Compare Profiles
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      {/* System Statistics Widget */}
+      <YogaStatisticsWidget />
 
       {/* Configuration */}
       <Card>

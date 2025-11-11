@@ -610,6 +610,29 @@ class APIClient {
     })
   }
 
+  // Yoga Statistics - System-wide statistics
+  async getYogaStatistics() {
+    return this.request('/enhancements/yogas/statistics')
+  }
+
+  // Yoga BPHS Report - Coverage and missing yogas
+  async getYogaBphsReport() {
+    return this.request('/enhancements/yogas/bphs-report')
+  }
+
+  // Yoga Lookup - Get detailed information about a specific yoga
+  async lookupYoga(yogaName: string) {
+    return this.request(`/enhancements/yogas/lookup/${encodeURIComponent(yogaName)}`)
+  }
+
+  // Yoga Comparison - Compare yogas between multiple profiles
+  async compareYogasAcrossProfiles(profileIds: string[]) {
+    return this.request('/enhancements/yogas/compare', {
+      method: 'POST',
+      body: JSON.stringify({ profile_ids: profileIds }),
+    })
+  }
+
   // Phase 4: Enhancements - All Combined
   async getAllEnhancements(data: {
     chart_data: any

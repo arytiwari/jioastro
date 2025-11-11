@@ -92,16 +92,17 @@ export default function AstroWordlePage() {
     setLoading(true)
     try {
       const response = await apiClient.getAstroWordleToday()
-      if (response && response.data) {
-        setChallenge(response.data)
-        if (response.data.user_attempt && response.data.user_attempt.guesses) {
-          setGuesses(response.data.user_attempt.guesses)
-          if (response.data.is_completed) {
+      if (response && response.data && response.data.data) {
+        const challengeData = response.data.data
+        setChallenge(challengeData)
+        if (challengeData.user_attempt && challengeData.user_attempt.guesses) {
+          setGuesses(challengeData.user_attempt.guesses)
+          if (challengeData.is_completed) {
             setShowResult(true)
             setResultData({
-              is_correct: response.data.user_attempt.is_correct,
-              score: response.data.user_attempt.score,
-              num_guesses: response.data.user_attempt.num_guesses
+              is_correct: challengeData.user_attempt.is_correct,
+              score: challengeData.user_attempt.score,
+              num_guesses: challengeData.user_attempt.num_guesses
             })
           }
         }
@@ -116,8 +117,8 @@ export default function AstroWordlePage() {
   const loadStats = async () => {
     try {
       const response = await apiClient.getAstroWordleStats()
-      if (response && response.data) {
-        setStats(response.data)
+      if (response && response.data && response.data.data) {
+        setStats(response.data.data)
       }
     } catch (error) {
       console.error('Error loading stats:', error)
@@ -131,12 +132,13 @@ export default function AstroWordlePage() {
     try {
       const response = await apiClient.submitAstroWordleGuess(guess, challenge.challenge_id)
 
-      if (response && response.data) {
+      if (response && response.data && response.data.data) {
+        const guessData = response.data.data
         // Add new guess to list
         const newGuess: Guess = {
           guess: guess,
-          is_correct: response.data.is_correct,
-          feedback: response.data.feedback,
+          is_correct: guessData.is_correct,
+          feedback: guessData.feedback,
           timestamp: new Date().toISOString()
         }
 
@@ -145,9 +147,9 @@ export default function AstroWordlePage() {
         setGuess('')
 
         // Check if completed
-        if (response.data.is_completed) {
+        if (guessData.is_completed) {
           setShowResult(true)
-          setResultData(response.data)
+          setResultData(guessData)
           // Reload stats
           loadStats()
         }

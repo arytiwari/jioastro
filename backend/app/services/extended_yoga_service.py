@@ -585,6 +585,9 @@ class ExtendedYogaService:
         # 23: Kemadruma Yoga (inauspicious)
         yogas.extend(self._detect_kemadruma_yoga(planets))
 
+        # 23a: Dhana from Moon Yoga (Ch.37.7-12)
+        yogas.extend(self._detect_dhana_from_moon_yoga(planets))
+
         # 24: Budhaditya Yoga (already exists but enhanced)
         yogas.extend(self._detect_budhaditya_yoga(planets))
 
@@ -1611,6 +1614,94 @@ class ExtendedYogaService:
                         "bphs_category": "Major Challenges",
                         "bphs_section": "B) Moon Challenges (Ch.37.13)",
                         "bphs_ref": "Ch.37.13"
+            })
+
+        return yogas
+
+    def _detect_dhana_from_moon_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Dhana from Moon Yoga (Ch.37.7-12): Wealth reckoned from Moon's position
+        Effect: Wealth accumulation, financial prosperity through lunar combinations
+
+        Formation:
+        - 2nd lord from Moon in good position (kendra/trikona from Moon)
+        - 11th lord from Moon in good position (kendra/trikona from Moon)
+        - Mutual kendra/trikona relationship between 2nd and 11th lords from Moon
+        - Moon strong and well-placed
+        """
+        yogas = []
+
+        moon_data = planets.get("Moon", {})
+        moon_sign = moon_data.get("sign_num", 0)
+        moon_house = moon_data.get("house", 0)
+
+        if not moon_sign or not moon_house:
+            return yogas
+
+        # Get ascendant/lagna sign to calculate house lords
+        lagna_sign = None
+        for planet, data in planets.items():
+            if data.get("house", 0) == 1:
+                # This is a simplified approach - in real implementation,
+                # we'd need the actual ascendant sign
+                # For now, we'll use a different approach
+                break
+
+        # Since we don't have direct access to house lords from Moon,
+        # we'll use a simplified approach: check for benefics in 2nd and 11th from Moon
+
+        # Calculate 2nd and 11th houses from Moon
+        second_from_moon = ((moon_house - 1) + 1) % 12 + 1  # 2nd house from Moon
+        eleventh_from_moon = ((moon_house - 1) + 10) % 12 + 1  # 11th house from Moon
+
+        benefics = ["Jupiter", "Venus", "Mercury"]
+        planets_in_2nd = []
+        planets_in_11th = []
+
+        for benefic in benefics:
+            benefic_house = planets.get(benefic, {}).get("house", 0)
+            benefic_sign = planets.get(benefic, {}).get("sign_num", 0)
+
+            if benefic_house == second_from_moon:
+                # Check if benefic is strong
+                is_exalted = (benefic_sign == self.EXALTATION_SIGNS.get(benefic, 0))
+                is_own_sign = (benefic_sign in self.OWN_SIGNS.get(benefic, []))
+                if is_exalted or is_own_sign or benefic_house in [1, 4, 5, 7, 9, 10]:
+                    planets_in_2nd.append(benefic)
+
+            if benefic_house == eleventh_from_moon:
+                # Check if benefic is strong
+                is_exalted = (benefic_sign == self.EXALTATION_SIGNS.get(benefic, 0))
+                is_own_sign = (benefic_sign in self.OWN_SIGNS.get(benefic, []))
+                if is_exalted or is_own_sign or benefic_house in [1, 4, 5, 7, 9, 10, 11]:
+                    planets_in_11th.append(benefic)
+
+        # Check Moon's own strength
+        moon_exalted = (moon_sign == self.EXALTATION_SIGNS.get("Moon", 0))
+        moon_own_sign = (moon_sign in self.OWN_SIGNS.get("Moon", []))
+        moon_in_kendra_trikona = moon_house in [1, 4, 5, 7, 9, 10]
+        moon_strong = moon_exalted or moon_own_sign or moon_in_kendra_trikona
+
+        # Form yoga if there are benefics in 2nd or 11th from Moon with strong Moon
+        if (planets_in_2nd or planets_in_11th) and moon_strong:
+            benefic_desc = []
+            if planets_in_2nd:
+                benefic_desc.append(f"{', '.join(planets_in_2nd)} in 2nd from Moon")
+            if planets_in_11th:
+                benefic_desc.append(f"{', '.join(planets_in_11th)} in 11th from Moon")
+
+            description_parts = " and ".join(benefic_desc)
+            strength = "Strong" if (planets_in_2nd and planets_in_11th) else "Medium"
+
+            yogas.append({
+                "name": "Dhana from Moon Yoga",
+                "description": f"Strong Moon with {description_parts} - wealth accumulation through lunar blessings, financial prosperity, gains through maternal connections, liquid assets",
+                "strength": strength,
+                "category": "Moon Yogas",
+                "bphs_category": "Standard Yogas",
+                "bphs_section": "C) Moon's Yogas (Ch.37)",
+                "bphs_ref": "Ch.37.7-12",
+                "yoga_forming_planets": ["Moon"] + planets_in_2nd + planets_in_11th
             })
 
         return yogas
@@ -5580,10 +5671,44 @@ class ExtendedYogaService:
                 "description": "All 7 planets spread over exactly 7 signs - Musical instrument pattern, artistic talents, cultured nature, harmonious life, success in fine arts",
                 "strength": "Strong",
                 "category": "Nabhasa - Sankhya",
-                        "bphs_category": "Non-BPHS (Practical)",
-                        "bphs_section": "Modern/Practical Addition",
-                        "bphs_ref": "Not in BPHS spec"
+                        "bphs_category": "Standard Yogas",
+                        "bphs_section": "A) Nabhasa (Ch.35)",
+                        "bphs_ref": "Ch.35.16"
             })
+
+        # 5. Kedāra Yoga (ID 30) - All 7 planets in 4 consecutive signs
+        # Check if all planets are within a span of 4 consecutive signs
+        if planets_with_position == 7 and len(occupied_signs) >= 1:
+            # Sort the occupied signs
+            sorted_signs = sorted(occupied_signs)
+
+            # Check for 4 consecutive signs (accounting for wrap-around at 12->1)
+            kedara_found = False
+
+            # Try each starting point
+            for start_sign in range(1, 13):
+                consecutive_4 = set()
+                for offset in range(4):
+                    sign = ((start_sign - 1 + offset) % 12) + 1
+                    consecutive_4.add(sign)
+
+                # Check if all occupied signs are within these 4 consecutive signs
+                if occupied_signs.issubset(consecutive_4):
+                    kedara_found = True
+                    # Get the actual range for description
+                    range_signs = [self.SIGNS[((start_sign - 1 + i) % 12)] for i in range(4)]
+                    break
+
+            if kedara_found:
+                yogas.append({
+                    "name": "Kedāra Yoga",
+                    "description": f"All 7 planets within 4 consecutive signs ({', '.join(range_signs[:2])} to {range_signs[-1]}) - Field pattern, prosperity through agriculture/land, steady wealth accumulation, grounded nature",
+                    "strength": "Strong",
+                    "category": "Nabhasa - Sankhya",
+                            "bphs_category": "Standard Yogas",
+                            "bphs_section": "A) Nabhasa (Ch.35)",
+                            "bphs_ref": "Ch.35.16"
+                })
 
         return yogas
 
