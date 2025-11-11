@@ -111,16 +111,20 @@ export function YogaEncyclopediaModal({ trigger }: YogaEncyclopediaModalProps) {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <>
+      {/* Trigger button */}
+      <div onClick={() => setOpen(true)}>
         {trigger || (
           <Button variant="outline">
             <Search className="h-4 w-4 mr-2" />
             Yoga Encyclopedia
           </Button>
         )}
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      </div>
+
+      {/* Dialog */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <Book className="h-5 w-5 text-purple-600" />
@@ -318,5 +322,6 @@ export function YogaEncyclopediaModal({ trigger }: YogaEncyclopediaModalProps) {
         </div>
       </DialogContent>
     </Dialog>
+    </>
   )
 }
