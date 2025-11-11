@@ -100,7 +100,15 @@ export default function YogaComparePage() {
       setLoading(true)
       setError(null)
       const response = await apiClient.compareYogasAcrossProfiles(selectedProfiles)
-      setComparisonResult(response.data)
+      // Backend returns { success, comparison: { profile_results, common_yogas, unique_yogas } }
+      // Map to frontend interface
+      const comparison = response.data.comparison || response.data
+      setComparisonResult({
+        comparison_results: comparison.profile_results || [],
+        common_yogas: comparison.common_yogas || [],
+        unique_yogas_per_profile: comparison.unique_yogas || [],
+        similarity_matrix: {}  // Not implemented yet
+      })
     } catch (err: any) {
       console.error('Failed to compare yogas:', err)
       setError(err.message || 'Failed to compare yogas')
