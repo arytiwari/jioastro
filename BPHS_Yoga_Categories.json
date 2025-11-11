@@ -1,0 +1,549 @@
+{
+  "version": "1.0",
+  "source": "BPHS-normalized (Parashara) with practical rule-grouping used earlier",
+  "categories": {
+    "Major Positive Yogas": [
+      {
+        "name": "Ruchaka (Mars)",
+        "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+        "bphs_ref": "Ch.75.1–2"
+      },
+      {
+        "name": "Bhadrā (Mercury)",
+        "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+        "bphs_ref": "Ch.75.1–2"
+      },
+      {
+        "name": "Haṁsa (Jupiter)",
+        "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+        "bphs_ref": "Ch.75.1–2"
+      },
+      {
+        "name": "Mālavya (Venus)",
+        "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+        "bphs_ref": "Ch.75.1–2"
+      },
+      {
+        "name": "Śaśa (Saturn)",
+        "section": "E) Pañcha‑Mahāpuruṣa (Ch.75)",
+        "bphs_ref": "Ch.75.1–2"
+      },
+      {
+        "name": "Gaja‑Keśarī",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.3–4"
+      },
+      {
+        "name": "Amala",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.5–6"
+      },
+      {
+        "name": "Parvata",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.7–8"
+      },
+      {
+        "name": "Kahāla",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.9–10"
+      },
+      {
+        "name": "Chāmara",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.11–12"
+      },
+      {
+        "name": "Śaṅkha",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.13–14"
+      },
+      {
+        "name": "Bherī",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.15–16"
+      },
+      {
+        "name": "Mṛdaṅga",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.17"
+      },
+      {
+        "name": "Śrīnātha",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.18"
+      },
+      {
+        "name": "Śārada",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.19–20"
+      },
+      {
+        "name": "Matsya",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.21–22"
+      },
+      {
+        "name": "Kūrma",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.23–24"
+      },
+      {
+        "name": "Khadga",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.25–26"
+      },
+      {
+        "name": "Lakṣmī",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.27–28"
+      },
+      {
+        "name": "Kusuma",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.29–30"
+      },
+      {
+        "name": "Kālanidhi",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.31–32"
+      },
+      {
+        "name": "Kalpadruma (Parijāta)",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.33–34"
+      },
+      {
+        "name": "Trimūrti—Hari/Hara/Brahmā (strong karakas)",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.35–36"
+      },
+      {
+        "name": "Lagna‑Ādhi (Ādhi from Lagna)",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.37"
+      },
+      {
+        "name": "LL with 5L/9L — conjunction/aspect/kendra/trikona/exchange",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39"
+      },
+      {
+        "name": "Kendra lords with Trikona lords — all relations",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39"
+      },
+      {
+        "name": "LL in trine or kendra (strengthened)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39"
+      },
+      {
+        "name": "10L strong in 10th",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.21–22"
+      },
+      {
+        "name": "All‑benefic Kendras",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.48"
+      },
+      {
+        "name": "Moon–Venus mutual 3/11",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.41"
+      },
+      {
+        "name": "Amatyakaraka/AK & 10L linkages; clean 10H/11H etc.",
+        "section": "G) Royal Association (Ch.40)",
+        "bphs_ref": "Ch.40.1–15"
+      },
+      {
+        "name": "Named Wealth sets (Ch.41.2–15)",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.2–15"
+      },
+      {
+        "name": "5L–9L wealth link (Lakṣmī‑type)",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.16, 28–34"
+      },
+      {
+        "name": "Kamala (all planets in kendras)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.12"
+      },
+      {
+        "name": "Māla (benefics in three kendras)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.8"
+      },
+      {
+        "name": "Vaapī (5L & 9L strong relation — modern gloss)",
+        "section": "J) Vaapī Clarification",
+        "bphs_ref": "Ch.39 & Ch.41"
+      }
+    ],
+    "Major Challenges": [
+      {
+        "name": "Penury set: 1L‑12H & 12L‑1H with maraka",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.2"
+      },
+      {
+        "name": "Penury set: 1L‑6H & 6L‑1H with maraka",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.3"
+      },
+      {
+        "name": "Penury set: 1L‑8H with Ketu on Lagna/Moon",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.4"
+      },
+      {
+        "name": "Penury set: 1L malefic in 6/8/12 & 2L fallen",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.5"
+      },
+      {
+        "name": "Penury set: 1L with dusthana lords without benefic aspect",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.6"
+      },
+      {
+        "name": "Penury set: 5L‑6H & 9L‑12H maraka afflicted",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.7"
+      },
+      {
+        "name": "Penury set: Malefics in Lagna (exceptions noted)",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.8"
+      },
+      {
+        "name": "Penury set: Dusthana dispositors afflicted",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.9"
+      },
+      {
+        "name": "Penury set: Moon’s navamsa lord as maraka",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.10"
+      },
+      {
+        "name": "Penury set: Rasi LL & Navamsa LL as maraka",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.11"
+      },
+      {
+        "name": "Penury set: Benefics in bad houses, malefics in good",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.12"
+      },
+      {
+        "name": "Penury set: Dasha harm by dusthana links",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.13"
+      },
+      {
+        "name": "Penury set: AK expense factors I",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.14"
+      },
+      {
+        "name": "Penury set: AK expense factors II",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.15"
+      },
+      {
+        "name": "Penury set: Mars+Saturn in 2nd (unless Mercury aspects)",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.16–18"
+      },
+      {
+        "name": "Penury set: Sun or Saturn in 2nd with mutual aspect",
+        "section": "I) Penury (Ch.42)",
+        "bphs_ref": "Ch.42.16–18"
+      },
+      {
+        "name": "Kemadruma (Moon isolated)",
+        "section": "C) Moon’s Yogas (Ch.37)",
+        "bphs_ref": "Ch.37.13"
+      },
+      {
+        "name": "Sarpa (malefics in three kendras)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.8"
+      },
+      {
+        "name": "Gola (all planets in one sign)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      },
+      {
+        "name": "Śūla (all planets in three signs)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      },
+      {
+        "name": "Pāśa (all planets in five signs)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      },
+      {
+        "name": "Dāma (all planets in six signs)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      }
+    ],
+    "Standard Yogas": [
+      {
+        "name": "Sunāpha",
+        "section": "C) Moon’s Yogas (Ch.37)",
+        "bphs_ref": "Ch.37.3–6"
+      },
+      {
+        "name": "Anāpha",
+        "section": "C) Moon’s Yogas (Ch.37)",
+        "bphs_ref": "Ch.37.3–6"
+      },
+      {
+        "name": "Durudhura",
+        "section": "C) Moon’s Yogas (Ch.37)",
+        "bphs_ref": "Ch.37.3–6"
+      },
+      {
+        "name": "Adhi from Moon (benefics in 6/7/8)",
+        "section": "C) Moon’s Yogas (Ch.37)",
+        "bphs_ref": "Ch.37.1–2"
+      },
+      {
+        "name": "Dhana from Moon (wealth reckoned from Moon)",
+        "section": "C) Moon’s Yogas (Ch.37)",
+        "bphs_ref": "Ch.37.7–12"
+      },
+      {
+        "name": "Vesi",
+        "section": "D) Sun’s Yogas (Ch.38)",
+        "bphs_ref": "Ch.38.1"
+      },
+      {
+        "name": "Vasi",
+        "section": "D) Sun’s Yogas (Ch.38)",
+        "bphs_ref": "Ch.38.1"
+      },
+      {
+        "name": "Ubhayachari",
+        "section": "D) Sun’s Yogas (Ch.38)",
+        "bphs_ref": "Ch.38.1–4"
+      },
+      {
+        "name": "Rajju",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.7"
+      },
+      {
+        "name": "Mushala",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.7"
+      },
+      {
+        "name": "Nala",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.7"
+      },
+      {
+        "name": "Gada",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.9"
+      },
+      {
+        "name": "Sakata",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.9"
+      },
+      {
+        "name": "Vihaga",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.9"
+      },
+      {
+        "name": "Śṛṅgāṭaka",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.10"
+      },
+      {
+        "name": "Hala",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.10"
+      },
+      {
+        "name": "Vajra",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.11"
+      },
+      {
+        "name": "Yava",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.11"
+      },
+      {
+        "name": "Vapi (Nabhasa distribution)",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.12"
+      },
+      {
+        "name": "Yupa",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.13"
+      },
+      {
+        "name": "Śara",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.13"
+      },
+      {
+        "name": "Śakti",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.13"
+      },
+      {
+        "name": "Daṇḍa",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.13"
+      },
+      {
+        "name": "Nauka",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.14"
+      },
+      {
+        "name": "Kūṭa",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.14"
+      },
+      {
+        "name": "Chatra",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.14"
+      },
+      {
+        "name": "Dhanus/Chāpa",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.14"
+      },
+      {
+        "name": "Chakra",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.15"
+      },
+      {
+        "name": "Samudra",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.15"
+      },
+      {
+        "name": "Yuga",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      },
+      {
+        "name": "Kedāra",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      },
+      {
+        "name": "Vīṇā",
+        "section": "A) Nabhasa (Ch.35)",
+        "bphs_ref": "Ch.35.16"
+      },
+      {
+        "name": "Shankha (already listed above as positive; often context‑dependent)",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.13–14"
+      },
+      {
+        "name": "Kahala (context‑dependent strength)",
+        "section": "B) Named Yogas (Ch.36)",
+        "bphs_ref": "Ch.36.9–10"
+      }
+    ],
+    "Minor Yogas & Subtle Influences": [
+      {
+        "name": "Divisional Amplifier: Parijāta",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Uttama",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Gopura",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Siṁhāsana",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Parvata",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Devaloka",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Brahmaloka",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Divisional Amplifier: Iravataṁsa",
+        "section": "H) Wealth (Ch.41)",
+        "bphs_ref": "Ch.41.18–27"
+      },
+      {
+        "name": "Arūḍha relations (AL/DP geometry)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.23"
+      },
+      {
+        "name": "Birth moment factor (near noon/midnight)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.40"
+      },
+      {
+        "name": "Strong Vargottama Moon (multi-aspected)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.42"
+      },
+      {
+        "name": "Exalted aspects on Lagna (count-based)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.43"
+      },
+      {
+        "name": "Benefic in a single Kendra (simple placement)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Generic"
+      },
+      {
+        "name": "Benefic support to authority (2nd/4th/5th from LL/AK)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.9–10"
+      },
+      {
+        "name": "Valor/Overcoming (malefics in upachaya from LL/AK)",
+        "section": "F) Rāja‑Yoga (Ch.39)",
+        "bphs_ref": "Ch.39.9–10"
+      }
+    ]
+  }
+}

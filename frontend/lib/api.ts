@@ -37,11 +37,30 @@ class APIClient {
       }
     }
 
+    // Extract params from init if present and build query string
+    let queryString = ''
+    if (init.params) {
+      const params = new URLSearchParams()
+      Object.entries(init.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          params.append(key, String(value))
+        }
+      })
+      queryString = params.toString()
+      // Remove params from init to avoid passing it to fetch
+      delete init.params
+    }
+
     // If path starts with /api/, use it as absolute path (for v2 endpoints)
     // Otherwise, prepend API_URL (for v1 endpoints)
-    const url = path.startsWith('/api/')
+    let url = path.startsWith('/api/')
       ? `${process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+$/, '') || 'http://localhost:8000'}${path}`
       : `${API_URL}${path}`
+
+    // Append query string if present
+    if (queryString) {
+      url += (url.includes('?') ? '&' : '?') + queryString
+    }
 
     let response: Response
     try {

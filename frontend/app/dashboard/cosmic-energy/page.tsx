@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { api } from '@/lib/api'
+import { apiClient } from '@/lib/api'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -59,8 +59,13 @@ export default function CosmicEnergyPage() {
   useEffect(() => {
     const fetchProfiles = async () => {
       try {
-        const response = await api.getProfiles()
-        if (response.success && response.data) {
+        const response = await apiClient.getProfiles()
+        // Response is an array of profiles directly, not wrapped in {success, data}
+        if (Array.isArray(response) && response.length > 0) {
+          setProfiles(response)
+          setSelectedProfile(response[0].id)
+        } else if (response && response.data && Array.isArray(response.data)) {
+          // Fallback for wrapped response format
           setProfiles(response.data)
           if (response.data.length > 0) {
             setSelectedProfile(response.data[0].id)
@@ -75,22 +80,37 @@ export default function CosmicEnergyPage() {
 
   // Fetch cosmic score when profile or date changes
   useEffect(() => {
+    console.log('🔄 Profile/Date changed:', { selectedProfile, selectedDate })
     if (selectedProfile) {
+      console.log('✅ Fetching cosmic score and trend...')
       fetchCosmicScore()
       fetchTrend()
+    } else {
+      console.log('⚠️ No profile selected')
     }
   }, [selectedProfile, selectedDate])
 
   const fetchCosmicScore = async () => {
-    if (!selectedProfile) return
+    console.log('📞 fetchCosmicScore called', { selectedProfile, selectedDate })
+    if (!selectedProfile) {
+      console.log('⚠️ No profile, returning')
+      return
+    }
     setLoading(true)
     try {
-      const response = await api.getMyCosmicScore(selectedProfile, selectedDate)
-      if (response) {
+      console.log('🌐 Calling apiClient.getMyCosmicScore...')
+      const response = await apiClient.getMyCosmicScore(selectedProfile, selectedDate)
+      console.log('📦 Got response:', response)
+      if (response && response.data) {
+        console.log('✅ Setting cosmic score with data:', response.data)
+        setCosmicScore(response.data)
+      } else if (response && !response.data) {
+        // Handle case where response is already unwrapped
+        console.log('✅ Setting cosmic score (unwrapped):', response)
         setCosmicScore(response)
       }
     } catch (error) {
-      console.error('Error fetching cosmic score:', error)
+      console.error('❌ Error fetching cosmic score:', error)
     } finally {
       setLoading(false)
     }
@@ -100,8 +120,11 @@ export default function CosmicEnergyPage() {
     if (!selectedProfile) return
     setLoadingTrend(true)
     try {
-      const response = await api.get30DayTrend(selectedProfile, selectedDate)
-      if (response) {
+      const response = await apiClient.get30DayTrend(selectedProfile, selectedDate)
+      if (response && response.data) {
+        setTrend(response.data)
+      } else if (response && !response.data) {
+        // Handle case where response is already unwrapped
         setTrend(response)
       }
     } catch (error) {
@@ -115,7 +138,7 @@ export default function CosmicEnergyPage() {
     if (!selectedProfile || !cosmicScore) return
     setSharing(true)
     try {
-      const response = await api.generateShareTemplate(selectedProfile, templateType, selectedDate)
+      const response = await apiClient.generateShareTemplate(selectedProfile, templateType, selectedDate)
       if (response.success) {
         // Copy share text to clipboard
         if (navigator.clipboard) {
@@ -253,7 +276,7 @@ export default function CosmicEnergyPage() {
                     Best For
                   </h3>
                   <ul className="space-y-2">
-                    {cosmicScore.best_for.map((item, idx) => (
+                    {(cosmicScore.best_for || []).map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
@@ -269,7 +292,7 @@ export default function CosmicEnergyPage() {
                     Avoid
                   </h3>
                   <ul className="space-y-2">
-                    {cosmicScore.avoid.map((item, idx) => (
+                    {(cosmicScore.avoid || []).map((item, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
                         <span>{item}</span>
@@ -328,7 +351,7 @@ export default function CosmicEnergyPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {Object.entries(cosmicScore.breakdown).map(([key, value]) => (
+            {Object.entries(cosmicScore.breakdown || {}).map(([key, value]) => (
               <div key={key} className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="font-medium capitalize">
@@ -336,7 +359,7 @@ export default function CosmicEnergyPage() {
                   </span>
                   <span className="text-muted-foreground">{value}%</span>
                 </div>
-                <Progress value={value} className="h-2" />
+                <Progress value={value as number} className="h-2" />
               </div>
             ))}
           </CardContent>

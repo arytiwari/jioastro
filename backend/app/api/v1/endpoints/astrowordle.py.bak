@@ -37,8 +37,8 @@ async def get_todays_challenge(
         - is_completed: bool
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
         today = date.today()
 
         # Get or create today's challenge using database function
@@ -56,7 +56,7 @@ async def get_todays_challenge(
 
         # Get challenge details
         challenge = supabase.table("astrowordle_daily_challenges") \
-            .select("*") \
+            .select("*, question:astrowordle_questions(*)") \
             .eq("id", challenge_id) \
             .single() \
             .execute()
@@ -65,26 +65,6 @@ async def get_todays_challenge(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Challenge not found"
-            )
-
-        # Get question separately
-        question_id = challenge.data.get("question_id")
-        if not question_id:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Challenge has no question_id"
-            )
-
-        question = supabase.table("astrowordle_questions") \
-            .select("*") \
-            .eq("id", question_id) \
-            .single() \
-            .execute()
-
-        if not question.data:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Question {question_id} not found"
             )
 
         # Check if user has already attempted today
@@ -98,8 +78,9 @@ async def get_todays_challenge(
         is_completed = user_attempt is not None if user_attempt else False
 
         # Format question (hide answer if not completed)
+        question_data = challenge.data.get("question", {})
         formatted_question = game_service.format_question_for_display(
-            question.data,
+            question_data,
             hide_answer=not is_completed
         )
 
@@ -156,8 +137,8 @@ async def submit_guess(
         - badge: dict (if completed)
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Get challenge and question
         challenge = supabase.table("astrowordle_daily_challenges") \
@@ -310,8 +291,8 @@ async def get_my_stats(
         - wins_distribution {1: 5, 2: 10, ...}
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Get streak data
         streak = supabase.table("astrowordle_streaks") \
@@ -382,8 +363,8 @@ async def get_my_history(
     Returns list of past attempts with results
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Validate limit
         limit = min(max(1, limit), 100)
@@ -429,8 +410,8 @@ async def get_leaderboard(
     Returns ranked list of users by score
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Validate limit
         limit = min(max(1, limit), 500)
@@ -490,8 +471,8 @@ async def get_friends_leaderboard(
     Returns ranked list of friends by current streak and total wins
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Get friend IDs
         friends = supabase.table("friend_connections") \
@@ -565,8 +546,8 @@ async def generate_share(
         - share_code: str (for viral tracking)
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Get attempt
         attempt = supabase.table("astrowordle_user_attempts") \
@@ -662,8 +643,8 @@ async def challenge_friend(
         - message: str
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Verify friendship
         friendship = supabase.table("friend_connections") \
@@ -738,8 +719,8 @@ async def get_my_challenges(
     Returns list of challenges with details
     """
     try:
-        supabase = supabase_service.client
-        user_id = current_user["user_id"]
+        supabase = get_supabase_client()
+        user_id = current_user["sub"]
 
         # Get challenges (both sent and received)
         query = supabase.table("astrowordle_friend_challenges") \

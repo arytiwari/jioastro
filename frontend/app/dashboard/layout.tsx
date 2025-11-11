@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { getCurrentUser, signOut, getValidSession } from '@/lib/supabase'
 import { apiClient } from '@/lib/api'
-import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart, Zap, Eye, Shield, Calendar, HelpCircle, Users, Hand, Star, Compass, Timeline, Flame, Target } from '@/components/icons'
+import { Home, User, MessageSquare, History, LogOut, Menu, X, BookOpen, Sparkles, Gem, Sun, Award, Clock, ChevronDown, BarChart3, Wrench, Database, TrendingUp, Activity, Heart, Zap, Eye, Shield, Calendar, HelpCircle, Users, Hand, Star, Compass, Timeline, Flame, Target, Brain } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/ui/logo'
 import {
@@ -143,6 +143,7 @@ export default function DashboardLayout({
     ],
     insights: [
       { name: 'Cosmic Energy', href: '/dashboard/cosmic-energy', icon: Zap, badge: 'NEW' },
+      { name: 'AstroWordle', href: '/dashboard/astrowordle', icon: Brain, badge: 'NEW' },
       { name: 'Instant Onboarding', href: '/dashboard/instant-onboarding', icon: Zap, badge: 'NEW' },
       { name: 'Life Snapshot', href: '/dashboard/life-snapshot', icon: Eye, badge: 'NEW' },
       { name: 'Evidence Mode', href: '/dashboard/evidence-mode', icon: Shield, badge: 'NEW' },
