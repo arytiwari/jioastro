@@ -2,7 +2,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Star, Sparkles } from "@/components/icons"
+import { Star, Sparkles, Info } from "@/components/icons"
 
 interface MajorYogaCardProps {
   yoga: {
@@ -16,6 +16,9 @@ interface MajorYogaCardProps {
     planets_involved?: string[]
     houses_involved?: number[]
     benefic_nature?: string
+    bphs_category?: string
+    bphs_section?: string
+    bphs_ref?: string
   }
   onClick?: () => void
 }
@@ -131,6 +134,63 @@ export default function MajorYogaCard({ yoga, onClick }: MajorYogaCardProps) {
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* BPHS Badge */}
+        {yoga.bphs_category && (
+          <div className="flex items-center space-x-2 pt-3 border-t border-gray-200">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+              yoga.bphs_category === 'Major Positive Yogas' ? 'bg-emerald-100 text-emerald-800 border-emerald-300' :
+              yoga.bphs_category === 'Standard Yogas' ? 'bg-blue-100 text-blue-800 border-blue-300' :
+              yoga.bphs_category === 'Major Challenges' ? 'bg-red-100 text-red-800 border-red-300' :
+              yoga.bphs_category === 'Minor Yogas & Subtle Influences' ? 'bg-purple-100 text-purple-800 border-purple-300' :
+              'bg-gray-100 text-gray-800 border-gray-300'
+            }`}>
+              <span className="mr-1">
+                {yoga.bphs_category === 'Major Positive Yogas' ? '⭐' :
+                 yoga.bphs_category === 'Standard Yogas' ? '📖' :
+                 yoga.bphs_category === 'Major Challenges' ? '⚠️' :
+                 yoga.bphs_category === 'Minor Yogas & Subtle Influences' ? '✨' :
+                 '🔧'}
+              </span>
+              {yoga.bphs_category}
+            </span>
+            {yoga.bphs_category !== 'Non-BPHS (Practical)' && yoga.bphs_ref && (
+              <span className="text-xs text-gray-600 italic">
+                {yoga.bphs_ref}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* BPHS Info */}
+        {yoga.bphs_section && (
+          <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+            <div className="flex items-start space-x-2">
+              <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-blue-900">BPHS Classification</p>
+                <p className="text-blue-800 mt-1">
+                  <strong>Section:</strong> {yoga.bphs_section}
+                </p>
+                {yoga.bphs_ref && (
+                  <p className="text-blue-800 mt-1">
+                    <strong>Reference:</strong> {yoga.bphs_ref}
+                  </p>
+                )}
+                {yoga.bphs_category !== 'Non-BPHS (Practical)' && (
+                  <p className="text-blue-700 mt-2 text-xs">
+                    This is a classical yoga from the Brihat Parashara Hora Shastra (BPHS), the foundational text of Vedic astrology.
+                  </p>
+                )}
+                {yoga.bphs_category === 'Non-BPHS (Practical)' && (
+                  <p className="text-blue-700 mt-2 text-xs">
+                    This is a practical yoga not explicitly mentioned in BPHS but derived from traditional principles for modern analysis.
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         )}
 

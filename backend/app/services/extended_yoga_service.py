@@ -699,6 +699,30 @@ class ExtendedYogaService:
         # 95-238: Bhava Yogas (144 complete house lord placements: all 12 lords × 12 positions)
         yogas.extend(self._detect_bhava_yogas(planets))
 
+        # ===== PHASE 2.1: Missing Named Yogas (Ch.36) - 7 yogas =====
+        yogas.extend(self._detect_shankha_yoga(planets))
+        yogas.extend(self._detect_bheri_yoga(planets))
+        yogas.extend(self._detect_mridanga_yoga(planets))
+        yogas.extend(self._detect_sharada_yoga(planets))
+        yogas.extend(self._detect_khadga_yoga(planets))
+        yogas.extend(self._detect_trimurti_yoga(planets))
+        yogas.extend(self._detect_lagna_adhi_yoga(planets))
+
+        # ===== PHASE 2.2: Subtle Raj Yogas - 5 yogas =====
+        # Note: birth_moment_yoga requires birth_data parameter - skip for now
+        # yogas.extend(self._detect_birth_moment_yoga(planets, birth_data=None))
+        yogas.extend(self._detect_strong_vargottama_moon(planets))
+        yogas.extend(self._detect_exalted_aspects_on_lagna(planets))
+        yogas.extend(self._detect_benefic_in_single_kendra(planets))
+
+        # ===== PHASE 2.3: Divisional Amplifiers (Ch.41) - 6 yogas =====
+        # Note: These require D9 data - will only detect if D9 fields present
+        yogas.extend(self._detect_parijata_yoga(planets))
+        yogas.extend(self._detect_uttama_yoga(planets))
+        yogas.extend(self._detect_gopura_yoga(planets))
+        yogas.extend(self._detect_simhasana_yoga(planets))
+        yogas.extend(self._detect_parvata_divisional_yoga(planets))
+
         # Enrich all yogas with classification metadata (importance, impact, life_area)
         return self.enrich_yogas(yogas)
 
@@ -7861,6 +7885,920 @@ class ExtendedYogaService:
             })
 
         return yogas
+
+    # ==============================================================================
+    # PHASE 2.1: Missing Named Yogas (Ch.36) - 7 yogas
+    # ==============================================================================
+
+    def _detect_shankha_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Śaṅkha Yoga (Ch.36.13-14): 5th lord and 6th lord in mutual exchange OR both in kendras
+        Effect: Long life, prosperity, righteous conduct, wealth
+
+        Formation:
+        - Option 1: 5th lord and 6th lord in mutual exchange (Parivartana)
+        - Option 2: Both 5th lord and 6th lord in kendra houses (1,4,7,10)
+        """
+        yogas = []
+
+        # Calculate ascendant sign (0-indexed)
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get house lords (using 1-indexed house numbers)
+        lord_5 = self._get_house_lord(5, asc_sign)
+        lord_6 = self._get_house_lord(6, asc_sign)
+
+        if not lord_5 or not lord_6 or lord_5 == "Unknown" or lord_6 == "Unknown":
+            return yogas
+
+        # Get planet data
+        lord_5_data = planets.get(lord_5, {})
+        lord_6_data = planets.get(lord_6, {})
+
+        lord_5_house = lord_5_data.get("house", 0)
+        lord_6_house = lord_6_data.get("house", 0)
+        lord_5_sign = lord_5_data.get("sign_num", 0)
+        lord_6_sign = lord_6_data.get("sign_num", 0)
+
+        if not all([lord_5_house, lord_6_house, lord_5_sign, lord_6_sign]):
+            return yogas
+
+        # Calculate signs of 5th and 6th houses (1-indexed)
+        house_5_sign = ((asc_sign + 5 - 1) % 12) + 1  # Convert 0-indexed to 1-indexed
+        house_6_sign = ((asc_sign + 6 - 1) % 12) + 1
+
+        # Check mutual exchange (5L in 6th sign AND 6L in 5th sign)
+        mutual_exchange = (lord_5_sign == house_6_sign) and (lord_6_sign == house_5_sign)
+
+        # Check both in kendras
+        both_in_kendra = self._in_kendra(lord_5_house) and self._in_kendra(lord_6_house)
+
+        if mutual_exchange or both_in_kendra:
+            formation_type = "mutual exchange (Parivartana)" if mutual_exchange else f"both in kendras (5L in {lord_5_house}th, 6L in {lord_6_house}th)"
+            yogas.append({
+                "name": "Śaṅkha Yoga",
+                "description": f"5th lord ({lord_5}) and 6th lord ({lord_6}) in {formation_type} - long life, prosperity, righteous conduct, wealth, fame like conch shell",
+                "strength": self._calculate_yoga_strength([lord_5, lord_6], planets),
+                "category": "Named Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.13-14",
+                "yoga_forming_planets": [lord_5, lord_6]
+            })
+
+        return yogas
+
+    def _detect_bheri_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Bherī Yoga (Ch.36.15-16): Venus in kendra, Jupiter in 9th, planets confined to houses 1,2,7,12
+        Effect: Long life, wealth, recognition, ministerial position
+
+        Formation:
+        - Venus in any kendra (1,4,7,10)
+        - Jupiter in 9th house
+        - All seven planets (Sun through Saturn) confined to houses 1, 2, 7, 12
+        """
+        yogas = []
+
+        venus_house = planets.get("Venus", {}).get("house", 0)
+        jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+
+        if not venus_house or not jupiter_house:
+            return yogas
+
+        # Check Venus in kendra and Jupiter in 9th
+        venus_in_kendra = self._in_kendra(venus_house)
+        jupiter_in_9th = (jupiter_house == 9)
+
+        if not (venus_in_kendra and jupiter_in_9th):
+            return yogas
+
+        # Check if all 7 planets are confined to houses 1, 2, 7, 12
+        allowed_houses = [1, 2, 7, 12]
+        seven_planets = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
+
+        planets_confined = True
+        for planet in seven_planets:
+            planet_house = planets.get(planet, {}).get("house", 0)
+            if planet_house and planet_house not in allowed_houses:
+                planets_confined = False
+                break
+
+        if planets_confined:
+            yogas.append({
+                "name": "Bherī Yoga",
+                "description": f"Venus in {venus_house}th (kendra), Jupiter in 9th, all planets in houses 1,2,7,12 - long life, wealth, recognition, ministerial qualities, musical talents (like drum/bheri)",
+                "strength": self._calculate_yoga_strength(["Venus", "Jupiter"], planets),
+                "category": "Named Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.15-16",
+                "yoga_forming_planets": ["Venus", "Jupiter"]
+            })
+
+        return yogas
+
+    def _detect_mridanga_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Mṛdaṅga Yoga (Ch.36.17): Benefics in 1st and 5th OR 2nd and 9th
+        Effect: Wealth, learning, prosperity, enjoyment, musical abilities
+
+        Formation:
+        - Option 1: Natural benefics in both 1st and 5th houses
+        - Option 2: Natural benefics in both 2nd and 9th houses
+        """
+        yogas = []
+
+        # Natural benefics: Jupiter, Venus, Mercury, waxing Moon
+        natural_benefics = ["Jupiter", "Venus", "Mercury", "Moon"]
+
+        # Get houses occupied by benefics
+        benefics_in_1st = []
+        benefics_in_5th = []
+        benefics_in_2nd = []
+        benefics_in_9th = []
+
+        for planet in natural_benefics:
+            planet_data = planets.get(planet, {})
+            house = planet_data.get("house", 0)
+
+            if house == 1:
+                benefics_in_1st.append(planet)
+            elif house == 5:
+                benefics_in_5th.append(planet)
+            elif house == 2:
+                benefics_in_2nd.append(planet)
+            elif house == 9:
+                benefics_in_9th.append(planet)
+
+        # Check Option 1: Benefics in 1st and 5th
+        if benefics_in_1st and benefics_in_5th:
+            yogas.append({
+                "name": "Mṛdaṅga Yoga (1-5 Pattern)",
+                "description": f"Benefics in 1st ({', '.join(benefics_in_1st)}) and 5th ({', '.join(benefics_in_5th)}) - wealth, learning, prosperity, enjoyment, musical talents like drum (mridanga)",
+                "strength": self._calculate_yoga_strength(benefics_in_1st + benefics_in_5th, planets),
+                "category": "Named Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.17",
+                "yoga_forming_planets": benefics_in_1st + benefics_in_5th
+            })
+
+        # Check Option 2: Benefics in 2nd and 9th
+        if benefics_in_2nd and benefics_in_9th:
+            yogas.append({
+                "name": "Mṛdaṅga Yoga (2-9 Pattern)",
+                "description": f"Benefics in 2nd ({', '.join(benefics_in_2nd)}) and 9th ({', '.join(benefics_in_9th)}) - wealth accumulation, dharmic fortune, ancestral blessings, prosperity",
+                "strength": self._calculate_yoga_strength(benefics_in_2nd + benefics_in_9th, planets),
+                "category": "Named Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.17",
+                "yoga_forming_planets": benefics_in_2nd + benefics_in_9th
+            })
+
+        return yogas
+
+    def _detect_sharada_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Śārada Yoga (Ch.36.19-20): Mercury in 4th/5th/9th from Lagna with strong Moon
+        Effect: Excellence in learning, eloquence, wisdom, knowledge of scriptures
+
+        Formation:
+        - Mercury in 4th, 5th, or 9th house from Lagna
+        - Moon is strong (exalted, own sign, or in kendra/trikona)
+        """
+        yogas = []
+
+        mercury_house = planets.get("Mercury", {}).get("house", 0)
+        moon_data = planets.get("Moon", {})
+        moon_house = moon_data.get("house", 0)
+        moon_sign = moon_data.get("sign_num", 0)
+
+        if not mercury_house or not moon_house:
+            return yogas
+
+        # Check Mercury in 4th, 5th, or 9th
+        mercury_in_learning_houses = mercury_house in [4, 5, 9]
+
+        if not mercury_in_learning_houses:
+            return yogas
+
+        # Check Moon strength
+        moon_exalted = (moon_sign == self.EXALTATION_SIGNS.get("Moon", 0))
+        moon_own_sign = (moon_sign in self.OWN_SIGNS.get("Moon", []))
+        moon_in_kendra = self._in_kendra(moon_house)
+        moon_in_trikona = self._in_trikona(moon_house)
+
+        moon_strong = moon_exalted or moon_own_sign or moon_in_kendra or moon_in_trikona
+
+        if moon_strong:
+            moon_strength_desc = []
+            if moon_exalted:
+                moon_strength_desc.append("exalted")
+            if moon_own_sign:
+                moon_strength_desc.append("own sign")
+            if moon_in_kendra:
+                moon_strength_desc.append(f"kendra house {moon_house}")
+            if moon_in_trikona:
+                moon_strength_desc.append(f"trikona house {moon_house}")
+
+            yogas.append({
+                "name": "Śārada Yoga",
+                "description": f"Mercury in {mercury_house}th house with strong Moon ({', '.join(moon_strength_desc)}) - excellence in learning, eloquence, wisdom, knowledge of scriptures, goddess Saraswati's blessings",
+                "strength": self._calculate_yoga_strength(["Mercury", "Moon"], planets),
+                "category": "Named Yoga - Learning",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.19-20",
+                "yoga_forming_planets": ["Mercury", "Moon"]
+            })
+
+        return yogas
+
+    def _detect_khadga_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Khadga Yoga (Ch.36.25-26): 2nd lord with 9th lord in good house (kendra/trikona)
+        Effect: Wealth, courage, valor, commanding personality like a sword (khadga)
+
+        Formation:
+        - 2nd lord and 9th lord in conjunction OR mutual aspect
+        - Located in kendra (1,4,7,10) or trikona (1,5,9)
+        """
+        yogas = []
+
+        # Calculate ascendant sign (0-indexed)
+        asc_sign = self._calculate_ascendant_sign(planets)
+        if asc_sign is None:
+            return yogas
+
+        # Get house lords
+        lord_2 = self._get_house_lord(2, asc_sign)
+        lord_9 = self._get_house_lord(9, asc_sign)
+
+        if not lord_2 or not lord_9 or lord_2 == "Unknown" or lord_9 == "Unknown":
+            return yogas
+
+        # Get planet data
+        lord_2_data = planets.get(lord_2, {})
+        lord_9_data = planets.get(lord_9, {})
+
+        lord_2_house = lord_2_data.get("house", 0)
+        lord_9_house = lord_9_data.get("house", 0)
+
+        if not lord_2_house or not lord_9_house:
+            return yogas
+
+        # Check conjunction (same house)
+        in_conjunction = (lord_2_house == lord_9_house)
+
+        # Check mutual aspect
+        in_mutual_aspect = (
+            self._planet_aspects_house_simple(lord_2, lord_2_house, lord_9_house) and
+            self._planet_aspects_house_simple(lord_9, lord_9_house, lord_2_house)
+        )
+
+        if not (in_conjunction or in_mutual_aspect):
+            return yogas
+
+        # Check if placement is in kendra or trikona
+        placement_house = lord_2_house if in_conjunction else lord_2_house  # Use either house for aspect case
+        in_good_house = self._in_kendra(placement_house) or self._in_trikona(placement_house)
+
+        if in_good_house:
+            formation_desc = f"conjunction in {placement_house}th" if in_conjunction else f"mutual aspect (2L in {lord_2_house}th, 9L in {lord_9_house}th)"
+            yogas.append({
+                "name": "Khadga Yoga",
+                "description": f"2nd lord ({lord_2}) and 9th lord ({lord_9}) in {formation_desc} - wealth, courage, valor, commanding personality, sharp intellect like sword (khadga)",
+                "strength": self._calculate_yoga_strength([lord_2, lord_9], planets),
+                "category": "Named Yoga - Wealth",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.25-26",
+                "yoga_forming_planets": [lord_2, lord_9]
+            })
+
+        return yogas
+
+    def _detect_trimurti_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Trimūrti Yoga (Ch.36.35-36): Sun, Moon, Jupiter all strong (exalted/own/kendra)
+        Effect: Divine protection, spiritual leadership, wisdom, authority, prosperity
+
+        Formation:
+        - All three luminaries (Sun, Moon, Jupiter) are strong
+        - Strength criteria: Exalted, own sign, or in kendra/trikona
+        """
+        yogas = []
+
+        # Check each luminary for strength
+        luminaries_strength = {}
+
+        for planet in ["Sun", "Moon", "Jupiter"]:
+            planet_data = planets.get(planet, {})
+            planet_sign = planet_data.get("sign_num", 0)
+            planet_house = planet_data.get("house", 0)
+
+            if not planet_sign or not planet_house:
+                return yogas  # All three must be present
+
+            # Check strength factors
+            is_exalted = (planet_sign == self.EXALTATION_SIGNS.get(planet, 0))
+            is_own_sign = (planet_sign in self.OWN_SIGNS.get(planet, []))
+            in_kendra = self._in_kendra(planet_house)
+            in_trikona = self._in_trikona(planet_house)
+
+            is_strong = is_exalted or is_own_sign or in_kendra or in_trikona
+
+            if not is_strong:
+                return yogas  # All three must be strong
+
+            # Record strength description
+            strength_factors = []
+            if is_exalted:
+                strength_factors.append("exalted")
+            if is_own_sign:
+                strength_factors.append("own sign")
+            if in_kendra:
+                strength_factors.append(f"kendra {planet_house}th")
+            if in_trikona:
+                strength_factors.append(f"trikona {planet_house}th")
+
+            luminaries_strength[planet] = ', '.join(strength_factors)
+
+        # All three are strong - form Trimurti Yoga
+        yogas.append({
+            "name": "Trimūrti Yoga",
+            "description": f"Sun ({luminaries_strength['Sun']}), Moon ({luminaries_strength['Moon']}), Jupiter ({luminaries_strength['Jupiter']}) all strong - divine protection of Brahma-Vishnu-Shiva, spiritual leadership, wisdom, authority, prosperity",
+            "strength": self._calculate_yoga_strength(["Sun", "Moon", "Jupiter"], planets),
+            "category": "Named Yoga - Spiritual",
+            "bphs_category": "Major Positive Yogas",
+            "bphs_section": "B) Named Yogas (Ch.36)",
+            "bphs_ref": "Ch.36.35-36",
+            "yoga_forming_planets": ["Sun", "Moon", "Jupiter"]
+        })
+
+        return yogas
+
+    def _detect_lagna_adhi_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Lagna-Ādhi Yoga (Ch.36.37): Benefics in 6th, 7th, 8th from Lagna
+        Effect: Long life, wealth, power, freedom from diseases, victory over enemies
+
+        This enhances the existing Adhi Yoga detection which only checks from Moon.
+        BPHS specifies Adhi Yoga can be formed from both Lagna and Moon.
+        """
+        yogas = []
+
+        # Natural benefics: Jupiter, Venus, Mercury
+        benefics = ["Jupiter", "Venus", "Mercury"]
+
+        # Check for benefics in 6th, 7th, 8th from Lagna
+        benefics_in_6th = []
+        benefics_in_7th = []
+        benefics_in_8th = []
+
+        for planet in benefics:
+            planet_house = planets.get(planet, {}).get("house", 0)
+
+            if planet_house == 6:
+                benefics_in_6th.append(planet)
+            elif planet_house == 7:
+                benefics_in_7th.append(planet)
+            elif planet_house == 8:
+                benefics_in_8th.append(planet)
+
+        # Count benefics in relevant houses
+        total_benefics = benefics_in_6th + benefics_in_7th + benefics_in_8th
+
+        if len(total_benefics) >= 1:  # At least one benefic in 6/7/8
+            houses_occupied = []
+            if benefics_in_6th:
+                houses_occupied.append(f"6th: {', '.join(benefics_in_6th)}")
+            if benefics_in_7th:
+                houses_occupied.append(f"7th: {', '.join(benefics_in_7th)}")
+            if benefics_in_8th:
+                houses_occupied.append(f"8th: {', '.join(benefics_in_8th)}")
+
+            strength = "Very Strong" if len(total_benefics) == 3 else "Strong" if len(total_benefics) == 2 else "Medium"
+
+            yogas.append({
+                "name": "Lagna-Ādhi Yoga",
+                "description": f"Benefics in houses 6/7/8 from Lagna ({'; '.join(houses_occupied)}) - long life, wealth, power, freedom from diseases, victory over enemies, political success",
+                "strength": strength,
+                "category": "Named Yoga",
+                "bphs_category": "Major Positive Yogas",
+                "bphs_section": "B) Named Yogas (Ch.36)",
+                "bphs_ref": "Ch.36.37",
+                "yoga_forming_planets": total_benefics
+            })
+
+        return yogas
+
+    # ==============================================================================
+    # PHASE 2.2: Subtle Raj Yogas - 5 yogas
+    # ==============================================================================
+
+    def _detect_birth_moment_yoga(self, planets: Dict, birth_data: Dict = None) -> List[Dict]:
+        """
+        Birth Moment Factor (Ch.39.40): Birth near noon (Sun strong) or midnight (Moon strong)
+        Effect: Natural authority/intuition based on luminary strength at birth
+
+        Formation:
+        - Birth near noon (10:00-14:00): Sun strong - natural authority, leadership
+        - Birth near midnight (22:00-02:00): Moon strong - intuition, emotional intelligence
+
+        Note: Requires birth_time parameter in birth_data dict
+        """
+        yogas = []
+
+        # This yoga requires birth time data which may not be available in standard planet dict
+        # Skip if birth_data not provided or doesn't contain birth_time
+        if not birth_data or "birth_time" not in birth_data:
+            return yogas
+
+        birth_time = birth_data.get("birth_time", "")
+
+        # Parse time (expected format: "HH:MM" or "HH:MM:SS")
+        try:
+            time_parts = birth_time.split(":")
+            hour = int(time_parts[0])
+
+            # Check near noon (10:00-14:00)
+            if 10 <= hour <= 14:
+                sun_data = planets.get("Sun", {})
+                sun_sign = sun_data.get("sign_num", 0)
+                sun_house = sun_data.get("house", 0)
+
+                # Check if Sun is strong
+                sun_exalted = (sun_sign == self.EXALTATION_SIGNS.get("Sun", 0))
+                sun_own_sign = (sun_sign in self.OWN_SIGNS.get("Sun", []))
+                sun_in_kendra = self._in_kendra(sun_house)
+
+                if sun_exalted or sun_own_sign or sun_in_kendra:
+                    yogas.append({
+                        "name": "Birth Moment Yoga (Noon)",
+                        "description": f"Birth near noon ({hour}:00 hrs) with strong Sun - natural authority, leadership qualities, commanding presence, solar vitality",
+                        "strength": "Strong" if (sun_exalted or sun_own_sign) else "Medium",
+                        "category": "Subtle Raj Yoga",
+                        "bphs_category": "Subtle Yogas",
+                        "bphs_section": "C) Subtle Raj Yogas (Ch.39)",
+                        "bphs_ref": "Ch.39.40",
+                        "yoga_forming_planets": ["Sun"]
+                    })
+
+            # Check near midnight (22:00-23:59 or 00:00-02:00)
+            elif hour >= 22 or hour <= 2:
+                moon_data = planets.get("Moon", {})
+                moon_sign = moon_data.get("sign_num", 0)
+                moon_house = moon_data.get("house", 0)
+
+                # Check if Moon is strong
+                moon_exalted = (moon_sign == self.EXALTATION_SIGNS.get("Moon", 0))
+                moon_own_sign = (moon_sign in self.OWN_SIGNS.get("Moon", []))
+                moon_in_kendra = self._in_kendra(moon_house)
+
+                if moon_exalted or moon_own_sign or moon_in_kendra:
+                    yogas.append({
+                        "name": "Birth Moment Yoga (Midnight)",
+                        "description": f"Birth near midnight ({hour}:00 hrs) with strong Moon - intuition, emotional intelligence, psychic sensitivity, lunar receptivity",
+                        "strength": "Strong" if (moon_exalted or moon_own_sign) else "Medium",
+                        "category": "Subtle Raj Yoga",
+                        "bphs_category": "Subtle Yogas",
+                        "bphs_section": "C) Subtle Raj Yogas (Ch.39)",
+                        "bphs_ref": "Ch.39.40",
+                        "yoga_forming_planets": ["Moon"]
+                    })
+        except (ValueError, IndexError):
+            # Invalid time format, skip
+            pass
+
+        return yogas
+
+    def _detect_strong_vargottama_moon(self, planets: Dict) -> List[Dict]:
+        """
+        Strong Vargottama Moon (Ch.39.42): Moon in same sign D1 & D9 + aspected by 4+ planets
+        Effect: Exceptional mental strength, consistency, emotional stability
+
+        Formation:
+        - Moon in same sign in both Rashi (D1) and Navamsa (D9) charts
+        - Moon aspected by 4 or more planets
+
+        Note: Requires D9 data which may not be available in current implementation
+        """
+        yogas = []
+
+        # Check if D9 data is available
+        moon_data = planets.get("Moon", {})
+        moon_d1_sign = moon_data.get("sign_num", 0)
+        moon_d9_sign = moon_data.get("d9_sign", None)  # D9 field if available
+
+        if not moon_d1_sign or moon_d9_sign is None:
+            # D9 data not available, skip this yoga
+            return yogas
+
+        # Check Vargottama condition (same sign in D1 and D9)
+        if moon_d1_sign != moon_d9_sign:
+            return yogas
+
+        # Count planets aspecting Moon
+        moon_house = moon_data.get("house", 0)
+        if not moon_house:
+            return yogas
+
+        aspecting_planets = []
+        seven_planets = ["Sun", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"]
+
+        for planet in seven_planets:
+            planet_house = planets.get(planet, {}).get("house", 0)
+            if planet_house and self._planet_aspects_house_simple(planet, planet_house, moon_house):
+                aspecting_planets.append(planet)
+
+        # Check if 4+ planets aspect Moon
+        if len(aspecting_planets) >= 4:
+            yogas.append({
+                "name": "Strong Vargottama Moon",
+                "description": f"Moon in same sign (Vargottama) in D1 and D9, aspected by {len(aspecting_planets)} planets ({', '.join(aspecting_planets)}) - exceptional mental strength, consistency, emotional stability, public recognition",
+                "strength": "Very Strong",
+                "category": "Subtle Raj Yoga",
+                "bphs_category": "Subtle Yogas",
+                "bphs_section": "C) Subtle Raj Yogas (Ch.39)",
+                "bphs_ref": "Ch.39.42",
+                "yoga_forming_planets": ["Moon"] + aspecting_planets
+            })
+
+        return yogas
+
+    def _detect_exalted_aspects_on_lagna(self, planets: Dict) -> List[Dict]:
+        """
+        Exalted Aspects on Lagna (Ch.39.43): Count exalted planets aspecting Lagna
+        Effect: Enhanced personality, protection, favorable circumstances (2+ = notable)
+
+        Formation:
+        - Multiple exalted planets aspect the Lagna (1st house)
+        - 2+ exalted aspects = Subtle Raj Yoga
+        - 3+ exalted aspects = Very strong yoga
+        """
+        yogas = []
+
+        # Find exalted planets
+        exalted_planets = []
+        for planet, exalt_sign in self.EXALTATION_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_sign = planet_data.get("sign_num", 0)
+
+            if planet_sign == exalt_sign:
+                exalted_planets.append(planet)
+
+        if not exalted_planets:
+            return yogas
+
+        # Check which exalted planets aspect Lagna (house 1)
+        aspecting_lagna = []
+        for planet in exalted_planets:
+            planet_house = planets.get(planet, {}).get("house", 0)
+            if planet_house and self._planet_aspects_house_simple(planet, planet_house, 1):
+                aspecting_lagna.append(planet)
+
+        # Check if 2+ exalted planets aspect Lagna
+        if len(aspecting_lagna) >= 2:
+            strength = "Very Strong" if len(aspecting_lagna) >= 3 else "Strong"
+            yogas.append({
+                "name": "Exalted Aspects on Lagna",
+                "description": f"{len(aspecting_lagna)} exalted planets ({', '.join(aspecting_lagna)}) aspect Lagna - enhanced personality, divine protection, favorable circumstances, magnetic presence",
+                "strength": strength,
+                "category": "Subtle Raj Yoga",
+                "bphs_category": "Subtle Yogas",
+                "bphs_section": "C) Subtle Raj Yogas (Ch.39)",
+                "bphs_ref": "Ch.39.43",
+                "yoga_forming_planets": aspecting_lagna
+            })
+
+        return yogas
+
+    def _detect_benefic_in_single_kendra(self, planets: Dict) -> List[Dict]:
+        """
+        Benefic in Single Kendra (Ch.39 Generic): One strong benefic in any single kendra
+        Effect: Protection, prosperity, favorable life circumstances in that life area
+
+        Formation:
+        - Jupiter, Venus, or Mercury strong (exalted/own sign) in a kendra (1,4,7,10)
+        """
+        yogas = []
+
+        benefics = ["Jupiter", "Venus", "Mercury"]
+        kendra_meanings = {
+            1: "self, personality, overall life",
+            4: "home, mother, emotions, happiness",
+            7: "marriage, partnerships, business",
+            10: "career, status, public recognition"
+        }
+
+        for planet in benefics:
+            planet_data = planets.get(planet, {})
+            planet_sign = planet_data.get("sign_num", 0)
+            planet_house = planet_data.get("house", 0)
+
+            if not planet_sign or not planet_house:
+                continue
+
+            # Check if in kendra
+            if not self._in_kendra(planet_house):
+                continue
+
+            # Check if strong (exalted or own sign)
+            is_exalted = (planet_sign == self.EXALTATION_SIGNS.get(planet, 0))
+            is_own_sign = (planet_sign in self.OWN_SIGNS.get(planet, []))
+
+            if is_exalted or is_own_sign:
+                strength_desc = "exalted" if is_exalted else "own sign"
+                life_area = kendra_meanings.get(planet_house, "life area")
+
+                yogas.append({
+                    "name": f"Strong {planet} in {planet_house}th Kendra",
+                    "description": f"{planet} {strength_desc} in {planet_house}th kendra - protection and prosperity in {life_area}, favorable circumstances, blessings",
+                    "strength": "Strong",
+                    "category": "Subtle Raj Yoga",
+                    "bphs_category": "Subtle Yogas",
+                    "bphs_section": "C) Subtle Raj Yogas (Ch.39)",
+                    "bphs_ref": "Ch.39 Generic",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    # ==============================================================================
+    # PHASE 2.3: Divisional Amplifiers (Ch.41.18-27) - 8 yogas
+    # Note: These require D9 (Navamsa) data integration
+    # ==============================================================================
+
+    def _detect_parijata_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Parijāta Yoga (Ch.41.18): Planet exalted in both D1 and D9
+        Effect: Supreme excellence, fulfillment of highest potential in that planet's significations
+
+        Formation:
+        - Any planet exalted in both Rashi (D1) and Navamsa (D9) charts
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        # Check for each planet if exalted in both D1 and D9
+        for planet, exalt_sign_d1 in self.EXALTATION_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)  # D9 field if available
+            planet_d9_exalted = planet_data.get("d9_exalted", None)  # Or explicit flag
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None and planet_d9_exalted is None:
+                continue
+
+            # Check D1 exaltation
+            d1_exalted = (planet_d1_sign == exalt_sign_d1)
+
+            # Check D9 exaltation (either by sign or flag)
+            d9_exalted = False
+            if planet_d9_exalted is not None:
+                d9_exalted = planet_d9_exalted
+            elif planet_d9_sign is not None:
+                d9_exalted = (planet_d9_sign == exalt_sign_d1)
+
+            if d1_exalted and d9_exalted:
+                planet_meanings = {
+                    "Sun": "authority, leadership, father, government",
+                    "Moon": "mind, emotions, mother, public",
+                    "Mars": "courage, energy, siblings, property",
+                    "Mercury": "intelligence, communication, business",
+                    "Jupiter": "wisdom, dharma, children, fortune",
+                    "Venus": "love, arts, spouse, luxury",
+                    "Saturn": "discipline, service, longevity, karma"
+                }
+
+                yogas.append({
+                    "name": f"Parijāta Yoga ({planet})",
+                    "description": f"{planet} exalted in both D1 and D9 - supreme excellence in {planet_meanings.get(planet, 'significations')}, fulfillment of highest potential, divine blessings like celestial Parijata tree",
+                    "strength": "Very Strong",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Divisional Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.18",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    def _detect_uttama_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Uttama Yoga (Ch.41.19): Planet exalted in D1, strong in D9
+        Effect: Excellence with solid foundation, sustained success
+
+        Formation:
+        - Planet exalted in D1 (Rashi)
+        - Same planet strong in D9 (own sign, friend sign, or kendra/trikona)
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet, exalt_sign_d1 in self.EXALTATION_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+            planet_d9_house = planet_data.get("d9_house", None)
+            planet_d9_own_sign = planet_data.get("d9_own_sign", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None:
+                continue
+
+            # Check D1 exaltation
+            d1_exalted = (planet_d1_sign == exalt_sign_d1)
+
+            if not d1_exalted:
+                continue
+
+            # Check D9 strength (own sign, or in kendra/trikona)
+            d9_strong = False
+            strength_reason = ""
+
+            if planet_d9_own_sign or (planet_d9_sign in self.OWN_SIGNS.get(planet, [])):
+                d9_strong = True
+                strength_reason = "own sign in D9"
+            elif planet_d9_house and (self._in_kendra(planet_d9_house) or self._in_trikona(planet_d9_house)):
+                d9_strong = True
+                strength_reason = f"D9 house {planet_d9_house} (kendra/trikona)"
+
+            if d9_strong:
+                yogas.append({
+                    "name": f"Uttama Yoga ({planet})",
+                    "description": f"{planet} exalted in D1 with {strength_reason} - excellence with solid foundation, sustained success, reliable results",
+                    "strength": "Strong",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Divisional Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.19",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    def _detect_gopura_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Gopura Yoga (Ch.41.20): Planet exalted in D9, good in D1
+        Effect: Hidden strength that manifests, late blooming success
+
+        Formation:
+        - Planet exalted in D9 (Navamsa)
+        - Same planet in good condition in D1 (not debilitated, not in dusthana)
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet, exalt_sign_d1 in self.EXALTATION_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d1_house = planet_data.get("house", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+            planet_d9_exalted = planet_data.get("d9_exalted", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None and planet_d9_exalted is None:
+                continue
+
+            # Check D9 exaltation
+            d9_exalted = False
+            if planet_d9_exalted is not None:
+                d9_exalted = planet_d9_exalted
+            elif planet_d9_sign is not None:
+                d9_exalted = (planet_d9_sign == exalt_sign_d1)
+
+            if not d9_exalted:
+                continue
+
+            # Check D1 condition (good = not debilitated, not in dusthana 6/8/12)
+            d1_debilitated = (planet_d1_sign == self.DEBILITATION_SIGNS.get(planet, 0))
+            d1_in_dusthana = planet_d1_house in [6, 8, 12]
+
+            d1_good = not d1_debilitated and not d1_in_dusthana
+
+            if d1_good:
+                yogas.append({
+                    "name": f"Gopura Yoga ({planet})",
+                    "description": f"{planet} exalted in D9 with good placement in D1 - hidden strength that manifests over time, late blooming success, gateway (gopura) to achievement",
+                    "strength": "Medium",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Divisional Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.20",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    def _detect_simhasana_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Siṁhāsana Yoga (Ch.41.21): Planet in own sign in both D1 and D9
+        Effect: Throne-like stability, consistent authority, reliable success
+
+        Formation:
+        - Any planet in its own sign in both Rashi (D1) and Navamsa (D9)
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet, own_signs_list in self.OWN_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+            planet_d9_own_sign = planet_data.get("d9_own_sign", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None and planet_d9_own_sign is None:
+                continue
+
+            # Check D1 own sign
+            d1_own_sign = (planet_d1_sign in own_signs_list)
+
+            # Check D9 own sign
+            d9_own_sign = False
+            if planet_d9_own_sign is not None:
+                d9_own_sign = planet_d9_own_sign
+            elif planet_d9_sign is not None:
+                d9_own_sign = (planet_d9_sign in own_signs_list)
+
+            if d1_own_sign and d9_own_sign:
+                yogas.append({
+                    "name": f"Siṁhāsana Yoga ({planet})",
+                    "description": f"{planet} in own sign in both D1 and D9 - throne-like (simhasana) stability, consistent authority, reliable success, mastery over significations",
+                    "strength": "Strong",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Divisional Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41.21",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    def _detect_parvata_divisional_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Parvata Yoga - Divisional (Ch.41 variation): Planet exalted D1, own sign D9
+        Effect: Mountain-like strength, stable achievements
+
+        Formation:
+        - Planet exalted in D1
+        - Same planet in own sign in D9
+
+        Note: Requires D9 data. If not available, this yoga will be skipped.
+        """
+        yogas = []
+
+        for planet, exalt_sign in self.EXALTATION_SIGNS.items():
+            planet_data = planets.get(planet, {})
+            planet_d1_sign = planet_data.get("sign_num", 0)
+            planet_d9_sign = planet_data.get("d9_sign", None)
+            planet_d9_own_sign = planet_data.get("d9_own_sign", None)
+
+            # Skip if D9 data not available
+            if planet_d9_sign is None and planet_d9_own_sign is None:
+                continue
+
+            # Check D1 exaltation
+            d1_exalted = (planet_d1_sign == exalt_sign)
+
+            if not d1_exalted:
+                continue
+
+            # Check D9 own sign
+            d9_own_sign = False
+            if planet_d9_own_sign is not None:
+                d9_own_sign = planet_d9_own_sign
+            elif planet_d9_sign is not None:
+                d9_own_sign = (planet_d9_sign in self.OWN_SIGNS.get(planet, []))
+
+            if d9_own_sign:
+                yogas.append({
+                    "name": f"Parvata Yoga - Divisional ({planet})",
+                    "description": f"{planet} exalted in D1, own sign in D9 - mountain-like (parvata) strength, stable achievements, enduring success",
+                    "strength": "Strong",
+                    "category": "Divisional Amplifier",
+                    "bphs_category": "Divisional Yogas",
+                    "bphs_section": "D) Divisional Amplifiers (Ch.41)",
+                    "bphs_ref": "Ch.41 variation",
+                    "yoga_forming_planets": [planet]
+                })
+
+        return yogas
+
+    # Note: Additional divisional amplifiers (Devaloka, Brahmaloka, Iravatamsa)
+    # require more complex D9 analysis and are skipped for now.
+    # They can be added once comprehensive D9 integration is complete.
 
     def enrich_yogas(self, yogas: List[Dict]) -> List[Dict]:
         """Deduplicate and enrich all yogas with classification metadata"""

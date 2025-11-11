@@ -35,6 +35,10 @@ interface Yoga {
   planets_involved?: string[]
   houses_involved?: number[]
   benefic_nature?: string
+  // NEW BPHS FIELDS:
+  bphs_category?: string  // "Major Positive Yogas" | "Standard Yogas" | "Major Challenges" | "Minor Yogas & Subtle Influences" | "Non-BPHS (Practical)"
+  bphs_section?: string   // e.g. "E) Pañcha-Mahāpuruṣa (Ch.75)"
+  bphs_ref?: string       // e.g. "Ch.75.1-2"
 }
 
 // Yoga category icons and colors
@@ -69,6 +73,73 @@ const STRENGTH_CONFIG: Record<string, { color: string; badge: string }> = {
   'Weak': { color: 'border-l-4 border-l-gray-400', badge: 'bg-gray-100 text-gray-700' },
 }
 
+// BPHS Badge Component
+const BphsBadge = ({ yoga }: { yoga: Yoga }) => {
+  if (!yoga.bphs_category) return null
+
+  const isClassical = yoga.bphs_category !== 'Non-BPHS (Practical)'
+
+  const badgeConfig: Record<string, { color: string; icon: string }> = {
+    'Major Positive Yogas': { color: 'bg-emerald-100 text-emerald-800 border-emerald-300', icon: '⭐' },
+    'Standard Yogas': { color: 'bg-blue-100 text-blue-800 border-blue-300', icon: '📖' },
+    'Major Challenges': { color: 'bg-red-100 text-red-800 border-red-300', icon: '⚠️' },
+    'Minor Yogas & Subtle Influences': { color: 'bg-purple-100 text-purple-800 border-purple-300', icon: '✨' },
+    'Non-BPHS (Practical)': { color: 'bg-gray-100 text-gray-800 border-gray-300', icon: '🔧' }
+  }
+
+  const config = badgeConfig[yoga.bphs_category] || badgeConfig['Non-BPHS (Practical)']
+
+  return (
+    <div className="flex items-center space-x-2 mt-2">
+      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${config.color}`}>
+        <span className="mr-1">{config.icon}</span>
+        {yoga.bphs_category}
+      </span>
+      {isClassical && yoga.bphs_ref && (
+        <span className="text-xs text-gray-600 italic">
+          {yoga.bphs_ref}
+        </span>
+      )}
+    </div>
+  )
+}
+
+// BPHS Info Tooltip Component
+const BphsInfoTooltip = ({ yoga }: { yoga: Yoga }) => {
+  if (!yoga.bphs_section) return null
+
+  const isClassical = yoga.bphs_category !== 'Non-BPHS (Practical)'
+
+  return (
+    <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+      <div className="flex items-start space-x-2">
+        <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+        <div>
+          <p className="font-semibold text-blue-900">BPHS Classification</p>
+          <p className="text-blue-800 mt-1">
+            <strong>Section:</strong> {yoga.bphs_section}
+          </p>
+          {yoga.bphs_ref && (
+            <p className="text-blue-800 mt-1">
+              <strong>Reference:</strong> {yoga.bphs_ref}
+            </p>
+          )}
+          {isClassical && (
+            <p className="text-blue-700 mt-2 text-xs">
+              This is a classical yoga from the Brihat Parashara Hora Shastra (BPHS), the foundational text of Vedic astrology.
+            </p>
+          )}
+          {!isClassical && (
+            <p className="text-blue-700 mt-2 text-xs">
+              This is a practical yoga not explicitly mentioned in BPHS but derived from traditional principles for modern analysis.
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function YogasPage() {
   const router = useRouter()
   const [profiles, setProfiles] = useState<Profile[]>([])
@@ -85,6 +156,8 @@ export default function YogasPage() {
   const [chartQuality, setChartQuality] = useState('')
   const [filterCategory, setFilterCategory] = useState('all')
   const [filterStrength, setFilterStrength] = useState('all')
+  const [filterBphsCategory, setFilterBphsCategory] = useState('all')
+  const [showClassicalOnly, setShowClassicalOnly] = useState(false)
   const [expandedYogas, setExpandedYogas] = useState<Set<number>>(new Set())
   const [selectedYoga, setSelectedYoga] = useState<Yoga | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
@@ -177,6 +250,16 @@ export default function YogasPage() {
 
     if (filterStrength !== 'all') {
       filtered = filtered.filter(y => y.strength === filterStrength)
+    }
+
+    // NEW: BPHS category filter
+    if (filterBphsCategory !== 'all') {
+      filtered = filtered.filter(y => y.bphs_category === filterBphsCategory)
+    }
+
+    // NEW: Classical only toggle
+    if (showClassicalOnly) {
+      filtered = filtered.filter(y => y.bphs_category !== 'Non-BPHS (Practical)')
     }
 
     return filtered
@@ -406,7 +489,7 @@ export default function YogasPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Category</Label>
                   <Select value={filterCategory} onValueChange={setFilterCategory}>
@@ -437,11 +520,111 @@ export default function YogasPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="bphs-category">BPHS Category</Label>
+                  <Select value={filterBphsCategory} onValueChange={setFilterBphsCategory}>
+                    <SelectTrigger id="bphs-category">
+                      <SelectValue placeholder="All BPHS Categories" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Categories</SelectItem>
+                      <SelectItem value="Major Positive Yogas">⭐ Major Positive Yogas (Classical)</SelectItem>
+                      <SelectItem value="Standard Yogas">📖 Standard Yogas (Classical)</SelectItem>
+                      <SelectItem value="Major Challenges">⚠️ Major Challenges (Classical)</SelectItem>
+                      <SelectItem value="Minor Yogas & Subtle Influences">✨ Minor Yogas & Subtle Influences (Classical)</SelectItem>
+                      <SelectItem value="Non-BPHS (Practical)">🔧 Practical/Modern Yogas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="classical-only"
+                  checked={showClassicalOnly}
+                  onChange={(e) => setShowClassicalOnly(e.target.checked)}
+                  className="rounded border-gray-300 h-4 w-4 text-jio-600 focus:ring-jio-500"
+                />
+                <Label htmlFor="classical-only" className="text-sm font-medium cursor-pointer">
+                  Show Classical BPHS Yogas Only
+                </Label>
               </div>
 
               <div className="text-sm text-gray-600">
                 Showing {filteredYogas.length} of {totalYogas} yogas
               </div>
+            </CardContent>
+          </Card>
+
+          {/* BPHS Statistics */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+                BPHS Classification Statistics
+              </CardTitle>
+              <CardDescription>
+                Distribution of yogas based on classical BPHS categorization
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const bphsStats = yogas.reduce((acc, yoga) => {
+                  const cat = yoga.bphs_category || 'Unknown'
+                  acc[cat] = (acc[cat] || 0) + 1
+                  return acc
+                }, {} as Record<string, number>)
+
+                const classicalCount = Object.entries(bphsStats)
+                  .filter(([cat]) => cat !== 'Non-BPHS (Practical)' && cat !== 'Unknown')
+                  .reduce((sum, [, count]) => sum + count, 0)
+
+                return (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-emerald-900">Classical BPHS Yogas</span>
+                          <span className="text-2xl font-bold text-emerald-600">{classicalCount}</span>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium text-gray-900">Practical/Modern Yogas</span>
+                          <span className="text-2xl font-bold text-gray-600">{bphsStats['Non-BPHS (Practical)'] || 0}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t space-y-2">
+                      <p className="text-sm font-semibold text-gray-700 mb-3">Classical BPHS Breakdown:</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        {Object.entries(bphsStats)
+                          .filter(([cat]) => cat !== 'Non-BPHS (Practical)' && cat !== 'Unknown')
+                          .map(([cat, count]) => {
+                            const icons: Record<string, string> = {
+                              'Major Positive Yogas': '⭐',
+                              'Standard Yogas': '📖',
+                              'Major Challenges': '⚠️',
+                              'Minor Yogas & Subtle Influences': '✨'
+                            }
+                            return (
+                              <div key={cat} className="flex justify-between items-center p-2 bg-white rounded border border-gray-200">
+                                <span className="text-sm text-gray-700">
+                                  <span className="mr-1">{icons[cat]}</span>
+                                  {cat}
+                                </span>
+                                <span className="font-semibold text-gray-900">{count}</span>
+                              </div>
+                            )
+                          })}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })()}
             </CardContent>
           </Card>
 
@@ -517,9 +700,16 @@ export default function YogasPage() {
                               </span>
                             </div>
                             <p className="text-sm text-gray-600 line-clamp-2">{yoga.description}</p>
+
+                            {/* BPHS Badge */}
+                            <BphsBadge yoga={yoga} />
                           </div>
                         </div>
                       </CardHeader>
+                      <CardContent>
+                        {/* BPHS Info (only show when expanded or on click) */}
+                        <BphsInfoTooltip yoga={yoga} />
+                      </CardContent>
                     </Card>
                   )
                 })}
