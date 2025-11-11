@@ -321,6 +321,9 @@ class ExtendedYogaService:
         # 24: Budhaditya Yoga (already exists but enhanced)
         yogas.extend(self._detect_budhaditya_yoga(planets))
 
+        # 24a: Ganesha Yoga (Jupiter-Ketu or Venus-Ketu conjunction - positive spiritual intelligence)
+        yogas.extend(self._detect_ganesha_yoga(planets))
+
         # 25: Nipuna Yoga
         yogas.extend(self._detect_nipuna_yoga(planets))
 
@@ -1224,6 +1227,71 @@ class ExtendedYogaService:
                     "strength": strength,
                     "category": "Intelligence"
                 })
+
+        return yogas
+
+    def _detect_ganesha_yoga(self, planets: Dict) -> List[Dict]:
+        """
+        Ganesha Yoga: Jupiter-Ketu or Venus-Ketu conjunction
+
+        Named after Lord Ganesha (remover of obstacles), this yoga brings:
+        - Intelligence, wisdom, and deep understanding
+        - Ability to overcome obstacles through insight
+        - Spiritual inclination and philosophical nature
+        - Research abilities and mystical knowledge
+        - Unconventional thinking and innovative problem-solving
+
+        NOTE: This is NOT a poverty yoga (Daridra Yoga). The benefic-Ketu
+        conjunction creates spiritual intelligence, not material deprivation.
+
+        Reference: Classical texts describe Jupiter-Ketu as conferring wisdom
+        and Venus-Ketu as artistic/spiritual talents.
+        """
+        yogas = []
+
+        ketu_house = planets.get("Ketu", {}).get("house", 0)
+        if not ketu_house:
+            return yogas
+
+        jupiter_house = planets.get("Jupiter", {}).get("house", 0)
+        venus_house = planets.get("Venus", {}).get("house", 0)
+
+        # Jupiter-Ketu Conjunction (Primary Ganesha Yoga)
+        if jupiter_house == ketu_house and jupiter_house > 0:
+            # Strength varies by house placement
+            if jupiter_house in [1, 4, 5, 9, 10]:  # Kendra/Trikona
+                strength = "Strong"
+                house_note = " (in auspicious house)"
+            elif jupiter_house in [2, 7, 11]:  # Wealth/partnership houses
+                strength = "Medium"
+                house_note = " (in material house)"
+            else:
+                strength = "Medium"
+                house_note = ""
+
+            yogas.append({
+                "name": "Ganesha Yoga - Jupiter-Ketu",
+                "description": f"Jupiter conjunct Ketu{house_note} - profound wisdom, spiritual intelligence, obstacle removal through insight, research abilities, philosophical nature, mystical knowledge",
+                "strength": strength,
+                "category": "Intelligence & Spirituality"
+            })
+
+        # Venus-Ketu Conjunction (Artistic/Creative Ganesha Yoga)
+        if venus_house == ketu_house and venus_house > 0:
+            # Strength varies by house placement
+            if venus_house in [1, 2, 4, 5, 7, 10]:  # Houses of creativity, relationships, career
+                strength = "Medium"
+                house_note = " (in creative/social house)"
+            else:
+                strength = "Weak"
+                house_note = ""
+
+            yogas.append({
+                "name": "Ganesha Yoga - Venus-Ketu",
+                "description": f"Venus conjunct Ketu{house_note} - spiritual artistic talents, unconventional beauty appreciation, detached relationships leading to deeper understanding, mystical creativity",
+                "strength": strength,
+                "category": "Creativity & Spirituality"
+            })
 
         return yogas
 
@@ -2605,17 +2673,24 @@ class ExtendedYogaService:
 
         # ====== PATTERN 2: Dusthana Placements of Lagna Lord (IDs 264-266) ======
 
-        # ID 264: 1L with Ketu or in 8th house
+        # ID 264: 1L with Ketu (CORRECTED - exclude Jupiter/Venus as they form Ganesha Yoga)
+        # NOTE: Jupiter-Ketu or Venus-Ketu conjunctions form GANESHA YOGA (positive yoga)
+        # indicating spiritual wisdom, intelligence, and obstacle removal - NOT poverty
         ketu_house = planets.get("Ketu", {}).get("house", 0)
 
         if lord_1_house == ketu_house and ketu_house > 0:
-            yogas.append({
-                "name": "Daridra Yoga - Lagna Lord with Ketu",
-                "description": f"{lord_1} conjunct Ketu - loss of direction, spiritual detachment from wealth, sudden unexpected losses",
-                "strength": "Medium",
-                "category": "Penury Yoga - Affliction"
-            })
+            # CRITICAL: Jupiter-Ketu = Ganesha Yoga (positive), NOT Daridra Yoga
+            # Only flag as Daridra if lagna lord is a natural malefic
+            if lord_1 in ["Mars", "Saturn"]:  # Only malefic lagna lords
+                yogas.append({
+                    "name": "Daridra Yoga - Malefic Lagna Lord with Ketu",
+                    "description": f"{lord_1} (malefic lagna lord) conjunct Ketu - amplified obstacles, loss of direction, material detachment causing difficulties",
+                    "strength": "Medium",
+                    "category": "Penury Yoga - Affliction"
+                })
+            # Note: Jupiter-Ketu or Venus-Ketu are NOT included as they form beneficial Ganesha Yoga
 
+        # ID 264b: 1L in 8th house
         if lord_1_house == 8:
             yogas.append({
                 "name": "Daridra Yoga - Lagna Lord in 8th",
