@@ -87,5 +87,6 @@ export {
   Flame,
   Sunrise,
   Sunset,
-  GitBranch as Timeline
+  GitBranch as Timeline,
+  Brain
 } from 'lucide-react'
