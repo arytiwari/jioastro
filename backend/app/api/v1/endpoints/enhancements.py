@@ -6,7 +6,7 @@ Remedies, Rectification, Transits, and Shadbala
 import logging
 from typing import List, Dict, Any, Optional
 from datetime import datetime, date, time, timedelta
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 
 logger = logging.getLogger(__name__)
 
@@ -765,7 +765,7 @@ async def analyze_yogas(
 @router.get("/yoga-timing/{profile_id}")
 async def get_yoga_timing(
     profile_id: str,
-    yoga_name: str,
+    yoga_name: str = Query(..., description="Name of the yoga to analyze"),
     current_user: dict = Depends(get_current_user)
 ):
     """
