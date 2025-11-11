@@ -176,7 +176,10 @@ export function YogaActivationTimeline({ yogas, profileId }: YogaActivationTimel
       <Card>
         <CardContent className="py-8 text-center">
           <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500">No activation timing data available for your yogas.</p>
+          <p className="text-gray-600 font-medium mb-2">Yoga Activation Timeline</p>
+          <p className="text-gray-500 text-sm">
+            Timeline data is available for charts that have been saved. Navigate to the Chart page to calculate and save your birth chart, then return here to view yoga activation periods.
+          </p>
         </CardContent>
       </Card>
     )
