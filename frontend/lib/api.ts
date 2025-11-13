@@ -27,10 +27,25 @@ class APIClient {
     // Get valid session before making request (will auto-refresh if needed)
     if (typeof window !== 'undefined') {
       try {
-        const { getValidSession } = await import('./supabase')
-        const session = await Promise.resolve(getValidSession())
-        if (session?.access_token) {
-          this.token = session.access_token
+        // Check for admin token first (for admin portal)
+        const adminToken = localStorage.getItem('admin_token')
+        if (adminToken) {
+          this.token = adminToken
+        } else {
+          // Fall back to Supabase session for regular users
+          const { getValidSession } = await import('./supabase')
+          const session = await Promise.resolve(getValidSession())
+          if (session?.access_token) {
+            this.token = session.access_token
+
+            // DEBUG: Log the token user_id being used for this request
+            try {
+              const payload = JSON.parse(atob(session.access_token.split('.')[1]))
+              console.log(`🔐 API Request to ${path} - Using token with user_id:`, payload.sub)
+            } catch (e) {
+              // Ignore decode errors
+            }
+          }
         }
       } catch (sessionError) {
         console.warn('Failed to get session:', sessionError)
@@ -78,9 +93,10 @@ class APIClient {
     if (response.status === 401) {
       // Only try to refresh if we had a token (meaning user was logged in)
       const hadToken = !!this.token
+      const isAdminToken = typeof window !== 'undefined' && !!localStorage.getItem('admin_token')
 
-      // Try to refresh token once
-      if (hadToken && typeof window !== 'undefined') {
+      // Try to refresh token once (only for regular Supabase tokens, not admin tokens)
+      if (hadToken && !isAdminToken && typeof window !== 'undefined') {
         try {
           const { refreshSession } = await import('./supabase')
           const refreshResult = await Promise.resolve(refreshSession())
@@ -118,7 +134,15 @@ class APIClient {
       if (hadToken) {
         this.clearToken()
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login?reason=session_expired'
+          // Clear admin token if it was an admin session
+          if (isAdminToken) {
+            localStorage.removeItem('admin_token')
+            localStorage.removeItem('admin_id')
+            localStorage.removeItem('admin_username')
+            window.location.href = '/admin/login?reason=session_expired'
+          } else {
+            window.location.href = '/auth/login?reason=session_expired'
+          }
         }
       }
     }
@@ -169,12 +193,23 @@ class APIClient {
     if (typeof window === 'undefined') return
 
     try {
-      const session = getSession()
+      // Always try to get a valid (potentially refreshed) session
+      const { getValidSession } = await import('./supabase')
+      const session = await getValidSession()
+
       if (session?.access_token) {
         this.token = session.access_token
         console.log('✅ Loaded Supabase JWT token')
+
+        // Decode token to log user_id for debugging
+        try {
+          const payload = JSON.parse(atob(session.access_token.split('.')[1]))
+          console.log('🔑 Token user_id:', payload.sub)
+        } catch (e) {
+          // Ignore decode errors
+        }
       } else {
-        console.log('⚠️ No Supabase session found')
+        console.log('⚠️ No valid Supabase session found')
       }
     } catch (error) {
       console.error('Failed to load Supabase token:', error)

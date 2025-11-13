@@ -547,7 +547,7 @@ class FengShuiService:
             analyses = await self.supabase.select(
                 "feng_shui_analyses",
                 filters={"user_id": user_id},
-                order_by="created_at DESC"
+                order="created_at.desc"
             )
 
             return {
@@ -568,7 +568,7 @@ class FengShuiService:
             recommendations = await self.supabase.select(
                 "feng_shui_recommendations",
                 filters={"analysis_id": analysis_id, "user_id": user_id},
-                order_by="priority DESC"
+                order="priority.desc"
             )
 
             # Group by category

@@ -38,7 +38,7 @@ async def create_feng_shui_analysis(
     Calculates Kua number and generates personalized recommendations
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         result = await service.create_analysis(
@@ -67,7 +67,7 @@ async def get_feng_shui_analyses(
     Get user's feng shui analyses
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         result = await service.get_user_analyses(user_id=user_id)
@@ -108,7 +108,7 @@ async def get_feng_shui_analysis(
     Get a specific feng shui analysis
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         analysis = await service.supabase.select(
@@ -139,7 +139,7 @@ async def update_feng_shui_analysis(
     Update space layout for an analysis
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         # Verify ownership
@@ -196,7 +196,7 @@ async def get_feng_shui_recommendations(
     Get recommendations for a feng shui analysis
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         result = await service.get_recommendations_for_analysis(
@@ -234,7 +234,7 @@ async def update_feng_shui_recommendation(
     Update recommendation implementation status
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         # Verify ownership
@@ -279,7 +279,7 @@ async def update_feng_shui_recommendation(
 
 @router.post("/calculate-kua", response_model=KuaCalculationResponse)
 async def calculate_kua_number(
-    profile_id: str,
+    profile_id: str = Query(..., description="Profile ID to calculate Kua number for"),
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -287,7 +287,7 @@ async def calculate_kua_number(
     Quick calculation endpoint
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         # Fetch profile
@@ -542,7 +542,7 @@ async def get_feng_shui_stats(
     Get user's feng shui statistics
     """
     try:
-        user_id = current_user["sub"]
+        user_id = current_user["user_id"]
         service = FengShuiService()
 
         # Get analyses
