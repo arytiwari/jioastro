@@ -356,7 +356,8 @@ class MemoryService:
     async def get_cached_reading(
         self,
         canonical_hash: str,
-        max_age_hours: int = 24
+        max_age_hours: int = 24,
+        reading_type: str = "comprehensive"  # Filter by reading type to avoid returning old concise readings
     ) -> Optional[Dict[str, Any]]:
         """
         Get cached reading session if available and fresh
@@ -364,6 +365,7 @@ class MemoryService:
         Args:
             canonical_hash: Hash of reading parameters
             max_age_hours: Maximum age of cache in hours
+            reading_type: Type of reading (comprehensive or specific)
 
         Returns:
             Cached reading or None
@@ -373,6 +375,7 @@ class MemoryService:
         result = self.client.from_("reading_sessions")\
             .select("*")\
             .eq("canonical_hash", canonical_hash)\
+            .eq("reading_type", reading_type)\
             .gte("created_at", cutoff_time.isoformat())\
             .order("created_at", desc=True)\
             .limit(1)\
@@ -398,7 +401,9 @@ class MemoryService:
         verification: Dict[str, Any],
         orchestration_metadata: Dict[str, Any],
         query: Optional[str] = None,
-        domains: Optional[List[str]] = None
+        domains: Optional[List[str]] = None,
+        reading_type: str = "comprehensive",
+        comprehensive_reading_id: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Store reading session result
@@ -415,6 +420,8 @@ class MemoryService:
             orchestration_metadata: Orchestration details
             query: User's query
             domains: Domains analyzed
+            reading_type: Type of reading ("comprehensive" or "specific")
+            comprehensive_reading_id: ID of comprehensive reading (for specific queries)
 
         Returns:
             Created reading session
@@ -432,6 +439,8 @@ class MemoryService:
             "orchestration_metadata": orchestration_metadata,
             "query": query,
             "domains": domains,
+            "reading_type": reading_type,  # NEW: comprehensive or specific
+            "comprehensive_reading_id": comprehensive_reading_id,  # NEW: link to comprehensive reading
             "total_tokens_used": orchestration_metadata.get("tokens_used", 0) if orchestration_metadata else 0,
             "cache_hit": False,
         }

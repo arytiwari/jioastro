@@ -23,6 +23,7 @@ from app.schemas.conversation import (
 )
 from app.core.security import get_current_user
 from app.services.mvp_bridge import mvp_bridge
+from app.services.query_matching_service import query_matching_service
 
 router = APIRouter()
 
@@ -339,7 +340,8 @@ async def generate_ai_reading(
         if not request.force_regenerate:
             cached_reading = await memory_service.get_cached_reading(
                 canonical_hash=canonical_hash,
-                max_age_hours=24
+                max_age_hours=24,
+                reading_type="comprehensive"  # Only return comprehensive readings, not old concise ones
             )
             if cached_reading:
                 print(f"✨ Cache hit! Returning cached reading: {cached_reading.get('id')}")
@@ -437,7 +439,8 @@ async def generate_ai_reading(
             verification=result.get('verification', {}),
             orchestration_metadata=result.get('orchestration_metadata', {}),
             query=request.query,
-            domains=request.domains
+            domains=request.domains,
+            reading_type="comprehensive"  # Mark as comprehensive reading (3500-4000 words)
         )
 
         return {
@@ -566,6 +569,31 @@ async def ask_question(
         except Exception as e:
             print(f"⚠️  Could not fetch numerology data: {str(e)}")
 
+        # Check for similar past queries first (smart caching)
+        similar_query = await query_matching_service.find_similar_query(
+            query=request.question,
+            profile_id=str(request.profile_id),
+            similarity_threshold=0.3
+        )
+
+        if similar_query:
+            print(f"✅ Found similar query - returning cached answer")
+            return {
+                "answer": similar_query['interpretation'],
+                "question": request.question,
+                "similar_to": similar_query['query'],
+                "similarity_score": similar_query['similarity_score'],
+                "cached_at": similar_query['created_at'],
+                "cache_hit": True,
+                "success": True
+            }
+
+        # Check for comprehensive reading to extract preamble
+        comprehensive_reading = await query_matching_service.get_comprehensive_reading(
+            profile_id=str(request.profile_id)
+        )
+        comprehensive_reading_id = comprehensive_reading['session_id'] if comprehensive_reading else None
+
         # Generate answer using orchestrator
         # Don't include predictions for questions, just focused analysis
         print(f"❓ Answering question: {request.question[:50]}...")
@@ -576,18 +604,40 @@ async def ask_question(
             include_predictions=False,  # No time predictions for questions
             include_transits=False,
             prediction_window_months=0,
-            numerology_data=numerology_data  # Pass numerology data
+            numerology_data=numerology_data,  # Pass numerology data
+            reading_mode="concise"  # Use concise mode for specific queries (400-500 words)
+        )
+
+        # Store specific query reading
+        from app.services.memory_service import memory_service
+
+        reading_session = await memory_service.store_reading_session(
+            user_id=user_id,
+            profile_id=str(request.profile_id),
+            canonical_hash="",  # Empty for specific queries (no caching by canonical hash)
+            interpretation=result['interpretation'],
+            domain_analyses=result.get('domain_analyses', {}),
+            predictions=[],  # No predictions for specific queries
+            rules_used=result.get('rules_used', []),
+            verification=result.get('verification', {}),
+            orchestration_metadata=result.get('orchestration_metadata', {}),
+            query=request.question,
+            domains=result.get('orchestration_metadata', {}).get('domains_analyzed', []),
+            reading_type="specific",  # Mark as specific query (400-500 words)
+            comprehensive_reading_id=comprehensive_reading_id  # Link to comprehensive reading
         )
 
         return {
             "answer": result['interpretation'],
             "question": request.question,
+            "session_id": reading_session.get('id'),
             "rules_used": result.get('rules_used', []),
             "total_rules_retrieved": result.get('total_rules_retrieved', 0),
             "domains_analyzed": result.get('orchestration_metadata', {}).get('domains_analyzed', []),
             "verification": result.get('verification', {}),
             "confidence": result.get('confidence', 'medium'),
             "tokens_used": result.get('orchestration_metadata', {}).get('tokens_used', 0),
+            "cache_hit": False,
             "success": True
         }
 

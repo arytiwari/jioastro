@@ -13,6 +13,7 @@ from enum import Enum
 from app.core.config import settings
 from app.services.rule_retrieval import rule_retrieval_service
 from app.services.astrology import astrology_service
+from app.services.ai_orchestrator_concise_prompt import get_concise_prompts
 
 
 class OrchestratorRole(str, Enum):
@@ -82,7 +83,8 @@ class AIOrchestrator:
         numerology_data: Optional[Dict[str, Any]] = None,
         yoga_data: Optional[Dict[str, Any]] = None,
         divisional_charts_data: Optional[Dict[str, Any]] = None,
-        vimshopaka_bala_data: Optional[Dict[str, Any]] = None
+        vimshopaka_bala_data: Optional[Dict[str, Any]] = None,
+        reading_mode: str = "detailed"  # NEW: "concise" (400-500 words) or "detailed" (3500-4000 words)
     ) -> Dict[str, Any]:
         """
         Generate comprehensive reading using multi-role orchestration
@@ -98,11 +100,12 @@ class AIOrchestrator:
             yoga_data: Optional yoga detection data (40+ classical Vedic yogas)
             divisional_charts_data: Optional divisional charts (Shodashvarga) data
             vimshopaka_bala_data: Optional Vimshopaka Bala (planetary strength) data
+            reading_mode: "concise" (400-600 words, focused) or "detailed" (2500-4000 words, comprehensive)
 
         Returns:
             Dictionary with comprehensive reading, predictions, citations, and metadata
         """
-        print("🎭 Starting Multi-Role Orchestration...")
+        print(f"🎭 Starting Multi-Role Orchestration (Mode: {reading_mode})...")
         self.tokens_used = 0
 
         if numerology_data:
@@ -158,7 +161,8 @@ class AIOrchestrator:
             numerology_data=numerology_data,
             yoga_data=yoga_data,
             divisional_charts_data=divisional_charts_data,
-            vimshopaka_bala_data=vimshopaka_bala_data
+            vimshopaka_bala_data=vimshopaka_bala_data,
+            reading_mode=reading_mode  # NEW: Pass reading mode to synthesizer
         )
 
         print(f"✍️  Synthesizer: Generated {len(synthesis_result['interpretation'])} character interpretation")
@@ -519,7 +523,8 @@ Return JSON:
         numerology_data: Optional[Dict[str, Any]] = None,
         yoga_data: Optional[Dict[str, Any]] = None,
         divisional_charts_data: Optional[Dict[str, Any]] = None,
-        vimshopaka_bala_data: Optional[Dict[str, Any]] = None
+        vimshopaka_bala_data: Optional[Dict[str, Any]] = None,
+        reading_mode: str = "concise"  # NEW: Pass reading mode
     ) -> Dict[str, Any]:
         """
         Synthesizer role: Combine all information into comprehensive interpretation
@@ -567,12 +572,51 @@ Return JSON:
                 predictions_context += f"\n{pred['domain'].upper()}: {pred.get('prediction_summary', '')}"
                 predictions_context += f"\nConfidence: {pred.get('confidence_score', 0)}%"
 
-        # Create synthesis prompt - COMPREHENSIVE VERSION
-        system_prompt = """You are an expert Vedic astrology and numerology synthesizer creating COMPREHENSIVE, DETAILED life analysis reports.
+        # Choose prompts based on reading_mode
+        if reading_mode == "concise":
+            print("📝 Using CONCISE mode for specific queries (400-500 words)")
+
+            # Build context sections
+            context_sections = [chart_context]
+
+            if numerology_context:
+                context_sections.append(f"\n--- NUMEROLOGY PROFILE ---\n{numerology_context}\n--- END OF NUMEROLOGY ---")
+
+            if yoga_context:
+                context_sections.append(f"\n--- CLASSICAL VEDIC YOGAS ---\n{yoga_context}\n--- END OF YOGAS ---")
+
+            if divisional_charts_context:
+                context_sections.append(f"\n--- DIVISIONAL CHARTS (SHODASHVARGA) ---\n{divisional_charts_context}\n--- END OF DIVISIONAL CHARTS ---")
+
+            full_context = "\n".join(context_sections)
+
+            # Use concise prompts from separate module (for specific user questions)
+            system_prompt, user_prompt = get_concise_prompts(
+                full_context=full_context,
+                rules_context=rules_context,
+                predictions_context=predictions_context,
+                query=query or "Provide a focused answer",
+                domains=coordination['domains_to_analyze'],
+                numerology_data=numerology_data,
+                yoga_data=yoga_data,
+                divisional_charts_data=divisional_charts_data,
+                vimshopaka_bala_data=vimshopaka_bala_data,
+                numerology_context=numerology_context,
+                yoga_context=yoga_context,
+                divisional_charts_context=divisional_charts_context
+            )
+
+            max_tokens = 3000  # For 400-500 word specific answers
+
+        else:  # detailed mode
+            print("📝 Using DETAILED mode for comprehensive readings (3500-4000 words)")
+
+            # Create synthesis prompt - COMPREHENSIVE VERSION
+            system_prompt = """You are an expert Vedic astrology and numerology synthesizer creating COMPREHENSIVE, DETAILED life analysis reports.
 Your role is to combine chart data, numerology profiles, scriptural rules, and predictions into an in-depth, structured interpretation covering ALL life aspects.
 
 CRITICAL REQUIREMENTS:
-1. Generate COMPREHENSIVE, DETAILED analysis (2500-4000 words minimum)
+1. Generate COMPREHENSIVE, DETAILED analysis (3500-4000 words minimum)
 2. Cover ALL life domains thoroughly, not superficially
 3. CITE rules using [RULE-ID] format extensively
 4. Include specific planetary positions, degrees, houses, nakshatras, yogas, doshas
@@ -803,23 +847,23 @@ Q4: Review and planning
 
 ---
 
-IMPORTANT: This should be a COMPREHENSIVE, DETAILED report of 2500-4000 words. Do NOT summarize. Provide in-depth analysis for EACH section."""
+IMPORTANT: This should be a COMPREHENSIVE, DETAILED report of 3500-4000 words. Do NOT summarize. Provide in-depth analysis for EACH section."""
 
-        # Build context sections
-        context_sections = [chart_context]
+            # Build context sections
+            context_sections = [chart_context]
 
-        if numerology_context:
-            context_sections.append(f"\n--- NUMEROLOGY PROFILE ---\n{numerology_context}\n--- END OF NUMEROLOGY ---")
+            if numerology_context:
+                context_sections.append(f"\n--- NUMEROLOGY PROFILE ---\n{numerology_context}\n--- END OF NUMEROLOGY ---")
 
-        if yoga_context:
-            context_sections.append(f"\n--- CLASSICAL VEDIC YOGAS ---\n{yoga_context}\n--- END OF YOGAS ---")
+            if yoga_context:
+                context_sections.append(f"\n--- CLASSICAL VEDIC YOGAS ---\n{yoga_context}\n--- END OF YOGAS ---")
 
-        if divisional_charts_context:
-            context_sections.append(f"\n--- DIVISIONAL CHARTS (SHODASHVARGA) ---\n{divisional_charts_context}\n--- END OF DIVISIONAL CHARTS ---")
+            if divisional_charts_context:
+                context_sections.append(f"\n--- DIVISIONAL CHARTS (SHODASHVARGA) ---\n{divisional_charts_context}\n--- END OF DIVISIONAL CHARTS ---")
 
-        full_context = "\n".join(context_sections)
+            full_context = "\n".join(context_sections)
 
-        user_prompt = f"""
+            user_prompt = f"""
 {full_context}
 
 {rules_context}
@@ -829,7 +873,7 @@ IMPORTANT: This should be a COMPREHENSIVE, DETAILED report of 2500-4000 words. D
 Query/Focus: {query or "Provide a comprehensive life analysis covering all domains"}
 Domains to Analyze: {', '.join(coordination['domains_to_analyze'])}
 
-CREATE A COMPREHENSIVE, DETAILED LIFE ANALYSIS REPORT (2500-4000 WORDS MINIMUM) following the structure provided in the system prompt.
+CREATE A COMPREHENSIVE, DETAILED LIFE ANALYSIS REPORT (3500-4000 WORDS MINIMUM) following the structure provided in the system prompt.
 
 MANDATORY REQUIREMENTS:
 1. Follow the comprehensive section structure exactly
@@ -885,8 +929,10 @@ Create comprehensive remedies covering:
 6. Direction guidance (sleep, work, meditation)
 7. Ayurvedic recommendations (prakriti, diet do's/don'ts, yoga/pranayama)
 
-This is a FULL COMPREHENSIVE REPORT. Aim for 2500-4000 words. Do NOT summarize or skip sections.
+This is a FULL COMPREHENSIVE REPORT. Aim for 3500-4000 words. Do NOT summarize or skip sections.
 """
+
+            max_tokens = 25000  # For 3500-4000 word comprehensive reports
 
         try:
             response = self.client.chat.completions.create(
@@ -896,7 +942,7 @@ This is a FULL COMPREHENSIVE REPORT. Aim for 2500-4000 words. Do NOT summarize o
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.7,
-                max_tokens=self.token_budget['synthesizer']
+                max_tokens=max_tokens  # Dynamic: 3000 for concise, 25000 for detailed
             )
 
             self.tokens_used += response.usage.total_tokens

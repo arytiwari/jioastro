@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Sparkles, Briefcase, Heart, Activity, TrendingUp, BookOpen, GraduationCap, Calendar } from '@/components/icons'
 
 const DOMAINS = [
@@ -273,21 +272,30 @@ export default function ComprehensiveReadingsPage() {
 
           {/* Profile Selection */}
           <div className="space-y-2">
-            <Label>Birth Profile</Label>
-            <Select value={selectedProfile} onValueChange={setSelectedProfile}>
-              <SelectTrigger id="profile">
-                <SelectValue>
-                  {profiles.find(p => p.id === selectedProfile)?.name || 'Select a profile'}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {profiles.map((profile) => (
-                  <SelectItem key={profile.id} value={profile.id}>
-                    {profile.name} {profile.is_primary && '(Primary)'}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label htmlFor="profile">Birth Profile</Label>
+            <select
+              id="profile"
+              value={selectedProfile}
+              onChange={(e) => setSelectedProfile(e.target.value)}
+              className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <option value="">Select a profile</option>
+              {profiles.map((profile) => {
+                // Check if name looks like a UUID
+                const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+                const name = profile.name?.trim() || ''
+                const isUUID = uuidPattern.test(name)
+
+                // Use 'Unnamed Profile' if empty or if it's a UUID
+                const displayName = (name && !isUUID) ? name : 'Unnamed Profile'
+
+                return (
+                  <option key={profile.id} value={profile.id}>
+                    {displayName} {profile.is_primary && '(Primary)'}
+                  </option>
+                )
+              })}
+            </select>
           </div>
 
           {/* Domain Selection */}
